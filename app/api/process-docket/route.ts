@@ -4,10 +4,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// Create Supabase client only when needed
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase environment variables')
+  }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+  return createClient(supabaseUrl, supabaseServiceKey)
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +32,7 @@ export async function POST(request: NextRequest) {
     console.log(`API: Processing docket ${fileName} for client ${clientId}`)
 
     // Call the Supabase Edge Function
+    const supabase = getSupabaseAdmin()
     const { data, error } = await supabase.functions.invoke('process-delivery-docket', {
       body: {
         bucketId,
