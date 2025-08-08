@@ -1,1 +1,1 @@
-# TempβJiGR
+# hospitality-compliance
