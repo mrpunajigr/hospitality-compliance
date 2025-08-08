@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitality Compliance - Local Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 60px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+        }
+        h1 {
+            margin: 0 0 20px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 10px;
+        }
+        .test-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .test-btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Hospitality Compliance</h1>
+        <p>Project Test Page</p>
+        
+        <div class="status">
+            <h3>✅ Local File Access Working</h3>
+            <p>This confirms your browser can display the project files</p>
+        </div>
+        
+        <button class="test-btn" onclick="testServer()">Test Server Connection</button>
+        
+        <div id="server-test" style="margin-top: 20px;"></div>
+        
+        <div style="margin-top: 30px; font-size: 0.9em; opacity: 0.7;">
+            <p>If this page loads, your browser is working fine.</p>
+            <p>Server issue might be network-related.</p>
+        </div>
+    </div>
+    
+    <script>
+        async function testServer() {
+            const testDiv = document.getElementById('server-test');
+            testDiv.innerHTML = '<p>Testing server connections...</p>';
+            
+            const ports = [3000, 3001, 8000, 8080, 9000];
+            let results = '';
+            
+            for (const port of ports) {
+                try {
+                    const response = await fetch(`http://localhost:${port}`);
+                    if (response.ok) {
+                        results += `<p style="color: #10b981;">✅ Port ${port}: Server responding</p>`;
+                    } else {
+                        results += `<p style="color: #f59e0b;">⚠️ Port ${port}: Server error (${response.status})</p>`;
+                    }
+                } catch (error) {
+                    results += `<p style="color: #ef4444;">❌ Port ${port}: No server</p>`;
+                }
+            }
+            
+            testDiv.innerHTML = results || '<p>No servers found on common ports</p>';
+        }
+    </script>
+</body>
+</html>
