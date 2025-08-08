@@ -210,7 +210,7 @@ export default function SignInPage() {
             </Link>
             
             <p className="text-white/80 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link 
                 href="/create-account" 
                 className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"

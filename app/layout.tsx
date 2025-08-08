@@ -44,7 +44,7 @@ export default function RootLayout({
         />
         
         {/* Core-js polyfill for Safari 12 */}
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6,es2017,es2018,es2019&flags=gated"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6,es2017,es2018,es2019&flags=gated" async></script>
       </head>
       <body
         className="font-source antialiased"
