@@ -1,6 +1,6 @@
 {
   "name": "hospitality-compliance-saas",
-  "version": "1.8.12",
+  "version": "1.8.13",
   "private": true,
   "browserslist": [
     "iOS >= 12",

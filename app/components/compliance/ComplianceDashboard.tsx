@@ -331,7 +331,7 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   const [previewUrl, setPreviewUrl] = useState<string>('')
   
   // Deployment verification - this will show if new component code is running
-  console.log('📋 Dashboard component loaded - Enhanced debugging - v2025.1.12')
+  console.log('📋 Dashboard component loaded - Production ready - v1.8.13')
   
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'
@@ -347,47 +347,14 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   
   // Generate signed URLs asynchronously
   useEffect(() => {
-    console.log('🔍 Dashboard useEffect triggered for record:', record.id, 'image_path:', record.image_path)
-    console.log('🔍 Component version check - Dashboard v2025.1.12')
-    
-    // IMMEDIATE DEBUG: Check if functions exist
-    console.log('🔍 Function availability check:')
-    console.log('  - getDeliveryDocketSignedUrl:', typeof getDeliveryDocketSignedUrl)
-    console.log('  - getDeliveryDocketThumbnail:', typeof getDeliveryDocketThumbnail)
-    console.log('  - getDeliveryDocketPreview:', typeof getDeliveryDocketPreview)
-    
-    // DIRECT TEST: Test signed URL function immediately
-    if (record.image_path) {
-      console.log('🧪 TESTING: Calling getDeliveryDocketSignedUrl directly...')
-      console.log('🧪 TESTING: About to call function with path:', record.image_path)
-      
-      // Wrap in try-catch to see if function throws immediately
-      try {
-        const promise = getDeliveryDocketSignedUrl(record.image_path)
-        console.log('🧪 TESTING: Function returned promise, awaiting result...')
-        
-        promise.then(url => {
-          console.log('🧪 DIRECT TEST RESULT:', url ? 'SUCCESS - URL Generated' : 'FAILED - No URL')
-          if (url) {
-            console.log('🧪 URL Preview:', url.substring(0, 120) + '...')
-          }
-        }).catch(error => {
-          console.log('🧪 DIRECT TEST ERROR:', error)
-        })
-      } catch (syncError) {
-        console.log('🧪 DIRECT TEST SYNC ERROR:', syncError)
-      }
-    }
     
     const generateSignedUrls = async () => {
       if (!record.image_path) {
-        console.log('❌ No image_path for record:', record.id)
         setThumbnailLoading(false)
         return
       }
       
       try {
-        console.log('🚀 Starting signed URL generation for:', record.image_path)
         setThumbnailLoading(true)
         
         // Generate both thumbnail and preview URLs
@@ -396,25 +363,11 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
           getDeliveryDocketPreview(record.image_path)
         ])
         
-        console.log('📸 Thumbnail URL result:', thumbnailSignedUrl ? 'SUCCESS' : 'EMPTY')
-        console.log('🖼️ Preview URL result:', previewSignedUrl ? 'SUCCESS' : 'EMPTY')
-        
-        if (thumbnailSignedUrl) {
-          console.log('🔗 Setting thumbnailUrl state to:', thumbnailSignedUrl.substring(0, 120) + '...')
-        } else {
-          console.log('❌ thumbnailSignedUrl is empty, thumbnailUrl state will be empty')
-        }
-        
         setThumbnailUrl(thumbnailSignedUrl)
         setPreviewUrl(previewSignedUrl)
         
-        // Log state after setting (using setTimeout to catch state update)
-        setTimeout(() => {
-          console.log('📊 Component state after update - thumbnailUrl length:', thumbnailUrl.length)
-        }, 100)
       } catch (error) {
         console.error('❌ Error generating signed URLs:', error)
-        // URLs will remain empty, fallback icon will be used
       } finally {
         setThumbnailLoading(false)
       }
