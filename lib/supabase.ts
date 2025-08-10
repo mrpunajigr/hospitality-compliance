@@ -36,23 +36,29 @@ export const getDeliveryDocketImageUrl = (path: string, options?: { width?: numb
   
   if (!data.publicUrl) return ''
   
-  // For HEIC files or unsupported formats, return original URL without transforms
-  // Transform parameters may not work with all file types in Supabase Storage
-  if (path.toLowerCase().includes('.heic') || path.toLowerCase().includes('.heif')) {
-    return data.publicUrl
-  }
-  
-  // Add transformation parameters if provided and file type supports it
-  if (options && (options.width || options.height || options.quality)) {
-    const params = new URLSearchParams()
-    if (options.width) params.append('width', options.width.toString())
-    if (options.height) params.append('height', options.height.toString())
-    if (options.quality) params.append('quality', options.quality.toString())
-    
-    return `${data.publicUrl}?${params.toString()}`
-  }
-  
+  // TEMPORARY FIX: Disable all transformations to resolve 400 errors
+  // Supabase Storage transforms appear to be causing issues
+  // TODO: Re-enable with proper format support after investigation
   return data.publicUrl
+  
+  // COMMENTED OUT: Transform logic causing 400 errors
+  // // For HEIC files or unsupported formats, return original URL without transforms
+  // // Transform parameters may not work with all file types in Supabase Storage
+  // if (path.toLowerCase().includes('.heic') || path.toLowerCase().includes('.heif')) {
+  //   return data.publicUrl
+  // }
+  // 
+  // // Add transformation parameters if provided and file type supports it
+  // if (options && (options.width || options.height || options.quality)) {
+  //   const params = new URLSearchParams()
+  //   if (options.width) params.append('width', options.width.toString())
+  //   if (options.height) params.append('height', options.height.toString())
+  //   if (options.quality) params.append('quality', options.quality.toString())
+  //   
+  //   return `${data.publicUrl}?${params.toString()}`
+  // }
+  // 
+  // return data.publicUrl
 }
 
 // Helper to generate thumbnail URL (80x80px, optimized quality)
