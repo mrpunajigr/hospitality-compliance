@@ -162,6 +162,7 @@ export default function SafariCompatibleUpload({
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           className="upload-button inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          data-testid="upload-button"
           style={{ 
             minHeight: '44px', 
             minWidth: '200px' // iOS touch targets
