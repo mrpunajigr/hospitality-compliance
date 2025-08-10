@@ -42,7 +42,10 @@ export default function UploadPage() {
     checkAuth()
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+      }
+      // Don't set user to null if session is null - preserve demo user
     })
 
     return () => subscription.unsubscribe()

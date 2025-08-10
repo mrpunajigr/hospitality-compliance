@@ -24,7 +24,7 @@ export default function DashboardPage() {
       if (user) {
         setUser(user)
       } else {
-        // Auto sign-in with demo user for smoother development experience
+        // Auto sign-in with demo user for production/development
         const demoUser = {
           id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
           email: 'demo@example.com',
@@ -42,9 +42,12 @@ export default function DashboardPage() {
     
     checkAuth()
     
-    // Listen for auth changes
+    // Listen for auth changes - but preserve demo user if no real session
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+      }
+      // Don't set user to null if session is null - preserve demo user
     })
 
     return () => subscription.unsubscribe()
