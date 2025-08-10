@@ -399,11 +399,6 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
                record.processing_status === 'processing' ? 'Processing...' : 
                record.processing_status === 'failed' ? 'Failed' : 'Pending'}
             </span>
-            {record.test_mode && (
-              <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-medium">
-                TEST
-              </span>
-            )}
           </div>
         </div>
         
