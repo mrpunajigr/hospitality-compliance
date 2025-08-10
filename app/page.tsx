@@ -38,7 +38,7 @@ export default function HomePage() {
             </a>
           </div>
           
-          <p className="text-xs text-gray-400 mt-6">v1.8.8</p>
+          <p className="text-xs text-gray-400 mt-6">v1.8.11.f</p>
         </div>
       </div>
     </div>

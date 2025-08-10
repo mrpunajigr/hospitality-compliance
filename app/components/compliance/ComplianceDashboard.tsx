@@ -331,7 +331,7 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   const [previewUrl, setPreviewUrl] = useState<string>('')
   
   // Deployment verification - this will show if new component code is running
-  console.log('📋 Dashboard component loaded - Production ready - v1.8.13')
+  console.log('📋 Dashboard component loaded - Bug fixes complete - v1.8.11.f')
   
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'

@@ -1,6 +1,6 @@
 # Version Control Guidelines
 
-## Current Version: v1.8.8
+## Current Version: v1.8.11.f
 
 ## Version Number Format: MAJOR.MONTH.DAY[ALPHA]
 
@@ -17,7 +17,7 @@
 ### DAY (Third Number)
 - **Represents:** The day of the month for release/deployment
 - **Format:** 1-31
-- **Current:** v1.8.8 (August 8th, 2025)
+- **Current:** v1.8.11.f (August 11th, 2025)
 
 ### ALPHA Suffix (Optional)
 - **Used for:** Bug fixes, hotfixes, or minor updates on the same day
@@ -43,6 +43,18 @@ Version number is displayed in: `app/page.tsx` (Footer component)
 - **v1.1.2 → v2.1.15:** New phase completed on January 15th
 
 ## Version History
+
+### v1.8.11.f (2025-08-11) - SIGNED URL SYSTEM + MAJOR BUG FIXES
+- **🔗 COMPLETE SIGNED URL SYSTEM**: Fixed hanging signed URL generation with proper storage authentication
+- **🔐 STORAGE RLS POLICIES**: Created proper Row Level Security policies for delivery-dockets bucket (root cause of hanging)
+- **⚙️ ENVIRONMENT CONFIGURATION**: Fixed missing Supabase environment variables causing client initialization failures
+- **⏰ TIMEOUT OPTIMIZATION**: Increased timeout from 10s to 30s with proper error handling and fallback strategies
+- **🧹 PRODUCTION LOGGING**: Cleaned up excessive debug logging while maintaining essential error reporting
+- **🖼️ THUMBNAIL SYSTEM**: Secure thumbnail loading with authenticated signed URLs instead of public URLs
+- **🚀 DEPLOYMENT FIXES**: Resolved Next.js development server caching and port binding issues
+- **📱 CROSS-BROWSER COMPATIBILITY**: Verified signed URL system works properly in both Chrome and Safari
+- **🔧 HEIC FILE SUPPORT**: Proper handling of HEIC image files with signed URL authentication
+- **⚡ PERFORMANCE OPTIMIZATION**: Eliminated hanging functions and improved response times
 
 ### v1.8.8 (2025-08-08) - AVATAR & LOGO SYSTEM + VISUAL ENHANCEMENTS
 - **📸 COMPLETE AVATAR UPLOAD SYSTEM**: Drag & drop user avatar uploads with real-time preview and storage
