@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitality Compliance - UI Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-button {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            filter: brightness(0.6);
+        }
+        .active-tab {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .inactive-tab {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation Tabs -->
+    <div class="fixed top-4 left-4 right-4 z-50">
+        <div class="glass rounded-2xl p-1 max-w-4xl mx-auto">
+            <nav class="flex space-x-1">
+                <button onclick="showTab('landing')" id="tab-landing" class="tab-button flex-1 py-3 px-4 text-sm font-medium rounded-xl transition-all duration-200 active-tab">
+                    🏠 Landing Page
+                </button>
+                <button onclick="showTab('workspace')" id="tab-workspace" class="tab-button flex-1 py-3 px-4 text-sm font-medium rounded-xl transition-all duration-200 inactive-tab">
+                    💼 Workspace Dashboard  
+                </button>
+                <button onclick="showTab('admin')" id="tab-admin" class="tab-button flex-1 py-3 px-4 text-sm font-medium rounded-xl transition-all duration-200 inactive-tab">
+                    ⚙️ Admin Panel
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Landing Page -->
+    <div id="content-landing" class="tab-content active">
+        <div class="min-h-screen relative overflow-hidden">
+            <!-- Hero Background -->
+            <div class="hero-bg absolute inset-0"></div>
+            <div class="absolute inset-0 bg-black/30"></div>
+            
+            <!-- Header -->
+            <header class="absolute top-20 left-0 right-0 z-20">
+                <div class="bg-white/10 backdrop-blur-md border-b border-white/20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between items-center py-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                    <span class="text-sm">🏢</span>
+                                </div>
+                                <h1 class="text-white text-lg font-semibold">Hospitality Compliance</h1>
+                            </div>
+                            
+                            <nav class="flex items-center space-x-4">
+                                <a href="#" class="text-white/80 hover:text-white text-sm font-medium transition-colors duration-200">
+                                    Sign In
+                                </a>
+                                <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-all duration-200">
+                                    Get Started
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content -->
+            <div class="relative z-10 min-h-screen flex items-center justify-center px-4 pt-32">
+                <div class="glass rounded-3xl p-10 max-w-lg w-full mx-auto shadow-2xl">
+                    <div class="text-center mb-8">
+                        <h2 class="text-white/80 text-xl font-light mb-3 tracking-wide">
+                            Welcome to
+                        </h2>
+                        <h1 class="text-white text-4xl font-bold mb-8 leading-tight tracking-tight">
+                            Hospitality Compliance
+                        </h1>
+                        
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] mb-6">
+                            ACCESS DEMO
+                        </button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-white/90 text-base font-light leading-relaxed">
+                            Streamline your food safety compliance
+                        </p>
+                        <p class="text-white/90 text-base font-light leading-relaxed">
+                            with AI-powered delivery tracking
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="absolute bottom-8 left-0 right-0 z-10">
+                <div class="flex items-center justify-center space-x-4 text-white/60 text-sm">
+                    <span>v1.8.6</span>
+                    <div class="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span class="text-xs">JGR</span>
+                    </div>
+                    <div class="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                    <button class="hover:text-white transition-colors duration-200">
+                        Workspace
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workspace Dashboard -->
+    <div id="content-workspace" class="tab-content">
+        <div class="min-h-screen relative overflow-hidden pb-20">
+            <div class="hero-bg absolute inset-0"></div>
+            <div class="absolute inset-0 bg-black/30"></div>
+
+            <div class="relative z-10 min-h-screen">
+                <!-- Header -->
+                <div class="bg-white/10 backdrop-blur-md border-b border-white/20 mt-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between items-center py-6">
+                            <div>
+                                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                                <p class="text-white/80 text-sm">AI-powered delivery tracking and compliance monitoring</p>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-blue-500/20 border border-blue-300/30 rounded-lg px-3 py-1 backdrop-blur-sm">
+                                    <span class="text-xs text-blue-100 font-medium">🧪 Demo</span>
+                                </div>
+                                
+                                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                    <span class="text-sm">👤</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="glass rounded-3xl p-8 shadow-2xl">
+                        <h2 class="text-xl font-semibold text-white mb-6">Compliance Overview</h2>
+                        
+                        <!-- Metrics Cards -->
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <div class="glass-button rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-green-400">94%</div>
+                                <div class="text-sm text-white/80">Compliance Rate</div>
+                            </div>
+                            <div class="glass-button rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-blue-400">12</div>
+                                <div class="text-sm text-white/80">Today's Deliveries</div>
+                            </div>
+                            <div class="glass-button rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-orange-400">3</div>
+                                <div class="text-sm text-white/80">Pending Alerts</div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 glass-button rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                                        <span>✅</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">Fresh Produce Delivery</h4>
+                                        <p class="text-sm text-white/70">All temperatures within range</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-white/60">2 hours ago</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 glass-button rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
+                                        <span>⚠️</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">Dairy Products Alert</h4>
+                                        <p class="text-sm text-white/70">Temperature exceeded 4°C</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-white/60">4 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Tab Navigation -->
+                <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/15 backdrop-blur-lg border-t border-white/20">
+                    <div class="flex items-center justify-around h-16">
+                        <button class="flex flex-col items-center justify-center h-full w-full text-white/70">
+                            <span class="text-2xl mb-1">📸</span>
+                            <span class="text-xs font-medium">Upload</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center h-full w-full text-blue-400">
+                            <span class="text-2xl mb-1">📊</span>
+                            <span class="text-xs font-medium text-blue-300">Dashboard</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center h-full w-full text-white/70">
+                            <span class="text-2xl mb-1">📋</span>
+                            <span class="text-xs font-medium">Reports</span>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="content-admin" class="tab-content">
+        <div class="min-h-screen relative overflow-hidden">
+            <div class="hero-bg absolute inset-0"></div>
+            <div class="absolute inset-0 bg-black/30"></div>
+
+            <div class="relative z-10 min-h-screen flex mt-20">
+                <!-- Sidebar -->
+                <div class="w-64 bg-white/10 backdrop-blur-lg border-r border-white/20">
+                    <div class="p-4 border-b border-white/20">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <span class="text-sm">🏢</span>
+                            </div>
+                            <span class="text-white font-semibold">Admin Panel</span>
+                        </div>
+                    </div>
+
+                    <nav class="mt-4 px-4">
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-white/20 text-white backdrop-blur-sm">
+                                    <span class="text-lg">🏢</span>
+                                    <span class="font-medium">Company</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200">
+                                    <span class="text-lg">👤</span>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200">
+                                    <span class="text-lg">⚙️</span>
+                                    <span class="font-medium">Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 overflow-auto">
+                    <div class="p-8">
+                        <div class="glass rounded-3xl p-8 shadow-2xl">
+                            <h1 class="text-2xl font-bold text-white mb-6">Company Profile</h1>
+                            
+                            <!-- Overview Cards -->
+                            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                                <div class="glass-button rounded-2xl p-6">
+                                    <div class="text-center">
+                                        <div class="text-2xl mb-2">🏢</div>
+                                        <h3 class="font-semibold text-white">Business Info</h3>
+                                        <p class="text-sm text-white/70 mt-2">Demo Restaurant Ltd</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="glass-button rounded-2xl p-6">
+                                    <div class="text-center">
+                                        <div class="text-2xl mb-2">💎</div>
+                                        <h3 class="font-semibold text-white">Subscription</h3>
+                                        <p class="text-sm text-white/70 mt-2">Professional Plan</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="glass-button rounded-2xl p-6">
+                                    <div class="text-center">
+                                        <div class="text-2xl mb-2">👥</div>
+                                        <h3 class="font-semibold text-white">Team</h3>
+                                        <p class="text-sm text-white/70 mt-2">4 Active Users</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form -->
+                            <div class="space-y-6">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-white mb-2">Business Name</label>
+                                        <input type="text" value="Demo Restaurant Ltd" class="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-white mb-2">Business Type</label>
+                                        <select class="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm">
+                                            <option>Restaurant</option>
+                                            <option>Café</option>
+                                            <option>Hotel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end space-x-4">
+                                    <button class="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-white/30 backdrop-blur-sm">
+                                        Cancel
+                                    </button>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById('content-' + tabName).classList.add('active');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active-tab');
+                button.classList.add('inactive-tab');
+            });
+            
+            document.getElementById('tab-' + tabName).classList.remove('inactive-tab');
+            document.getElementById('tab-' + tabName).classList.add('active-tab');
+        }
+    </script>
+</body>
+</html>
