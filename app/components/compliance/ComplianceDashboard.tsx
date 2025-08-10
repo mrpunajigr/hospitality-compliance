@@ -344,13 +344,17 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   
   // Generate signed URLs asynchronously
   useEffect(() => {
+    console.log('🔍 Dashboard useEffect triggered for record:', record.id, 'image_path:', record.image_path)
+    
     const generateSignedUrls = async () => {
       if (!record.image_path) {
+        console.log('❌ No image_path for record:', record.id)
         setThumbnailLoading(false)
         return
       }
       
       try {
+        console.log('🚀 Starting signed URL generation for:', record.image_path)
         setThumbnailLoading(true)
         
         // Generate both thumbnail and preview URLs
@@ -359,10 +363,13 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
           getDeliveryDocketPreview(record.image_path)
         ])
         
+        console.log('📸 Thumbnail URL result:', thumbnailSignedUrl ? 'SUCCESS' : 'EMPTY')
+        console.log('🖼️ Preview URL result:', previewSignedUrl ? 'SUCCESS' : 'EMPTY')
+        
         setThumbnailUrl(thumbnailSignedUrl)
         setPreviewUrl(previewSignedUrl)
       } catch (error) {
-        console.error('Error generating signed URLs:', error)
+        console.error('❌ Error generating signed URLs:', error)
         // URLs will remain empty, fallback icon will be used
       } finally {
         setThumbnailLoading(false)

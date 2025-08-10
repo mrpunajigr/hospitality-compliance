@@ -31,26 +31,38 @@ export const getImageUrl = (path: string) => {
 // Helper function to get delivery docket image URL with optional transformations
 // Async function to get signed URL for delivery docket image
 export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number = 3600): Promise<string> => {
-  if (!path) return ''
+  console.log('🔍 getDeliveryDocketSignedUrl called with path:', path)
+  
+  if (!path) {
+    console.log('❌ Empty path provided to getDeliveryDocketSignedUrl')
+    return ''
+  }
   
   try {
     // FIX: Extract just the filename from database path since files are stored at root level
     // Database stores: "550e8400-e29b-41d4-a716-446655440001/2025-08-10/1754816359833-IMG_2953.HEIC"
     // Actual storage: "1754816359833-IMG_2953.HEIC" (root level)
     const filename = path.split('/').pop() || path
+    console.log('📁 Extracted filename:', filename)
     
     const { data, error } = await supabase.storage
       .from(DELIVERY_DOCKETS_BUCKET)
       .createSignedUrl(filename, expiresIn)
     
     if (error) {
-      console.error('Error creating signed URL:', error.message, 'for path:', filename)
+      console.error('❌ Error creating signed URL:', error.message, 'for path:', filename)
       return ''
     }
     
-    return data.signedUrl || ''
+    if (data.signedUrl) {
+      console.log('✅ Signed URL created successfully:', data.signedUrl.substring(0, 100) + '...')
+      return data.signedUrl
+    }
+    
+    console.log('❌ No signed URL returned from Supabase')
+    return ''
   } catch (error) {
-    console.error('Error in getDeliveryDocketSignedUrl:', error)
+    console.error('❌ Exception in getDeliveryDocketSignedUrl:', error)
     return ''
   }
 }
