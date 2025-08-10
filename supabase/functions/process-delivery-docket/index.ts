@@ -25,7 +25,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { bucketId, fileName, filePath, userId, clientId, testMode = false } = await req.json()
+    const { bucketId, fileName, filePath, userId, clientId } = await req.json()
 
     // Validate required parameters
     if (!bucketId || !fileName || !filePath || !userId || !clientId) {
@@ -38,7 +38,7 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Processing docket: ${fileName} for client: ${clientId}, testMode: ${testMode}`)
+    console.log(`Processing docket: ${fileName} for client: ${clientId}`)
 
     // Validate user access (now enabled for all modes)
     const hasAccess = await validateUserAccess(userId, clientId)
@@ -71,8 +71,7 @@ serve(async (req) => {
       fileName,
       filePath,
       userId,
-      clientId,
-      testMode
+      clientId
     })
     
     console.log('Document processing completed successfully')
@@ -110,15 +109,13 @@ async function processDeliveryDocket({
   fileName,
   filePath,
   userId,
-  clientId,
-  testMode
+  clientId
 }: {
   bucketId: string
   fileName: string
   filePath: string
   userId: string
   clientId: string
-  testMode: boolean
 }) {
   const startTime = Date.now()
   let deliveryRecord: any = null
@@ -129,8 +126,7 @@ async function processDeliveryDocket({
       clientId,
       userId,
       filePath,
-      fileName,
-      testMode
+      fileName
     })
 
     if (!deliveryRecord) {
@@ -638,9 +634,8 @@ function calculateConfidence(text: string): number {
 // DATABASE OPERATIONS
 // =====================================================
 
-async function createDeliveryRecord({ clientId, userId, filePath, fileName, testMode }) {
+async function createDeliveryRecord({ clientId, userId, filePath, fileName }) {
   const deliveryRecordId = crypto.randomUUID()
-  const testSessionId = testMode ? `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` : null
   
   try {
     const { data, error } = await supabase
@@ -651,8 +646,6 @@ async function createDeliveryRecord({ clientId, userId, filePath, fileName, test
         user_id: userId, // Now properly including user_id
         image_path: filePath,
         processing_status: 'processing',
-        test_mode: testMode,
-        test_session_id: testSessionId,
         // Initial values - will be updated with real OCR data
         supplier_name: null,
         docket_number: null,
@@ -668,7 +661,7 @@ async function createDeliveryRecord({ clientId, userId, filePath, fileName, test
       throw new Error(`Database insert failed: ${error.message}`)
     }
 
-    console.log(`Delivery record created successfully: ${data.id} (testMode: ${testMode})`)
+    console.log(`Delivery record created successfully: ${data.id}`)
     return data
     
   } catch (dbError) {

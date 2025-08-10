@@ -13,7 +13,6 @@ interface UploadProps {
   onUploadError?: (error: string) => void
   accept?: string
   maxSizeMB?: number
-  allowTestMode?: boolean // Enable TEST mode toggle for development/testing
 }
 
 export default function SafariCompatibleUpload({ 
@@ -22,13 +21,11 @@ export default function SafariCompatibleUpload({
   onUploadSuccess,
   onUploadError,
   accept = "image/*",
-  maxSizeMB = 8,
-  allowTestMode = false
+  maxSizeMB = 8
 }: UploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState<string>('')
-  const [testMode, setTestMode] = useState(false)
 
   // Avoid drag-and-drop - not reliable on Safari 12
   const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,8 +91,7 @@ export default function SafariCompatibleUpload({
           fileName: finalFile.name,
           filePath: uploadResult.filePath,
           userId: userId,
-          clientId: clientId,
-          testMode: testMode
+          clientId: clientId
         })
       })
 
@@ -140,7 +136,7 @@ export default function SafariCompatibleUpload({
         fileInputRef.current.value = ''
       }
     }
-  }, [clientId, userId, maxSizeMB, onUploadSuccess, onUploadError, testMode])
+  }, [clientId, userId, maxSizeMB, onUploadSuccess, onUploadError])
 
   return (
     <div className="upload-container p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
@@ -153,23 +149,6 @@ export default function SafariCompatibleUpload({
         className="hidden"
       />
       
-      {/* TEST Mode Toggle - Always visible for production */}
-      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <label className="flex items-center justify-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={testMode}
-            onChange={(e) => setTestMode(e.target.checked)}
-            className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
-          />
-          <span className={`text-sm font-medium ${
-            testMode ? 'text-yellow-800' : 'text-gray-600'
-          }`}>
-            {testMode ? 'TEST MODE - Data will be tagged for easy cleanup' : 'PRODUCTION MODE - Data will be saved permanently'}
-          </span>
-        </label>
-      </div>
-      
       <div className="text-center">
         <div className="mb-4">
           <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -181,11 +160,7 @@ export default function SafariCompatibleUpload({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className={`upload-button inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            testMode 
-              ? 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
-              : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-          }`}
+          className="upload-button inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ 
             minHeight: '44px', 
             minWidth: '200px' // iOS touch targets

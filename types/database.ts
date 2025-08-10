@@ -214,8 +214,6 @@ export interface Database {
           processing_status: 'pending' | 'processing' | 'completed' | 'failed'
           confidence_score: number | null
           error_message: string | null
-          test_mode: boolean // Marks records as test data
-          test_session_id: string | null // Groups test records for batch operations
           created_at: string
           updated_at: string
         }
@@ -234,8 +232,6 @@ export interface Database {
           processing_status?: 'pending' | 'processing' | 'completed' | 'failed'
           confidence_score?: number | null
           error_message?: string | null
-          test_mode?: boolean
-          test_session_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -254,8 +250,6 @@ export interface Database {
           processing_status?: 'pending' | 'processing' | 'completed' | 'failed'
           confidence_score?: number | null
           error_message?: string | null
-          test_mode?: boolean
-          test_session_id?: string | null
           created_at?: string
           updated_at?: string
         }

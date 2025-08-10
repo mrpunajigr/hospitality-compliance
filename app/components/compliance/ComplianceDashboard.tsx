@@ -343,11 +343,6 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   
   // Helper function for dynamic card styling based on status
   const getCardStyling = (record: DeliveryRecordWithRelations): string => {
-    // Test mode gets blue tint (override)
-    if (record.test_mode) {
-      return 'bg-blue-50 border border-blue-200'
-    }
-    
     // Status-based tints
     switch (record.processing_status) {
       case 'completed': return 'bg-green-50 border border-green-200'
