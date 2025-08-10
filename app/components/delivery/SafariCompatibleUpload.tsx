@@ -153,24 +153,22 @@ export default function SafariCompatibleUpload({
         className="hidden"
       />
       
-      {/* TEST Mode Toggle */}
-      {allowTestMode && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <label className="flex items-center justify-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={testMode}
-              onChange={(e) => setTestMode(e.target.checked)}
-              className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
-            />
-            <span className={`text-sm font-medium ${
-              testMode ? 'text-yellow-800' : 'text-gray-600'
-            }`}>
-              {testMode ? 'TEST MODE - Data will be tagged for easy cleanup' : 'PRODUCTION MODE - Data will be saved permanently'}
-            </span>
-          </label>
-        </div>
-      )}
+      {/* TEST Mode Toggle - Always visible for production */}
+      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <label className="flex items-center justify-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={testMode}
+            onChange={(e) => setTestMode(e.target.checked)}
+            className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+          />
+          <span className={`text-sm font-medium ${
+            testMode ? 'text-yellow-800' : 'text-gray-600'
+          }`}>
+            {testMode ? 'TEST MODE - Data will be tagged for easy cleanup' : 'PRODUCTION MODE - Data will be saved permanently'}
+          </span>
+        </label>
+      </div>
       
       <div className="text-center">
         <div className="mb-4">
