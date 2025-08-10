@@ -105,10 +105,11 @@ export const getDeliveryDocketPreview = async (path: string): Promise<string> =>
 }
 
 // Helper function to get delivery docket URL
-export const getDeliveryDocketUrl = (path: string) => {
-  const { data } = supabase.storage.from(DELIVERY_DOCKETS_BUCKET).getPublicUrl(path)
-  return data?.publicUrl || ''
-}
+// OLD FUNCTION REMOVED - was using getPublicUrl() which conflicts with signed URLs
+// Use getDeliveryDocketSignedUrl() instead for secure authenticated access
+
+// Deployment verification - this will show in console if new code is running
+console.log('🚀 Supabase lib loaded - Signed URL implementation active - v2025.1.11')
 
 // =====================================================
 // MULTI-TENANT HELPER FUNCTIONS

@@ -4,7 +4,7 @@
 // Safari 12 compatible dashboard with flexbox layouts and performance optimization
 
 import { useEffect, useState } from 'react'
-import { getDeliveryRecords, getComplianceAlerts, acknowledgeAlert, getDeliveryDocketThumbnail, getDeliveryDocketPreview } from '@/lib/supabase'
+import { getDeliveryRecords, getComplianceAlerts, acknowledgeAlert, getDeliveryDocketThumbnail, getDeliveryDocketPreview, getDeliveryDocketSignedUrl } from '@/lib/supabase'
 import type { DeliveryRecordWithRelations, ComplianceAlertWithRecord } from '@/types/database'
 import ImagePreviewModal from '@/app/components/ImagePreviewModal'
 
@@ -330,6 +330,9 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   const [thumbnailLoading, setThumbnailLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   
+  // Deployment verification - this will show if new component code is running
+  console.log('📋 Dashboard component loaded - Signed URL version - v2025.1.11')
+  
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'
   const deliveryDate = record.delivery_date 
@@ -345,6 +348,19 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   // Generate signed URLs asynchronously
   useEffect(() => {
     console.log('🔍 Dashboard useEffect triggered for record:', record.id, 'image_path:', record.image_path)
+    
+    // DIRECT TEST: Test signed URL function immediately
+    if (record.image_path) {
+      console.log('🧪 TESTING: Calling getDeliveryDocketSignedUrl directly...')
+      getDeliveryDocketSignedUrl(record.image_path).then(url => {
+        console.log('🧪 DIRECT TEST RESULT:', url ? 'SUCCESS - URL Generated' : 'FAILED - No URL')
+        if (url) {
+          console.log('🧪 URL Preview:', url.substring(0, 120) + '...')
+        }
+      }).catch(error => {
+        console.log('🧪 DIRECT TEST ERROR:', error)
+      })
+    }
     
     const generateSignedUrls = async () => {
       if (!record.image_path) {
