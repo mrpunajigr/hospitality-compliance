@@ -32,13 +32,16 @@ export const getImageUrl = (path: string) => {
 export const getDeliveryDocketImageUrl = (path: string, options?: { width?: number; height?: number; quality?: number }) => {
   if (!path) return ''
   
-  const { data } = supabase.storage.from(DELIVERY_DOCKETS_BUCKET).getPublicUrl(path)
+  // FIX: Extract just the filename from database path since files are stored at root level
+  // Database stores: "550e8400-e29b-41d4-a716-446655440001/2025-08-10/1754816359833-IMG_2953.HEIC"
+  // Actual storage: "1754816359833-IMG_2953.HEIC" (root level)
+  const filename = path.split('/').pop() || path
+  
+  const { data } = supabase.storage.from(DELIVERY_DOCKETS_BUCKET).getPublicUrl(filename)
   
   if (!data.publicUrl) return ''
   
-  // TEMPORARY FIX: Disable all transformations to resolve 400 errors
-  // Supabase Storage transforms appear to be causing issues
-  // TODO: Re-enable with proper format support after investigation
+  // Transformations disabled for HEIC compatibility and 400 error prevention
   return data.publicUrl
   
   // COMMENTED OUT: Transform logic causing 400 errors
