@@ -34,13 +34,17 @@ export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number
   if (!path) return ''
   
   try {
-    // Use the original database path (with full folder structure) for signed URL
+    // FIX: Extract just the filename from database path since files are stored at root level
+    // Database stores: "550e8400-e29b-41d4-a716-446655440001/2025-08-10/1754816359833-IMG_2953.HEIC"
+    // Actual storage: "1754816359833-IMG_2953.HEIC" (root level)
+    const filename = path.split('/').pop() || path
+    
     const { data, error } = await supabase.storage
       .from(DELIVERY_DOCKETS_BUCKET)
-      .createSignedUrl(path, expiresIn)
+      .createSignedUrl(filename, expiresIn)
     
     if (error) {
-      console.error('Error creating signed URL:', error)
+      console.error('Error creating signed URL:', error.message, 'for path:', filename)
       return ''
     }
     
