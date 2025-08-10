@@ -3,7 +3,7 @@
 // Image Preview Modal Component
 // Click delivery docket thumbnails to view full-size images
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getDeliveryDocketPreview } from '@/lib/supabase'
 
 interface ImagePreviewModalProps {
@@ -13,6 +13,9 @@ interface ImagePreviewModalProps {
 }
 
 export default function ImagePreviewModal({ imagePath, imageUrl, onClose }: ImagePreviewModalProps) {
+  const [finalImageUrl, setFinalImageUrl] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+
   // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -25,10 +28,34 @@ export default function ImagePreviewModal({ imagePath, imageUrl, onClose }: Imag
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
 
-  if (!imagePath && !imageUrl) return null
+  // Generate signed URL if not provided
+  useEffect(() => {
+    const generateSignedUrl = async () => {
+      if (imageUrl) {
+        // Use pre-generated signed URL
+        setFinalImageUrl(imageUrl)
+        setIsLoading(false)
+      } else if (imagePath) {
+        // Generate signed URL
+        setIsLoading(true)
+        try {
+          const signedUrl = await getDeliveryDocketPreview(imagePath)
+          setFinalImageUrl(signedUrl)
+        } catch (error) {
+          console.error('Failed to generate signed URL for preview:', error)
+          setFinalImageUrl('')
+        } finally {
+          setIsLoading(false)
+        }
+      } else {
+        setIsLoading(false)
+      }
+    }
 
-  // Use provided signed URL or fallback to generating one (for backward compatibility)
-  const finalImageUrl = imageUrl || (imagePath ? getDeliveryDocketPreview(imagePath) : '')
+    generateSignedUrl()
+  }, [imagePath, imageUrl])
+
+  if (!imagePath && !imageUrl) return null
 
   return (
     <div 
@@ -50,15 +77,25 @@ export default function ImagePreviewModal({ imagePath, imageUrl, onClose }: Imag
           className="bg-white rounded-lg p-2 shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <img
-            src={finalImageUrl}
-            alt="Delivery docket preview"
-            className="max-w-full max-h-[80vh] object-contain rounded"
-            loading="lazy"
-            onError={(e) => {
-              console.error('Failed to load image:', imagePath)
-            }}
-          />
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-gray-600">Loading preview...</div>
+            </div>
+          ) : finalImageUrl ? (
+            <img
+              src={finalImageUrl}
+              alt="Delivery docket preview"
+              className="max-w-full max-h-[80vh] object-contain rounded"
+              loading="lazy"
+              onError={(e) => {
+                console.error('Failed to load image:', imagePath)
+              }}
+            />
+          ) : (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-gray-600">Failed to load preview</div>
+            </div>
+          )}
         </div>
         
         {/* Image info */}
