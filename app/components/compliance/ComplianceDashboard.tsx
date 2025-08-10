@@ -382,8 +382,19 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
         console.log('📸 Thumbnail URL result:', thumbnailSignedUrl ? 'SUCCESS' : 'EMPTY')
         console.log('🖼️ Preview URL result:', previewSignedUrl ? 'SUCCESS' : 'EMPTY')
         
+        if (thumbnailSignedUrl) {
+          console.log('🔗 Setting thumbnailUrl state to:', thumbnailSignedUrl.substring(0, 120) + '...')
+        } else {
+          console.log('❌ thumbnailSignedUrl is empty, thumbnailUrl state will be empty')
+        }
+        
         setThumbnailUrl(thumbnailSignedUrl)
         setPreviewUrl(previewSignedUrl)
+        
+        // Log state after setting (using setTimeout to catch state update)
+        setTimeout(() => {
+          console.log('📊 Component state after update - thumbnailUrl length:', thumbnailUrl.length)
+        }, 100)
       } catch (error) {
         console.error('❌ Error generating signed URLs:', error)
         // URLs will remain empty, fallback icon will be used
@@ -509,7 +520,12 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
                 alt="Delivery docket thumbnail"
                 className="w-20 h-20 object-cover rounded border-2 border-gray-300 hover:border-blue-400 transition-colors shadow-sm"
                 loading="lazy"
+                onLoad={() => {
+                  console.log('✅ IMG LOADED successfully for URL:', thumbnailUrl.substring(0, 120) + '...')
+                }}
                 onError={(e) => {
+                  console.log('❌ IMG ERROR for URL:', thumbnailUrl.substring(0, 120) + '...')
+                  console.log('❌ IMG ERROR details:', e)
                   // Fallback to document icon if signed URL fails
                   const target = e.currentTarget
                   target.src = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='1.5'%3e%3cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3e%3cpolyline points='14,2 14,8 20,8'/%3e%3cline x1='16' y1='13' x2='8' y2='13'/%3e%3cline x1='16' y1='17' x2='8' y2='17'/%3e%3cpolyline points='10,9 9,9 8,9'/%3e%3c/svg%3e"
