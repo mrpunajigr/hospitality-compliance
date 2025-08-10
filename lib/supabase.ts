@@ -29,14 +29,64 @@ export const getImageUrl = (path: string) => {
 }
 
 // Helper function to get delivery docket image URL with optional transformations
+// Helper function to add timeout to promises
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout after ${timeoutMs}ms`))
+    }, timeoutMs)
+    
+    promise
+      .then(resolve)
+      .catch(reject)
+      .finally(() => clearTimeout(timer))
+  })
+}
+
+// Test function to verify basic Supabase storage connectivity
+export const testSupabaseStorageConnection = async (): Promise<void> => {
+  console.log('🧪 CONNECTIVITY TEST: Testing basic Supabase storage connection...')
+  
+  try {
+    // Test 1: Basic bucket access
+    console.log('📦 TEST 1: Listing files in bucket...')
+    const listResult = await withTimeout(
+      supabase.storage.from(DELIVERY_DOCKETS_BUCKET).list('', { limit: 1 }),
+      5000
+    )
+    console.log('📦 List result:', listResult.data ? 'SUCCESS' : 'FAILED', listResult.error ? listResult.error.message : 'No error')
+    
+    // Test 2: Check authentication
+    console.log('🔐 TEST 2: Checking authentication state...')
+    const { data: { user } } = await supabase.auth.getUser()
+    console.log('🔐 Auth user:', user ? 'AUTHENTICATED' : 'ANONYMOUS')
+    
+    // Test 3: Direct createSignedUrl call with timeout
+    console.log('🔗 TEST 3: Testing createSignedUrl with minimal timeout...')
+    const testPromise = supabase.storage
+      .from(DELIVERY_DOCKETS_BUCKET)
+      .createSignedUrl('test-file.jpg', 60)
+    
+    const testResult = await withTimeout(testPromise, 3000)
+    console.log('🔗 CreateSignedUrl test result:', testResult.data ? 'SUCCESS' : 'FAILED', testResult.error ? testResult.error.message : 'No error')
+    
+  } catch (error) {
+    console.error('❌ CONNECTIVITY TEST ERROR:', error.message)
+  }
+}
+
 // Async function to get signed URL for delivery docket image
 export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number = 3600): Promise<string> => {
   console.log('🔍 getDeliveryDocketSignedUrl called with path:', path)
+  console.log('⏰ Starting signed URL generation with 10s timeout...')
   
   if (!path) {
     console.log('❌ Empty path provided to getDeliveryDocketSignedUrl')
     return ''
   }
+  
+  // Run connectivity test first
+  await testSupabaseStorageConnection()
   
   try {
     // FIX: Extract just the filename from database path since files are stored at root level
@@ -44,25 +94,54 @@ export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number
     // Actual storage: "1754816359833-IMG_2953.HEIC" (root level)
     const filename = path.split('/').pop() || path
     console.log('📁 Extracted filename:', filename)
+    console.log('🏪 Calling supabase.storage.from("' + DELIVERY_DOCKETS_BUCKET + '").createSignedUrl()')
+    console.log('📋 Bucket:', DELIVERY_DOCKETS_BUCKET, 'Filename:', filename, 'Expires:', expiresIn)
     
-    const { data, error } = await supabase.storage
+    // MORE GRANULAR LOGGING: Log exactly when we start the API call
+    console.log('🚀 ABOUT TO CALL: supabase.storage.createSignedUrl - Starting now...')
+    const startTime = Date.now()
+    
+    const signedUrlPromise = supabase.storage
       .from(DELIVERY_DOCKETS_BUCKET)
       .createSignedUrl(filename, expiresIn)
     
+    console.log('📡 Promise created, adding timeout wrapper...')
+    
+    // Add 10 second timeout
+    const { data, error } = await withTimeout(signedUrlPromise, 10000)
+    
+    const endTime = Date.now()
+    console.log('📡 Supabase response received after', endTime - startTime, 'ms - Data:', !!data, 'Error:', !!error)
+    
     if (error) {
-      console.error('❌ Error creating signed URL:', error.message, 'for path:', filename)
+      console.error('❌ Supabase error details:', {
+        message: error.message,
+        details: error,
+        filename: filename,
+        bucket: DELIVERY_DOCKETS_BUCKET
+      })
       return ''
     }
     
-    if (data.signedUrl) {
-      console.log('✅ Signed URL created successfully:', data.signedUrl.substring(0, 100) + '...')
+    if (data?.signedUrl) {
+      console.log('✅ Signed URL created successfully!')
+      console.log('🔗 URL preview:', data.signedUrl.substring(0, 120) + '...')
+      console.log('🔗 URL contains /object/sign/:', data.signedUrl.includes('/object/sign/'))
       return data.signedUrl
     }
     
-    console.log('❌ No signed URL returned from Supabase')
+    console.log('❌ No signed URL in response data:', data)
     return ''
   } catch (error) {
-    console.error('❌ Exception in getDeliveryDocketSignedUrl:', error)
+    if (error.message.includes('Timeout')) {
+      console.error('⏰ TIMEOUT: Signed URL generation took longer than 10 seconds')
+    } else {
+      console.error('❌ Exception in getDeliveryDocketSignedUrl:', {
+        error: error,
+        message: error.message,
+        stack: error.stack
+      })
+    }
     return ''
   }
 }
@@ -109,7 +188,7 @@ export const getDeliveryDocketPreview = async (path: string): Promise<string> =>
 // Use getDeliveryDocketSignedUrl() instead for secure authenticated access
 
 // Deployment verification - this will show in console if new code is running
-console.log('🚀 Supabase lib loaded - Signed URL implementation active - v2025.1.11')
+console.log('🚀 Supabase lib loaded - Connectivity testing active - v2025.1.12')
 
 // =====================================================
 // MULTI-TENANT HELPER FUNCTIONS
