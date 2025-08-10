@@ -331,7 +331,7 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   const [previewUrl, setPreviewUrl] = useState<string>('')
   
   // Deployment verification - this will show if new component code is running
-  console.log('📋 Dashboard component loaded - Signed URL version - v2025.1.11')
+  console.log('📋 Dashboard component loaded - Enhanced debugging - v2025.1.12')
   
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'
@@ -348,18 +348,35 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   // Generate signed URLs asynchronously
   useEffect(() => {
     console.log('🔍 Dashboard useEffect triggered for record:', record.id, 'image_path:', record.image_path)
+    console.log('🔍 Component version check - Dashboard v2025.1.12')
+    
+    // IMMEDIATE DEBUG: Check if functions exist
+    console.log('🔍 Function availability check:')
+    console.log('  - getDeliveryDocketSignedUrl:', typeof getDeliveryDocketSignedUrl)
+    console.log('  - getDeliveryDocketThumbnail:', typeof getDeliveryDocketThumbnail)
+    console.log('  - getDeliveryDocketPreview:', typeof getDeliveryDocketPreview)
     
     // DIRECT TEST: Test signed URL function immediately
     if (record.image_path) {
       console.log('🧪 TESTING: Calling getDeliveryDocketSignedUrl directly...')
-      getDeliveryDocketSignedUrl(record.image_path).then(url => {
-        console.log('🧪 DIRECT TEST RESULT:', url ? 'SUCCESS - URL Generated' : 'FAILED - No URL')
-        if (url) {
-          console.log('🧪 URL Preview:', url.substring(0, 120) + '...')
-        }
-      }).catch(error => {
-        console.log('🧪 DIRECT TEST ERROR:', error)
-      })
+      console.log('🧪 TESTING: About to call function with path:', record.image_path)
+      
+      // Wrap in try-catch to see if function throws immediately
+      try {
+        const promise = getDeliveryDocketSignedUrl(record.image_path)
+        console.log('🧪 TESTING: Function returned promise, awaiting result...')
+        
+        promise.then(url => {
+          console.log('🧪 DIRECT TEST RESULT:', url ? 'SUCCESS - URL Generated' : 'FAILED - No URL')
+          if (url) {
+            console.log('🧪 URL Preview:', url.substring(0, 120) + '...')
+          }
+        }).catch(error => {
+          console.log('🧪 DIRECT TEST ERROR:', error)
+        })
+      } catch (syncError) {
+        console.log('🧪 DIRECT TEST SYNC ERROR:', syncError)
+      }
     }
     
     const generateSignedUrls = async () => {
