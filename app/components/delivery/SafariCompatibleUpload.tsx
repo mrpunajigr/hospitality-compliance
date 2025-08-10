@@ -1,7 +1,8 @@
 'use client'
 
-// Hospitality Compliance SaaS - Safari 12 Compatible Upload Component
+// Hospitality Compliance SaaS - Safari 12 Compatible Upload Component  
 // Optimized for iPad Air (2013) with memory and performance considerations
+// TEST mode removed - simplified upload workflow
 
 import { useCallback, useRef, useState } from 'react'
 import { supabase, supabaseAdmin, DELIVERY_DOCKETS_BUCKET, createDeliveryRecord, createAuditLog } from '@/lib/supabase'

@@ -196,7 +196,6 @@ export default function UploadPage() {
                 userId={user.id}
                 onUploadSuccess={handleUploadSuccess}
                 onUploadError={handleUploadError}
-                allowTestMode={true} // Enable TEST mode toggle for development
               />
             </div>
 
