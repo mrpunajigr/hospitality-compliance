@@ -36,7 +36,13 @@ export const getDeliveryDocketImageUrl = (path: string, options?: { width?: numb
   
   if (!data.publicUrl) return ''
   
-  // Add transformation parameters if provided
+  // For HEIC files or unsupported formats, return original URL without transforms
+  // Transform parameters may not work with all file types in Supabase Storage
+  if (path.toLowerCase().includes('.heic') || path.toLowerCase().includes('.heif')) {
+    return data.publicUrl
+  }
+  
+  // Add transformation parameters if provided and file type supports it
   if (options && (options.width || options.height || options.quality)) {
     const params = new URLSearchParams()
     if (options.width) params.append('width', options.width.toString())
