@@ -29,20 +29,34 @@ export const getImageUrl = (path: string) => {
 }
 
 // Helper function to get delivery docket image URL with optional transformations
-export const getDeliveryDocketImageUrl = (path: string, options?: { width?: number; height?: number; quality?: number }) => {
+// Async function to get signed URL for delivery docket image
+export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number = 3600): Promise<string> => {
   if (!path) return ''
   
-  // FIX: Extract just the filename from database path since files are stored at root level
-  // Database stores: "550e8400-e29b-41d4-a716-446655440001/2025-08-10/1754816359833-IMG_2953.HEIC"
-  // Actual storage: "1754816359833-IMG_2953.HEIC" (root level)
-  const filename = path.split('/').pop() || path
-  
-  const { data } = supabase.storage.from(DELIVERY_DOCKETS_BUCKET).getPublicUrl(filename)
-  
-  if (!data.publicUrl) return ''
-  
-  // Transformations disabled for HEIC compatibility and 400 error prevention
-  return data.publicUrl
+  try {
+    // Use the original database path (with full folder structure) for signed URL
+    const { data, error } = await supabase.storage
+      .from(DELIVERY_DOCKETS_BUCKET)
+      .createSignedUrl(path, expiresIn)
+    
+    if (error) {
+      console.error('Error creating signed URL:', error)
+      return ''
+    }
+    
+    return data.signedUrl || ''
+  } catch (error) {
+    console.error('Error in getDeliveryDocketSignedUrl:', error)
+    return ''
+  }
+}
+
+// Synchronous version for backwards compatibility - returns placeholder
+export const getDeliveryDocketImageUrl = (path: string, options?: { width?: number; height?: number; quality?: number }) => {
+  // This function is kept for backwards compatibility but files require signed URLs
+  // Components should use the async getDeliveryDocketSignedUrl instead
+  return ''
+}
   
   // COMMENTED OUT: Transform logic causing 400 errors
   // // For HEIC files or unsupported formats, return original URL without transforms
@@ -64,14 +78,14 @@ export const getDeliveryDocketImageUrl = (path: string, options?: { width?: numb
   // return data.publicUrl
 }
 
-// Helper to generate thumbnail URL (80x80px, optimized quality)
-export const getDeliveryDocketThumbnail = (path: string) => {
-  return getDeliveryDocketImageUrl(path, { width: 80, height: 80, quality: 80 })
+// Helper to generate thumbnail signed URL (async)
+export const getDeliveryDocketThumbnail = async (path: string): Promise<string> => {
+  return await getDeliveryDocketSignedUrl(path, 3600) // 1 hour expiry
 }
 
-// Helper to generate full-size preview URL (optimized for modal display)
-export const getDeliveryDocketPreview = (path: string) => {
-  return getDeliveryDocketImageUrl(path, { width: 800, quality: 90 })
+// Helper to generate full-size preview signed URL (async)  
+export const getDeliveryDocketPreview = async (path: string): Promise<string> => {
+  return await getDeliveryDocketSignedUrl(path, 3600) // 1 hour expiry
 }
 
 // Helper function to get delivery docket URL

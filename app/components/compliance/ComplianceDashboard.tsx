@@ -4,7 +4,7 @@
 // Safari 12 compatible dashboard with flexbox layouts and performance optimization
 
 import { useEffect, useState } from 'react'
-import { getDeliveryRecords, getComplianceAlerts, acknowledgeAlert, getDeliveryDocketThumbnail } from '@/lib/supabase'
+import { getDeliveryRecords, getComplianceAlerts, acknowledgeAlert, getDeliveryDocketThumbnail, getDeliveryDocketPreview } from '@/lib/supabase'
 import type { DeliveryRecordWithRelations, ComplianceAlertWithRecord } from '@/types/database'
 import ImagePreviewModal from '@/app/components/ImagePreviewModal'
 
@@ -326,6 +326,9 @@ function RecentDeliveriesSection({ records }: { records: DeliveryRecordWithRelat
 
 function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations }) {
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
+  const [thumbnailLoading, setThumbnailLoading] = useState(true)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
   
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'
@@ -339,7 +342,35 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   
   const uploadedBy = record.profiles?.full_name || 'Demo User'
   
-  const thumbnailUrl = record.image_path ? getDeliveryDocketThumbnail(record.image_path) : null
+  // Generate signed URLs asynchronously
+  useEffect(() => {
+    const generateSignedUrls = async () => {
+      if (!record.image_path) {
+        setThumbnailLoading(false)
+        return
+      }
+      
+      try {
+        setThumbnailLoading(true)
+        
+        // Generate both thumbnail and preview URLs
+        const [thumbnailSignedUrl, previewSignedUrl] = await Promise.all([
+          getDeliveryDocketThumbnail(record.image_path),
+          getDeliveryDocketPreview(record.image_path)
+        ])
+        
+        setThumbnailUrl(thumbnailSignedUrl)
+        setPreviewUrl(previewSignedUrl)
+      } catch (error) {
+        console.error('Error generating signed URLs:', error)
+        // URLs will remain empty, fallback icon will be used
+      } finally {
+        setThumbnailLoading(false)
+      }
+    }
+    
+    generateSignedUrls()
+  }, [record.image_path])
   
   // Helper function for dynamic card styling based on status
   const getCardStyling = (record: DeliveryRecordWithRelations): string => {
@@ -421,46 +452,68 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
           )}
         </div>
 
-        {/* Thumbnail Image - Moved to Right Side */}
+        {/* Thumbnail Image - Moved to Right Side with Signed URL Loading */}
         {record.image_path && (
           <div 
             className="thumbnail-container cursor-pointer flex-shrink-0"
-            onClick={() => setPreviewOpen(true)}
-            title="Click to preview full image"
+            onClick={() => previewUrl ? setPreviewOpen(true) : null}
+            title={previewUrl ? "Click to preview full image" : "Loading image..."}
             style={{ 
               position: 'relative',
               transition: 'transform 0.3s ease',
               transformOrigin: 'center'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(2)'
-              e.currentTarget.style.zIndex = '10'
+              if (!thumbnailLoading && thumbnailUrl) {
+                e.currentTarget.style.transform = 'scale(2)'
+                e.currentTarget.style.zIndex = '10'
+              }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)'
               e.currentTarget.style.zIndex = '1'
             }}
           >
-            <img
-              src={thumbnailUrl || ''}
-              alt="Delivery docket thumbnail"
-              className="w-20 h-20 object-cover rounded border-2 border-gray-300 hover:border-blue-400 transition-colors shadow-sm"
-              loading="lazy"
-              onError={(e) => {
-                // Fallback to document icon if image fails to load
-                const target = e.currentTarget
-                target.src = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='1.5'%3e%3cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3e%3cpolyline points='14,2 14,8 20,8'/%3e%3cline x1='16' y1='13' x2='8' y2='13'/%3e%3cline x1='16' y1='17' x2='8' y2='17'/%3e%3cpolyline points='10,9 9,9 8,9'/%3e%3c/svg%3e"
-                target.alt = "Document icon"
-              }}
-            />
+            {thumbnailLoading ? (
+              // Loading skeleton
+              <div className="w-20 h-20 bg-gray-200 rounded border-2 border-gray-300 flex items-center justify-center animate-pulse">
+                <div className="text-gray-400 text-xs">Loading...</div>
+              </div>
+            ) : thumbnailUrl ? (
+              // Signed URL image
+              <img
+                src={thumbnailUrl}
+                alt="Delivery docket thumbnail"
+                className="w-20 h-20 object-cover rounded border-2 border-gray-300 hover:border-blue-400 transition-colors shadow-sm"
+                loading="lazy"
+                onError={(e) => {
+                  // Fallback to document icon if signed URL fails
+                  const target = e.currentTarget
+                  target.src = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='1.5'%3e%3cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3e%3cpolyline points='14,2 14,8 20,8'/%3e%3cline x1='16' y1='13' x2='8' y2='13'/%3e%3cline x1='16' y1='17' x2='8' y2='17'/%3e%3cpolyline points='10,9 9,9 8,9'/%3e%3c/svg%3e"
+                  target.alt = "Document icon"
+                }}
+              />
+            ) : (
+              // Fallback document icon if no signed URL generated
+              <div className="w-20 h-20 bg-gray-100 rounded border-2 border-gray-300 flex items-center justify-center">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                </svg>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Image Preview Modal */}
-      {previewOpen && (
+      {previewOpen && previewUrl && (
         <ImagePreviewModal 
           imagePath={record.image_path}
+          imageUrl={previewUrl}
           onClose={() => setPreviewOpen(false)}
         />
       )}

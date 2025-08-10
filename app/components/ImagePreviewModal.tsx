@@ -8,10 +8,11 @@ import { getDeliveryDocketPreview } from '@/lib/supabase'
 
 interface ImagePreviewModalProps {
   imagePath: string | null
+  imageUrl?: string  // Pre-generated signed URL
   onClose: () => void
 }
 
-export default function ImagePreviewModal({ imagePath, onClose }: ImagePreviewModalProps) {
+export default function ImagePreviewModal({ imagePath, imageUrl, onClose }: ImagePreviewModalProps) {
   // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -24,9 +25,10 @@ export default function ImagePreviewModal({ imagePath, onClose }: ImagePreviewMo
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
 
-  if (!imagePath) return null
+  if (!imagePath && !imageUrl) return null
 
-  const imageUrl = getDeliveryDocketPreview(imagePath)
+  // Use provided signed URL or fallback to generating one (for backward compatibility)
+  const finalImageUrl = imageUrl || (imagePath ? getDeliveryDocketPreview(imagePath) : '')
 
   return (
     <div 
@@ -49,7 +51,7 @@ export default function ImagePreviewModal({ imagePath, onClose }: ImagePreviewMo
           onClick={(e) => e.stopPropagation()}
         >
           <img
-            src={imageUrl}
+            src={finalImageUrl}
             alt="Delivery docket preview"
             className="max-w-full max-h-[80vh] object-contain rounded"
             loading="lazy"
