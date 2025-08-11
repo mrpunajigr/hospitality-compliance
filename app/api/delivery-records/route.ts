@@ -46,9 +46,18 @@ export async function GET(request: NextRequest) {
       .limit(limit)
 
     if (error) {
-      console.error('Error fetching delivery records:', error)
+      console.error('Supabase query error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return NextResponse.json(
-        { error: 'Failed to fetch delivery records' },
+        { 
+          error: 'Failed to fetch delivery records', 
+          details: error.message,
+          supabase_error: error
+        },
         { status: 500 }
       )
     }
@@ -68,9 +77,16 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('API route error:', error)
+    console.error('API route catch block error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      error: error
+    })
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
