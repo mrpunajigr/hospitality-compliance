@@ -92,7 +92,7 @@ export default function WorkspaceLayout({
                 </div>
                 <div>
                   <span className="text-white font-bold text-2xl">Workspace</span>
-                  <p className="text-white/60 text-xs">v1.8.11.f</p>
+                  <p className="text-white/60 text-xs">v1.8.11.g</p>
                 </div>
               </Link>
 

@@ -125,7 +125,7 @@ export const getDeliveryDocketPreview = async (path: string): Promise<string> =>
 // Use getDeliveryDocketSignedUrl() instead for secure authenticated access
 
 // Deployment verification - this will show in console if new code is running
-console.log('🚀 Supabase lib loaded - Bug fixes complete - v1.8.11.f')
+console.log('🚀 Supabase lib loaded - Debug 500 errors - v1.8.11.g')
 
 // =====================================================
 // MULTI-TENANT HELPER FUNCTIONS
