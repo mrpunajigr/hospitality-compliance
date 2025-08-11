@@ -48,7 +48,7 @@ export default function ComplianceDashboard({ clientId, userId }: ComplianceDash
   // Load dashboard data
   useEffect(() => {
     loadDashboardData()
-  }, [clientId])
+  }, [clientId]) // Removed loadDashboardData from dependencies to prevent infinite loop
 
   const loadDashboardData = async () => {
     try {
