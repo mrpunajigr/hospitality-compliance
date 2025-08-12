@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
+import DevVersionHeader from "./components/DevVersionHeader";
+import ProductionVersionFooter from "./components/ProductionVersionFooter";
+import { DesignTokens } from '@/lib/design-system';
 
 export const metadata: Metadata = {
   title: 'Hospitality Compliance SaaS',
@@ -46,12 +49,14 @@ export default function RootLayout({
         {/* Modern browsers and Next.js 15 provide sufficient ES6+ support */}
       </head>
       <body
-        className="font-source antialiased"
+        className="font-sans antialiased"
         suppressHydrationWarning={true}
       >
+        <DevVersionHeader />
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
+        <ProductionVersionFooter />
       </body>
     </html>
   );

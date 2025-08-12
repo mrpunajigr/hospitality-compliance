@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import ImageUploader from '@/app/components/ImageUploader'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+import { getVersionDisplay } from '@/lib/version'
 
 // Demo client ID - in real app this would come from auth context
 const DEMO_CLIENT_ID = '550e8400-e29b-41d4-a716-446655440001'
@@ -67,7 +69,7 @@ export default function CompanySettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+        <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-white font-medium">Loading Company Settings...</p>
@@ -82,10 +84,10 @@ export default function CompanySettingsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className={`${getTextStyle('pageTitle')} text-white`}>
                 Company Settings
               </h1>
-              <p className="text-white/70 text-sm">
+              <p className={`${getTextStyle('bodySecondary')} text-white/70`}>
                 Manage your company configuration and preferences
               </p>
               <p className="text-blue-300 text-xs mt-1">
@@ -100,7 +102,7 @@ export default function CompanySettingsPage() {
           
           {/* Company Branding Section */}
           <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl mb-8">
-            <h2 className="text-xl font-semibold text-white mb-6">Company Branding</h2>
+            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Company Branding</h2>
             
             <div className="flex items-start space-x-8">
               <div className="flex-shrink-0">
@@ -123,7 +125,7 @@ export default function CompanySettingsPage() {
               </div>
               
               <div className="flex-1">
-                <h3 className="text-lg font-medium text-white mb-2">Brand Guidelines</h3>
+                <h3 className={`${getTextStyle('cardTitle')} text-white mb-2`}>Brand Guidelines</h3>
                 <div className="text-sm text-white/80 space-y-2">
                   <p>• Logo should be clear and professional</p>
                   <p>• Supported formats: JPG, PNG, WebP, SVG</p>
@@ -136,21 +138,21 @@ export default function CompanySettingsPage() {
           </div>
 
           <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl mb-8">
-            <h2 className="text-xl font-semibold text-white mb-6">Company Information</h2>
+            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Company Information</h2>
             
             <form className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Company Name</label>
+                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Company Name</label>
                   <input
                     type="text"
                     defaultValue={client?.name || 'Demo Restaurant Ltd'}
-                    className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={getFormFieldStyle()}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Business Type</label>
+                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Business Type</label>
                   <select 
                     defaultValue={client?.business_type || 'restaurant'}
                     className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -165,20 +167,20 @@ export default function CompanySettingsPage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Business Email</label>
+                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Business Email</label>
                   <input
                     type="email"
                     defaultValue={client?.business_email || 'info@demorestaurant.com'}
-                    className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={getFormFieldStyle()}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Phone Number</label>
+                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Phone Number</label>
                   <input
                     type="tel"
                     defaultValue={client?.phone || '+64 9 123 4567'}
-                    className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={getFormFieldStyle()}
                   />
                 </div>
               </div>
@@ -186,7 +188,7 @@ export default function CompanySettingsPage() {
           </div>
 
           <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl mb-8">
-            <h2 className="text-xl font-semibold text-white mb-6">Compliance Settings</h2>
+            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Compliance Settings</h2>
             
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -222,7 +224,7 @@ export default function CompanySettingsPage() {
           
           {/* Version */}
           <div className="text-center mt-8">
-            <span className="text-white/60 text-sm">v1.8.6</span>
+            <span className={`${getTextStyle('version')} text-white/60`}>{getVersionDisplay('short')}</span>
           </div>
 
         </div>

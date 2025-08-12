@@ -45,12 +45,17 @@ export default function ComplianceDashboard({ clientId, userId }: ComplianceDash
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Track main component renders to debug infinite loop
+  // console.log('🏠 ComplianceDashboard render - clientId:', clientId, 'records:', deliveryRecords.length)
+
   // Load dashboard data
   useEffect(() => {
+    // console.log('🔄 useEffect triggered - clientId:', clientId)
     loadDashboardData()
   }, [clientId]) // Removed loadDashboardData from dependencies to prevent infinite loop
 
   const loadDashboardData = async () => {
+    // console.log('📊 loadDashboardData called for clientId:', clientId)
     try {
       setLoading(true)
       setError(null)
@@ -330,8 +335,8 @@ function DeliveryRecordCard({ record }: { record: DeliveryRecordWithRelations })
   const [thumbnailLoading, setThumbnailLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   
-  // Deployment verification - this will show if new component code is running
-  console.log('📋 Dashboard component loaded - Bug fixes complete - v1.8.11.f')
+  // Track component renders to debug infinite loop
+  // console.log('🔄 DeliveryRecordCard render for record:', record.id)
   
   // Extract core data for Phase 2 display
   const supplierName = record.supplier_name || 'Unknown Supplier'

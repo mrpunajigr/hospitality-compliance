@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { DesignTokens, getTextStyle } from '@/lib/design-system'
 
 export default function ReportsPage() {
   const [user, setUser] = useState<any>(null)
@@ -138,10 +139,10 @@ export default function ReportsPage() {
       
       {/* Page Header - Exact Dashboard Style */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-white drop-shadow-lg">
           Compliance Reports
         </h1>
-        <p className="text-white/70 text-sm">
+        <p className="text-white/90 text-sm drop-shadow-md">
           Generate and export compliance documentation
         </p>
         <p className="text-blue-300 text-xs mt-1">
@@ -210,50 +211,50 @@ export default function ReportsPage() {
             </div>
 
             {/* Report History */}
-            <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6 mb-8">
+            <div className="bg-white/90 backdrop-blur-sm border border-white/40 rounded-xl p-6 mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Reports</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-white/60 rounded-xl">
                   <div>
                     <h4 className="font-medium text-gray-900">Weekly Summary - Aug 1-7, 2025</h4>
-                    <p className="text-sm text-gray-700">Generated on Aug 7, 2025</p>
+                    <p className="text-sm text-gray-800">Generated on Aug 7, 2025</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                       Download PDF
                     </button>
-                    <button className="text-green-400 hover:text-green-300 text-sm font-medium">
+                    <button className="text-green-600 hover:text-green-700 text-sm font-medium">
                       Export CSV
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-white/60 rounded-xl">
                   <div>
                     <h4 className="font-medium text-gray-900">Temperature Violations - July 2025</h4>
-                    <p className="text-sm text-gray-700">Generated on Aug 1, 2025</p>
+                    <p className="text-sm text-gray-800">Generated on Aug 1, 2025</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                       Download PDF
                     </button>
-                    <button className="text-green-400 hover:text-green-300 text-sm font-medium">
+                    <button className="text-green-600 hover:text-green-700 text-sm font-medium">
                       Export CSV
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-white/60 rounded-xl">
                   <div>
                     <h4 className="font-medium text-gray-900">Monthly Compliance - July 2025</h4>
-                    <p className="text-sm text-gray-700">Generated on Jul 31, 2025</p>
+                    <p className="text-sm text-gray-800">Generated on Jul 31, 2025</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                       Download PDF
                     </button>
-                    <button className="text-green-400 hover:text-green-300 text-sm font-medium">
+                    <button className="text-green-600 hover:text-green-700 text-sm font-medium">
                       Export CSV
                     </button>
                   </div>
@@ -298,11 +299,11 @@ export default function ReportsPage() {
           
           {/* Custom Report Builder Menu */}
           <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Custom Report Builder</h2>
+            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Custom Report Builder</h2>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Date Range</label>
+                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Date Range</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>Last 7 days</option>
                   <option>Last 30 days</option>
@@ -311,7 +312,7 @@ export default function ReportsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Report Type</label>
+                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Report Type</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>Full Compliance</option>
                   <option>Violations Only</option>
@@ -320,7 +321,7 @@ export default function ReportsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Format</label>
+                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Format</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>PDF Report</option>
                   <option>CSV Export</option>

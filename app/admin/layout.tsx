@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { getVersionDisplay } from '@/lib/version'
+import { DesignTokens, getTextStyle } from '@/lib/design-system'
+import ConsoleAdminToggle from '@/app/components/ConsoleAdminToggle'
 
 export default function AdminLayout({
   children,
@@ -24,7 +27,7 @@ export default function AdminLayout({
       <div 
         className="absolute inset-0 bg-cover bg-no-repeat"
         style={{
-          backgroundImage: `url('/chef-workspace.jpg')`,
+          backgroundImage: `url('/Home-Chef-Chicago-8.webp')`,
           backgroundPosition: '50% 50%',
           backgroundAttachment: 'fixed',
           filter: 'brightness(0.9)'
@@ -41,30 +44,30 @@ export default function AdminLayout({
             
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12">
                 <img 
-                  src="/jgr_logo_full.png" 
-                  alt="JGR Logo" 
-                  className="w-7 h-7 object-contain filter brightness-0 invert"
+                  src="/JiGR_Logo-full_figma_circle.png" 
+                  alt="JiGR Logo" 
+                  className="w-12 h-12 object-contain"
                 />
               </div>
               <div>
-                <span className="text-white font-bold text-2xl">Admin Portal</span>
-                <p className="text-white/60 text-xs">v1.8.6</p>
+                <span className={getTextStyle('pageTitle')}>Admin Portal</span>
+                <p className={`${getTextStyle('version')} text-white/60`}>{getVersionDisplay('short')}</p>
               </div>
             </div>
 
             {/* Navigation Pills */}
             <div className="hidden md:flex items-center">
-              <div className="flex bg-white/10 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/20">
+              <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/40 shadow-lg">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                       pathname === item.href
-                        ? 'bg-white/20 text-gray-900 backdrop-blur-sm shadow-sm'
-                        : 'text-gray-800 hover:text-gray-900 hover:bg-white/10'
+                        ? `bg-white ${DesignTokens.colors.text.navActive} backdrop-blur-sm shadow-sm`
+                        : `${DesignTokens.colors.text.navInactive} hover:text-black hover:bg-white/25`
                     }`}
                   >
                     {item.name}
@@ -75,18 +78,14 @@ export default function AdminLayout({
 
             {/* User Avatar & Actions */}
             <div className="flex items-center space-x-4">
-              <Link 
-                href="/workspace/dashboard" 
-                className="bg-white/10 hover:bg-white/20 text-gray-900 hover:text-gray-800 font-medium py-2 px-4 rounded-xl transition-all duration-200 border border-white/20 backdrop-blur-sm"
-              >
-                Back to Dashboard
-              </Link>
+              {/* Console/Admin Toggle */}
+              <ConsoleAdminToggle showLabels={false} />
               
               {/* User Avatar */}
               <div className="flex items-center space-x-3">
                 <div className="text-right hidden md:block">
-                  <div className="text-white font-semibold text-sm">John Doe</div>
-                  <div className="text-white/60 text-xs">Administrator</div>
+                  <div className={`${getTextStyle('body')} font-semibold`}>John Doe</div>
+                  <div className={`${getTextStyle('caption')} text-white/60`}>Administrator</div>
                 </div>
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
                   <img 
@@ -105,15 +104,15 @@ export default function AdminLayout({
         <div className="md:hidden border-t border-white/20">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex justify-center py-3">
-              <div className="flex bg-white/10 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/20">
+              <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/40 shadow-lg">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                       pathname === item.href
-                        ? 'bg-white/20 text-gray-900 backdrop-blur-sm shadow-sm'
-                        : 'text-gray-800 hover:text-gray-900 hover:bg-white/10'
+                        ? `bg-white ${DesignTokens.colors.text.navActive} backdrop-blur-sm shadow-sm`
+                        : `${DesignTokens.colors.text.navInactive} hover:text-black hover:bg-white/25`
                     }`}
                   >
                     {item.name}

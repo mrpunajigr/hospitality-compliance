@@ -1,26 +1,35 @@
 {
   "name": "hospitality-compliance-saas",
-  "version": "1.8.12.a",
+  "version": "1.8.12.p",
   "private": true,
   "browserslist": [
     "iOS >= 12",
     "Safari >= 12"
   ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run increment-build && next dev",
+    "build": "npm run increment-build && npm run generate-static-version && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate-types": "supabase gen types typescript --local > types/supabase.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
-    "supabase:reset": "supabase db reset"
+    "supabase:reset": "supabase db reset",
+    "increment-build": "node scripts/increment-build.js",
+    "log": "node scripts/log-change.js",
+    "alpha": "node scripts/increment-alpha.js",
+    "production": "node scripts/mark-production.js",
+    "version-check": "cat version.json",
+    "generate-static-version": "node scripts/generate-static-version.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.38.0",
     "date-fns": "^2.30.0",
+    "form-data": "^4.0.4",
     "google-auth-library": "^8.9.0",
     "next": "^15.4.5",
+    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "stripe": "^14.0.0"

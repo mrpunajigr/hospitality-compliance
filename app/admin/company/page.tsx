@@ -5,27 +5,12 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
 export default function CompanyPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-    
-    checkAuth()
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   const handleDemoSignIn = async () => {
     try {
@@ -33,6 +18,8 @@ export default function CompanyPage() {
       
       if (!anonError && anonData.user) {
         console.log('Anonymous demo user signed in successfully')
+        setUser(anonData.user)
+        setLoading(false)
         return
       }
 
@@ -49,10 +36,11 @@ export default function CompanyPage() {
       }
       
       setUser(demoUser)
+      setLoading(false)
       
-    } catch (err) {
-      console.error('Demo sign in error:', err)
-      
+    } catch (error) {
+      console.error('Demo sign-in failed:', error)
+      // Fallback demo user
       const demoUser = {
         id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
         email: 'demo@example.com',
@@ -65,16 +53,40 @@ export default function CompanyPage() {
       }
       
       setUser(demoUser)
+      setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // Auto sign-in as demo user for development
+        await handleDemoSignIn()
+      } else {
+        setUser(user)
+        setLoading(false)
+      }
+    }
+    
+    checkAuth()
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+        <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-white font-medium">Loading Company...</p>
+            <p className={getTextStyle('body')}>Loading Company...</p>
           </div>
         </div>
       </div>
@@ -84,12 +96,12 @@ export default function CompanyPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+        <div className={`${getCardStyle('primary')} max-w-md w-full`}>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-2">
+            <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
               Company Profile
             </h1>
-            <p className="text-white/80 text-sm mb-6">
+            <p className={`${getTextStyle('bodySecondary')} mb-6`}>
               Please sign in to manage company settings
             </p>
             
@@ -117,10 +129,10 @@ export default function CompanyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Company Profile
               </h1>
-              <p className="text-white/70 text-sm">
+              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
                 Manage your business information and settings
               </p>
               <p className="text-blue-300 text-xs mt-1">
@@ -142,17 +154,17 @@ export default function CompanyPage() {
               <div className="grid md:grid-cols-3 gap-6 mb-8">
                 
                 {/* Business Info */}
-                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+                <div className={getCardStyle('primary')}>
                   <div className="text-center mb-4">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-2xl">🏢</span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white">Business Info</h3>
-                    <p className="text-sm text-white/90 mt-2">
+                    <h3 className={getTextStyle('cardTitle')}>Business Info</h3>
+                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
                       Demo Restaurant Ltd
                     </p>
                   </div>
-                  <div className="text-sm text-white space-y-1">
+                  <div className={`${getTextStyle('body')} space-y-1`}>
                     <p><strong>Type:</strong> Restaurant</p>
                     <p><strong>License:</strong> AL123456</p>
                     <p><strong>Phone:</strong> +64 9 123 4567</p>
@@ -160,17 +172,17 @@ export default function CompanyPage() {
                 </div>
 
                 {/* Subscription */}
-                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+                <div className={getCardStyle('primary')}>
                   <div className="text-center mb-4">
                     <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-2xl">💎</span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white">Subscription</h3>
-                    <p className="text-sm text-white/90 mt-2">
+                    <h3 className={getTextStyle('cardTitle')}>Subscription</h3>
+                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
                       Professional Plan
                     </p>
                   </div>
-                  <div className="text-sm text-white space-y-1">
+                  <div className={`${getTextStyle('body')} space-y-1`}>
                     <p><strong>Status:</strong> Active</p>
                     <p><strong>Usage:</strong> 127/2000</p>
                     <p><strong>Billing:</strong> $99/month</p>
@@ -178,17 +190,17 @@ export default function CompanyPage() {
                 </div>
 
                 {/* Team */}
-                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+                <div className={getCardStyle('primary')}>
                   <div className="text-center mb-4">
                     <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-2xl">👥</span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white">Team</h3>
-                    <p className="text-sm text-white/90 mt-2">
+                    <h3 className={getTextStyle('cardTitle')}>Team</h3>
+                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
                       4 Active Users
                     </p>
                   </div>
-                  <div className="text-sm text-white space-y-1">
+                  <div className={`${getTextStyle('body')} space-y-1`}>
                     <p><strong>Admins:</strong> 2</p>
                     <p><strong>Staff:</strong> 2</p>
                     <p><strong>Pending:</strong> 0</p>
@@ -198,23 +210,23 @@ export default function CompanyPage() {
               </div>
 
               {/* Business Information Form */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
-                <h2 className="text-xl font-semibold text-white mb-6">Business Information</h2>
+              <div className={getCardStyle('primary')}>
+                <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Information</h2>
                 
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">Business Name</label>
+                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Business Name</label>
                       <input
                         type="text"
                         defaultValue="Demo Restaurant Ltd"
-                        className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={getFormFieldStyle()}
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">Business Type</label>
-                      <select className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Business Type</label>
+                      <select className={getFormFieldStyle()}>
                         <option value="restaurant">Restaurant</option>
                         <option value="cafe">Café</option>
                         <option value="hotel">Hotel</option>
@@ -225,39 +237,39 @@ export default function CompanyPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">Contact Email</label>
+                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Contact Email</label>
                       <input
                         type="email"
                         defaultValue="admin@demorestaurant.co.nz"
-                        className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={getFormFieldStyle()}
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">Phone Number</label>
+                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Phone Number</label>
                       <input
                         type="tel"
                         defaultValue="+64 9 123 4567"
-                        className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={getFormFieldStyle()}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">Address</label>
+                    <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Address</label>
                     <textarea
                       rows={3}
                       defaultValue="123 Queen Street, Auckland CBD, Auckland 1010"
-                      className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={getFormFieldStyle()}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">Alcohol License Number</label>
+                    <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Alcohol License Number</label>
                     <input
                       type="text"
                       defaultValue="AL123456789"
-                      className="w-full px-4 py-3 bg-white/90 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={getFormFieldStyle()}
                     />
                   </div>
 
@@ -282,42 +294,42 @@ export default function CompanyPage() {
 
             {/* Right Column - Quick Actions Sidebar */}
             <div className="w-64">
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg sticky top-8">
-                <h2 className="text-xl font-semibold text-white mb-6">Quick Actions</h2>
+              <div className={`${getCardStyle('sidebar')} sticky top-8`}>
+                <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Quick Actions</h2>
                 
                 <div>
                   <Link href="/admin/company/settings" className="block mb-4">
-                    <div className="bg-white/20 hover:bg-white/30 rounded-xl p-6 transition-all duration-200 cursor-pointer">
+                    <div className={getCardStyle('secondary')}>
                       <div>
-                        <h3 className="font-semibold text-white text-lg">Settings</h3>
-                        <p className="text-sm text-white/80 mt-2">Compliance rules & preferences</p>
+                        <h3 className={getTextStyle('cardTitle')}>Settings</h3>
+                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Compliance rules & preferences</p>
                       </div>
                     </div>
                   </Link>
                   
                   <Link href="/admin/company/team" className="block mb-4">
-                    <div className="bg-white/20 hover:bg-white/30 rounded-xl p-6 transition-all duration-200 cursor-pointer">
+                    <div className={getCardStyle('secondary')}>
                       <div>
-                        <h3 className="font-semibold text-white text-lg">Team</h3>
-                        <p className="text-sm text-white/80 mt-2">Manage users & permissions</p>
+                        <h3 className={getTextStyle('cardTitle')}>Team</h3>
+                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Manage users & permissions</p>
                       </div>
                     </div>
                   </Link>
                   
                   <Link href="/admin/company/billing" className="block mb-4">
-                    <div className="bg-white/20 hover:bg-white/30 rounded-xl p-6 transition-all duration-200 cursor-pointer">
+                    <div className={getCardStyle('secondary')}>
                       <div>
-                        <h3 className="font-semibold text-white text-lg">Billing</h3>
-                        <p className="text-sm text-white/80 mt-2">Subscription & payment</p>
+                        <h3 className={getTextStyle('cardTitle')}>Billing</h3>
+                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Subscription & payment</p>
                       </div>
                     </div>
                   </Link>
                   
                   <Link href="/workspace/reports" className="block">
-                    <div className="bg-white/20 hover:bg-white/30 rounded-xl p-6 transition-all duration-200 cursor-pointer">
+                    <div className={getCardStyle('secondary')}>
                       <div>
-                        <h3 className="font-semibold text-white text-lg">Reports</h3>
-                        <p className="text-sm text-white/80 mt-2">Export compliance data</p>
+                        <h3 className={getTextStyle('cardTitle')}>Reports</h3>
+                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Export compliance data</p>
                       </div>
                     </div>
                   </Link>

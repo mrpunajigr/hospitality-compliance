@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import SafariCompatibleUpload from '../../components/delivery/SafariCompatibleUpload'
 import { supabase } from '@/lib/supabase'
+import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 
 // Demo data for testing
 const DEMO_CLIENT_ID = '550e8400-e29b-41d4-a716-446655440001'
@@ -96,7 +97,7 @@ export default function UploadPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+          <div className={getCardStyle('primary')}>
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
               <p className="text-white font-medium">Loading Upload...</p>
@@ -163,10 +164,10 @@ export default function UploadPage() {
       
       {/* Page Header - Exact Dashboard Style */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
           Upload Delivery Docket
         </h1>
-        <p className="text-white/70 text-sm">
+        <p className={`${getTextStyle('bodySecondary')} text-white/90 drop-shadow-md`}>
           Photograph and process delivery documents with AI
         </p>
         <p className="text-blue-300 text-xs mt-1">
@@ -179,12 +180,12 @@ export default function UploadPage() {
         {/* Main Content - Takes up 3 columns */}
         <div className="lg:col-span-3">
           
-          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+          <div className={getCardStyle('primary')}>
             <div className="text-center mb-8">
-              <h2 className="text-xl font-semibold text-white mb-2">
+              <h2 className={`${getTextStyle('sectionTitle')} text-white mb-2`}>
                 Capture Delivery Document
               </h2>
-              <p className="text-white/80 text-sm">
+              <p className={`${getTextStyle('bodySecondary')} text-white/80`}>
                 Take a photo of your delivery docket for AI processing
               </p>
             </div>
@@ -202,11 +203,11 @@ export default function UploadPage() {
             {/* Instructions */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* Camera Tips */}
-              <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">
+              <div className={getCardStyle('secondary')}>
+                <h3 className={`${getTextStyle('cardTitle')} text-white mb-4`}>
                   Camera Tips
                 </h3>
-                <ul className="text-sm text-white space-y-2">
+                <ul className={`${getTextStyle('bodySmall')} text-white space-y-2`}>
                   <li className="flex items-start">
                     <span className="text-green-400 mr-2">•</span>
                     Ensure good lighting
@@ -231,11 +232,11 @@ export default function UploadPage() {
               </div>
 
               {/* AI Processing */}
-              <div className="bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">
+              <div className={getCardStyle('secondary')}>
+                <h3 className={`${getTextStyle('cardTitle')} text-white mb-4`}>
                   AI Processing
                 </h3>
-                <ul className="text-sm text-white space-y-2">
+                <ul className={`${getTextStyle('bodySmall')} text-white space-y-2`}>
                   <li className="flex items-start">
                     <span className="text-blue-400 mr-2">•</span>
                     Extracts temperature readings
@@ -301,8 +302,8 @@ export default function UploadPage() {
 
         {/* Right Column - Upload Actions Sidebar - Takes up 1 column */}
         <div className="lg:col-span-1">
-          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-semibold text-white mb-6">Upload Actions</h2>
+          <div className={getCardStyle('primary')}>
+            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Upload Actions</h2>
             
             <div>
               <button 

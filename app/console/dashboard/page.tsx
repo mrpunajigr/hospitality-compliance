@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import SafariCompatibleUpload from '../../components/delivery/SafariCompatibleUpload'
 import ComplianceDashboard from '../../components/compliance/ComplianceDashboard'
 import { supabase } from '@/lib/supabase'
+import { getVersionDisplay } from '@/lib/version'
+import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 
 // Demo data for testing (since we don't have auth yet)
 const DEMO_CLIENT_ID = '550e8400-e29b-41d4-a716-446655440001' // From our seed data
@@ -99,10 +101,10 @@ export default function DashboardPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+          <div className={getCardStyle('primary')}>
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-white font-medium">Loading Dashboard...</p>
+              <p className={`${getTextStyle('body')} font-medium`}>Loading Dashboard...</p>
             </div>
           </div>
         </div>
@@ -114,12 +116,12 @@ export default function DashboardPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg max-w-md w-full">
+          <div className={`${getCardStyle('primary')} max-w-md w-full`}>
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-white mb-2">
+              <h1 className={`${getTextStyle('pageTitle')} text-white mb-2`}>
                 Hospitality Compliance
               </h1>
-              <p className="text-white/80 text-sm mb-6">
+              <p className={`${getTextStyle('bodySecondary')} text-white/80 mb-6`}>
                 Please sign in to access the dashboard
               </p>
               
@@ -162,12 +164,12 @@ export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      {/* Page Header - Exact Admin Portal Style */}
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
           Dashboard
         </h1>
-        <p className="text-white/70 text-sm">
+        <p className={`${getTextStyle('bodySecondary')} text-white/90 drop-shadow-md`}>
           AI-powered delivery tracking and compliance monitoring
         </p>
         <p className="text-blue-300 text-xs mt-1">
@@ -182,7 +184,7 @@ export default function DashboardPage() {
 
           {/* Content */}
           {activeTab === 'dashboard' && (
-            <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
+            <div className={getCardStyle('primary')}>
               <ComplianceDashboard 
                 clientId={DEMO_CLIENT_ID}
                 userId={user.id}
@@ -191,8 +193,8 @@ export default function DashboardPage() {
           )}
 
           {activeTab === 'upload' && (
-            <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
-                <h2 className="text-xl font-semibold text-white mb-6 text-center">
+            <div className={getCardStyle('primary')}>
+                <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6 text-center`}>
                   Upload Delivery Docket Photo
                 </h2>
                 
@@ -246,7 +248,7 @@ export default function DashboardPage() {
                 
                 {/* Version */}
                 <div className="text-center mt-8">
-                  <span className="text-white/60 text-sm">v1.8.6</span>
+                  <span className={`${getTextStyle('version')} text-white/60`}>{getVersionDisplay('short')}</span>
                 </div>
             </div>
           )}

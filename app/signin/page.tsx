@@ -8,6 +8,9 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
+import { getVersionDisplay } from '@/lib/version'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -96,11 +99,11 @@ export default function SignInPage() {
           <div className="flex items-center justify-center h-24">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12">
                 <img 
-                  src="/jgr_logo_full.png" 
-                  alt="JGR Logo" 
-                  className="w-7 h-7 object-contain filter brightness-0 invert"
+                  src="/JiGR_Logo-full_figma_circle.png" 
+                  alt="JiGR Logo" 
+                  className="w-12 h-12 object-contain"
                 />
               </div>
               <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
@@ -112,16 +115,13 @@ export default function SignInPage() {
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
         {/* Glass Morphism Card */}
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
+        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-white text-3xl font-bold mb-2 tracking-tight">
+            <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
               Welcome Back
             </h1>
-            <p className="text-white/60 text-xs mb-4">
-              v1.8.6
-            </p>
-            <p className="text-white/80 text-sm font-light">
+            <p className={`${getTextStyle('bodySecondary')} font-light`}>
               Sign in to your compliance dashboard
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function SignInPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -150,7 +150,7 @@ export default function SignInPage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -181,13 +181,13 @@ export default function SignInPage() {
           {/* Demo Access */}
           <div className="mt-6">
             <div className="text-center mb-4">
-              <p className="text-white/70 text-sm">or</p>
+              <p className={`${getTextStyle('body')} ${DesignTokens.colors.text.onGlassSecondary}`}>or</p>
             </div>
             
             <button
               onClick={handleDemoAccess}
               disabled={isLoading}
-              className="w-full bg-white/20 hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-white/30 backdrop-blur-sm transform hover:scale-[1.02] disabled:transform-none"
+              className={`w-full ${DesignTokens.colors.glass.cardSecondary} hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed ${DesignTokens.colors.text.onGlass} font-medium py-3 px-6 ${DesignTokens.layout.rounded} transition-all duration-200 ${DesignTokens.colors.glass.borderMedium} border ${DesignTokens.effects.blur} transform hover:scale-[1.02] disabled:transform-none`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -209,7 +209,7 @@ export default function SignInPage() {
               Forgot your password?
             </Link>
             
-            <p className="text-white/80 text-sm">
+            <p className={`${getTextStyle('body')} ${DesignTokens.colors.text.onGlassSecondary}`}>
               Don&apos;t have an account?{' '}
               <Link 
                 href="/create-account" 
@@ -217,6 +217,13 @@ export default function SignInPage() {
               >
                 Sign Up
               </Link>
+            </p>
+          </div>
+          
+          {/* Version */}
+          <div className="text-center mt-6 pt-4 border-t border-white/10">
+            <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>
+              {getVersionDisplay('prod')}
             </p>
           </div>
         </div>

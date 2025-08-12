@@ -1,5 +1,8 @@
 'use client'
 
+import { getVersionDisplay } from '@/lib/version'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+
 // Hospitality Compliance SaaS - Create Account Page
 // Glass morphism design matching the landing page
 
@@ -99,11 +102,11 @@ export default function CreateAccountPage() {
           <div className="flex items-center justify-center h-24">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12">
                 <img 
-                  src="/jgr_logo_full.png" 
-                  alt="JGR Logo" 
-                  className="w-7 h-7 object-contain filter brightness-0 invert"
+                  src="/JiGR_Logo-full_figma_circle.png" 
+                  alt="JiGR Logo" 
+                  className="w-12 h-12 object-contain"
                 />
               </div>
               <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
@@ -115,16 +118,13 @@ export default function CreateAccountPage() {
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
         {/* Glass Morphism Card */}
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
+        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-white text-3xl font-bold mb-2 tracking-tight">
+            <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
               Create Account
             </h1>
-            <p className="text-white/60 text-xs mb-4">
-              v1.8.6
-            </p>
-            <p className="text-white/80 text-sm font-light">
+            <p className={`${getTextStyle('bodySecondary')} font-light`}>
               Start your compliance journey today
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function CreateAccountPage() {
                 value={formData.businessName}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -151,7 +151,7 @@ export default function CreateAccountPage() {
                 value={formData.businessType}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               >
                 <option value="restaurant" className="text-gray-800">Restaurant</option>
                 <option value="cafe" className="text-gray-800">Café</option>
@@ -170,7 +170,7 @@ export default function CreateAccountPage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -183,7 +183,7 @@ export default function CreateAccountPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -195,7 +195,7 @@ export default function CreateAccountPage() {
                 placeholder="Phone Number"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -208,7 +208,7 @@ export default function CreateAccountPage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -221,7 +221,7 @@ export default function CreateAccountPage() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={getFormFieldStyle()}
               />
             </div>
 
@@ -251,7 +251,7 @@ export default function CreateAccountPage() {
 
           {/* Sign In Link */}
           <div className="text-center mt-6">
-            <p className="text-white/80 text-sm">
+            <p className={`${getTextStyle('body')} ${DesignTokens.colors.text.onGlassSecondary}`}>
               Already have an account?{' '}
               <Link 
                 href="/signin" 
@@ -259,6 +259,13 @@ export default function CreateAccountPage() {
               >
                 Sign In
               </Link>
+            </p>
+          </div>
+          
+          {/* Version */}
+          <div className="text-center mt-6 pt-4 border-t border-white/10">
+            <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>
+              {getVersionDisplay('prod')}
             </p>
           </div>
         </div>

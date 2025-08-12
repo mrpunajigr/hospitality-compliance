@@ -40,7 +40,25 @@ When choosing between options, ask:
 
 Choose the option that scores highest on these criteria, regardless of initial time investment.
 
-# Localhost Development Server Troubleshooting
+# Development Server Protocol
+
+## Standard Dev Server Startup Protocol ⚠️
+**IMPORTANT**: Before any NEW testing session on the development server:
+
+### **Required Fresh Start Process:**
+1. **Restart computer** - Full system restart to clear all processes and memory
+2. **Open Terminal** - Fresh terminal session on startup
+3. **Navigate to project**: `cd /path/to/hospitality-compliance`
+4. **Start dev server**: `npm run dev`
+5. **Verify connection**: Check that localhost:3000 (or assigned port) loads properly
+
+### **Why This Protocol is Required:**
+- **Node.js v22 binding issues**: Port binding problems that persist across sessions
+- **Memory cleanup**: Ensures clean state for testing new features
+- **Process conflicts**: Eliminates lingering Node processes
+- **Consistent environment**: Ensures repeatable testing conditions
+
+## Localhost Development Server Troubleshooting
 
 When localhost is not connecting, follow these steps in order:
 
@@ -120,6 +138,231 @@ When context warning is triggered:
 - User will be notified: "⚠️ Approaching context limits - committing work and pausing"
 - User can then run `claude --resume` to continue in fresh session
 
+# Centralized Design System
+
+## Architecture
+The application uses a centralized design system located at `/lib/design-system.ts` that provides:
+
+### Design Tokens
+- **Colors**: Glass morphism cards, text colors, status colors
+- **Typography**: Consistent font sizes, weights, and hierarchy
+- **Spacing**: Standardized padding, margins, and layout patterns
+- **Effects**: Blur, shadows, transitions, and animations
+
+### Utility Functions
+- `getCardStyle(variant)`: Returns complete styling for card components
+- `getTextStyle(type)`: Returns typography styling for text elements  
+- `getFormFieldStyle()`: Returns consistent form input styling
+
+### Reusable Components
+Located at `/lib/components.ts`:
+- **StyledCard**: Pre-styled card variants (Primary, Secondary, Form, Sidebar)
+- **StyledText**: Typography components (PageTitle, SectionTitle, Body, etc.)
+- **StyledForm**: Form elements (Input, Select, Textarea)
+- **LayoutPatterns**: Common spacing and grid patterns
+- **ButtonStyles**: Consistent button styling patterns
+
+## Usage Guidelines
+
+### ✅ Do Use Design System
+```typescript
+// Good - Using design system utilities
+<div className={getCardStyle('primary')}>
+  <h1 className={`${getTextStyle('pageTitle')} text-white`}>Title</h1>
+  <input className={getFormFieldStyle()} />
+</div>
+```
+
+### ❌ Avoid Hardcoded Styles
+```typescript
+// Avoid - Hardcoded Tailwind classes
+<div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8">
+  <h1 className="text-2xl font-bold text-white">Title</h1>
+  <input className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl" />
+</div>
+```
+
+### Migration Process
+1. Import design system utilities: `import { getCardStyle, getTextStyle } from '@/lib/design-system'`
+2. Replace hardcoded classes with utility functions
+3. Test for visual consistency across pages
+4. Use TypeScript compilation to catch missing properties
+
+## Benefits
+- **Single source of truth** for all styling
+- **Easy global changes** - update design tokens to affect entire app
+- **Consistent user experience** across all pages and components
+- **Maintainable code** with clear patterns and documentation
+- **Type safety** with TypeScript integration
+
+# Claude Code Autonomy Protocol
+
+## Integration with Workflow
+The autonomy instructions from `claude_code_autonomy_instructions.md` are now integrated into the standard workflow:
+
+### AUTO-ACCEPT EDITS Mode
+When enabled, Claude executes routine development tasks autonomously:
+
+#### ✅ Execute Automatically
+- Writing new components and functions
+- Implementing UI components from designs  
+- Adding CSS/styling changes using design system
+- Creating new files and directories
+- Fixing syntax errors and TypeScript issues
+- Adding imports and exports
+- Code formatting and cleanup
+- Creating utility functions
+
+#### 🛑 Stop and Ask
+- Modifying core authentication system
+- Changing database schema with existing data
+- Adding new npm packages
+- Changing fundamental app architecture
+- Modifying Supabase configuration
+
+### Communication Pattern
+```
+Instead of: "Should I create this component?"
+Execute: "Creating the component with design system integration..."
+
+Instead of: "Would you like me to fix this styling?"  
+Execute: "Fixing styling inconsistency using getCardStyle()..."
+```
+
+### Decision Framework
+1. Is this specified in planning documents? → Execute
+2. Does this follow existing patterns? → Execute  
+3. Is this standard development practice? → Execute
+4. Would this break something major? → Ask first
+5. When in doubt, choose simpler implementation → Execute
+
+## Token Efficiency Benefits
+- Eliminates repetitive confirmation cycles
+- Enables batch execution of related changes
+- Reduces context usage through autonomous execution
+- Maintains quality through established patterns and safeguards
+
+# Enhanced Version Control Protocol
+
+## Implementation Status ✅
+The enhanced version protocol from `enhanced-version-protocol.md` is now fully implemented:
+
+### **Commands Available:**
+```bash
+npm run dev          # Auto-increment build + start development
+npm run log "type" "description"  # Add changelog entry
+npm run alpha        # Create alpha iteration (same-day)
+npm run production   # Mark as production-ready
+npm run version-check # Show current version status
+```
+
+### **Version Format:**
+- **Development**: `v1.8.12.007a` (major.month.day.build + alpha)
+- **Production**: `v1.8.12a` (major.month.day + alpha, no build number)
+
+### **Visual Indicators:**
+- **Development**: Red header with version, env, and build time
+- **Production**: Subtle footer with clean version number
+
+### **Benefits:**
+- **🎯 Precise issue tracking**: "Issue appeared in build v1.8.12.045d"
+- **⏰ Build timestamps**: Know exactly when changes were made
+- **📝 Automatic changelog**: `npm run log "fix" "Fixed upload issue"`
+- **🔄 Alpha iterations**: Same-day refinements without incrementing build
+- **🏭 Production marking**: Clean versioning for releases
+
+## Quick Reference
+```bash
+# Development workflow
+npm run dev                    # Start with auto-increment
+npm run log "fix" "Fixed bug"  # Log the change
+npm run alpha                  # Create iteration
+npm run production            # Mark ready for release
+```
+
+# App Architecture Reference
+
+## Complete System Documentation
+The application architecture is comprehensively documented in `/app_architecture_structure.md` which provides:
+
+### **📱 Application Structure**
+- **Route organization**: Public routes, admin routes, workspace functionality
+- **Component hierarchy**: Shared components, layout components, page-specific elements
+- **Navigation patterns**: Bottom tabs, sidebar navigation, contextual headers
+
+### **🎯 Target Platform Optimization**
+- **iPad Air (2013) compatibility**: Safari 12+ optimization, 1GB RAM considerations
+- **Touch-first interface**: 44px minimum touch targets, thumb-friendly navigation
+- **Performance considerations**: Image compression, lazy loading, memory management
+
+### **🔐 Authentication & Authorization**
+- **Role-based access**: Staff (upload only), Manager (view reports), Admin (full access)
+- **Route protection**: Public vs authenticated routes, role-specific functionality
+- **Inspector portal**: Secure token-based read-only access for health inspectors
+
+### **🎨 Design System Integration** 
+- **Consistent UI patterns**: Cards, forms, navigation components using design system
+- **Mobile-optimized layouts**: Single column, large text, accessible contrast
+- **Component standardization**: All components follow design system utilities
+
+### **🚀 Key Features**
+- **Core functionality**: Document upload, AI processing, compliance reporting
+- **User workflows**: Onboarding, daily operations, admin management
+- **Business logic**: Temperature monitoring, violation alerts, audit trails
+
+This architecture guide ensures consistent implementation patterns and maintains the iPad Air optimization focus while providing comprehensive SaaS functionality.
+
 # Memories
-- Placeholder for adding future memories about the project workflow and important milestones
-- Added the number 1 as a placeholder memory entry
+- **v1.8.12.007a**: Implemented centralized design system across entire application
+- **v1.8.12.007a**: Enhanced version control protocol with granular build tracking
+- **Design System Migration**: Successfully migrated 15+ pages to use design tokens and utility functions
+- **Autonomy Protocol**: Integrated autonomous execution workflow for improved efficiency
+- **Type Safety**: Established TypeScript integration with design system for compile-time validation
+- **Version Protocol**: Complete implementation of development vs production versioning system
+- **Screenshot Analysis Protocol**: Autonomous visual debugging workflow for instant issue detection and fixes
+- **Visual Style Guide Protocol**: Living documentation system that auto-syncs with design system changes  
+- **App Architecture Documentation**: Complete system reference with iPad Air optimization patterns
+
+## Screenshot Analysis - Context-Aware Auto-Archive Protocol ✅
+
+### **AUTONOMOUS TASK**: Context-driven screenshot analysis and archiving:
+
+#### **Step 0: Identify FIX TOPIC** ✅ Auto-Execute
+- **Determine current investigation focus** from conversation context
+- **Target analysis** to specific problem area (spacing, theming, responsive, etc.)
+- **Ignore irrelevant** design elements outside fix scope
+
+#### **Step 1-5: Context-Focused Analysis & Fixes** ✅ Auto-Execute  
+- **Analyze screenshots** with laser focus on current FIX TOPIC
+- **Execute targeted fixes** directly addressing the identified issue
+- **Apply design system** solutions relevant to the problem area
+
+#### **Step 6: Context-Aware Archive** ✅ Auto-Execute
+1. **Rename with fix topic**: `YYYY-MM-DD_fix-topic_feature-mode_ANALYZED.png`
+2. **Move to READ folder** from `:assets/dev screenshots/` to `:assets/Read/`
+3. **Clean up dev folder** for next screenshot batch
+4. **Report completion** with context and archived filenames
+
+### **Context-Aware Naming Examples:**
+```
+2025-08-12_header-spacing_mood-board-split_ANALYZED.png
+2025-08-12_theme-toggle_component-switching_ANALYZED.png
+2025-08-12_mobile-responsive_dashboard-tablet_ANALYZED.png
+2025-08-12_form-validation_error-states_ANALYZED.png
+```
+
+### **Communication Pattern:**
+```
+🎯 FIX TOPIC: Header spacing inconsistency
+✅ Screenshot analysis complete - Headers now consistent between modes  
+🔧 Auto-executed: Standardized padding to py-6 across all views
+📁 Archived: 2025-08-12_header-spacing_mood-board-comparison_ANALYZED.png
+🧹 Dev screenshots folder ready for next batch
+```
+
+### **Benefits:**
+- **Laser-focused analysis** on actual problems, not general review
+- **Relevant fixes only** - no scope creep during investigation
+- **Better file organization** with topic-based searchable names
+- **Context preservation** for future debugging reference
+- **Faster problem resolution** through targeted approach

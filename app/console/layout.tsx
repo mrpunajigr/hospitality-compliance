@@ -4,8 +4,12 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getVersionDisplay } from '@/lib/version'
+import DevVersionHeader from '@/app/components/DevVersionHeader'
+import { DesignTokens, getTextStyle } from '@/lib/design-system'
+import ConsoleAdminToggle from '@/app/components/ConsoleAdminToggle'
 
-export default function WorkspaceLayout({
+export default function ConsoleLayout({
   children,
 }: {
   children: React.ReactNode
@@ -51,18 +55,21 @@ export default function WorkspaceLayout({
   }, [])
 
   const navigation = [
-    { name: 'Dashboard', href: '/workspace/dashboard' },
-    { name: 'Upload', href: '/workspace/upload' },
-    { name: 'Reports', href: '/workspace/reports' },
+    { name: 'Dashboard', href: '/console/dashboard' },
+    { name: 'Upload', href: '/console/upload' },
+    { name: 'Reports', href: '/console/reports' },
   ]
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Development Version Header */}
+      <DevVersionHeader />
+      
       {/* Background */}
       <div 
         className="absolute inset-0 bg-cover bg-no-repeat"
         style={{
-          backgroundImage: `url('/chef-workspace.jpg')`,
+          backgroundImage: `url('/chef-workspace1jpg.jpg')`,
           backgroundPosition: '50% 50%',
           backgroundAttachment: 'fixed',
           filter: 'brightness(0.7)'
@@ -91,22 +98,22 @@ export default function WorkspaceLayout({
                   )}
                 </div>
                 <div>
-                  <span className="text-white font-bold text-2xl">Workspace</span>
-                  <p className="text-white/60 text-xs">v1.8.12.a</p>
+                  <span className={`${getTextStyle('pageTitle')} text-white`}>Console</span>
+                  <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>{getVersionDisplay('prod')}</p>
                 </div>
               </Link>
 
               {/* Navigation Pills - Exact Admin Style */}
               <div className="hidden md:flex items-center">
-                <div className="flex bg-white/10 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/20">
+                <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 space-x-1 border border-white/40 shadow-lg">
                   {navigation.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                         pathname === item.href
-                          ? 'bg-white/20 text-white backdrop-blur-sm shadow-sm'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
+                          ? `bg-white ${DesignTokens.colors.text.navActive} backdrop-blur-sm shadow-sm`
+                          : `${DesignTokens.colors.text.navInactive} hover:text-black hover:bg-white/25`
                       }`}
                     >
                       {item.name}
@@ -117,18 +124,14 @@ export default function WorkspaceLayout({
 
               {/* User Avatar & Actions */}
               <div className="flex items-center space-x-4">
-                <Link 
-                  href="/admin/company" 
-                  className="bg-white/10 hover:bg-white/20 text-white hover:text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 border border-white/20 backdrop-blur-sm"
-                >
-                  Admin Portal
-                </Link>
+                {/* Console/Admin Toggle */}
+                <ConsoleAdminToggle showLabels={false} />
                 
                 {/* User Avatar */}
                 <Link href="/admin/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                   <div className="text-right hidden md:block">
-                    <div className="text-white font-semibold text-sm">Demo User</div>
-                    <div className="text-white/60 text-xs">Workspace</div>
+                    <div className={`${getTextStyle('body')} text-white font-semibold`}>Demo User</div>
+                    <div className={`${getTextStyle('caption')} ${DesignTokens.colors.text.onGlassSecondary}`}>Console</div>
                   </div>
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
                     {avatarUrl ? (
@@ -148,7 +151,7 @@ export default function WorkspaceLayout({
           </div>
           
           {/* Mobile Navigation - Exact Admin Style */}
-          <div className="md:hidden border-t border-white/20 bg-white/5 backdrop-blur-sm">
+          <div className="md:hidden border-t border-white/20 bg-black/20 backdrop-blur-sm">
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex space-x-1 py-2">
                 {navigation.map((item) => (
@@ -157,8 +160,8 @@ export default function WorkspaceLayout({
                     href={item.href}
                     className={`flex-1 px-3 py-2 rounded-lg text-center text-sm font-medium transition-all duration-200 ${
                       pathname === item.href
-                        ? 'bg-white/20 text-white backdrop-blur-sm'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                        ? `bg-white ${DesignTokens.colors.text.navActive} backdrop-blur-sm`
+                        : `${DesignTokens.colors.text.navInactive} hover:text-black hover:bg-white/20`
                     }`}
                   >
                     {item.name}

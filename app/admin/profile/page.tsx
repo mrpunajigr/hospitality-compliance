@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ImageUploader from '@/app/components/ImageUploader'
+import { getVersionDisplay } from '@/lib/version'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -16,9 +18,32 @@ export default function ProfilePage() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
       
-      if (user) {
+      if (!user) {
+        // Auto sign-in as demo user for development
+        const demoUser = {
+          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+          email: 'demo@example.com',
+          app_metadata: {},
+          user_metadata: { full_name: 'Demo User' },
+          aud: 'authenticated',
+          role: 'authenticated',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setUser(demoUser)
+        
+        // Set demo profile
+        setProfile({
+          id: demoUser.id,
+          email: demoUser.email,
+          full_name: demoUser.user_metadata?.full_name || 'Demo User',
+          avatar_url: null,
+          phone: '+64 21 123 4567'
+        })
+      } else {
+        setUser(user)
+        
         // Fetch user profile data
         const { data: profileData, error } = await supabase
           .from('profiles')
@@ -47,7 +72,10 @@ export default function ProfilePage() {
     checkAuth()
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+      }
+      // Don't set user to null if session is null - preserve demo user
     })
 
     return () => subscription.unsubscribe()
@@ -108,7 +136,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+        <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-white font-medium">Loading Profile...</p>
@@ -121,12 +149,12 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+        <div className={`${getCardStyle('primary')} max-w-md w-full`}>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-2">
+            <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
               User Profile
             </h1>
-            <p className="text-white/80 text-sm mb-6">
+            <p className={`${getTextStyle('bodySecondary')} mb-6`}>
               Please sign in to view your profile
             </p>
             
@@ -154,10 +182,10 @@ export default function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Profile Settings
               </h1>
-              <p className="text-white/70 text-sm">
+              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
                 Manage your personal account information
               </p>
               <p className="text-blue-300 text-xs mt-1">
@@ -176,7 +204,7 @@ export default function ProfilePage() {
             <div className="flex-1">
               
               {/* Profile Overview */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg mb-6">
+              <div className={`${getCardStyle('form')} mb-6`}>
                 <div className="flex items-start space-x-6 mb-6">
                   {/* Avatar Upload */}
                   <div className="flex-shrink-0">
@@ -197,37 +225,37 @@ export default function ProfilePage() {
                   
                   {/* User Info */}
                   <div className="flex-1 pt-4">
-                    <h2 className="text-2xl font-semibold text-white">{profile?.full_name || 'Demo User'}</h2>
-                    <p className="text-white/80">{profile?.email || 'demo@example.com'}</p>
-                    <p className="text-sm text-white/70 mt-1">Administrator • Demo Restaurant Ltd</p>
+                    <h2 className="text-2xl font-semibold text-gray-900">{profile?.full_name || 'Demo User'}</h2>
+                    <p className="text-gray-700">{profile?.email || 'demo@example.com'}</p>
+                    <p className="text-sm text-gray-600 mt-1">Administrator • Demo Restaurant Ltd</p>
                   </div>
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">47</div>
-                    <div className="text-sm text-white/70">Documents Uploaded</div>
+                    <div className="text-2xl font-bold text-gray-900">47</div>
+                    <div className="text-sm text-gray-600">Documents Uploaded</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">12</div>
-                    <div className="text-sm text-white/70">Days Active</div>
+                    <div className="text-2xl font-bold text-gray-900">12</div>
+                    <div className="text-sm text-gray-600">Days Active</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">98%</div>
-                    <div className="text-sm text-white/70">Compliance Rate</div>
+                    <div className="text-2xl font-bold text-gray-900">98%</div>
+                    <div className="text-sm text-gray-600">Compliance Rate</div>
                   </div>
                 </div>
               </div>
 
               {/* Personal Information */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg mb-6">
-                <h2 className="text-xl font-semibold text-white mb-6">Personal Information</h2>
+              <div className={`${getCardStyle('form')} mb-6`}>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
                 
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">Full Name</label>
                       <input
                         type="text"
                         defaultValue={profile?.full_name || 'Demo User'}
@@ -236,7 +264,7 @@ export default function ProfilePage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">Email Address</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">Email Address</label>
                       <input
                         type="email"
                         defaultValue={profile?.email || 'demo@example.com'}
@@ -247,7 +275,7 @@ export default function ProfilePage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">Phone Number</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">Phone Number</label>
                       <input
                         type="tel"
                         defaultValue={profile?.phone || '+64 21 123 4567'}
@@ -256,7 +284,7 @@ export default function ProfilePage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">Timezone</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">Timezone</label>
                       <select className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="Pacific/Auckland">New Zealand (NZST)</option>
                         <option value="Australia/Sydney">Australia (AEST)</option>
@@ -283,12 +311,12 @@ export default function ProfilePage() {
               </div>
 
               {/* Password & Security */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg mb-6">
-                <h2 className="text-xl font-semibold text-white mb-6">Password & Security</h2>
+              <div className={`${getCardStyle('form')} mb-6`}>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Password & Security</h2>
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-white/90 mb-2">Current Password</label>
+                    <label className="block text-sm font-medium text-gray-800 mb-2">Current Password</label>
                     <input
                       type="password"
                       placeholder="Enter current password"
@@ -298,7 +326,7 @@ export default function ProfilePage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">New Password</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">New Password</label>
                       <input
                         type="password"
                         placeholder="Enter new password"
@@ -307,7 +335,7 @@ export default function ProfilePage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-white/90 mb-2">Confirm Password</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-2">Confirm Password</label>
                       <input
                         type="password"
                         placeholder="Confirm new password"
@@ -317,8 +345,8 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="bg-white/20 rounded-xl p-4 border border-white/20">
-                    <h3 className="font-medium text-white mb-2">Two-Factor Authentication</h3>
-                    <p className="text-sm text-white/80 mb-4">
+                    <h3 className="font-medium text-gray-900 mb-2">Two-Factor Authentication</h3>
+                    <p className="text-sm text-gray-700 mb-4">
                       Add an extra layer of security to your account
                     </p>
                     <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">
@@ -338,30 +366,30 @@ export default function ProfilePage() {
               </div>
 
               {/* Activity Log */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg">
-                <h2 className="text-xl font-semibold text-white mb-6">Recent Activity</h2>
+              <div className="bg-white/90 backdrop-blur-lg border border-white/40 rounded-2xl p-6 shadow-lg">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
                     <div>
-                      <h4 className="font-medium text-white">Uploaded delivery document</h4>
-                      <p className="text-sm text-white/70">Today at 2:15 PM</p>
+                      <h4 className="font-medium text-gray-900">Uploaded delivery document</h4>
+                      <p className="text-sm text-gray-600">Today at 2:15 PM</p>
                     </div>
                     <div className="text-green-400">✓</div>
                   </div>
 
                   <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
                     <div>
-                      <h4 className="font-medium text-white">Generated weekly report</h4>
-                      <p className="text-sm text-white/70">Yesterday at 11:30 AM</p>
+                      <h4 className="font-medium text-gray-900">Generated weekly report</h4>
+                      <p className="text-sm text-gray-600">Yesterday at 11:30 AM</p>
                     </div>
                     <div className="text-blue-400">📄</div>
                   </div>
 
                   <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
                     <div>
-                      <h4 className="font-medium text-white">Signed in from new device</h4>
-                      <p className="text-sm text-white/70">2 days ago at 9:45 AM</p>
+                      <h4 className="font-medium text-gray-900">Signed in from new device</h4>
+                      <p className="text-sm text-gray-600">2 days ago at 9:45 AM</p>
                     </div>
                     <div className="text-yellow-400">🔑</div>
                   </div>
@@ -372,8 +400,8 @@ export default function ProfilePage() {
 
             {/* Right Column - Account Actions Sidebar */}
             <div className="w-64">
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-lg sticky top-8">
-                <h2 className="text-xl font-semibold text-white mb-6">Account Actions</h2>
+              <div className="bg-white/90 backdrop-blur-lg border border-white/40 rounded-2xl p-6 shadow-lg sticky top-8">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Actions</h2>
                 
                 <div>
                   <button className="block w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-left">
@@ -404,7 +432,7 @@ export default function ProfilePage() {
           
           {/* Version */}
           <div className="text-center mt-8">
-            <span className="text-white/60 text-sm">v1.8.6</span>
+            <span className={`${getTextStyle('version')} text-white/60`}>{getVersionDisplay('short')}</span>
           </div>
 
         </div>
