@@ -1,14 +1,14 @@
-&apos;use client&apos;
+'use client'
 
-import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getNavPillStyle, ComponentPatterns, Theme, ThemeVariants, getThemeTokens } from &apos;@/lib/design-system&apos;
-import { getVersionDisplay } from &apos;@/lib/version&apos;
-import ThemeProvider, { useTheme } from &apos;@/lib/theme-context&apos;
-import ThemeToggle from &apos;@/app/components/ThemeToggle&apos;
-import AssetManagerToggle from &apos;@/app/components/AssetManagerToggle&apos;
-import BackgroundSelector from &apos;@/app/components/BackgroundSelector&apos;
-import AssetUploadModal from &apos;@/app/components/AssetUploadModal&apos;
-import { useState } from &apos;react&apos;
-import Link from &apos;next/link&apos;
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getNavPillStyle, ComponentPatterns, Theme, ThemeVariants, getThemeTokens } from '@/lib/design-system'
+import { getVersionDisplay } from '@/lib/version'
+import ThemeProvider, { useTheme } from '@/lib/theme-context'
+import ThemeToggle from '@/app/components/ThemeToggle&apos;
+import AssetManagerToggle from '@/app/components/AssetManagerToggle&apos;
+import BackgroundSelector from '@/app/components/BackgroundSelector&apos;
+import AssetUploadModal from '@/app/components/AssetUploadModal&apos;
+import { useState } from 'react'
+import Link from 'next/link'
 
 interface BackgroundAsset {
   id: string
