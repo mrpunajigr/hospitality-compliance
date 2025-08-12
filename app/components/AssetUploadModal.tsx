@@ -300,7 +300,7 @@ export default function AssetUploadModal({
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className={getFormFieldStyle(theme)}
+                className={getFormFieldStyle()}
                 placeholder="Enter asset name"
                 required
               />
@@ -313,7 +313,7 @@ export default function AssetUploadModal({
               <select
                 value={formData.category}
                 onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                className={getFormFieldStyle(theme)}
+                className={getFormFieldStyle()}
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -331,7 +331,7 @@ export default function AssetUploadModal({
                 <select
                   value={formData.difficulty}
                   onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value }))}
-                  className={getFormFieldStyle(theme)}
+                  className={getFormFieldStyle()}
                 >
                   <option value="easy">Easy (High Contrast)</option>
                   <option value="medium">Medium</option>
@@ -348,7 +348,7 @@ export default function AssetUploadModal({
                 type="text"
                 value={formData.altText}
                 onChange={(e) => setFormData(prev => ({ ...prev, altText: e.target.value }))}
-                className={getFormFieldStyle(theme)}
+                className={getFormFieldStyle()}
                 placeholder="Accessibility description"
               />
             </div>
@@ -361,7 +361,7 @@ export default function AssetUploadModal({
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-                className={getFormFieldStyle(theme)}
+                className={getFormFieldStyle()}
                 placeholder="modern, dark, professional (comma separated)"
               />
             </div>
