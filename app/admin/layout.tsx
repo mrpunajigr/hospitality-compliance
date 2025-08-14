@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getTextStyle } from '@/lib/design-system'
 import ConsoleAdminToggle from '@/app/components/ConsoleAdminToggle'
@@ -13,12 +15,40 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      // Get authenticated user
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // No user found - redirect will be handled by middleware
+        return
+      }
+      
+      setUser(user)
+      
+      // Get user's company information
+      try {
+        const clientInfo = await getUserClient(user.id)
+        if (clientInfo) {
+          setUserClient(clientInfo)
+        }
+      } catch (error) {
+        console.error('Error loading client info in admin layout:', error)
+      }
+    }
+    
+    loadUserData()
+  }, [])
 
   const navigation = [
     { name: 'Company', href: '/admin/company', icon: '' },
-    { name: 'Profile', href: '/admin/profile', icon: '' },
-    { name: 'Settings', href: '/admin/company/settings', icon: '' },
+    { name: 'User', href: '/admin/profile', icon: '' },
     { name: 'Team', href: '/admin/company/team', icon: '' },
+    { name: 'Settings', href: '/admin/company-settings', icon: '' },
   ]
 
   return (
@@ -84,8 +114,12 @@ export default function AdminLayout({
               {/* User Avatar */}
               <div className="flex items-center space-x-3">
                 <div className="text-right hidden md:block">
-                  <div className={`${getTextStyle('body')} font-semibold`}>John Doe</div>
-                  <div className={`${getTextStyle('caption')} text-white/60`}>Administrator</div>
+                  <div className={`${getTextStyle('body')} font-semibold`}>
+                    {user?.user_metadata?.full_name || user?.email || 'Loading...'}
+                  </div>
+                  <div className={`${getTextStyle('caption')} text-white/60`}>
+                    {userClient?.role || 'Administrator'}
+                  </div>
                 </div>
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
                   <img 

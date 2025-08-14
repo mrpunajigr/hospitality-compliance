@@ -73,8 +73,40 @@ export default function CreateAccountPage() {
       }
 
       if (data.user) {
-        // Success - redirect to dashboard or confirmation page
-        router.push('/workspace/dashboard?signup=success')
+        // Create company for the new user
+        try {
+          const companyResponse = await fetch('/api/create-company', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              businessName: formData.businessName,
+              businessType: formData.businessType,
+              phone: formData.phone,
+              userId: data.user.id,
+              email: formData.email,
+              fullName: formData.fullName
+            })
+          })
+
+          const result = await companyResponse.json()
+          
+          if (!companyResponse.ok) {
+            console.error('Company creation failed:', result)
+            setError(`Account created but company setup failed: ${result.error}`)
+            setIsLoading(false)
+            return
+          }
+
+          console.log('✅ Account and company created successfully')
+          // Success - redirect to console dashboard
+          router.push('/console/dashboard?signup=success&company=created')
+        } catch (companyError) {
+          console.error('Company creation error:', companyError)
+          setError('Account created but company setup failed. Please contact support.')
+          setIsLoading(false)
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')

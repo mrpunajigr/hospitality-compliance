@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ImageUploader from '@/app/components/ImageUploader'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
@@ -43,6 +45,16 @@ export default function ProfilePage() {
         })
       } else {
         setUser(user)
+        
+        // Get user's company information
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info:', error)
+        }
         
         // Fetch user profile data
         const { data: profileData, error } = await supabase
@@ -188,9 +200,11 @@ export default function ProfilePage() {
               <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
                 Manage your personal account information
               </p>
-              <p className="text-blue-300 text-xs mt-1">
-                Demo Mode
-              </p>
+              {userClient && (
+                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                  {userClient.name} • {userClient.role}
+                </div>
+              )}
             </div>
           </div>
         </div>

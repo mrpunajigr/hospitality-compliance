@@ -5,10 +5,12 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
 export default function CompanyPage() {
   const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -66,6 +68,17 @@ export default function CompanyPage() {
         await handleDemoSignIn()
       } else {
         setUser(user)
+        
+        // Get user's company information
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info:', error)
+        }
+        
         setLoading(false)
       }
     }
@@ -135,9 +148,11 @@ export default function CompanyPage() {
               <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
                 Manage your business information and settings
               </p>
-              <p className="text-blue-300 text-xs mt-1">
-                Demo Mode
-              </p>
+              {userClient && (
+                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                  {userClient.name} • {userClient.role}
+                </div>
+              )}
             </div>
           </div>
         </div>

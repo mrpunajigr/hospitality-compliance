@@ -4,10 +4,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getTextStyle } from '@/lib/design-system'
 
 export default function ReportsPage() {
   const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -17,6 +19,16 @@ export default function ReportsPage() {
       
       if (user) {
         setUser(user)
+        
+        // Get user's company information
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info in reports page:', error)
+        }
       } else {
         // Auto sign-in with demo user for smoother development experience
         const demoUser = {
@@ -145,9 +157,11 @@ export default function ReportsPage() {
         <p className="text-white/90 text-sm drop-shadow-md">
           Generate and export compliance documentation
         </p>
-        <p className="text-blue-300 text-xs mt-1">
-          Demo Mode
-        </p>
+        {userClient && (
+          <p className="text-blue-300 text-sm mt-2">
+            {userClient.name} • {userClient.role}
+          </p>
+        )}
       </div>
 
       <div className="flex gap-6">

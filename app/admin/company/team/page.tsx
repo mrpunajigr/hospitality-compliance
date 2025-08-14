@@ -1,19 +1,51 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
+import { getTextStyle } from '@/lib/design-system'
+
 export default function TeamPage() {
+  const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        setUser(user)
+        
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info:', error)
+        }
+      }
+    }
+    
+    loadUserData()
+  }, [])
   return (
     <div className="min-h-screen">
         {/* Header */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Team Management
               </h1>
-              <p className="text-white/70 text-sm">
+              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
                 Manage your team members and their permissions
               </p>
-              <p className="text-blue-300 text-xs mt-1">
-                Demo Mode
-              </p>
+              {userClient && (
+                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                  {userClient.name} • {userClient.role}
+                </div>
+              )}
             </div>
           </div>
         </div>

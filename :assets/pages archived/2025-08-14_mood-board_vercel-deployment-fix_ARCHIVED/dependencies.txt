@@ -1,0 +1,61 @@
+# Mood Board Component Dependencies
+
+## Internal Dependencies (Custom Components)
+@/lib/theme-context
+  - ThemeProvider (context wrapper)
+  - useTheme (theme state hook)
+
+@/lib/design-system
+  - getCardStyle (card styling utility)
+  - getTextStyle (typography utility)
+  - DesignTokens (design token constants)
+
+@/app/components/BackgroundSelector
+  - Modal for selecting background images
+  - Requires: BackgroundAsset interface
+
+@/app/components/AssetUploadModal
+  - Modal for uploading new assets
+  - Requires: isOpen, onClose, uploadType, onUploadSuccess props
+
+@/app/components/AssetManagerToggle
+  - Dropdown for asset management actions
+  - Requires: onAction callback with specific action types
+
+## React/Next.js Dependencies
+react
+  - useState (state management)
+  - useEffect (lifecycle management)
+
+next/navigation
+  - redirect (production blocking)
+
+## TypeScript Interfaces Required
+```typescript
+interface BackgroundAsset {
+  id: string
+  name: string
+  file_url: string
+  category: string | null
+  difficulty: 'easy' | 'medium' | 'hard'
+  alt_text: string | null
+}
+```
+
+## Environment Requirements
+- NODE_ENV=development (production blocking active)
+- Next.js 15+ 
+- React 18+
+- Tailwind CSS configured
+- Design system utilities available
+
+## Optional Dependencies (for full functionality)
+- Supabase client (for asset management backend)
+- Asset management API endpoints (/api/assets/upload)
+- Asset storage bucket configuration
+
+## Build Requirements
+- TypeScript support
+- Tailwind CSS processing
+- ESLint configuration (avoid quote escaping issues)
+- Production environment blocking

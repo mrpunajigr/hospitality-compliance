@@ -46,38 +46,33 @@ export default function SignInPage() {
       }
 
       if (data.user) {
-        // Success - redirect to dashboard
-        router.push('/workspace/dashboard')
+        // Success - redirect to console dashboard  
+        console.log('✅ Sign in successful, redirecting...')
+        setIsLoading(false)
+        
+        // Use setTimeout to ensure state is updated before redirect
+        setTimeout(() => {
+          const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
+          const destination = redirectTo || '/console/dashboard'
+          console.log('🔄 Redirecting to:', destination)
+          window.location.replace(destination)
+        }, 100)
+      } else {
+        console.log('❌ No user returned from sign in')
+        setError('Sign in failed - please try again')
+        setIsLoading(false)
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
-    }
-  }
-
-  const handleDemoAccess = async () => {
-    setIsLoading(true)
-    
-    try {
-      // Try anonymous sign in first
-      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
-      
-      if (!anonError && anonData.user) {
-        console.log('Anonymous demo user signed in successfully')
-        router.push('/workspace/dashboard')
-        return
-      }
-
-      // Fallback - just navigate to dashboard (it will handle demo auth)
-      router.push('/workspace/dashboard')
-      
-    } catch (err) {
-      console.log('Auth flow - navigating to dashboard for demo setup')
-      router.push('/workspace/dashboard')
     } finally {
-      setIsLoading(false)
+      // Safety timeout to prevent infinite loading
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 5000)
     }
   }
+
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -178,27 +173,6 @@ export default function SignInPage() {
             </button>
           </form>
 
-          {/* Demo Access */}
-          <div className="mt-6">
-            <div className="text-center mb-4">
-              <p className={`${getTextStyle('body')} ${DesignTokens.colors.text.onGlassSecondary}`}>or</p>
-            </div>
-            
-            <button
-              onClick={handleDemoAccess}
-              disabled={isLoading}
-              className={`w-full ${DesignTokens.colors.glass.cardSecondary} hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed ${DesignTokens.colors.text.onGlass} font-medium py-3 px-6 ${DesignTokens.layout.rounded} transition-all duration-200 ${DesignTokens.colors.glass.borderMedium} border ${DesignTokens.effects.blur} transform hover:scale-[1.02] disabled:transform-none`}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                  Accessing...
-                </div>
-              ) : (
-                'Try Demo Mode'
-              )}
-            </button>
-          </div>
 
           {/* Forgot Password & Sign Up Links */}
           <div className="text-center mt-6 space-y-3">

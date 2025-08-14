@@ -10,6 +10,47 @@ Standard Workflow
 9. When I give you a Screenshot or File, do not ask permisson to READ, Just do it.
 10. When in AUTO-ACCEPT EDIT mode, it means I trust you. Do Not ask for permisson, unless it is a CRITICAL step.
 
+# ⚠️ MANDATORY: Page Archival Protocol
+
+## Before ANY Page/Component Deletion
+**CRITICAL RULE:** No page, component, or significant feature may be deleted without first creating a complete archive.
+
+### Required Pre-Deletion Steps:
+1. **Create Archive Folder:** `:assets/pages archived/YYYY-MM-DD_component-name_reason_ARCHIVED/`
+2. **Archive All Code:** Copy complete source code to `original-code/` subdirectory
+3. **Capture Screenshots:** Save visual documentation to `screenshots/` subdirectory  
+4. **Document Dependencies:** List all required imports/packages in `dependencies.txt`
+5. **Create Restoration Guide:** Write step-by-step restoration instructions
+6. **Complete Archive Documentation:** Fill out `ARCHIVE_INFO.md` with full context
+7. **Update Archive Index:** Add entry to `:assets/pages archived/README.md`
+8. **Git Commit Archive:** Commit archive before deletion with message format: `Archive [component] before deletion - see :assets/pages archived/[folder]`
+
+### Archive Naming Convention:
+- **Format:** `YYYY-MM-DD_component-name_reason_ARCHIVED`
+- **Reason Categories:** 
+  - `vercel-deployment-fix` - Build/deployment issues
+  - `production-cleanup` - Production optimization
+  - `workflow-simplification` - Development process improvement
+  - `architecture-refactor` - Structural changes
+  - `performance-optimization` - Performance improvements
+  - `security-update` - Security compliance
+
+### Archive Quality Requirements:
+- **Complete Source Code:** All component files and dependencies
+- **Working Restoration Guide:** Must be testable and accurate
+- **Visual Documentation:** Screenshots showing functionality
+- **Dependency Tracking:** Complete list for successful restoration
+- **Context Documentation:** Why component existed and why deleted
+
+### Exceptions (No Archive Required):
+- Minor utility functions (< 20 lines)
+- Temporary debugging code
+- Generated files (build artifacts)
+- Duplicate code being consolidated
+
+### Archive Success Example:
+The mood board component was successfully archived and restored, demonstrating the value of this system. See `:assets/pages archived/2025-08-14_mood-board_vercel-deployment-fix_ARCHIVED/` for the complete archive that enabled full restoration with enhancements.
+
 # Development Philosophy
 
 ## Always Choose the Most Robust Solution
@@ -366,3 +407,38 @@ This architecture guide ensures consistent implementation patterns and maintains
 - **Better file organization** with topic-based searchable names
 - **Context preservation** for future debugging reference
 - **Faster problem resolution** through targeted approach
+
+# SQL Migration Management Protocol
+
+## Database Change Management Workflow ⚠️
+
+### **Standard Migration Process:**
+1. **Create Migration**: Write .sql file in project root during development
+2. **Deploy to Supabase**: Run in SQL Editor and verify success  
+3. **Archive Completed**: Move to `:assets/sql completed/` with completion tag
+4. **Update Audit Log**: Record deployment in dev audit system
+5. **Version Tracking**: Link migration to version bump
+
+### **File Naming Convention:**
+- **Development**: `PHASE2_RLS_MIGRATION.sql`
+- **Completed**: `PHASE2_RLS_MIGRATION_COMPLETED_2025-08-13.sql`
+
+### **Required Actions for Each Migration:**
+- ✅ Test migration in development
+- ✅ Deploy to production Supabase  
+- ✅ Move to `:assets/sql completed/` folder
+- ✅ Update version documentation
+- ✅ Record in development audit log
+
+### **Audit Trail Benefits:**
+- **Clear History**: Easy to see what database changes were made when
+- **Audit Compliance**: Track all production database modifications  
+- **Team Coordination**: Prevent duplicate or conflicting migrations
+- **Rollback Reference**: Keep completed migrations for potential rollbacks
+- **Version Alignment**: Database changes aligned with code versions
+
+### **Integration with Development System:**
+- SQL migrations are tracked alongside version increments
+- Each phase completion includes database change documentation
+- Migration files are preserved for compliance and rollback purposes
+- All database changes must follow this audit trail for production deployments

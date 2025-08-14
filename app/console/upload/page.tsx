@@ -1,17 +1,17 @@
 'use client'
 
-// Upload Page - Dedicated upload functionality
+// Upload Page - Enhanced batch upload functionality  
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import EnhancedUpload from '../../components/delivery/EnhancedUpload'
 import SafariCompatibleUpload from '../../components/delivery/SafariCompatibleUpload'
 import { supabase } from '@/lib/supabase'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
-
-// Demo data for testing
-const DEMO_CLIENT_ID = '550e8400-e29b-41d4-a716-446655440001'
 
 export default function UploadPage() {
   const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
   const [lastUpload, setLastUpload] = useState<any>(null)
   const [showNotification, setShowNotification] = useState(false)
@@ -23,6 +23,16 @@ export default function UploadPage() {
       
       if (user) {
         setUser(user)
+        
+        // Get user's company information
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info in upload page:', error)
+        }
       } else {
         // Auto sign-in with demo user for smoother development experience
         const demoUser = {
@@ -140,23 +150,27 @@ export default function UploadPage() {
     )
   }
 
-  const handleUploadSuccess = (deliveryRecord: any) => {
-    console.log('Upload successful:', deliveryRecord)
-    setLastUpload(deliveryRecord)
+  const handleUploadSuccess = (deliveryRecords: any[]) => {
+    console.log('Batch upload successful:', deliveryRecords)
+    setLastUpload(deliveryRecords[deliveryRecords.length - 1]) // Show last uploaded record
     setShowNotification(true)
     
-    // Auto-dismiss notification after 4 seconds
+    // Auto-dismiss notification after 6 seconds for batch uploads
     setTimeout(() => {
       setShowNotification(false)
-    }, 4000)
+    }, 6000)
     
-    // Stay on upload page for quick batch uploads
-    // User can manually navigate to dashboard when ready
+    // Stay on upload page for additional batch uploads
   }
 
   const handleUploadError = (error: string) => {
-    console.error('Upload failed:', error)
-    // Simple error handling - just log to console for now
+    console.error('Batch upload failed:', error)
+    // TODO: Show error notification to user
+  }
+
+  const handleProgressUpdate = (completedCount: number, totalCount: number) => {
+    console.log(`Upload progress: ${completedCount}/${totalCount} files completed`)
+    // Could add progress state here if needed
   }
 
   return (
@@ -165,14 +179,16 @@ export default function UploadPage() {
       {/* Page Header - Exact Dashboard Style */}
       <div className="mb-8">
         <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
-          Upload Delivery Docket
+          Upload Delivery Dockets
         </h1>
         <p className={`${getTextStyle('bodySecondary')} text-white/90 drop-shadow-md`}>
-          Photograph and process delivery documents with AI
+          Upload multiple delivery documents for batch processing with AI
         </p>
-        <p className="text-blue-300 text-xs mt-1">
-          Demo Mode
-        </p>
+        {userClient && (
+          <p className="text-blue-300 text-sm mt-2">
+            {userClient.name} • {userClient.role}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -183,50 +199,57 @@ export default function UploadPage() {
           <div className={getCardStyle('primary')}>
             <div className="text-center mb-8">
               <h2 className={`${getTextStyle('sectionTitle')} text-white mb-2`}>
-                Capture Delivery Document
+                Batch Upload Delivery Documents
               </h2>
               <p className={`${getTextStyle('bodySecondary')} text-white/80`}>
-                Take a photo of your delivery docket for AI processing
+                Upload multiple delivery dockets simultaneously for efficient processing
               </p>
             </div>
 
-            {/* Upload Component */}
+            {/* Enhanced Batch Upload Component */}
             <div className="mb-8">
-              <SafariCompatibleUpload
-                clientId={DEMO_CLIENT_ID}
+              <EnhancedUpload
+                clientId={userClient?.id || ''}
                 userId={user.id}
                 onUploadSuccess={handleUploadSuccess}
                 onUploadError={handleUploadError}
+                onProgressUpdate={handleProgressUpdate}
+                maxFiles={10}
+                maxSizeMB={8}
               />
             </div>
 
             {/* Instructions */}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Camera Tips */}
+              {/* Batch Upload Tips */}
               <div className={getCardStyle('secondary')}>
                 <h3 className={`${getTextStyle('cardTitle')} text-white mb-4`}>
-                  Camera Tips
+                  Batch Upload Tips
                 </h3>
                 <ul className={`${getTextStyle('bodySmall')} text-white space-y-2`}>
                   <li className="flex items-start">
-                    <span className="text-green-400 mr-2">•</span>
-                    Ensure good lighting
+                    <span className="text-blue-400 mr-2">•</span>
+                    Select up to 10 delivery dockets at once
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">•</span>
+                    Each file must be under 8MB
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">•</span>
+                    Preview files before uploading
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">•</span>
+                    Monitor progress for each document
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">•</span>
+                    Retry individual failed uploads
                   </li>
                   <li className="flex items-start">
                     <span className="text-green-400 mr-2">•</span>
-                    Keep docket flat and straight
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-2">•</span>
-                    Include temperature readings
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-2">•</span>
-                    Capture supplier name clearly
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-2">•</span>
-                    Fill the frame with the document
+                    Ensure good lighting and clarity
                   </li>
                 </ul>
               </div>

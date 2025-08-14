@@ -17,13 +17,15 @@ interface BackgroundSelectorProps {
   onBackgroundChange: (background: BackgroundAsset) => void
   onClose: () => void
   theme?: 'light' | 'dark'
+  moodBoardMode?: boolean
 }
 
 export default function BackgroundSelector({
   selectedBackground,
   onBackgroundChange,
   onClose,
-  theme = 'dark'
+  theme = 'dark',
+  moodBoardMode = false
 }: BackgroundSelectorProps) {
   const [backgrounds, setBackgrounds] = useState<BackgroundAsset[]>([])
   const [loading, setLoading] = useState(true)
@@ -99,11 +101,24 @@ export default function BackgroundSelector({
           <div className="flex justify-between items-center p-6 border-b border-white/20">
             <div>
               <h2 className={`${getTextStyle('cardTitle', theme)} ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                🖼️ Select Background
+                🖼️ {moodBoardMode ? 'Mood Board Backgrounds' : 'Select Background'}
               </h2>
               <p className={`${getTextStyle('body', theme)} ${theme === 'dark' ? 'text-white/70' : 'text-gray-600'} mt-1`}>
-                Choose a background to test your design system
+                {moodBoardMode 
+                  ? 'Choose backgrounds optimized for design testing with difficulty indicators'
+                  : 'Choose a background to test your design system'
+                }
               </p>
+              {moodBoardMode && (
+                <div className="mt-2 flex items-center space-x-2">
+                  <div className="px-2 py-1 bg-blue-500/20 border border-blue-500/30 rounded-md text-xs text-blue-300">
+                    🎨 Enhanced Mode
+                  </div>
+                  <div className="px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-md text-xs text-green-300">
+                    ⚡ Quick Switch
+                  </div>
+                </div>
+              )}
             </div>
             <button
               onClick={onClose}
@@ -193,10 +208,19 @@ export default function BackgroundSelector({
                       
                       {/* Difficulty Indicator */}
                       <div className="absolute top-2 right-2">
-                        <div
-                          className={`w-3 h-3 rounded-full ${getDifficultyColor(background.difficulty)}`}
-                          title={getDifficultyLabel(background.difficulty)}
-                        />
+                        {moodBoardMode ? (
+                          <div 
+                            className={`px-2 py-1 rounded-full text-xs font-bold text-white backdrop-blur-sm ${getDifficultyColor(background.difficulty)}`}
+                            title={getDifficultyLabel(background.difficulty)}
+                          >
+                            {background.difficulty.charAt(0).toUpperCase()}
+                          </div>
+                        ) : (
+                          <div
+                            className={`w-3 h-3 rounded-full ${getDifficultyColor(background.difficulty)}`}
+                            title={getDifficultyLabel(background.difficulty)}
+                          />
+                        )}
                       </div>
 
                       {/* Selected Indicator */}
@@ -231,26 +255,56 @@ export default function BackgroundSelector({
           {/* Footer */}
           <div className="p-6 border-t border-white/10">
             <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2 text-xs">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Easy</span>
+              <div className="flex items-center space-x-4">
+                {/* Difficulty Legend */}
+                <div className="flex items-center space-x-2 text-xs">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Easy</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Medium</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Hard</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                  <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Medium</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>Hard</span>
-                </div>
+                
+                {/* Mood Board Quick Actions */}
+                {moodBoardMode && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-px h-4 bg-white/20"></div>
+                    <button
+                      onClick={() => setSelectedCategory('easy')}
+                      className="px-2 py-1 text-xs text-green-300 hover:text-green-200 transition-colors"
+                    >
+                      Easy only
+                    </button>
+                    <button
+                      onClick={() => setSelectedCategory('all')}
+                      className="px-2 py-1 text-xs text-white/60 hover:text-white transition-colors"
+                    >
+                      All
+                    </button>
+                  </div>
+                )}
               </div>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Done
-              </button>
+              
+              <div className="flex items-center space-x-3">
+                {moodBoardMode && (
+                  <div className="text-xs text-white/60">
+                    {filteredBackgrounds.length} backgrounds
+                  </div>
+                )}
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         </div>

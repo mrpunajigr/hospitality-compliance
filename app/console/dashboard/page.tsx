@@ -1,21 +1,22 @@
 'use client'
 
-// Demo Dashboard Page - For testing the compliance platform functionality
+// Demo Dashboard Page - Enhanced with intelligent insights
 import { useState, useEffect } from 'react'
 import SafariCompatibleUpload from '../../components/delivery/SafariCompatibleUpload'
 import ComplianceDashboard from '../../components/compliance/ComplianceDashboard'
+import EnhancedComplianceDashboard from '../../components/compliance/EnhancedComplianceDashboard'
+import DeliveryTracker from '../../components/delivery/DeliveryTracker'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
 
-// Demo data for testing (since we don't have auth yet)
-const DEMO_CLIENT_ID = '550e8400-e29b-41d4-a716-446655440001' // From our seed data
-const DEMO_USER_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01' // From our seed data
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<'upload' | 'dashboard'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'upload' | 'dashboard' | 'tracking'>('dashboard')
   const [lastUpload, setLastUpload] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
 
   // Check if user is authenticated
@@ -25,19 +26,22 @@ export default function DashboardPage() {
       
       if (user) {
         setUser(user)
-      } else {
-        // Auto sign-in with demo user for production/development
-        const demoUser = {
-          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-          email: 'demo@example.com',
-          app_metadata: {},
-          user_metadata: { full_name: 'Demo User' },
-          aud: 'authenticated',
-          role: 'authenticated',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        
+        // Get user's client/company information
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          } else {
+            console.log('ℹ️ User has no associated company - company setup needed')
+          }
+        } catch (error) {
+          console.log('ℹ️ Company association not found - this is expected for new users')
+          // Continue without client info - this is normal for users without companies
         }
-        setUser(demoUser)
+      } else {
+        // No user found - redirect to sign in
+        window.location.href = '/signin'
       }
       setLoading(false)
     }
@@ -45,57 +49,20 @@ export default function DashboardPage() {
     checkAuth()
     
     // Listen for auth changes - but preserve demo user if no real session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user)
+        const clientInfo = await getUserClient(session.user.id)
+        setUserClient(clientInfo)
+      } else {
+        setUser(null)
+        setUserClient(null)
       }
-      // Don't set user to null if session is null - preserve demo user
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  // Demo sign in function - create anonymous session for demo
-  const handleDemoSignIn = async () => {
-    try {
-      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
-      
-      if (!anonError && anonData.user) {
-        console.log('Anonymous demo user signed in successfully')
-        return
-      }
-
-      // Fallback to demo user
-      const demoUser = {
-        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-        email: 'demo@example.com',
-        app_metadata: {},
-        user_metadata: { full_name: 'Demo User' },
-        aud: 'authenticated',
-        role: 'authenticated',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-      
-      setUser(demoUser)
-    } catch (error) {
-      console.error('Demo sign in failed:', error)
-      
-      // Fallback to demo user
-      const demoUser = {
-        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-        email: 'demo@example.com',
-        app_metadata: {},
-        user_metadata: { full_name: 'Demo User' },
-        aud: 'authenticated',
-        role: 'authenticated',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-      
-      setUser(demoUser)
-    }
-  }
 
   if (loading) {
     return (
@@ -125,16 +92,16 @@ export default function DashboardPage() {
                 Please sign in to access the dashboard
               </p>
               
-              <button
-                onClick={handleDemoSignIn}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] mb-4"
+              <a
+                href="/signin"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] mb-4 block text-center"
               >
-                Sign In as Demo User
-              </button>
+                Sign In
+              </a>
               
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                 <p className="text-xs text-white/80">
-                  Demo mode with test compliance data
+                  Please sign in to access your dashboard
                 </p>
               </div>
             </div>
@@ -167,14 +134,16 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
-          Dashboard
+          Intelligence Dashboard
         </h1>
         <p className={`${getTextStyle('bodySecondary')} text-white/90 drop-shadow-md`}>
-          AI-powered delivery tracking and compliance monitoring
+          AI-powered insights, compliance analytics, and predictive recommendations
         </p>
-        <p className="text-blue-300 text-xs mt-1">
-          Demo Mode
-        </p>
+        {userClient && (
+          <p className="text-blue-300 text-sm mt-2">
+            {userClient.name} • {userClient.role}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -184,12 +153,55 @@ export default function DashboardPage() {
 
           {/* Content */}
           {activeTab === 'dashboard' && (
-            <div className={getCardStyle('primary')}>
-              <ComplianceDashboard 
-                clientId={DEMO_CLIENT_ID}
-                userId={user.id}
-              />
-            </div>
+            <>
+              {userClient?.id ? (
+                <EnhancedComplianceDashboard 
+                  clientId={userClient.id}
+                  userId={user.id}
+                />
+              ) : (
+                <div className={getCardStyle('primary')}>
+                  <div className="text-center py-12">
+                    <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
+                      Welcome to Your Dashboard
+                    </h2>
+                    <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
+                      Your account was created successfully. Company setup is in progress.
+                    </p>
+                    <div className="bg-blue-600/20 border border-blue-400/30 rounded-xl p-4">
+                      <p className="text-blue-200 text-sm">
+                        Please contact support to complete your company setup.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'tracking' && (
+            <>
+              {userClient?.id ? (
+                <DeliveryTracker 
+                  clientId={userClient.id}
+                  userId={user.id}
+                  onDeliveryEvent={(event) => {
+                    console.log('Delivery event:', event)
+                  }}
+                />
+              ) : (
+                <div className={getCardStyle('primary')}>
+                  <div className="text-center py-12">
+                    <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
+                      Delivery Tracking
+                    </h2>
+                    <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
+                      Real-time delivery tracking requires company setup completion.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {activeTab === 'upload' && (
@@ -199,12 +211,20 @@ export default function DashboardPage() {
                 </h2>
                 
                 <div className="mb-8">
-                  <SafariCompatibleUpload
-                    clientId={DEMO_CLIENT_ID}
-                    userId={user.id}
-                    onUploadSuccess={handleUploadSuccess}
-                    onUploadError={handleUploadError}
-                  />
+                  {userClient?.id ? (
+                    <SafariCompatibleUpload
+                      clientId={userClient.id}
+                      userId={user.id}
+                      onUploadSuccess={handleUploadSuccess}
+                      onUploadError={handleUploadError}
+                    />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className={`${getTextStyle('body')} text-white/80`}>
+                        Upload feature requires company setup completion.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Upload Instructions */}
@@ -272,6 +292,20 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold text-lg">Compliance Dashboard</h3>
                   <p className="text-sm mt-1 opacity-90">View metrics and alerts</p>
+                </div>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('tracking')}
+                className={`block w-full mb-4 py-4 px-6 rounded-xl transition-all duration-200 text-left ${
+                  activeTab === 'tracking'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                    : 'bg-white/20 hover:bg-white/30 text-white'
+                }`}
+              >
+                <div>
+                  <h3 className="font-semibold text-lg">Delivery Tracking</h3>
+                  <p className="text-sm mt-1 opacity-90">Real-time supplier monitoring</p>
                 </div>
               </button>
               
