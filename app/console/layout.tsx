@@ -41,7 +41,28 @@ export default function ConsoleLayout({
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        // No user found - redirect will be handled by middleware
+        // Always allow demo mode for all console pages (development/testing)
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/console')) {
+          console.log('🚀 Console page accessed - enabling demo mode')
+          // Set demo user for all console pages
+          const demoUser = {
+            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+            email: 'demo@example.com',
+            app_metadata: {},
+            user_metadata: { full_name: 'Demo User' },
+            aud: 'authenticated',
+            role: 'authenticated',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setUser(demoUser)
+          return
+        }
+        
+        // For other pages, redirect to sign-in
+        if (typeof window !== 'undefined') {
+          window.location.href = `/signin?redirectTo=${encodeURIComponent(window.location.pathname)}`
+        }
         return
       }
       

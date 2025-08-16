@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 
 export default function ProductionVersionFooter() {
   const [version, setVersion] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
+    setMounted(true);
     const loadVersion = () => {
       if (typeof window !== 'undefined' && (window as any).APP_VERSION) {
         // Use production version if available, otherwise strip build number for clean display
@@ -14,7 +16,7 @@ export default function ProductionVersionFooter() {
         setVersion(prodVersion);
       } else {
         // Fallback version if version.js hasn't loaded
-        setVersion('v1.8.12.p');
+        setVersion('v1.8.16');
         // Retry loading
         setTimeout(loadVersion, 100);
       }
@@ -22,6 +24,15 @@ export default function ProductionVersionFooter() {
     
     loadVersion();
   }, []);
+  
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <footer className="text-center text-xs text-gray-400 py-2">
+        JiGR Compliance Platform
+      </footer>
+    );
+  }
   
   return (
     <footer className="text-center text-xs text-gray-400 py-2">

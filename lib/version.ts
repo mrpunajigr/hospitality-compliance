@@ -13,8 +13,8 @@
 let versionData = {
   major: 1,
   month: 8,
-  day: 12,
-  build: 4,
+  day: 16,
+  build: 8,
   alpha: ''
 }
 

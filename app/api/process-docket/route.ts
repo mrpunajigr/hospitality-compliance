@@ -19,7 +19,7 @@ function getSupabaseAdmin() {
 export async function POST(request: NextRequest) {
   try {
     // Parse request body
-    const { bucketId, fileName, filePath, userId, clientId, testMode = false } = await request.json()
+    const { bucketId, fileName, filePath, deliveryRecordId, userId, clientId, testMode = false } = await request.json()
 
     // Validate required parameters
     if (!bucketId || !fileName || !filePath || !userId || !clientId) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`API: Processing docket ${fileName} for client ${clientId}, testMode: ${testMode}`)
+    console.log(`API: Processing docket ${fileName} for client ${clientId}, record: ${deliveryRecordId}, testMode: ${testMode}`)
 
     // Call the Supabase Edge Function
     const supabase = getSupabaseAdmin()
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
         bucketId,
         fileName,
         filePath,
+        deliveryRecordId,
         userId,
         clientId,
         testMode

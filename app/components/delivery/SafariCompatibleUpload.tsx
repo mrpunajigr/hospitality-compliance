@@ -2,7 +2,14 @@
 
 // Hospitality Compliance SaaS - Safari 12 Compatible Upload Component  
 // Optimized for iPad Air (2013) with memory and performance considerations
-// TEST mode removed - simplified upload workflow
+// Enhanced for Safari 12 memory management and performance
+
+// Safari 12 compatibility declarations
+declare global {
+  interface Window {
+    gc?: () => void
+  }
+}
 
 import { useCallback, useRef, useState } from 'react'
 import { supabase, supabaseAdmin, DELIVERY_DOCKETS_BUCKET, createDeliveryRecord, createAuditLog } from '@/lib/supabase'
@@ -52,28 +59,75 @@ export default function SafariCompatibleUpload({
       // Skip compression for now to avoid image loading errors
       const finalFile = file
 
+      setProgress('Getting upload URL...')
+
+      // Step 1: Get signed URL for direct Supabase upload (bypasses Vercel 4.5MB limit)
+      const signedUrlResponse = await fetch('/api/get-upload-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fileName: finalFile.name,
+          fileType: finalFile.type,
+          clientId: clientId,
+          userId: userId
+        })
+      })
+
+      if (!signedUrlResponse.ok) {
+        const errorData = await signedUrlResponse.json()
+        throw new Error(errorData.error || 'Failed to get upload URL')
+      }
+
+      const { signedUrl, filePath, fileName } = await signedUrlResponse.json()
+      console.log('✅ Got signed URL for direct upload:', filePath)
+
       setProgress('Uploading to storage...')
 
-      // Upload via server-side API endpoint
-      const formData = new FormData()
-      formData.append('file', finalFile)
-      formData.append('clientId', clientId)
-      formData.append('userId', userId)
-
-      const uploadResponse = await fetch('/api/upload-docket', {
-        method: 'POST',
-        body: formData
+      // Step 2: Upload directly to Supabase storage using signed URL
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        body: finalFile,
+        headers: {
+          'Content-Type': finalFile.type,
+          'Cache-Control': '3600',
+          'x-upsert': 'false'
+        }
       })
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json()
-        throw new Error(errorData.error || 'Upload failed')
+        console.error('Direct upload failed:', uploadResponse.status, uploadResponse.statusText)
+        throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`)
       }
 
-      const uploadResult = await uploadResponse.json()
-      const deliveryRecord = uploadResult.deliveryRecord
+      console.log('✅ File uploaded directly to Supabase storage')
 
       setProgress('Creating delivery record...')
+
+      // Step 3: Create delivery record with file path (not file content)
+      const recordResponse = await fetch('/api/create-delivery-record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filePath: filePath,
+          fileName: fileName,
+          fileSize: finalFile.size,
+          fileType: finalFile.type,
+          clientId: clientId,
+          userId: userId
+        })
+      })
+
+      if (!recordResponse.ok) {
+        const errorData = await recordResponse.json()
+        throw new Error(errorData.error || 'Failed to create delivery record')
+      }
+
+      const recordResult = await recordResponse.json()
+      const deliveryRecord = recordResult.deliveryRecord
 
       if (!deliveryRecord) {
         throw new Error('Failed to create delivery record')
@@ -81,7 +135,7 @@ export default function SafariCompatibleUpload({
 
       setProgress('Processing with AI OCR...')
 
-      // Call the Supabase Edge Function for real OCR processing
+      // Call the Google Cloud AI processing function with file path
       const ocrResponse = await fetch('/api/process-docket', {
         method: 'POST',
         headers: {
@@ -89,8 +143,9 @@ export default function SafariCompatibleUpload({
         },
         body: JSON.stringify({
           bucketId: 'delivery-dockets',
-          fileName: finalFile.name,
-          filePath: uploadResult.filePath,
+          fileName: fileName,
+          filePath: filePath,
+          deliveryRecordId: deliveryRecord.id,
           userId: userId,
           clientId: clientId
         })
@@ -212,15 +267,26 @@ export default function SafariCompatibleUpload({
 
 async function compressImageForSafari12(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
+    // Monitor memory usage for Safari 12 performance
+    const startMemory = (performance as any).memory?.usedJSHeapSize || 0
+    console.log('🍎 Safari 12 compression starting, memory:', Math.round(startMemory / 1024 / 1024), 'MB')
+    
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')!
     const img = new Image()
     
+    // Enhanced error handling for Safari 12
+    img.onerror = () => {
+      canvas.remove()
+      reject(new Error('Image failed to load in Safari 12'))
+    }
+    
     img.onload = () => {
       try {
-        // Scale down for memory constraints on iPad Air (2013)
-        const maxWidth = 1200
-        const maxHeight = 900
+        // Scale down aggressively for Safari 12 memory constraints on iPad Air (2013)
+        // Reduced from 1200x900 to optimize for 1GB RAM limitation
+        const maxWidth = 800
+        const maxHeight = 600
         
         let { width, height } = img
         
@@ -246,11 +312,23 @@ async function compressImageForSafari12(file: File): Promise<Blob> {
               reject(new Error('Compression failed'))
             }
             
-            // Cleanup for memory management on Safari 12
+            // Enhanced memory cleanup for Safari 12
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            canvas.width = 1
+            canvas.height = 1
             canvas.remove()
+            
+            // Monitor memory after compression
+            const endMemory = (performance as any).memory?.usedJSHeapSize || 0
+            console.log('🍎 Safari 12 compression completed, memory:', Math.round(endMemory / 1024 / 1024), 'MB')
+            
+            // Force garbage collection hint for Safari 12
+            if ((window as any).gc) {
+              setTimeout(() => (window as any).gc(), 100)
+            }
           },
           'image/jpeg',
-          0.7 // 70% quality for good balance of size and quality
+          0.5 // Reduced to 50% quality for Safari 12 memory efficiency
         )
       } catch (error) {
         reject(error)

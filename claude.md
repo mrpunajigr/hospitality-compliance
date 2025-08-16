@@ -83,6 +83,20 @@ Choose the option that scores highest on these criteria, regardless of initial t
 
 # Development Server Protocol
 
+## ⚠️ USER CONTROLS DEV SERVER
+**CRITICAL RULE**: The user will always start and restart the development server. Claude MUST NOT attempt to start, restart, or manage the dev server process.
+
+### **User Responsibility:**
+- **Starting server**: User will run `npm run dev` when ready
+- **Restarting server**: User will handle all server restarts
+- **Port management**: User will resolve any port conflicts
+- **Process management**: User will kill processes if needed
+
+### **Claude Responsibility:**
+- **Code fixes only**: Focus on fixing code issues and bugs
+- **Wait for user**: Wait for user confirmation that server is running
+- **No server commands**: Never run dev server commands autonomously
+
 ## Standard Dev Server Startup Protocol ⚠️
 **IMPORTANT**: Before any NEW testing session on the development server:
 
@@ -239,7 +253,7 @@ Located at `/lib/components.ts`:
 # Claude Code Autonomy Protocol
 
 ## Integration with Workflow
-The autonomy instructions from `claude_code_autonomy_instructions.md` are now integrated into the standard workflow:
+The autonomy instructions from `ClaudeCodeAutonomyInstructions.md` are now integrated into the standard workflow:
 
 ### AUTO-ACCEPT EDITS Mode
 When enabled, Claude executes routine development tasks autonomously:
@@ -324,7 +338,7 @@ npm run production            # Mark ready for release
 # App Architecture Reference
 
 ## Complete System Documentation
-The application architecture is comprehensively documented in `/app_architecture_structure.md` which provides:
+The application architecture is comprehensively documented in `/AppArchitectureStructure.md` which provides:
 
 ### **📱 Application Structure**
 - **Route organization**: Public routes, admin routes, workspace functionality
@@ -408,37 +422,140 @@ This architecture guide ensures consistent implementation patterns and maintains
 - **Context preservation** for future debugging reference
 - **Faster problem resolution** through targeted approach
 
-# SQL Migration Management Protocol
+# File Archival Management Protocol
 
-## Database Change Management Workflow ⚠️
+## Database & Documentation Lifecycle Management ⚠️
 
-### **Standard Migration Process:**
+### **SQL Migration Management:**
+
+#### **Standard Migration Process:**
 1. **Create Migration**: Write .sql file in project root during development
 2. **Deploy to Supabase**: Run in SQL Editor and verify success  
 3. **Archive Completed**: Move to `:assets/sql completed/` with completion tag
 4. **Update Audit Log**: Record deployment in dev audit system
 5. **Version Tracking**: Link migration to version bump
 
-### **File Naming Convention:**
+#### **SQL File Naming Convention:**
 - **Development**: `PHASE2_RLS_MIGRATION.sql`
 - **Completed**: `PHASE2_RLS_MIGRATION_COMPLETED_2025-08-13.sql`
 
-### **Required Actions for Each Migration:**
+#### **Required Actions for Each Migration:**
 - ✅ Test migration in development
 - ✅ Deploy to production Supabase  
 - ✅ Move to `:assets/sql completed/` folder
 - ✅ Update version documentation
 - ✅ Record in development audit log
 
+### **Documentation Archival Management:**
+
+#### **Non-Essential Documentation Lifecycle:**
+1. **Identify for Archival**: Completed phase docs, templates, debug guides
+2. **Verify No Active References**: Check CLAUDE.md and current development needs
+3. **Archive with Date Tag**: Move to `:assets/docs completed/` with completion tag
+4. **Update Any References**: Modify links in remaining active documentation
+5. **Maintain Clean Root**: Keep only active/essential documentation in project root
+
+#### **Documentation Categories:**
+
+##### **✅ Keep in Root (Essential)**
+- `CLAUDE.md` - Core project instructions (always retain)
+- `README.md` - Main project documentation (always retain)
+- `CHANGELOG.md` - Version history (always retain)
+- **Active Architecture**: `AppArchitectureStructure.md` and currently referenced guides
+- **Current Standards**: `NamingConventionStandard.md` and active development guides
+- **Active Business Logic**: Documentation referenced in current development workflow
+
+##### **📁 Archive to `:assets/docs completed/`**
+- **Phase Documentation**: `PHASE1_*.md`, `PHASE2_*.md`, etc.
+- **Implementation Summaries**: `*_IMPLEMENTATION_SUMMARY.md`
+- **Template Files**: `*-TEMPLATE.md`, `*_TEMPLATE.md`
+- **Debug Documentation**: `DEBUG*.md`, `*-debug.md`, troubleshooting guides
+- **Completed Features**: Documentation for features no longer in active development
+- **Historical Reference**: Guides superseded by newer versions
+
+#### **Documentation File Naming Convention:**
+- **Phase Docs**: `PHASE1_AUTHENTICATION_TIMELINE_COMPLETED_2025-08-16.md`
+- **Implementation**: `PHASE1_IMPLEMENTATION_SUMMARY_ARCHIVED_2025-08-16.md`  
+- **Templates**: `VERSION-TEMPLATE_ARCHIVED_2025-08-16.md`
+- **Debug Guides**: `DEBUG_USER_AUTH_RESOLVED_2025-08-16.md`
+
+#### **Archive Directory Structure:**
+```
+:assets/
+├── sql completed/              # SQL migrations (existing)
+├── docs completed/             # NEW: Completed documentation
+│   ├── phase-documentation/    # Phase completion docs
+│   ├── implementation-summaries/ # Feature implementation summaries
+│   ├── templates/             # Template and reference files
+│   ├── debug-guides/          # Resolved debugging documentation
+│   └── README.md              # Archive directory guide
+└── README.md                  # Asset management guide
+```
+
+#### **Decision Framework for Documentation:**
+
+##### **Archive When:**
+- ✅ Phase/project completion documentation with no ongoing references
+- ✅ Template files no longer actively used in development
+- ✅ Debug guides for resolved issues (preserve for future reference)
+- ✅ Implementation summaries for completed features
+- ✅ Files not referenced in CLAUDE.md or active development workflow
+- ✅ Superseded documentation (keep newer version, archive older)
+
+##### **Keep When:**
+- ❌ Core project documentation (CLAUDE.md, README.md, CHANGELOG.md)
+- ❌ Active reference documentation currently used in development
+- ❌ Architecture guides still referenced in current workflow
+- ❌ Standards documentation (naming conventions, coding standards)
+- ❌ Documentation linked from CLAUDE.md or active components
+
 ### **Audit Trail Benefits:**
-- **Clear History**: Easy to see what database changes were made when
-- **Audit Compliance**: Track all production database modifications  
-- **Team Coordination**: Prevent duplicate or conflicting migrations
-- **Rollback Reference**: Keep completed migrations for potential rollbacks
-- **Version Alignment**: Database changes aligned with code versions
+- **Clear History**: Easy to see what database and documentation changes were made when
+- **Audit Compliance**: Track all production database modifications and major documentation changes
+- **Team Coordination**: Prevent duplicate or conflicting migrations and documentation
+- **Rollback Reference**: Keep completed migrations and historical documentation for potential rollbacks
+- **Version Alignment**: Database changes and documentation updates aligned with code versions
+- **Clean Development Environment**: Focus on active documentation while preserving historical reference
 
 ### **Integration with Development System:**
 - SQL migrations are tracked alongside version increments
-- Each phase completion includes database change documentation
-- Migration files are preserved for compliance and rollback purposes
-- All database changes must follow this audit trail for production deployments
+- Documentation archival aligned with phase completion and version bumps
+- Migration files and major documentation changes preserved for compliance and rollback purposes
+- All database changes and documentation lifecycle must follow this audit trail for production deployments
+- Archive operations included in standard project maintenance procedures
+
+# JiGR Ecosystem Naming Convention
+
+## ⚡ MANDATORY NAMING POLICY ⚡
+**CRITICAL RULE**: Claude MUST follow the **PascalCase** naming convention established in `NamingConventionStandard.md`.
+
+### **🚨 CLAUDE MUST ENFORCE:**
+- **✅ ALL NEW FILES**: PascalCase immediately (e.g., `ComplianceDashboard.tsx`, `SystemArchitectureGuide.md`)
+- **✅ ALL COMPONENTS**: PascalCase standard (`TemperatureViolationAlert.tsx`)
+- **✅ ALL DOCUMENTATION**: PascalCase naming (`GoogleCloudIntegrationGuide.md`)
+- **✅ ALL ASSETS**: PascalCase format (`KitchenWorkspaceBackground.jpg`)
+- **✅ ALL ADDON MODULES**: PascalCase structure (`/DeliveryComplianceAddOn/`)
+
+### **🔒 CLAUDE SAFETY PROTOCOLS:**
+- **⚠️ EXISTING FILES**: Only rename during natural refactoring
+- **🚨 CRITICAL RULE**: Never rename without updating ALL import statements
+- **✅ ALWAYS**: Test functionality after any file renames
+- **📋 REFERENCE**: `NamingConventionStandard.md` for complete guidelines
+- **🛡️ VALIDATE**: Check naming before creating any file
+
+### **What Stays The Same:**
+- **Database tables**: `snake_case` (e.g., `delivery_records`)
+- **JavaScript variables**: `camelCase` (e.g., `userAuthenticationStatus`)
+- **CSS classes**: `kebab-case` (e.g., `.compliance-dashboard`)
+- **API routes**: `kebab-case` (e.g., `/api/delivery-records`)
+
+### **🤖 CLAUDE ENFORCEMENT:**
+When creating ANY file, Claude must:
+1. **Check naming convention first**
+2. **Apply PascalCase to new files**
+3. **Verify import statements if renaming**
+4. **Reference NamingConventionStandard.md for guidance**
+5. **Never create files with incorrect naming**
+
+**Foundation Established**: August 15, 2025 - Professional naming standards for unlimited JiGR ecosystem expansion with AddOn modules.
+**Claude Integration**: August 16, 2025 - Mandatory enforcement in all development workflows.

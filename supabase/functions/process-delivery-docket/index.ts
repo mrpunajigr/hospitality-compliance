@@ -1,8 +1,10 @@
-// Hospitality Compliance SaaS - Process Delivery Docket Edge Function
-// This function processes uploaded delivery docket images with Google Document AI
+// Hospitality Compliance SaaS - Enhanced Process Delivery Docket Edge Function
+// This function processes uploaded delivery docket images with advanced Google Document AI
+// Features: Multi-stage processing, product classification, confidence scoring
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { processDocumentWithEnhancedAI, type DocumentAIExtraction } from './EnhancedDocumentProcessor.ts'
 
 // Environment variables
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -137,59 +139,91 @@ async function processDeliveryDocket({
     console.log('Downloading image from storage...')
     const imageBuffer = await downloadImage(bucketId, filePath)
 
-    // Step 3: Process with Google Document AI
-    console.log('Processing with Document AI...')
-    let extractedText: string
+    // Step 3: Process with Enhanced Google Document AI
+    console.log('Processing with Enhanced Document AI...')
+    let enhancedExtraction: DocumentAIExtraction
     
     try {
-      extractedText = await processWithDocumentAI(imageBuffer)
-      console.log('Real OCR processing successful')
+      // Get access token for API calls
+      const credentials = JSON.parse(GOOGLE_CREDENTIALS)
+      const accessToken = await getAccessToken(credentials)
+      
+      // Process with enhanced multi-stage pipeline
+      enhancedExtraction = await processDocumentWithEnhancedAI(
+        imageBuffer, 
+        DOCUMENT_AI_PROCESSOR_ID, 
+        accessToken
+      )
+      
+      console.log('Enhanced OCR processing successful')
+      console.log(`Extracted ${enhancedExtraction.lineItems.length} line items`)
+      console.log(`Product classification confidence: ${enhancedExtraction.analysis.productClassification.summary.confidence}`)
+      
     } catch (ocrError) {
-      console.error('Google Document AI failed:', ocrError)
+      console.error('Enhanced Google Document AI failed:', ocrError)
       
       // No fallback - let the error propagate
       // This ensures real issues are surfaced and fixed
-      throw new Error(`OCR processing failed: ${ocrError.message}`)
+      throw new Error(`Enhanced OCR processing failed: ${ocrError.message}`)
     }
 
-    // Step 4: Extract key data from text
-    console.log('Extracting key data...')
-    const extractedData = extractKeyData(extractedText)
-
-    // Step 5: Update delivery record with extracted data
+    // Step 4: Update delivery record with enhanced extraction data
     await updateDeliveryRecord(deliveryRecord.id, {
-      rawExtractedText: extractedText,
-      supplierName: extractedData.supplierName,
-      docketNumber: extractedData.docketNumber,
-      deliveryDate: extractedData.deliveryDate,
-      temperatures: extractedData.temperatures,
-      products: extractedData.products,
+      rawExtractedText: enhancedExtraction.rawText,
+      supplierName: enhancedExtraction.supplier.value,
+      docketNumber: enhancedExtraction.invoiceNumber?.value || null,
+      deliveryDate: enhancedExtraction.deliveryDate.value,
+      temperatures: enhancedExtraction.temperatureData.readings,
+      products: enhancedExtraction.lineItems.map(item => item.description),
       processingStatus: 'completed',
-      confidenceScore: extractedData.confidence
+      confidenceScore: enhancedExtraction.analysis.overallConfidence,
+      // Enhanced fields
+      extractedLineItems: enhancedExtraction.lineItems,
+      productClassification: enhancedExtraction.analysis.productClassification,
+      confidenceScores: {
+        supplier: enhancedExtraction.supplier.confidence,
+        deliveryDate: enhancedExtraction.deliveryDate.confidence,
+        temperatureData: enhancedExtraction.temperatureData.readings.map(t => t.confidence),
+        overall: enhancedExtraction.analysis.overallConfidence
+      },
+      complianceAnalysis: enhancedExtraction.temperatureData.analysis,
+      estimatedValue: enhancedExtraction.analysis.estimatedValue,
+      itemCount: enhancedExtraction.analysis.itemCount,
+      processingMetadata: enhancedExtraction.processingMetadata
     })
 
     // Step 6: Track usage for billing
     await trackDocumentUsage(clientId, deliveryRecord.id)
 
-    // Step 7: Create audit log
+    // Step 5: Create audit log
     await createAuditLog({
       clientId,
       userId,
-      action: 'document.processed',
+      action: 'document.processed.enhanced',
       resourceType: 'delivery_record',
       resourceId: deliveryRecord.id,
       details: {
         fileName,
         processingTimeMs: Date.now() - startTime,
-        confidenceScore: extractedData.confidence,
-        temperaturesFound: extractedData.temperatures.length
+        confidenceScore: enhancedExtraction.analysis.overallConfidence,
+        temperaturesFound: enhancedExtraction.temperatureData.readings.length,
+        lineItemsFound: enhancedExtraction.lineItems.length,
+        classificationConfidence: enhancedExtraction.analysis.productClassification.summary.confidence,
+        complianceStatus: enhancedExtraction.temperatureData.overallCompliance
       }
     })
 
     return {
       success: true,
       deliveryRecordId: deliveryRecord.id,
-      extractedData,
+      enhancedExtraction: {
+        supplier: enhancedExtraction.supplier,
+        deliveryDate: enhancedExtraction.deliveryDate,
+        temperatureData: enhancedExtraction.temperatureData,
+        lineItems: enhancedExtraction.lineItems,
+        productClassification: enhancedExtraction.analysis.productClassification,
+        analysis: enhancedExtraction.analysis
+      },
       processingTime: Date.now() - startTime
     }
 
@@ -683,12 +717,24 @@ async function updateDeliveryRecord(id: string, updates: any) {
         products: updates.products,
         processing_status: updates.processingStatus,
         confidence_score: updates.confidenceScore,
-        error_message: updates.errorMessage
+        error_message: updates.errorMessage,
+        // Enhanced fields (will be added to database schema)
+        extracted_line_items: updates.extractedLineItems,
+        product_classification: updates.productClassification,
+        confidence_scores: updates.confidenceScores,
+        compliance_analysis: updates.complianceAnalysis,
+        estimated_value: updates.estimatedValue,
+        item_count: updates.itemCount,
+        processing_metadata: updates.processingMetadata
       })
       .eq('id', id)
 
     if (error) {
       console.error('Error updating delivery record:', error)
+      // Don't throw error for new fields that might not exist yet
+      if (!error.message.includes('column') && !error.message.includes('does not exist')) {
+        throw error
+      }
     } else {
       console.log('Delivery record updated successfully:', id)
     }

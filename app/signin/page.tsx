@@ -73,6 +73,26 @@ export default function SignInPage() {
     }
   }
 
+  const handleDemoSignIn = async () => {
+    console.log('🎯 Demo button clicked!')
+    setError('')
+    setIsLoading(true)
+
+    try {
+      console.log('🚀 Demo mode - bypassing authentication')
+      console.log('Current URL:', window.location.href)
+      
+      // Direct redirect to upload console - it has its own demo auth
+      console.log('🔄 Redirecting to /console/upload...')
+      window.location.href = '/console/upload'
+      
+    } catch (error) {
+      console.error('Demo sign-in failed:', error)
+      setError('Demo mode failed to load')
+      setIsLoading(false)
+    }
+  }
+
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -160,7 +180,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none mb-4"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -171,6 +191,22 @@ export default function SignInPage() {
                 'Sign In'
               )}
             </button>
+            
+            {/* Demo Access Button - Production Optimized */}
+            <div className="mt-4">
+              <a
+                href="/demo"
+                className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-center cursor-pointer"
+                onClick={(e) => {
+                  console.log('🎯 Demo route link clicked!')
+                  console.log('Current location:', window.location.href)
+                  // Let the default navigation happen
+                }}
+                style={{ display: 'block', visibility: 'visible' }}
+              >
+                🚀 Demo Mode - Test Google Cloud AI Upload
+              </a>
+            </div>
           </form>
 
 

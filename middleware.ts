@@ -92,8 +92,12 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   )
 
+  // Allow demo access to all console pages (development/testing)
+  const isDemoConsoleAccess = request.nextUrl.pathname.startsWith('/console')
+  
   // If accessing protected route without authentication, redirect to signin
-  if (isProtectedPath && !user) {
+  // (except for demo console access)
+  if (isProtectedPath && !user && !isDemoConsoleAccess) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/signin'
     redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
@@ -106,7 +110,10 @@ export async function middleware(request: NextRequest) {
   
   if (isAuthPath && user) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/console/dashboard'
+    // Check if there's a redirectTo parameter
+    const redirectTo = request.nextUrl.searchParams.get('redirectTo')
+    redirectUrl.pathname = redirectTo || '/console/dashboard'
+    redirectUrl.search = '' // Clear the search params
     return NextResponse.redirect(redirectUrl)
   }
 
