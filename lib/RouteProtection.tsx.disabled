@@ -2,8 +2,8 @@
 
 import React, { ReactNode, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useAuth, useClient, type UserRole } from './MultiTenantAuthContext'
-import { hasPermission, type Permission } from './auth'
+import { useAuth, useClientWithUsers } from './MultiTenantAuthContext'
+import { hasPermission, type Permission, type UserRole } from './auth'
 
 // =====================================================
 // TYPES
@@ -42,7 +42,7 @@ export function ProtectedRoute({
   const router = useRouter()
   const pathname = usePathname()
   const auth = useAuth()
-  const client = useClient()
+  const client = useClientWithUsers()
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
   const [permissionChecks, setPermissionChecks] = useState<boolean[]>([])
 
@@ -230,7 +230,7 @@ export function withPermissions<P extends object>(
 
 // Hook for conditional rendering based on permissions
 export function usePermissionGuard(permission: Permission) {
-  const client = useClient()
+  const client = useClientWithUsers()
   const [hasAccess, setHasAccess] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -252,7 +252,7 @@ export function usePermissionGuard(permission: Permission) {
 
 // Hook for role-based conditional rendering
 export function useRoleGuard(allowedRoles: UserRole[]) {
-  const client = useClient()
+  const client = useClientWithUsers()
   
   if (!client.userRole) return false
   

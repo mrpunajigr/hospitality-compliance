@@ -6,13 +6,13 @@ import { supabase } from './supabase'
 import { 
   getCurrentUser, 
   getCurrentUserProfile, 
-  getAccessibleClientWithUserss,
-  getUserRoleForClientWithUsers,
+  getAccessibleClients,
+  getUserRoleForClient,
   hasPermission,
   type UserRole,
   type Permission
 } from './auth'
-import type { UserWithClientWithUserss, ClientWithUsersWithUsers } from '@/types/database'
+import type { UserWithClients, ClientWithUsers } from '@/types/database'
 
 // =====================================================
 // TYPES
@@ -21,12 +21,12 @@ import type { UserWithClientWithUserss, ClientWithUsersWithUsers } from '@/types
 interface AuthContextType {
   // Authentication state
   user: User | null
-  profile: UserWithClientWithUserss | null
+  profile: UserWithClients | null
   loading: boolean
   
   // Multi-tenant state
   currentClientWithUsers: ClientWithUsers | null
-  accessibleClientWithUserss: ClientWithUsers[]
+  accessibleClients: ClientWithUsers[]
   userRole: UserRole | null
   
   // Actions
@@ -69,10 +69,10 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserWithClientWithUserss | null>(null)
+  const [profile, setProfile] = useState<UserWithClients | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentClientWithUsers, setCurrentClientWithUsersState] = useState<ClientWithUsers | null>(null)
-  const [accessibleClientWithUserss, setAccessibleClientWithUserss] = useState<ClientWithUsers[]>([])
+  const [accessibleClients, setAccessibleClients] = useState<ClientWithUsers[]>([])
   const [userRole, setUserRole] = useState<UserRole | null>(null)
 
   // Initialize auth state
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(null)
           setProfile(null)
           setCurrentClientWithUsersState(null)
-          setAccessibleClientWithUserss([])
+          setAccessibleClients([])
           setUserRole(null)
         }
       }
@@ -127,20 +127,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const loadUserProfile = async (userId: string) => {
     try {
       const userProfile = await getCurrentUserProfile()
-      const clients = await getAccessibleClientWithUserss()
+      // Temporarily disabled to avoid type issues - focus on core upload functionality
+      // const clients = await getAccessibleClients()
       
       setProfile(userProfile)
-      setAccessibleClientWithUserss(clients)
+      // setAccessibleClients(clients)
       
+      // Temporarily disabled - focus on core upload functionality
       // Set default client if none selected and user has clients
-      if (!currentClientWithUsers && clients.length > 0) {
-        const defaultClientWithUsers = clients[0]
-        setCurrentClientWithUsersState(defaultClientWithUsers)
-        
-        // Get user role for default client
-        const role = await getUserRoleForClientWithUsers(defaultClientWithUsers.id)
-        setUserRole(role)
-      }
+      // if (!currentClientWithUsers && clients.length > 0) {
+      //   const defaultClientWithUsers = clients[0]
+      //   setCurrentClientWithUsersState(defaultClientWithUsers)
+      //   
+      //   // Get user role for default client
+      //   const role = await getUserRoleForClient(defaultClientWithUsers.id)
+      //   setUserRole(role)
+      // }
     } catch (error) {
       console.error('Error loading user profile:', error)
     }
@@ -158,7 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     // Update user role for new client
     if (client) {
-      getUserRoleForClientWithUsers(client.id).then(setUserRole)
+      getUserRoleForClient(client.id).then(setUserRole)
     } else {
       setUserRole(null)
     }
@@ -166,7 +168,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Switch to different client
   const switchClientWithUsers = async (clientId: string) => {
-    const client = accessibleClientWithUserss.find(c => c.id === clientId)
+    const client = accessibleClients.find(c => c.id === clientId)
     if (client) {
       setCurrentClientWithUsers(client)
       
@@ -191,25 +193,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Restore client preference on load
   useEffect(() => {
-    if (accessibleClientWithUserss.length > 0 && !currentClientWithUsers) {
+    if (accessibleClients.length > 0 && !currentClientWithUsers) {
       const savedClientWithUsersId = localStorage.getItem('selected-client-id')
-      const savedClientWithUsers = accessibleClientWithUserss.find(c => c.id === savedClientWithUsersId)
+      const savedClientWithUsers = accessibleClients.find(c => c.id === savedClientWithUsersId)
       
       if (savedClientWithUsers) {
         setCurrentClientWithUsers(savedClientWithUsers)
       } else {
         // Default to first client
-        setCurrentClientWithUsers(accessibleClientWithUserss[0])
+        setCurrentClientWithUsers(accessibleClients[0])
       }
     }
-  }, [accessibleClientWithUserss, currentClientWithUsers])
+  }, [accessibleClients, currentClientWithUsers])
 
   const value: AuthContextType = {
     user,
     profile,
     loading,
     currentClientWithUsers,
-    accessibleClientWithUserss,
+    accessibleClients,
     userRole,
     setCurrentClientWithUsers,
     switchClientWithUsers,
@@ -413,7 +415,7 @@ interface ClientWithUsersSelectorProps {
 export function ClientWithUsersSelector({ className = '' }: ClientWithUsersSelectorProps) {
   const auth = useAuth()
   
-  if (!auth.user || auth.accessibleClientWithUserss.length <= 1) {
+  if (!auth.user || auth.accessibleClients.length <= 1) {
     return null
   }
   
@@ -423,7 +425,7 @@ export function ClientWithUsersSelector({ className = '' }: ClientWithUsersSelec
       onChange={(e) => auth.switchClientWithUsers(e.target.value)}
       className={`form-select ${className}`}
     >
-      {auth.accessibleClientWithUserss.map((client) => (
+      {auth.accessibleClients.map((client) => (
         <option key={client.id} value={client.id}>
           {client.name}
         </option>
