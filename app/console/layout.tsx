@@ -59,8 +59,9 @@ export default function ConsoleLayout({
           return
         }
         
-        // For other pages, redirect to sign-in
-        if (typeof window !== 'undefined') {
+        // For non-console pages, redirect to sign-in
+        // Do NOT redirect console pages - they should use demo mode
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/console')) {
           window.location.href = `/signin?redirectTo=${encodeURIComponent(window.location.pathname)}`
         }
         return
