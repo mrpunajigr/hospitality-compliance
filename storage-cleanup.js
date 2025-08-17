@@ -36,18 +36,51 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   }
 })
 
-// Buckets to clean
+// Buckets to clean (PRODUCTION DATA ONLY)
 const BUCKETS_TO_CLEAN = [
   'delivery-documents',
-  'processed-images',
+  'processed-images', 
   'temp-uploads',
   'document-processing'
 ]
+
+// ⚠️ PROTECTED BUCKETS - NEVER CLEAN THESE
+const PROTECTED_BUCKETS = [
+  'dev-screenshots',
+  'dev-archives', 
+  'assets-read',
+  'development-assets',
+  'archive-screenshots',
+  'debug-screenshots',
+  'analyzed-screenshots'
+]
+
+/**
+ * Safety check to prevent cleaning protected buckets
+ */
+function isProtectedBucket(bucketName) {
+  const isProtected = PROTECTED_BUCKETS.some(protected => 
+    bucketName.toLowerCase().includes(protected.toLowerCase()) ||
+    protected.toLowerCase().includes(bucketName.toLowerCase())
+  )
+  
+  if (isProtected) {
+    console.log(`🛡️  PROTECTION: '${bucketName}' appears to be a dev/archive bucket`)
+    console.log(`   This bucket is PROTECTED and will NOT be cleaned`)
+    return true
+  }
+  
+  return false
+}
 
 /**
  * Clean all files from a specific bucket
  */
 async function cleanBucket(bucketName) {
+  // SAFETY CHECK: Never clean protected buckets
+  if (isProtectedBucket(bucketName)) {
+    return { bucket: bucketName, status: 'protected', filesDeleted: 0 }
+  }
   try {
     console.log(`🧹 Cleaning bucket: ${bucketName}`)
     
@@ -161,11 +194,61 @@ async function cleanBucketRecursive(bucketName, path = '') {
 }
 
 /**
+ * Discover all buckets and warn about potential dev/archive buckets
+ */
+async function discoverBuckets() {
+  try {
+    console.log('🔍 Discovering all storage buckets...')
+    
+    // List all buckets (this might not be available in all Supabase plans)
+    const { data: buckets, error } = await supabase.storage.listBuckets()
+    
+    if (error) {
+      console.log('   ℹ️  Cannot list all buckets (checking configured buckets only)')
+      return []
+    }
+    
+    if (buckets && buckets.length > 0) {
+      console.log(`   📁 Found ${buckets.length} total buckets:`)
+      
+      buckets.forEach(bucket => {
+        const isTarget = BUCKETS_TO_CLEAN.includes(bucket.name)
+        const isProtected = isProtectedBucket(bucket.name)
+        
+        if (isTarget) {
+          console.log(`   🎯 ${bucket.name} - WILL BE CLEANED`)
+        } else if (isProtected) {
+          console.log(`   🛡️  ${bucket.name} - PROTECTED (will not be cleaned)`)
+        } else {
+          console.log(`   ❓ ${bucket.name} - Unknown (not in cleanup list)`)
+        }
+      })
+      
+      return buckets
+    }
+    
+    return []
+  } catch (error) {
+    console.log('   ℹ️  Bucket discovery not available, proceeding with configured list')
+    return []
+  }
+}
+
+/**
  * Main cleanup function
  */
 async function cleanupStorage() {
   console.log('🚀 Starting Supabase Storage Cleanup')
   console.log('=====================================')
+  console.log('')
+  
+  // First, discover all buckets and show protection status
+  await discoverBuckets()
+  console.log('')
+  
+  console.log('🛡️  SAFETY CONFIRMATION:')
+  console.log('   Only cleaning PRODUCTION data buckets')
+  console.log('   DEV archives and screenshots are PROTECTED')
   console.log('')
   
   const results = []
@@ -214,9 +297,14 @@ async function cleanupStorage() {
   results.forEach(result => {
     const status = result.status === 'cleaned' ? '✅' :
                    result.status === 'already_empty' ? '📭' :
-                   result.status === 'not_found' ? '⏭️' : '❌'
+                   result.status === 'not_found' ? '⏭️' : 
+                   result.status === 'protected' ? '🛡️' : '❌'
     
     console.log(`${status} ${result.bucket}: ${result.filesDeleted} files deleted`)
+    
+    if (result.status === 'protected') {
+      console.log(`   Protected: DEV/Archive bucket preserved`)
+    }
     
     if (result.error) {
       console.log(`   Error: ${result.error}`)
