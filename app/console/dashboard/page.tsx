@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import SafariCompatibleUpload from '../../components/delivery/SafariCompatibleUpload'
 import EnhancedComplianceDashboard from '../../components/compliance/EnhancedComplianceDashboard'
 import DeliveryTracker from '../../components/delivery/DeliveryTracker'
+import ConfigurableResultsCard from '../../components/results/ConfigurableResultsCard'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
@@ -17,6 +18,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [latestDeliveryRecord, setLatestDeliveryRecord] = useState<any>(null)
+  const [processingResults, setProcessingResults] = useState<any>(null)
 
   // Simplified auth check - rely on console layout for authentication
   useEffect(() => {
@@ -77,6 +80,45 @@ export default function DashboardPage() {
     return () => {}
   }, [])
 
+  // Fetch latest delivery records for results display
+  useEffect(() => {
+    const fetchLatestResults = async () => {
+      try {
+        // Fetch the most recent delivery record with processing results
+        const { data: deliveryRecords, error } = await supabase
+          .from('delivery_records')
+          .select(`
+            *,
+            violation_alerts(*)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(1)
+
+        if (error) {
+          console.error('Error fetching delivery records:', error)
+          return
+        }
+
+        if (deliveryRecords && deliveryRecords.length > 0) {
+          const record = deliveryRecords[0]
+          setLatestDeliveryRecord(record)
+          
+          // If the record has analysis results, set them for display
+          if (record.analysis || record.extraction_data) {
+            setProcessingResults(record.analysis || record.extraction_data)
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchLatestResults:', error)
+      }
+    }
+
+    // Only fetch if we have a user (including demo mode)
+    if (user) {
+      fetchLatestResults()
+    }
+  }, [user])
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -96,6 +138,12 @@ export default function DashboardPage() {
   const handleUploadSuccess = (deliveryRecord: any) => {
     console.log('Upload successful:', deliveryRecord)
     setLastUpload(deliveryRecord)
+    setLatestDeliveryRecord(deliveryRecord)
+    
+    // If the record has analysis results, set them for display
+    if (deliveryRecord.analysis || deliveryRecord.extraction_data) {
+      setProcessingResults(deliveryRecord.analysis || deliveryRecord.extraction_data)
+    }
     
     // Switch to dashboard to see results
     setTimeout(() => {
@@ -137,8 +185,108 @@ export default function DashboardPage() {
 
           {/* Dashboard Tab - AI Results Display */}
           {activeTab === 'dashboard' && (
-            <>
-              {userClient?.id ? (
+            <div className="space-y-6">
+              
+              {/* Latest AI Processing Results */}
+              {processingResults && latestDeliveryRecord && (
+                <div>
+                  <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
+                    🧠 Latest Google Cloud AI Results
+                  </h2>
+                  
+                  {/* Delivery Record Info */}
+                  <div className={`${getCardStyle('secondary')} mb-6`}>
+                    <div className="flex items-center space-x-4 mb-4">
+                      {/* Thumbnail if available */}
+                      {latestDeliveryRecord.file_url && (
+                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-white/10">
+                          <img 
+                            src={latestDeliveryRecord.file_url}
+                            alt="Delivery document"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="flex-1">
+                        <h3 className="text-white font-semibold">
+                          {latestDeliveryRecord.supplier_name || 'Processing Complete'}
+                        </h3>
+                        <p className="text-white/70 text-sm">
+                          Uploaded: {new Date(latestDeliveryRecord.created_at).toLocaleString()}
+                        </p>
+                        <p className="text-white/70 text-sm">
+                          Status: {latestDeliveryRecord.status || 'Processed'}
+                        </p>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-green-400 font-semibold">✅ Processed</div>
+                        <div className="text-white/70 text-sm">
+                          Record ID: {latestDeliveryRecord.id.slice(0, 8)}...
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Results Card with Default Configuration */}
+                  {(() => {
+                    try {
+                      // Default configuration for demo/testing
+                      const defaultConfig = {
+                        mandatoryFields: {
+                          showSupplier: true,
+                          showDeliveryDate: true,
+                          showSignedBy: true,
+                          showTemperatureData: true,
+                          showProductClassification: true
+                        },
+                        optionalFields: {
+                          showInvoiceNumber: true,
+                          showItems: true,
+                          showEstimatedValue: true,
+                          showItemCount: true,
+                          showUnitSize: true,
+                          showUnitPrice: true,
+                          showSkuCode: true
+                        },
+                        displayPreferences: {
+                          resultsCardLayout: 'detailed',
+                          dateFormat: 'DD/MM/YYYY',
+                          currencySymbol: '$',
+                          temperatureUnit: 'C',
+                          groupByTemperatureCategory: true,
+                          showConfidenceScores: true
+                        }
+                      }
+
+                      return (
+                        <ConfigurableResultsCard
+                          data={processingResults}
+                          configuration={defaultConfig}
+                        />
+                      )
+                    } catch (error) {
+                      console.error('Error rendering ResultsCard:', error)
+                      return (
+                        <div className={getCardStyle('primary')}>
+                          <div className="text-center py-8">
+                            <p className="text-white/80">
+                              Processing results available but display error occurred.
+                            </p>
+                            <pre className="text-xs text-white/60 mt-4 bg-black/20 p-4 rounded-lg overflow-auto max-h-40">
+                              {JSON.stringify(processingResults, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      )
+                    }
+                  })()}
+                </div>
+              )}
+
+              {/* Enhanced Compliance Dashboard for Real Users */}
+              {userClient?.id && (
                 <div>
                   {(() => {
                     try {
@@ -170,27 +318,31 @@ export default function DashboardPage() {
                     }
                   })()}
                 </div>
-              ) : (
+              )}
+
+              {/* Demo Mode Message */}
+              {!userClient?.id && !processingResults && (
                 <div className={getCardStyle('primary')}>
                   <div className="text-center py-12">
                     <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
-                      🎉 Demo Dashboard - Google Cloud AI Results
+                      🎉 Google Cloud AI Dashboard
                     </h2>
                     <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
                       Upload documents in the Upload tab to see AI processing results here.
-                      Real compliance dashboard requires company setup.
+                      Results will appear with thumbnails, confidence scores, and detailed analysis.
                     </p>
                     <div className="bg-blue-600/20 border border-blue-400/30 rounded-xl p-4">
                       <p className="text-blue-200 text-sm">
                         ✅ Google Cloud AI processing active<br/>
-                        ✅ Document upload and analysis working<br/>
-                        ✅ Ready for production deployment
+                        ✅ Results display with thumbnails ready<br/>
+                        ✅ Temperature compliance analysis working<br/>
+                        ✅ Professional production deployment
                       </p>
                     </div>
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {/* Tracking Tab */}
