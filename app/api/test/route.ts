@@ -4,6 +4,7 @@ export async function GET() {
   return NextResponse.json({ 
     test: 'working', 
     timestamp: new Date().toISOString(),
-    deployment: 'fresh-api-routes-v2' 
+    deployment: 'production-promotion-v3',
+    status: 'force_promote_to_production'
   })
 }
