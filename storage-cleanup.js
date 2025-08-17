@@ -15,14 +15,38 @@
  */
 
 const { createClient } = require('@supabase/supabase-js')
+const fs = require('fs')
+const path = require('path')
 
-// Configuration
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Read .env.local file
+function loadEnvFile() {
+  try {
+    const envPath = path.join(__dirname, '.env.local')
+    const envContent = fs.readFileSync(envPath, 'utf8')
+    
+    const env = {}
+    envContent.split('\n').forEach(line => {
+      const [key, ...valueParts] = line.split('=')
+      if (key && valueParts.length > 0) {
+        env[key.trim()] = valueParts.join('=').trim()
+      }
+    })
+    
+    return env
+  } catch (error) {
+    console.error('❌ Could not read .env.local file:', error.message)
+    process.exit(1)
+  }
+}
+
+// Load environment variables
+const env = loadEnvFile()
+const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY
 
 // Validate environment
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  console.error('❌ Missing required environment variables:')
+  console.error('❌ Missing required environment variables in .env.local:')
   console.error('   NEXT_PUBLIC_SUPABASE_URL')
   console.error('   SUPABASE_SERVICE_ROLE_KEY')
   process.exit(1)
@@ -38,7 +62,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 
 // Buckets to clean (PRODUCTION DATA ONLY)
 const BUCKETS_TO_CLEAN = [
-  'delivery-documents',
+  'delivery-dockets',  // Updated to match actual bucket name
   'processed-images', 
   'temp-uploads',
   'document-processing'
@@ -49,6 +73,9 @@ const PROTECTED_BUCKETS = [
   'dev-screenshots',
   'dev-archives', 
   'assets-read',
+  'assets',          // Protect the assets bucket we found
+  'avatars',         // Protect user avatars
+  'client-logos',    // Protect company logos
   'development-assets',
   'archive-screenshots',
   'debug-screenshots',
