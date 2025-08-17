@@ -87,6 +87,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (session?.user && mounted) {
           setUser(session.user)
           await loadUserProfile(session.user.id)
+        } else if (mounted) {
+          // Check for console demo mode - same logic as console layout
+          const isConsoleDemo = typeof window !== 'undefined' && 
+            window.location.pathname.startsWith('/console')
+          
+          if (isConsoleDemo) {
+            console.log('🚀 AuthContext: Console demo mode detected')
+            const demoUser = {
+              id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+              email: 'demo@example.com',
+              app_metadata: {},
+              user_metadata: { full_name: 'Demo User - AuthContext' },
+              aud: 'authenticated',
+              role: 'authenticated',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            } as User
+            setUser(demoUser)
+            console.log('✅ AuthContext: Demo user set for console')
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
