@@ -41,8 +41,9 @@ export default function DashboardPage() {
           // Continue without client info - this is normal for users without companies or in demo mode
         }
       } else {
-        // Check for demo mode - Multiple detection methods for production reliability
+        // Check for demo mode - Console path triggers demo mode automatically
         const isDemoMode = typeof window !== 'undefined' && (
+          window.location.pathname.startsWith('/console') ||
           new URLSearchParams(window.location.search).get('demo') === 'true' ||
           document.cookie.includes('demo-session=active') ||
           window.location.pathname.includes('demo')

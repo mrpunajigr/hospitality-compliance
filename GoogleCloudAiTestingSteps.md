@@ -7,9 +7,10 @@ This document provides comprehensive testing steps for the Google Cloud AI docum
 
 ### Deployment Status ✅ COMPLETED
 - **Build Status**: Successfully compiled with no TypeScript errors
-- **Deployment**: Pushed to Vercel production (commit: cf80e83f)
+- **Deployment**: Pushed to Vercel production (commit: 78b866ec)
 - **New API Routes**: health-check, get-upload-url, create-delivery-record
 - **Architecture**: Direct Supabase uploads bypass Vercel 4.5MB limit
+- **Demo Authentication**: Fixed console redirect issue - direct dashboard access enabled
 
 ### System Architecture Overview
 1. **Frontend Upload**: User selects files via enhanced upload interface
@@ -57,6 +58,11 @@ https://hospitality-compliance.vercel.app/api/health-check
 **Test Result**: [ ] Pass [ ] Fail  
 **Notes**: _______________________
 
+**UPDATE - Authentication Fix Applied (2025-08-17, 2:15pm)**:
+- Fixed client-side redirect issue in console layout
+- Console pages now enable demo mode without sign-in redirect
+- Expected: Health check should now return JSON instead of 404
+
 ---
 
 ### 🏠 Test 2: Dashboard Access & Navigation
@@ -75,6 +81,11 @@ https://hospitality-compliance.vercel.app/console/dashboard
 
 **Test Result**: [ ] Pass [ ] Fail  
 **Notes**: _______________________
+
+**UPDATE - Authentication Fix Applied (2025-08-17, 2:15pm)**:
+- Fixed console layout redirect logic that was sending users to sign-in
+- Demo mode now activates automatically for all /console/* pages
+- Expected: Direct dashboard access without authentication required
 
 ---
 
@@ -231,9 +242,26 @@ When all tests pass and core functionality is verified:
 
 ---
 
-**Document Status**: 🔄 IN PROGRESS  
+---
+
+## Latest Updates
+
+### 2025-08-17, 2:15pm - Authentication Fix Deployed ✅
+**Issue**: Dashboard redirected to sign-in instead of enabling demo mode
+**Solution**: Fixed console layout redirect logic
+- Updated client-side redirect condition to exclude console pages
+- Demo mode now activates automatically for /console/* routes
+- Both dashboard access and API routes should now be functional
+
+**Commit**: 78b866ec - "Fix demo authentication bypass for console access"
+
+**Ready for Testing**: All test steps should now pass as designed
+
+---
+
+**Document Status**: 🔄 IN PROGRESS - READY FOR TESTING  
 **Created**: 2025-08-17  
-**Last Updated**: 2025-08-17  
-**Version**: v1.0  
+**Last Updated**: 2025-08-17, 2:15pm  
+**Version**: v1.1  
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
