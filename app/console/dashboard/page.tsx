@@ -94,6 +94,9 @@ export default function DashboardPage() {
           .order('created_at', { ascending: false })
           .limit(1)
 
+        console.log('📊 Dashboard: Fetched delivery records:', deliveryRecords)
+        console.log('📊 Dashboard: Query error:', error)
+
         if (error) {
           console.error('Error fetching delivery records:', error)
           return
@@ -101,12 +104,22 @@ export default function DashboardPage() {
 
         if (deliveryRecords && deliveryRecords.length > 0) {
           const record = deliveryRecords[0]
+          console.log('📊 Dashboard: Latest record:', record)
+          console.log('📊 Dashboard: Record analysis:', record.analysis)
+          console.log('📊 Dashboard: Record extraction_data:', record.extraction_data)
+          
           setLatestDeliveryRecord(record)
           
           // If the record has analysis results, set them for display
           if (record.analysis || record.extraction_data) {
-            setProcessingResults(record.analysis || record.extraction_data)
+            const resultsData = record.analysis || record.extraction_data
+            console.log('📊 Dashboard: Setting processing results:', resultsData)
+            setProcessingResults(resultsData)
+          } else {
+            console.log('📊 Dashboard: No analysis or extraction_data found in record')
           }
+        } else {
+          console.log('📊 Dashboard: No delivery records found')
         }
       } catch (error) {
         console.error('Error in fetchLatestResults:', error)
@@ -331,6 +344,18 @@ export default function DashboardPage() {
                       Upload documents in the Upload tab to see AI processing results here.
                       Results will appear with thumbnails, confidence scores, and detailed analysis.
                     </p>
+                    
+                    {/* Debug Information */}
+                    <div className="bg-yellow-600/20 border border-yellow-400/30 rounded-xl p-4 mb-4">
+                      <h4 className="text-yellow-200 font-medium mb-2">🔍 Debug Info</h4>
+                      <div className="text-left text-xs text-yellow-100 space-y-1">
+                        <p>• Latest Record: {latestDeliveryRecord ? 'Found' : 'None'}</p>
+                        <p>• Processing Results: {processingResults ? 'Found' : 'None'}</p>
+                        <p>• User: {user ? (user.email || 'Demo User') : 'None'}</p>
+                        <p>• User Client: {userClient ? userClient.name : 'None'}</p>
+                      </div>
+                    </div>
+
                     <div className="bg-blue-600/20 border border-blue-400/30 rounded-xl p-4">
                       <p className="text-blue-200 text-sm">
                         ✅ Google Cloud AI processing active<br/>
