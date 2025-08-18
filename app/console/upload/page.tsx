@@ -330,7 +330,7 @@ export default function UploadPage() {
             
             <div>
               <button 
-                onClick={() => router.push('/workspace/dashboard')}
+                onClick={() => router.push('/console/dashboard')}
                 className="block w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl transition-all duration-200 text-left"
               >
                 <div>

@@ -1,3 +1,8 @@
+### v1.8.17.043a (2025-08-17) - ENHANCEMENT
+- **✨ ENHANCEMENT**: Enhanced Google Cloud AI supplier extraction accuracy with document structure awareness and false positive filtering
+- **🕐 Build Time**: 8/18/2025, 6:02:22 AM
+- **🔧 Environment**: development
+
 ### v1.8.16.001 (2025-08-15) - MAJOR
 - **📝 MAJOR**: Google Cloud AI Functionality Complete - Enhanced 6-stage processing pipeline operational
 - **🕐 Build Time**: 8/16/2025, 9:14:40 AM
