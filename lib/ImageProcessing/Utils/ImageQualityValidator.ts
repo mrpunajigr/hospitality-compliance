@@ -1,3 +1,5 @@
+import { ImagePreprocessor, PreprocessingResult } from './ImagePreprocessor';
+
 export interface QualityMetrics {
   brightness: number;
   contrast: number;
@@ -13,9 +15,11 @@ export interface QualityReport {
   metrics: QualityMetrics;
   suggestions: string[];
   warnings: string[];
+  preprocessing?: PreprocessingResult;
 }
 
 export class ImageQualityValidator {
+  private preprocessor = new ImagePreprocessor();
   private thresholds = {
     brightness: { min: 30, max: 85 },
     contrast: { min: 25 },
@@ -26,42 +30,114 @@ export class ImageQualityValidator {
   };
 
   async validateForOCR(imageFile: File): Promise<QualityReport> {
-    const metrics = await this.calculateMetrics(imageFile);
-    const suggestions = this.generateSuggestions(metrics);
-    const warnings = this.generateWarnings(metrics);
-    const acceptable = this.isAcceptableForOCR(metrics);
-    const score = this.calculateQualityScore(metrics);
+    try {
+      let fileToAnalyze = imageFile;
+      let preprocessingResult: PreprocessingResult | undefined;
 
-    return {
-      acceptable,
-      score,
-      metrics,
-      suggestions,
-      warnings
-    };
+      // Preprocess large files or non-optimal formats
+      if (imageFile.size > 10 * 1024 * 1024 || !this.isOptimalFormat(imageFile)) {
+        console.log(`Preprocessing ${imageFile.name} (${ImagePreprocessor.formatFileSize(imageFile.size)})`);
+        
+        preprocessingResult = await this.preprocessor.preprocessForQualityAnalysis(imageFile, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          maxFileSize: 5 * 1024 * 1024,
+          quality: 0.85,
+          targetFormat: 'jpeg'
+        });
+        
+        fileToAnalyze = preprocessingResult.processedFile;
+        console.log(`Preprocessed to ${ImagePreprocessor.formatFileSize(fileToAnalyze.size)} in ${preprocessingResult.processingTime.toFixed(0)}ms`);
+      }
+
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Quality analysis timeout')), 8000);
+      });
+
+      const metrics = await Promise.race([
+        this.calculateMetrics(fileToAnalyze),
+        timeoutPromise
+      ]);
+
+      // Update metrics to reflect original file size for reporting
+      if (preprocessingResult) {
+        metrics.fileSize = imageFile.size; // Show original file size in metrics
+      }
+
+      const suggestions = this.generateSuggestions(metrics, preprocessingResult);
+      const warnings = this.generateWarnings(metrics, preprocessingResult);
+      const acceptable = this.isAcceptableForOCR(metrics);
+      const score = this.calculateQualityScore(metrics);
+
+      return {
+        acceptable,
+        score,
+        metrics,
+        suggestions,
+        warnings,
+        preprocessing: preprocessingResult
+      };
+    } catch (error) {
+      console.error('Quality validation failed:', error);
+      
+      // Return fallback quality report
+      return {
+        acceptable: true,
+        score: 50,
+        metrics: {
+          brightness: 50,
+          contrast: 50,
+          sharpness: 50,
+          resolution: 0,
+          fileSize: imageFile.size,
+          aspectRatio: 1
+        },
+        suggestions: ['Quality analysis failed - using fallback validation'],
+        warnings: ['Could not analyze image quality']
+      };
+    }
   }
 
   private async calculateMetrics(file: File): Promise<QualityMetrics> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
 
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        try {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
 
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        resolve({
-          brightness: this.calculateBrightness(imageData),
-          contrast: this.calculateContrast(imageData),
-          sharpness: this.calculateSharpness(imageData),
-          resolution: img.width * img.height,
-          fileSize: file.size,
-          aspectRatio: img.width / img.height
-        });
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          
+          resolve({
+            brightness: this.calculateBrightness(imageData),
+            contrast: this.calculateContrast(imageData),
+            sharpness: this.calculateSharpness(imageData),
+            resolution: img.width * img.height,
+            fileSize: file.size,
+            aspectRatio: img.width / img.height
+          });
+        } catch (error) {
+          console.error('Error processing image:', error);
+          reject(error);
+        } finally {
+          URL.revokeObjectURL(img.src);
+        }
+      };
+
+      img.onerror = (error) => {
+        console.error('Error loading image:', error);
+        URL.revokeObjectURL(img.src);
+        reject(new Error('Failed to load image'));
       };
 
       img.src = URL.createObjectURL(file);
@@ -84,35 +160,55 @@ export class ImageQualityValidator {
 
   private calculateContrast(imageData: ImageData): number {
     const data = imageData.data;
-    const brightness = this.calculateBrightness(imageData);
+    const avgBrightness = this.calculateBrightness(imageData) * 255 / 100; // Convert back to 0-255 range
     let variance = 0;
+    const pixelCount = data.length / 4;
     
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
       const pixelBrightness = (r + g + b) / 3;
-      variance += Math.pow(pixelBrightness - brightness, 2);
+      variance += Math.pow(pixelBrightness - avgBrightness, 2);
     }
     
-    return Math.sqrt(variance / (data.length / 4)) / 255 * 100;
+    const standardDeviation = Math.sqrt(variance / pixelCount);
+    return Math.min((standardDeviation / 255) * 100, 100);
   }
 
   private calculateSharpness(imageData: ImageData): number {
     const data = imageData.data;
     const width = imageData.width;
+    const height = imageData.height;
     let sharpness = 0;
+    let sampleCount = 0;
     
-    for (let y = 1; y < imageData.height - 1; y++) {
-      for (let x = 1; x < width - 1; x++) {
+    // Sample every 4th pixel for performance (especially on large images)
+    const step = Math.max(1, Math.floor(Math.min(width, height) / 100));
+    
+    for (let y = step; y < height - step; y += step) {
+      for (let x = step; x < width - step; x += step) {
         const i = (y * width + x) * 4;
-        const gx = -data[i - 4] + data[i + 4] - 2 * data[i - width * 4] + 2 * data[i + width * 4] - data[i - width * 4 - 4] + data[i + width * 4 + 4];
-        const gy = -data[i - width * 4] - 2 * data[i] - data[i + 4] + data[i + width * 4] + 2 * data[i + width * 4] + data[i + width * 4 + 4];
-        sharpness += Math.sqrt(gx * gx + gy * gy);
+        
+        // Simple edge detection using adjacent pixels
+        const current = data[i]; // Red channel only for speed
+        const right = data[i + 4];
+        const down = data[i + width * 4];
+        
+        const gx = Math.abs(current - right);
+        const gy = Math.abs(current - down);
+        sharpness += gx + gy;
+        sampleCount++;
       }
     }
     
-    return Math.min(sharpness / ((imageData.width - 2) * (imageData.height - 2)) / 255 * 100, 100);
+    if (sampleCount === 0) return 50; // Default if no samples
+    return Math.min((sharpness / sampleCount) / 255 * 100, 100);
+  }
+
+  private isOptimalFormat(file: File): boolean {
+    const optimalFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    return optimalFormats.includes(file.type.toLowerCase());
   }
 
   private isAcceptableForOCR(metrics: QualityMetrics): boolean {
@@ -171,13 +267,26 @@ export class ImageQualityValidator {
     return Math.round(score);
   }
 
-  private generateSuggestions(metrics: QualityMetrics): string[] {
+  private generateSuggestions(metrics: QualityMetrics, preprocessing?: PreprocessingResult): string[] {
     const suggestions: string[] = [];
 
+    // Add preprocessing feedback
+    if (preprocessing) {
+      if (preprocessing.converted) {
+        suggestions.push(`Converted from ${preprocessing.processedFile.type} to JPEG for better compatibility`);
+      }
+      if (preprocessing.resized) {
+        suggestions.push(`Resized image for faster processing (${preprocessing.compressionRatio.toFixed(1)}x smaller)`);
+      }
+      if (preprocessing.processingTime > 3000) {
+        suggestions.push("Large file detected - consider capturing smaller images for faster analysis");
+      }
+    }
+
     if (metrics.brightness < 30) {
-      suggestions.push("Improve lighting - image is too dark");
+      suggestions.push("Improve lighting - image is too dark for optimal OCR");
     } else if (metrics.brightness > 85) {
-      suggestions.push("Reduce lighting - image is too bright");
+      suggestions.push("Reduce lighting - image is too bright, may cause glare");
     }
 
     if (metrics.contrast < 25) {
@@ -194,8 +303,10 @@ export class ImageQualityValidator {
 
     if (metrics.fileSize < 100 * 1024) {
       suggestions.push("Image quality too low - try capturing again");
-    } else if (metrics.fileSize > 8 * 1024 * 1024) {
-      suggestions.push("File size too large - may cause processing delays");
+    } else if (metrics.fileSize > 50 * 1024 * 1024) {
+      suggestions.push("Very large file - consider using camera settings with lower resolution");
+    } else if (metrics.fileSize > 20 * 1024 * 1024) {
+      suggestions.push("Large file size may slow down processing");
     }
 
     if (metrics.aspectRatio < 0.5 || metrics.aspectRatio > 2.0) {
@@ -205,8 +316,18 @@ export class ImageQualityValidator {
     return suggestions;
   }
 
-  private generateWarnings(metrics: QualityMetrics): string[] {
+  private generateWarnings(metrics: QualityMetrics, preprocessing?: PreprocessingResult): string[] {
     const warnings: string[] = [];
+
+    // Add preprocessing warnings
+    if (preprocessing) {
+      if (preprocessing.compressionRatio > 10) {
+        warnings.push("Image was heavily compressed - some quality may be lost");
+      }
+      if (preprocessing.processingTime > 5000) {
+        warnings.push("Large file required significant processing time");
+      }
+    }
 
     if (metrics.brightness < 20 || metrics.brightness > 90) {
       warnings.push("Extreme brightness levels may prevent text recognition");
@@ -222,6 +343,10 @@ export class ImageQualityValidator {
 
     if (metrics.resolution < 800 * 600) {
       warnings.push("Resolution too low for reliable text extraction");
+    }
+
+    if (metrics.fileSize > 100 * 1024 * 1024) {
+      warnings.push("Extremely large file - may cause memory issues");
     }
 
     return warnings;

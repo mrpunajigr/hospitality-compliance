@@ -76,6 +76,31 @@ export default function QualityIndicator({ qualityReport, isProcessing }: Qualit
         </div>
       </div>
 
+      {/* Preprocessing Info */}
+      {qualityReport.preprocessing && (
+        <div className="bg-purple-500/20 border border-purple-400/30 rounded-xl p-4">
+          <h4 className="text-purple-300 text-sm font-medium mb-2">⚡ Processing Info:</h4>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-white/70">Original Size:</span>
+              <span className="text-purple-300">{(qualityReport.preprocessing.originalSize / 1024 / 1024).toFixed(1)} MB</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Processed Size:</span>
+              <span className="text-purple-300">{(qualityReport.preprocessing.processedSize / 1024 / 1024).toFixed(1)} MB</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Compression:</span>
+              <span className="text-purple-300">{qualityReport.preprocessing.compressionRatio.toFixed(1)}x</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Process Time:</span>
+              <span className="text-purple-300">{qualityReport.preprocessing.processingTime.toFixed(0)}ms</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Suggestions */}
       {qualityReport.suggestions.length > 0 && (
         <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
