@@ -83,7 +83,7 @@ export default function ProfilePage() {
     
     checkAuth()
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (session?.user) {
         setUser(session.user)
       }
@@ -166,7 +166,7 @@ export default function ProfilePage() {
             <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
               User Profile
             </h1>
-            <p className={`${getTextStyle('bodySecondary')} mb-6`}>
+            <p className={`${getTextStyle('bodySmall')} mb-6`}>
               Please sign in to view your profile
             </p>
             
@@ -197,11 +197,11 @@ export default function ProfilePage() {
               <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Profile Settings
               </h1>
-              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
+              <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
                 Manage your personal account information
               </p>
               {userClient && (
-                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
                   {userClient.name} • {userClient.role}
                 </div>
               )}

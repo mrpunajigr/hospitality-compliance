@@ -85,7 +85,7 @@ export default function CompanyPage() {
     
     checkAuth()
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       setUser(session?.user ?? null)
     })
 
@@ -114,8 +114,8 @@ export default function CompanyPage() {
             <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
               Company Profile
             </h1>
-            <p className={`${getTextStyle('bodySecondary')} mb-6`}>
-              Please sign in to manage company settings
+            <p className={`${getTextStyle('bodySmall')} mb-6`}>
+              Please sign in to manage settings
             </p>
             
             <button
@@ -145,11 +145,11 @@ export default function CompanyPage() {
               <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Company Profile
               </h1>
-              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
+              <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
                 Manage your business information and settings
               </p>
               {userClient && (
-                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
                   {userClient.name} • {userClient.role}
                 </div>
               )}
@@ -175,7 +175,7 @@ export default function CompanyPage() {
                       <span className="text-2xl">🏢</span>
                     </div>
                     <h3 className={getTextStyle('cardTitle')}>Business Info</h3>
-                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
+                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
                       Demo Restaurant Ltd
                     </p>
                   </div>
@@ -193,7 +193,7 @@ export default function CompanyPage() {
                       <span className="text-2xl">💎</span>
                     </div>
                     <h3 className={getTextStyle('cardTitle')}>Subscription</h3>
-                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
+                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
                       Professional Plan
                     </p>
                   </div>
@@ -211,7 +211,7 @@ export default function CompanyPage() {
                       <span className="text-2xl">👥</span>
                     </div>
                     <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                    <p className={`${getTextStyle('bodySecondary')} mt-2`}>
+                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
                       4 Active Users
                     </p>
                   </div>
@@ -231,7 +231,7 @@ export default function CompanyPage() {
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Business Name</label>
+                      <label className={`block ${getTextStyle('label')} mb-2`}>Business Name</label>
                       <input
                         type="text"
                         defaultValue="Demo Restaurant Ltd"
@@ -240,7 +240,7 @@ export default function CompanyPage() {
                     </div>
                     
                     <div>
-                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Business Type</label>
+                      <label className={`block ${getTextStyle('label')} mb-2`}>Business Type</label>
                       <select className={getFormFieldStyle()}>
                         <option value="restaurant">Restaurant</option>
                         <option value="cafe">Café</option>
@@ -252,7 +252,7 @@ export default function CompanyPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Contact Email</label>
+                      <label className={`block ${getTextStyle('label')} mb-2`}>Contact Email</label>
                       <input
                         type="email"
                         defaultValue="admin@demorestaurant.co.nz"
@@ -261,7 +261,7 @@ export default function CompanyPage() {
                     </div>
                     
                     <div>
-                      <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Phone Number</label>
+                      <label className={`block ${getTextStyle('label')} mb-2`}>Phone Number</label>
                       <input
                         type="tel"
                         defaultValue="+64 9 123 4567"
@@ -271,7 +271,7 @@ export default function CompanyPage() {
                   </div>
 
                   <div>
-                    <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Address</label>
+                    <label className={`block ${getTextStyle('label')} mb-2`}>Address</label>
                     <textarea
                       rows={3}
                       defaultValue="123 Queen Street, Auckland CBD, Auckland 1010"
@@ -280,7 +280,7 @@ export default function CompanyPage() {
                   </div>
 
                   <div>
-                    <label className={`block ${getTextStyle('inputLabel')} mb-2`}>Alcohol License Number</label>
+                    <label className={`block ${getTextStyle('label')} mb-2`}>Alcohol License Number</label>
                     <input
                       type="text"
                       defaultValue="AL123456789"
@@ -317,7 +317,7 @@ export default function CompanyPage() {
                     <div className={getCardStyle('secondary')}>
                       <div>
                         <h3 className={getTextStyle('cardTitle')}>Settings</h3>
-                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Compliance rules & preferences</p>
+                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Compliance rules & preferences</p>
                       </div>
                     </div>
                   </Link>
@@ -326,7 +326,7 @@ export default function CompanyPage() {
                     <div className={getCardStyle('secondary')}>
                       <div>
                         <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Manage users & permissions</p>
+                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Manage users & permissions</p>
                       </div>
                     </div>
                   </Link>
@@ -335,7 +335,7 @@ export default function CompanyPage() {
                     <div className={getCardStyle('secondary')}>
                       <div>
                         <h3 className={getTextStyle('cardTitle')}>Billing</h3>
-                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Subscription & payment</p>
+                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Subscription & payment</p>
                       </div>
                     </div>
                   </Link>
@@ -344,7 +344,7 @@ export default function CompanyPage() {
                     <div className={getCardStyle('secondary')}>
                       <div>
                         <h3 className={getTextStyle('cardTitle')}>Reports</h3>
-                        <p className={`${getTextStyle('bodySecondary')} mt-2`}>Export compliance data</p>
+                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Export compliance data</p>
                       </div>
                     </div>
                   </Link>

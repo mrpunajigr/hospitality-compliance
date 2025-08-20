@@ -136,7 +136,7 @@ export default function SignInPage() {
             <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
               Welcome Back
             </h1>
-            <p className={`${getTextStyle('bodySecondary')} font-light`}>
+            <p className={`${getTextStyle('bodySmall')} font-light`}>
               Sign in to your compliance dashboard
             </p>
           </div>
@@ -192,21 +192,6 @@ export default function SignInPage() {
               )}
             </button>
             
-            {/* Demo Access Button - Production Optimized */}
-            <div className="mt-4">
-              <a
-                href="/demo"
-                className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-center cursor-pointer"
-                onClick={(e) => {
-                  console.log('🎯 Demo route link clicked!')
-                  console.log('Current location:', window.location.href)
-                  // Let the default navigation happen
-                }}
-                style={{ display: 'block', visibility: 'visible' }}
-              >
-                🚀 Demo Mode - Test Google Cloud AI Upload
-              </a>
-            </div>
           </form>
 
 
@@ -232,8 +217,8 @@ export default function SignInPage() {
           
           {/* Version */}
           <div className="text-center mt-6 pt-4 border-t border-white/10">
-            <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>
-              {getVersionDisplay('prod')}
+            <p className="text-xs font-medium text-white/90">
+              v1.8.18a
             </p>
           </div>
         </div>

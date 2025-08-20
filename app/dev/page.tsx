@@ -125,7 +125,7 @@ export default function DevDashboardPage() {
               <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg mb-2`}>
                 Development Portal
               </h1>
-              <p className={`${getTextStyle('bodySecondary')} text-gray-300 drop-shadow-md`}>
+              <p className={`${getTextStyle('bodySmall')} text-gray-300 drop-shadow-md`}>
                 Advanced tools and utilities for the development team
               </p>
             </div>

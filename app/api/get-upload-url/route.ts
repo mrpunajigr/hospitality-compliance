@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Generate signed URL for upload
     const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('delivery_dockets')
+      .from('delivery-dockets')
       .createSignedUploadUrl(filePath, {
         upsert: false
       })
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       fileName: uniqueFileName,
       uploadToken: signedUrlData.token || 'no-token',
       expiresIn: 300,
-      bucket: 'delivery_dockets'
+      bucket: 'delivery-dockets'
     })
 
   } catch (error) {

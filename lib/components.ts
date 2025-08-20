@@ -61,13 +61,13 @@ export const StyledText = {
     
   BodySecondary: ({ children, className = '', ...props }: { children: React.ReactNode, className?: string, [key: string]: any }) => 
     React.createElement('p', { 
-      className: `${getTextStyle('bodySecondary')} ${className}`, 
+      className: `${getTextStyle('bodySmall')} ${className}`, 
       ...props 
     }, children),
     
   Caption: ({ children, className = '', ...props }: { children: React.ReactNode, className?: string, [key: string]: any }) => 
     React.createElement('span', { 
-      className: `${getTextStyle('caption')} ${className}`, 
+      className: `${getTextStyle('meta')} ${className}`, 
       ...props 
     }, children),
     
@@ -79,7 +79,7 @@ export const StyledText = {
     
   InputLabel: ({ children, className = '', ...props }: { children: React.ReactNode, className?: string, [key: string]: any }) => 
     React.createElement('label', { 
-      className: `${getTextStyle('inputLabel')} ${className}`, 
+      className: `${getTextStyle('label')} ${className}`, 
       ...props 
     }, children)
 }

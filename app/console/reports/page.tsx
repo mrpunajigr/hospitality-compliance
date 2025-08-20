@@ -48,7 +48,7 @@ export default function ReportsPage() {
     
     checkAuth()
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (session?.user) {
         setUser(session.user)
       }
@@ -198,7 +198,7 @@ export default function ReportsPage() {
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Violation Report</h3>
                   <p className="text-sm text-gray-700 mt-2">
-                    Temperature violations and corrective actions
+                    Delivery violations and corrective actions
                   </p>
                 </div>
                 <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200">
@@ -246,7 +246,7 @@ export default function ReportsPage() {
 
                 <div className="flex items-center justify-between p-4 bg-white/60 rounded-xl">
                   <div>
-                    <h4 className="font-medium text-gray-900">Temperature Violations - July 2025</h4>
+                    <h4 className="font-medium text-gray-900">Delivery Violations - July 2025</h4>
                     <p className="text-sm text-gray-800">Generated on Aug 1, 2025</p>
                   </div>
                   <div className="flex space-x-2">
@@ -317,7 +317,7 @@ export default function ReportsPage() {
             
             <div className="space-y-4">
               <div>
-                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Date Range</label>
+                <label className={`block ${getTextStyle('label')} text-white mb-2`}>Date Range</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>Last 7 days</option>
                   <option>Last 30 days</option>
@@ -326,16 +326,16 @@ export default function ReportsPage() {
               </div>
               
               <div>
-                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Report Type</label>
+                <label className={`block ${getTextStyle('label')} text-white mb-2`}>Report Type</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>Full Compliance</option>
                   <option>Violations Only</option>
-                  <option>Temperature Summary</option>
+                  <option>Delivery Summary</option>
                 </select>
               </div>
               
               <div>
-                <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Format</label>
+                <label className={`block ${getTextStyle('label')} text-white mb-2`}>Format</label>
                 <select className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option>PDF Report</option>
                   <option>CSV Export</option>

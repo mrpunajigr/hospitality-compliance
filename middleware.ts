@@ -1,8 +1,29 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getDevSessionFromCookie } from '@/lib/dev-auth'
+// Authentication Core module integration (optional - keeping direct Supabase for now)
+// import { getAuthenticationModule } from '@/lib/core/Authentication'
 
 export async function middleware(request: NextRequest) {
+  // URL Redirects for Module Structure Migration
+  const urlRedirects: Record<string, string> = {
+    '/console/dashboard': '/upload/console',
+    '/console/upload': '/upload/action', 
+    '/console/reports': '/upload/reports',
+    // Legacy compliance routes redirect to upload
+    '/compliance/console': '/upload/console',
+    '/compliance/action': '/upload/action',
+    '/compliance/reports': '/upload/reports'
+  }
+
+  // Check for redirect matches
+  const redirectTarget = urlRedirects[request.nextUrl.pathname]
+  if (redirectTarget) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = redirectTarget
+    return NextResponse.redirect(redirectUrl)
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -87,17 +108,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // Regular protected routes that require Supabase authentication
-  const protectedPaths = ['/console', '/admin']
+  const protectedPaths = ['/console', '/admin', '/upload']
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
   )
 
-  // Allow demo access to all console pages (development/testing)
-  const isDemoConsoleAccess = request.nextUrl.pathname.startsWith('/console')
+  // Allow demo access to console and upload pages (development/testing)
+  const isDemoAccess = request.nextUrl.pathname.startsWith('/console') || 
+                       request.nextUrl.pathname.startsWith('/upload')
   
   // If accessing protected route without authentication, redirect to signin
-  // (except for demo console access)
-  if (isProtectedPath && !user && !isDemoConsoleAccess) {
+  // (except for demo access)
+  if (isProtectedPath && !user && !isDemoAccess) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/signin'
     redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
@@ -112,7 +134,7 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone()
     // Check if there's a redirectTo parameter
     const redirectTo = request.nextUrl.searchParams.get('redirectTo')
-    redirectUrl.pathname = redirectTo || '/console/dashboard'
+    redirectUrl.pathname = redirectTo || '/upload/console'
     redirectUrl.search = '' // Clear the search params
     return NextResponse.redirect(redirectUrl)
   }

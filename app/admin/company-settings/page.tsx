@@ -8,6 +8,7 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import BackgroundSelector from '@/app/components/BackgroundSelector'
 import AssetUploadModal from '@/app/components/AssetUploadModal'
+import ResultsCardConfig, { ResultsCardConfig as ResultsCardConfigType, DEFAULT_CONFIG } from '@/app/components/upload/ResultsCardConfig'
 
 interface BackgroundAsset {
   id: string
@@ -30,6 +31,8 @@ export default function CompanySettingsPage() {
   const [currentBackground, setCurrentBackground] = useState<string>('')
   const [assets, setAssets] = useState<BackgroundAsset[]>([])
   const [loadingAssets, setLoadingAssets] = useState(false)
+  const [isOnboarding, setIsOnboarding] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     business_type: '',
@@ -43,12 +46,23 @@ export default function CompanySettingsPage() {
       postalCode: '',
       country: ''
     },
-    estimated_monthly_deliveries: 50
+    estimated_monthly_deliveries: 50,
+    results_card_config: DEFAULT_CONFIG
   })
   const router = useRouter()
 
   // Check authentication and load company data
   useEffect(() => {
+    // Check for onboarding parameters
+    const urlParams = new URLSearchParams(window.location.search)
+    const onboarding = urlParams.get('onboarding') === 'true'
+    const companyCreated = urlParams.get('company') === 'created'
+    
+    if (onboarding) {
+      setIsOnboarding(true)
+      setShowWelcome(true)
+    }
+    
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       
@@ -78,7 +92,14 @@ export default function CompanySettingsPage() {
               postalCode: '',
               country: 'NZ'
             },
-            estimated_monthly_deliveries: clientInfo.estimated_monthly_deliveries || 50
+            estimated_monthly_deliveries: clientInfo.estimated_monthly_deliveries || 50,
+            results_card_config: clientInfo.results_card_config || {
+              show_supplier_name: true,
+              show_delivery_date: true,
+              show_confidence_score: true,
+              show_upload_info: true,
+              card_style: 'modern'
+            }
           })
         } else {
           setMessage(`No company found. User ID: ${user.id}. Please check debug endpoint: /api/debug-user?userId=${user.id}`)
@@ -123,6 +144,13 @@ export default function CompanySettingsPage() {
   const handleAssetUploaded = () => {
     setShowAssetUpload(false)
     loadAssets() // Refresh assets list
+  }
+
+  const handleResultsConfigChange = (config: ResultsCardConfigType) => {
+    setFormData(prev => ({
+      ...prev,
+      results_card_config: config
+    }))
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -207,17 +235,42 @@ export default function CompanySettingsPage() {
         <div className="flex justify-between items-center py-6">
           <div>
             <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
-              Company Settings
+              Settings
             </h1>
-            <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
-              Manage your company information and business details
+            <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
+              Manage your business information and preferences
             </p>
             {userClient && (
-              <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+              <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
                 {userClient.name} • {userClient.role}
               </div>
             )}
           </div>
+          
+          {/* Onboarding Welcome Message */}
+          {isOnboarding && showWelcome && (
+            <div className={`${getCardStyle('primary')} mb-6 border-green-500/50`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className={`${getTextStyle('sectionTitle')} text-green-400 mb-2`}>
+                    🎉 Welcome! Your account has been created successfully!
+                  </h3>
+                  <p className={`${getTextStyle('body')} text-white/90 mb-4`}>
+                    Let&apos;s complete your company setup to get the most out of your hospitality compliance platform.
+                  </p>
+                  <div className={`${getTextStyle('meta')} text-white/70`}>
+                    ✅ Account Created • 📝 Complete Company Setup • 🚀 Ready to Use
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowWelcome(false)}
+                  className="text-white/60 hover:text-white/90 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -256,6 +309,42 @@ export default function CompanySettingsPage() {
                 onChange={handleInputChange}
                 required
                 className={`${getFormFieldStyle()} bg-white`}
+              />
+            </div>
+
+            {/* Company Avatar */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Company Avatar
+              </label>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center overflow-hidden">
+                    <div className="text-gray-400 text-2xl font-bold">
+                      {formData.name ? formData.name.charAt(0).toUpperCase() : 'C'}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-full shadow-sm transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Upload company profile picture</p>
+                  <p className="text-xs text-gray-500">Recommended: Square image, max 2MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Module 2 Results Card Configuration */}
+            <div>
+              <ResultsCardConfig
+                initialConfig={formData.results_card_config}
+                onConfigChange={handleResultsConfigChange}
               />
             </div>
 
@@ -394,103 +483,24 @@ export default function CompanySettingsPage() {
                   <div>
                     <span className="text-gray-600">Status:</span>
                     <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                      userClient.subscription_status === 'active' 
+                      (userClient as any).subscription_status === 'active' 
                         ? 'bg-green-100 text-green-800'
-                        : userClient.subscription_status === 'trial'
+                        : (userClient as any).subscription_status === 'trial'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {userClient.subscription_status}
+                      {(userClient as any).subscription_status || 'Unknown'}
                     </span>
                   </div>
                   <div>
                     <span className="text-gray-600">Tier:</span>
                     <span className="ml-2 font-medium text-gray-900 capitalize">
-                      {userClient.subscription_tier}
+                      {(userClient as any).subscription_tier || 'Standard'}
                     </span>
                   </div>
                 </div>
               </div>
             )}
-
-            {/* Asset Management Section */}
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Asset Management</h3>
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-900">Background Images</h4>
-                    <div className="flex space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowAssetUpload(true)}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
-                      >
-                        Upload New
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowBackgroundSelector(true)}
-                        className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors"
-                      >
-                        Select Background
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {loadingAssets ? (
-                      <div className="col-span-full text-center py-4">
-                        <div className="inline-block animate-spin h-6 w-6 border-2 border-gray-400 border-t-transparent rounded-full"></div>
-                        <p className="text-sm text-gray-500 mt-2">Loading assets...</p>
-                      </div>
-                    ) : assets.length > 0 ? (
-                      assets.slice(0, 4).map((asset) => (
-                        <div key={asset.id} className="relative group">
-                          <div 
-                            className="aspect-video bg-cover bg-center rounded-lg border-2 cursor-pointer transition-all"
-                            style={{ 
-                              backgroundImage: `url('${asset.file_url}')`,
-                              borderColor: currentBackground === asset.file_url ? '#3B82F6' : '#E5E7EB'
-                            }}
-                            onClick={() => setCurrentBackground(asset.file_url)}
-                          >
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all flex items-center justify-center">
-                              {currentBackground === asset.file_url && (
-                                <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                                  Selected
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1 truncate">{asset.name}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="col-span-full text-center py-8 text-gray-500">
-                        <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p className="text-sm">No assets uploaded yet</p>
-                        <p className="text-xs mt-1">Upload backgrounds to customize your workspace</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {assets.length > 4 && (
-                    <div className="text-center mt-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowBackgroundSelector(true)}
-                        className="text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        View all {assets.length} assets →
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
 
             {/* Submit Button */}
             <div className="flex justify-end">
@@ -530,6 +540,21 @@ export default function CompanySettingsPage() {
               onClose={() => setShowAssetUpload(false)}
               theme="dark"
             />
+          )}
+
+          {/* Onboarding Continue Button */}
+          {isOnboarding && (
+            <div className="text-center mt-8 pt-6 border-t border-white/10">
+              <button
+                onClick={() => router.push('/console/dashboard?setup=completed')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                🚀 Continue to Dashboard
+              </button>
+              <p className={`${getTextStyle('meta')} text-white/60 mt-2`}>
+                You can always return to settings later
+              </p>
+            </div>
           )}
 
           {/* Version */}

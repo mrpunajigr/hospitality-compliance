@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import DevVersionHeader from "./components/DevVersionHeader";
-import ProductionVersionFooter from "./components/ProductionVersionFooter";
 import { DesignTokens } from '@/lib/design-system';
 
 export const metadata: Metadata = {
@@ -56,7 +55,6 @@ export default function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <ProductionVersionFooter />
       </body>
     </html>
   );

@@ -100,8 +100,8 @@ export default function CreateAccountPage() {
           }
 
           console.log('✅ Account and company created successfully')
-          // Success - redirect to console dashboard
-          router.push('/console/dashboard?signup=success&company=created')
+          // Success - redirect to company settings for guided onboarding
+          router.push('/admin/company-settings?onboarding=true&company=created')
         } catch (companyError) {
           console.error('Company creation error:', companyError)
           setError('Account created but company setup failed. Please contact support.')
@@ -156,7 +156,7 @@ export default function CreateAccountPage() {
             <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
               Create Account
             </h1>
-            <p className={`${getTextStyle('bodySecondary')} font-light`}>
+            <p className={`${getTextStyle('bodySmall')} font-light`}>
               Start your compliance journey today
             </p>
           </div>

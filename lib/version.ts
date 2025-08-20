@@ -1,5 +1,5 @@
 /**
- * Enhanced Version Management System
+ * Enhanced Version Management System - SSR Safe
  * Supports both development (v1.8.11.045d) and production (v1.8.11.f) versioning
  * 
  * Development: vMAJOR.MONTH.DAY.BUILD[ALPHA]
@@ -9,37 +9,14 @@
  * import { getVersionInfo, getVersionDisplay } from '@/lib/version'
  */
 
-// Default version data (fallback)
-let versionData = {
-  major: 1,
-  month: 8,
-  day: 16,
-  build: 8,
-  alpha: ''
-}
+// Import static version data to ensure consistency between server and client
+import { STATIC_VERSION } from './version-static'
 
-// Server-side version loading (only when not in browser)
-if (typeof window === 'undefined') {
-  try {
-    // Try to import static version first (for Vercel deployment)
-    const { STATIC_VERSION } = require('./version-static')
-    if (STATIC_VERSION) {
-      versionData = STATIC_VERSION
-    }
-  } catch (error) {
-    // Fallback to fs reading for local development
-    try {
-      const fs = require('fs')
-      const path = require('path')
-      const versionPath = path.join(process.cwd(), 'version.json')
-      if (fs.existsSync(versionPath)) {
-        versionData = JSON.parse(fs.readFileSync(versionPath, 'utf8'))
-      }
-    } catch (fsError) {
-      // Keep default values if both methods fail
-    }
-  }
-}
+// Use static version data to prevent hydration mismatches
+const versionData = STATIC_VERSION
+
+// Version data is now consistently loaded from static import above
+// This eliminates server/client hydration mismatches
 
 // Generate version strings
 const developmentVersion = `${versionData.major}.${versionData.month}.${versionData.day}.${String(versionData.build).padStart(3, '0')}${versionData.alpha}`
@@ -59,31 +36,19 @@ export const VERSION_PARTS = {
   patch: APP_VERSION.split('.')[2]
 }
 
-// Enhanced version information
+// SSR-safe version information - prevents hydration mismatches
 export const getVersionInfo = () => {
-  // Client-side: try to get version from window object (set by public/version.js)
-  let clientVersion = null
-  let clientBuildTime = null
-  if (typeof window !== 'undefined') {
-    clientVersion = (window as any).APP_VERSION
-    clientBuildTime = (window as any).BUILD_TIME
-  }
-
-  const currentVersion = clientVersion || `v${APP_VERSION}`
   const isProduction = BUILD_ENVIRONMENT === 'production'
+  const staticVersion = `v${developmentVersion}`
   
   return {
-    version: currentVersion,
+    version: staticVersion,
     developmentVersion: `v${developmentVersion}`,
     productionVersion: `v${productionVersion}`, 
     buildDate: BUILD_DATE,
-    buildTime: clientBuildTime,
     environment: BUILD_ENVIRONMENT,
-    timestamp: Date.now(),
-    displayName: currentVersion,
-    fullVersion: clientBuildTime 
-      ? `${currentVersion} (${new Date(clientBuildTime).toLocaleString()})`
-      : `${currentVersion} (${BUILD_DATE})`,
+    displayName: staticVersion,
+    fullVersion: `${staticVersion} (${BUILD_DATE})`,
     isProduction,
     isDevelopment: !isProduction,
     buildNumber: versionData.build,
@@ -91,26 +56,24 @@ export const getVersionInfo = () => {
   }
 }
 
-// Enhanced version display helpers
+// SSR-safe version display - prevents hydration mismatches
 export const getVersionDisplay = (format: 'short' | 'full' | 'detailed' | 'dev' | 'prod' = 'short') => {
-  const info = getVersionInfo()
+  // Use static version data to prevent server/client mismatch
+  const staticVersion = `v${developmentVersion}`
   
   switch (format) {
     case 'short':
-      return info.displayName
+      return staticVersion
     case 'full':
-      return info.fullVersion
+      return `${staticVersion} (${BUILD_DATE})`
     case 'detailed':
-      return `${info.displayName} (${info.environment}) - Built: ${info.buildTime ? new Date(info.buildTime).toLocaleString() : info.buildDate}`
+      return `${staticVersion} (${BUILD_ENVIRONMENT}) - Built: ${BUILD_DATE}`
     case 'dev':
-      // Development format: v1.8.11.045d | DEV | 14:23
-      const time = info.buildTime ? new Date(info.buildTime).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : 'N/A'
-      return `${info.developmentVersion} | ${info.environment.toUpperCase()} | ${time}`
+      return `${staticVersion} | ${BUILD_ENVIRONMENT.toUpperCase()}`
     case 'prod':
-      // Production format: v1.8.11.f (clean, no build numbers)
       return `v${productionVersion}`
     default:
-      return info.displayName
+      return staticVersion
   }
 }
 
@@ -128,20 +91,9 @@ export const isNewerThan = (compareVersion: string): boolean => {
   return thisPatch > compPatch
 }
 
-// Console logging for deployment verification
+// Console logging for deployment verification (server-side only to prevent hydration issues)
 if (typeof window === 'undefined') {
-  // Server-side logging
   console.log(`🚀 Hospitality Compliance SaaS v${APP_VERSION} - ${BUILD_ENVIRONMENT} (${BUILD_DATE})`)
-} else {
-  // Client-side logging (with enhanced info)
-  setTimeout(() => {
-    const info = getVersionInfo()
-    if (info.isDevelopment) {
-      console.log(`🔧 Development Build: ${getVersionDisplay('dev')}`)
-    } else {
-      console.log(`🏨 Production App: ${getVersionDisplay('prod')}`)
-    }
-  }, 100)
 }
 
 export default {

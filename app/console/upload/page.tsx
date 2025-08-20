@@ -52,7 +52,7 @@ export default function UploadPage() {
     
     checkAuth()
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (session?.user) {
         setUser(session.user)
       }
@@ -181,7 +181,7 @@ export default function UploadPage() {
         <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
           Upload Delivery Dockets
         </h1>
-        <p className={`${getTextStyle('bodySecondary')} text-white/90 drop-shadow-md`}>
+        <p className={`${getTextStyle('bodySmall')} text-white/90 drop-shadow-md`}>
           Upload multiple delivery documents for batch processing with AI
         </p>
         {userClient && (
@@ -201,7 +201,7 @@ export default function UploadPage() {
               <h2 className={`${getTextStyle('sectionTitle')} text-white mb-2`}>
                 Batch Upload Delivery Documents
               </h2>
-              <p className={`${getTextStyle('bodySecondary')} text-white/80`}>
+              <p className={`${getTextStyle('bodySmall')} text-white/80`}>
                 Upload multiple delivery dockets simultaneously for efficient processing
               </p>
             </div>
@@ -262,7 +262,7 @@ export default function UploadPage() {
                 <ul className={`${getTextStyle('bodySmall')} text-white space-y-2`}>
                   <li className="flex items-start">
                     <span className="text-blue-400 mr-2">•</span>
-                    Extracts temperature readings
+                    Extracts delivery information
                   </li>
                   <li className="flex items-start">
                     <span className="text-blue-400 mr-2">•</span>

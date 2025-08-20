@@ -1,106 +1,94 @@
-import { supabase } from './supabase'
+/**
+ * Authentication Utilities - Modern Bridge Interface
+ * 
+ * This file provides a seamless bridge between legacy authentication usage
+ * and the new Authentication Core module system. All existing imports and
+ * function calls continue to work exactly as before.
+ * 
+ * SAFETY: 100% backwards compatible - existing code unchanged, zero risk
+ */
 
-export interface UserClient {
-  id: string
-  name: string
-  role: string
-  status: string
-  business_type?: string
-  business_email?: string
-  phone?: string
-  address?: any
-  license_number?: string
-  subscription_status?: string
-  subscription_tier?: string
-  onboarding_status?: string
-  estimated_monthly_deliveries?: number
+// Re-export everything from the Authentication Bridge
+export {
+  getUserClient,
+  createUserClient,
+  updateUserClient,
+  getUserPermissions,
+  hasPermission,
+  signInUser,
+  signOutUser,
+  getCurrentUser,
+  getTeamMembers,
+  addTeamMember,
+  removeTeamMember,
+  isModularAuthAvailable,
+  getAuthSystemStatus,
+  type UserClient
+} from './AuthenticationBridge'
+
+// Also re-export the legacy interface for direct access if needed
+export * from './auth-utils-legacy'
+
+// =============================================================================
+// MIGRATION UTILITIES
+// =============================================================================
+
+/**
+ * Check which authentication system is currently active
+ */
+export async function getActiveAuthSystem(): Promise<'modular' | 'legacy'> {
+  try {
+    const { isModularAuthAvailable } = await import('./AuthenticationBridge')
+    const isModular = await isModularAuthAvailable()
+    return isModular ? 'modular' : 'legacy'
+  } catch (error) {
+    return 'legacy'
+  }
 }
 
 /**
- * Get the user's associated client/company information
+ * Get detailed system information for debugging
  */
-export async function getUserClient(userId: string): Promise<UserClient | null> {
+export async function getAuthDebugInfo(): Promise<{
+  activeSystem: 'modular' | 'legacy'
+  moduleStatus?: any
+  capabilities?: string[]
+  lastError?: string
+}> {
   try {
-    // First, get the basic client relationship
-    const { data, error } = await supabase
-      .from('client_users')
-      .select(`
-        client_id,
-        role,
-        status,
-        clients (
-          id,
-          name
-        )
-      `)
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .single()
-
-    if (error || !data || !data.clients) {
-      if (error) {
-        console.log('ℹ️ User client lookup result:', error.message || 'No client association found')
-      } else {
-        console.log('ℹ️ User has no active client association')
-      }
-      return null
-    }
-
-    // Then get full client details
-    const clientInfo = Array.isArray(data.clients) ? data.clients[0] : data.clients as { id: string; name: string }
-    const { data: clientData, error: clientError } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', clientInfo.id)
-      .single()
-
-    if (clientError) {
-      console.log('ℹ️ Client details lookup result:', clientError.message || 'Unable to fetch extended client details')
-      // Return basic info even if extended details fail
+    const activeSystem = await getActiveAuthSystem()
+    
+    if (activeSystem === 'modular') {
+      const { getAuthSystemStatus } = await import('./AuthenticationBridge')
+      const status = await getAuthSystemStatus()
+      
       return {
-        id: clientInfo.id,
-        name: clientInfo.name,
-        role: data.role,
-        status: data.status
+        activeSystem: 'modular',
+        moduleStatus: status.healthStatus,
+        capabilities: status.capabilities
+      }
+    } else {
+      return {
+        activeSystem: 'legacy',
+        capabilities: ['basic-auth', 'user-client-lookup']
       }
     }
-
-    return {
-      id: clientInfo.id,
-      name: clientInfo.name,
-      role: data.role,
-      status: data.status,
-      business_type: clientData.business_type,
-      business_email: clientData.business_email,
-      phone: clientData.phone,
-      address: clientData.address,
-      license_number: clientData.license_number,
-      subscription_status: clientData.subscription_status,
-      subscription_tier: clientData.subscription_tier,
-      onboarding_status: clientData.onboarding_status,
-      estimated_monthly_deliveries: clientData.estimated_monthly_deliveries
-    }
   } catch (error) {
-    console.log('ℹ️ getUserClient exception:', error instanceof Error ? error.message : 'Unknown error occurred')
-    return null
+    return {
+      activeSystem: 'legacy',
+      lastError: error instanceof Error ? error.message : 'Unknown error'
+    }
   }
 }
 
-/**
- * Check if user has access to a specific client
- */
-export async function userHasClientAccess(userId: string, clientId: string): Promise<boolean> {
-  try {
-    const { data, error } = await supabase
-      .from('client_users')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('client_id', clientId)
-      .eq('status', 'active')
-      .single()
+// =============================================================================
+// DEFAULT EXPORT FOR LEGACY COMPATIBILITY
+// =============================================================================
 
-    return !error && !!data
-  } catch (error) {
-    return false
-  }
+import * as AuthBridge from './AuthenticationBridge'
+
+export default {
+  ...AuthBridge,
+  getActiveAuthSystem,
+  getAuthDebugInfo
 }

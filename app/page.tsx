@@ -51,7 +51,7 @@ export default function HomePage() {
             Hospitality Compliance
           </h1>
           
-          <p className={`${getTextStyle('bodySecondary')} ${DesignTokens.colors.text.formInput} opacity-70 mb-8`}>
+          <p className={`${getTextStyle('bodySmall')} ${DesignTokens.colors.text.formInput} opacity-70 mb-8`}>
             AI-powered food safety compliance platform
           </p>
           
@@ -72,7 +72,7 @@ export default function HomePage() {
             
             <a
               href="/create-account"
-              className={`text-blue-600 hover:text-blue-700 underline ${getTextStyle('caption')}`}
+              className={`text-blue-600 hover:text-blue-700 underline ${getTextStyle('meta')}`}
             >
               Create Account
             </a>

@@ -197,7 +197,7 @@ export default function AssetUploadModal({
             <h2 className={`${getTextStyle('sectionTitle', theme)} text-gray-900 font-bold`}>
               Upload {uploadType === 'background' ? 'Background' : 'Logo'}
             </h2>
-            <p className={`${getTextStyle('caption', theme)} text-gray-700`}>
+            <p className={`${getTextStyle('meta', theme)} text-gray-700`}>
               Drag and drop files or click to browse
             </p>
           </div>

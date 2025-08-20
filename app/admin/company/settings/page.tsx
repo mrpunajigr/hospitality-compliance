@@ -72,7 +72,7 @@ export default function CompanySettingsPage() {
         <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-white font-medium">Loading Company Settings...</p>
+            <p className="text-white font-medium">Loading Settings...</p>
           </div>
         </div>
       </div>
@@ -85,9 +85,9 @@ export default function CompanySettingsPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className={`${getTextStyle('pageTitle')} text-white`}>
-                Company Settings
+                Settings
               </h1>
-              <p className={`${getTextStyle('bodySecondary')} text-white/70`}>
+              <p className={`${getTextStyle('bodySmall')} text-white/70`}>
                 Manage your company configuration and preferences
               </p>
               <p className="text-blue-300 text-xs mt-1">
@@ -143,7 +143,7 @@ export default function CompanySettingsPage() {
             <form className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Company Name</label>
+                  <label className={`block ${getTextStyle('label')} text-white mb-2`}>Company Name</label>
                   <input
                     type="text"
                     defaultValue={client?.name || 'Demo Restaurant Ltd'}
@@ -152,7 +152,7 @@ export default function CompanySettingsPage() {
                 </div>
                 
                 <div>
-                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Business Type</label>
+                  <label className={`block ${getTextStyle('label')} text-white mb-2`}>Business Type</label>
                   <select 
                     defaultValue={client?.business_type || 'restaurant'}
                     className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -167,7 +167,7 @@ export default function CompanySettingsPage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Business Email</label>
+                  <label className={`block ${getTextStyle('label')} text-white mb-2`}>Business Email</label>
                   <input
                     type="email"
                     defaultValue={client?.business_email || 'info@demorestaurant.com'}
@@ -176,7 +176,7 @@ export default function CompanySettingsPage() {
                 </div>
                 
                 <div>
-                  <label className={`block ${getTextStyle('inputLabel')} text-white mb-2`}>Phone Number</label>
+                  <label className={`block ${getTextStyle('label')} text-white mb-2`}>Phone Number</label>
                   <input
                     type="tel"
                     defaultValue={client?.phone || '+64 9 123 4567'}

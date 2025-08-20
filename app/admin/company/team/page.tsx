@@ -38,11 +38,11 @@ export default function TeamPage() {
               <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
                 Team Management
               </h1>
-              <p className={`${getTextStyle('bodySecondary')} drop-shadow-md`}>
+              <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
                 Manage your team members and their permissions
               </p>
               {userClient && (
-                <div className={`${getTextStyle('caption')} text-white/80 drop-shadow-md mt-1`}>
+                <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
                   {userClient.name} • {userClient.role}
                 </div>
               )}

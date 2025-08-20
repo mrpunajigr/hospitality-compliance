@@ -22,10 +22,18 @@ function getSupabaseAdmin() {
 }
 
 export async function POST(request: NextRequest) {
+  let filePath, fileName, fileSize, fileType, clientId, userId
+  
   try {
     console.log('📝 Creating delivery record for uploaded file')
     
-    const { filePath, fileName, fileSize, fileType, clientId, userId } = await request.json()
+    const requestData = await request.json()
+    filePath = requestData.filePath
+    fileName = requestData.fileName
+    fileSize = requestData.fileSize
+    fileType = requestData.fileType
+    clientId = requestData.clientId
+    userId = requestData.userId
     
     if (!filePath || !fileName || !clientId || !userId) {
       return NextResponse.json(
@@ -37,6 +45,19 @@ export async function POST(request: NextRequest) {
     console.log('📋 Record data:', { filePath, fileName, fileSize, fileType, clientId, userId })
 
     const supabase = getSupabaseAdmin()
+    
+    // Test database connection
+    const { data: testConnection, error: connectionError } = await supabase
+      .from('delivery_records')
+      .select('count')
+      .limit(1)
+    
+    if (connectionError) {
+      console.error('❌ Database connection test failed:', connectionError)
+      throw new Error(`Database connection failed: ${connectionError.message}`)
+    }
+    
+    console.log('✅ Database connection successful')
 
     // Create delivery record in database
     const { data: deliveryRecord, error: insertError } = await supabase
@@ -58,8 +79,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('❌ Database insert error:', insertError)
-      throw insertError
+      console.error('❌ Database insert error:', {
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint,
+        code: insertError.code
+      })
+      throw new Error(`Database insert failed: ${insertError.message} (Code: ${insertError.code})`)
     }
 
     if (!deliveryRecord) {
@@ -103,7 +129,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Failed to create delivery record',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+        requestData: { filePath, fileName, fileSize, fileType, clientId, userId }
       },
       { status: 500 }
     )

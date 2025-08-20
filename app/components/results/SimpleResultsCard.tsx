@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getDeliveryDocketThumbnail, getDeliveryDocketPreview } from '@/lib/supabase'
 import ImagePreviewModal from '@/app/components/ImagePreviewModal'
+import { ResultsCardConfig, DEFAULT_CONFIG } from '@/app/components/upload/ResultsCardConfig'
 
 interface SimpleResultsData {
   id: string
@@ -17,14 +18,23 @@ interface SimpleResultsData {
   image_path?: string
   user_name?: string
   confidence_score?: number
+  client_id?: string // For demo mode detection
+  // Module 2 AI Processing - Optional fields for Results Card configuration
+  item_code?: string
+  item_description?: string
+  quantity?: number
+  unit_price?: number
+  total_amount?: number
 }
 
 interface SimpleResultsCardProps {
   data: SimpleResultsData
   className?: string
+  userId?: string // For demo mode detection
+  config?: ResultsCardConfig // Module 2 field configuration
 }
 
-export default function SimpleResultsCard({ data, className = '' }: SimpleResultsCardProps) {
+export default function SimpleResultsCard({ data, className = '', userId, config = DEFAULT_CONFIG }: SimpleResultsCardProps) {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
   const [thumbnailLoading, setThumbnailLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState<string>('')
@@ -41,10 +51,11 @@ export default function SimpleResultsCard({ data, className = '' }: SimpleResult
       try {
         setThumbnailLoading(true)
         
-        // Generate both thumbnail and preview URLs
+        // Generate both thumbnail and preview URLs with user context
+        const userOptions = { userId, clientId: data.client_id }
         const [thumbnailSignedUrl, previewSignedUrl] = await Promise.all([
-          getDeliveryDocketThumbnail(data.image_path),
-          getDeliveryDocketPreview(data.image_path)
+          getDeliveryDocketThumbnail(data.image_path, userOptions),
+          getDeliveryDocketPreview(data.image_path, userOptions)
         ])
         
         setThumbnailUrl(thumbnailSignedUrl)
@@ -113,6 +124,49 @@ export default function SimpleResultsCard({ data, className = '' }: SimpleResult
             <div className={`${getTextStyle('body')} text-white/80`}>
               <span className="text-white/60">Delivery:</span> {formatDeliveryDate(data.delivery_date)}
             </div>
+
+            {/* Module 2 Optional Fields - Dynamic based on configuration */}
+            {(config.itemCode || config.itemDescription || config.quantity || config.unitPrice || config.totalAmount) && (
+              <div className="border-t border-white/10 pt-2 mt-2 space-y-1">
+                {/* Item Code and Description */}
+                {config.itemCode && data.item_code && (
+                  <div className={`${getTextStyle('bodySmall')} text-white/70`}>
+                    <span className="text-white/50">Code:</span> {data.item_code}
+                  </div>
+                )}
+                
+                {config.itemDescription && data.item_description && (
+                  <div className={`${getTextStyle('bodySmall')} text-white/70`}>
+                    <span className="text-white/50">Item:</span> {data.item_description}
+                  </div>
+                )}
+                
+                {/* Quantity, Price, and Total in a row */}
+                {(config.quantity || config.unitPrice || config.totalAmount) && (
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex space-x-4">
+                      {config.quantity && data.quantity && (
+                        <span className="text-white/70">
+                          <span className="text-white/50">Qty:</span> {data.quantity}
+                        </span>
+                      )}
+                      
+                      {config.unitPrice && data.unit_price && (
+                        <span className="text-white/70">
+                          <span className="text-white/50">Price:</span> ${data.unit_price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {config.totalAmount && data.total_amount && (
+                      <span className="text-white font-medium">
+                        Total: ${data.total_amount.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Upload Date and User */}
             <div className={`${getTextStyle('body')} text-white/70 text-sm`}>
@@ -184,10 +238,9 @@ export default function SimpleResultsCard({ data, className = '' }: SimpleResult
       {/* Image Preview Modal */}
       {previewOpen && previewUrl && (
         <ImagePreviewModal
+          imagePath={null}
           imageUrl={previewUrl}
-          isOpen={previewOpen}
           onClose={() => setPreviewOpen(false)}
-          title={`Delivery Docket - ${data.supplier_name}`}
         />
       )}
     </>
