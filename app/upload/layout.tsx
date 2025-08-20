@@ -78,7 +78,15 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div 
+      className="min-h-screen"
+      style={{
+        backgroundImage: 'url(/chef-workspace1jpg.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
 {showBackgroundSelector && (
         <BackgroundSelector 
           selectedBackground=""

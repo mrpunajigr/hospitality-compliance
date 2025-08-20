@@ -119,21 +119,19 @@ export default function UploadConsolePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
       
       {/* Console Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-              <Image 
-                src="/:assets/Module icons/JiGRupload.png" 
-                alt="Upload Module" 
-                width={24} 
-                height={24}
-                className="object-contain"
-              />
-            </div>
+      <div className="mb-16">
+        <div className="grid grid-cols-4 gap-6 items-center">
+          <div className="flex items-center space-x-4 col-span-2">
+            <Image 
+              src="/ModuleIcons/JiGRupload.png" 
+              alt="Upload Module" 
+              width={96} 
+              height={96}
+              className="object-contain"
+            />
             <div>
               <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
                 UPLOAD
@@ -153,37 +151,29 @@ export default function UploadConsolePage() {
               )}
             </div>
           </div>
-          
-          {/* NavPill Navigation - Liquid Glass */}
-          <div className="flex space-x-2">
-            <a 
-              href="/upload/console" 
-              className="liquid-glass-logo liquid-glass-medium bg-white text-black px-6 py-3 font-semibold"
-            >
-              Console
-            </a>
-            <a 
-              href="/upload/action" 
-              className="liquid-glass-logo text-white/90 px-6 py-3 font-medium hover:bg-white/25 hover:text-white"
-            >
-              Action
-            </a>
-            <a 
-              href="/upload/reports" 
-              className="liquid-glass-logo text-white/90 px-6 py-3 font-medium hover:bg-white/25 hover:text-white"
-            >
-              Reports
-            </a>
+          <div className="flex justify-center">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+              <a 
+                href="/upload/console" 
+                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+              >
+                Console
+              </a>
+              <a 
+                href="/upload/capture" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Capture
+              </a>
+              <a 
+                href="/upload/reports" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Reports
+              </a>
+            </div>
           </div>
-          
-          {/* Primary Action Button */}
-          <a 
-            href="/upload/action" 
-            className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            <span>📤</span>
-            <span>New Upload</span>
-          </a>
+          <div></div>
         </div>
       </div>
 
@@ -191,19 +181,25 @@ export default function UploadConsolePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
         {/* Total Uploads */}
-        <div className={`${getCardStyle('primary')} relative overflow-hidden`}>
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-blue-300 text-sm font-medium">Total Uploads</span>
-              <span className="text-2xl">📤</span>
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               {latestDeliveryRecord ? '1+' : '0'}
             </div>
             <div className="text-green-300 text-sm">
               <span className="inline-flex items-center space-x-1">
-                <span>↗</span>
                 <span>Ready to process</span>
               </span>
             </div>
@@ -211,19 +207,25 @@ export default function UploadConsolePage() {
         </div>
 
         {/* Processing Status */}
-        <div className={`${getCardStyle('primary')} relative overflow-hidden`}>
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-purple-300 text-sm font-medium">Processing</span>
-              <span className="text-2xl">⚡</span>
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               {processingResults ? '1' : '0'}
             </div>
             <div className="text-blue-300 text-sm">
               <span className="inline-flex items-center space-x-1">
-                <span>🔄</span>
                 <span>AI Analysis</span>
               </span>
             </div>
@@ -231,64 +233,40 @@ export default function UploadConsolePage() {
         </div>
 
         {/* Success Rate */}
-        <div className={`${getCardStyle('primary')} relative overflow-hidden`}>
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-green-300 text-sm font-medium">Success Rate</span>
-              <span className="text-2xl">✅</span>
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               {processingResults ? '100%' : '--'}
             </div>
             <div className="text-green-300 text-sm">
               <span className="inline-flex items-center space-x-1">
-                <span>📊</span>
                 <span>Analysis complete</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* System Status */}
-        <div className={`${getCardStyle('primary')} relative overflow-hidden`}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-emerald-300 text-sm font-medium">System Status</span>
-              <span className="text-2xl">🟢</span>
-            </div>
-            <div className="text-3xl font-bold text-white mb-1">
-              Online
-            </div>
-            <div className="text-emerald-300 text-sm">
-              <span className="inline-flex items-center space-x-1">
-                <span>⚡</span>
-                <span>All systems operational</span>
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-16">
         
         {/* Recent Activity Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Latest Upload Results */}
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className={`${getTextStyle('sectionTitle')} text-white`}>
-                📋 Recent Uploads
-              </h2>
-              <a 
-                href="/upload/reports" 
-                className="text-blue-300 hover:text-white text-sm font-medium transition-colors"
-              >
-                View All →
-              </a>
-            </div>
             
             {latestDeliveryRecord ? (
               <SimpleResultsCard 
@@ -306,95 +284,25 @@ export default function UploadConsolePage() {
                 userId={user?.id}
               />
             ) : (
-              <div className={`${getCardStyle('secondary')} text-center py-12`}>
-                <div className="text-6xl mb-4">📤</div>
-                <h3 className={`${getTextStyle('cardTitle')} text-white mb-2`}>
-                  No uploads yet
-                </h3>
-                <p className={`${getTextStyle('body')} text-white/70 mb-6`}>
-                  Upload your first document to get started
-                </p>
-                <a 
-                  href="/upload/action" 
-                  className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200"
-                >
-                  <span>📤</span>
-                  <span>Start Upload</span>
-                </a>
+              <div 
+                className="relative overflow-hidden p-6 rounded-3xl"
+                style={{
+                  backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-blue-300 text-sm font-medium">No Uploads Today</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Quick Actions & Status */}
-          <div>
-            <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>
-              ⚡ Quick Actions
-            </h2>
-            
-            <div className="space-y-4">
-              {/* Upload New Document */}
-              <div className={`${getCardStyle('primary')} hover:bg-white/20 transition-all duration-200 cursor-pointer`}>
-                <a href="/upload/action" className="block">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                      <span className="text-xl">📤</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={`${getTextStyle('cardTitle')} text-white mb-1`}>
-                        Upload Document
-                      </h3>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>
-                        Process delivery receipts with AI analysis
-                      </p>
-                    </div>
-                    <div className="text-white/50">
-                      →
-                    </div>
-                  </div>
-                </a>
-              </div>
-
-              {/* View Reports */}
-              <div className={`${getCardStyle('primary')} hover:bg-white/20 transition-all duration-200 cursor-pointer`}>
-                <a href="/upload/reports" className="block">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                      <span className="text-xl">📊</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={`${getTextStyle('cardTitle')} text-white mb-1`}>
-                        View Reports
-                      </h3>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>
-                        Analyze upload trends and performance
-                      </p>
-                    </div>
-                    <div className="text-white/50">
-                      →
-                    </div>
-                  </div>
-                </a>
-              </div>
-
-              {/* System Health */}
-              <div className={`${getCardStyle('secondary')} border border-emerald-500/30`}>
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <span className="text-xl">💚</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className={`${getTextStyle('cardTitle')} text-white mb-1`}>
-                      System Status
-                    </h3>
-                    <p className={`${getTextStyle('bodySmall')} text-emerald-300`}>
-                      All upload services operational
-                    </p>
-                  </div>
-                  <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Enhanced Compliance Dashboard for Real Users */}

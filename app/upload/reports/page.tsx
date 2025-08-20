@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
+import Image from 'next/image'
 
 export default function UploadReportsPage() {
   const [user, setUser] = useState<any>(null)
@@ -74,44 +75,62 @@ export default function UploadReportsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
       
-      {/* Module Reports Header */}
-      <div className="mb-8">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-            <span className="text-2xl">📊</span>
+      {/* Console Header */}
+      <div className="mb-16">
+        <div className="grid grid-cols-4 gap-6 items-center">
+          <div className="flex items-center space-x-4 col-span-2">
+            <Image 
+              src="/ModuleIcons/JiGRupload.png" 
+              alt="Upload Module" 
+              width={96} 
+              height={96}
+              className="object-contain"
+            />
+            <div>
+              <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
+                UPLOAD
+              </h1>
+              <p className={`${getTextStyle('body')} text-white/80 drop-shadow-md`}>
+                Document upload, processing, and compliance management
+              </p>
+              {userClient && (
+                <p className="text-blue-300 text-sm mt-1">
+                  {userClient.name} • {userClient.role}
+                </p>
+              )}
+              {user && !userClient && (
+                <p className="text-blue-300 text-sm mt-1">
+                  {user.user_metadata?.full_name || user.email} • Demo Mode
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg`}>
-              Upload Reports
-            </h1>
-            <p className={`${getTextStyle('bodySmall')} text-white/90 drop-shadow-md`}>
-              Generate, view, and export compliance documentation and analytics
-            </p>
+          <div className="flex justify-center">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+              <a 
+                href="/upload/console" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Console
+              </a>
+              <a 
+                href="/upload/capture" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Capture
+              </a>
+              <a 
+                href="/upload/reports" 
+                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+              >
+                Reports
+              </a>
+            </div>
           </div>
+          <div></div>
         </div>
-
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center space-x-2 text-sm mb-4">
-          <a href="/upload/console" className="text-blue-300 hover:text-white transition-colors">
-            Console
-          </a>
-          <span className="text-white/60">›</span>
-          <span className="text-white">Reports</span>
-        </div>
-
-        {/* User Context */}
-        {userClient && (
-          <p className="text-blue-300 text-sm">
-            {userClient.name} • {userClient.role}
-          </p>
-        )}
-        {user && !userClient && (
-          <p className="text-blue-300 text-sm">
-            {user.user_metadata?.full_name || user.email} • Demo Mode
-          </p>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -295,7 +314,7 @@ export default function UploadReportsPage() {
               </button>
               
               <button 
-                onClick={() => router.push('/upload/action')}
+                onClick={() => router.push('/upload/capture')}
                 className="block w-full bg-green-600/20 hover:bg-green-600/30 border border-green-400/30 text-white py-4 px-6 rounded-xl transition-all duration-200 text-left"
               >
                 <div>

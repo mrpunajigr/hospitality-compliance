@@ -8,11 +8,11 @@ export async function middleware(request: NextRequest) {
   // URL Redirects for Module Structure Migration
   const urlRedirects: Record<string, string> = {
     '/console/dashboard': '/upload/console',
-    '/console/upload': '/upload/action', 
+    '/console/upload': '/upload/capture', 
     '/console/reports': '/upload/reports',
     // Legacy compliance routes redirect to upload
     '/compliance/console': '/upload/console',
-    '/compliance/action': '/upload/action',
+    '/compliance/action': '/upload/capture',
     '/compliance/reports': '/upload/reports'
   }
 

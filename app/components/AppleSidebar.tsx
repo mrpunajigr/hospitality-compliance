@@ -34,12 +34,12 @@ const sidebarNavigation: SidebarNavItem[] = [
   { 
     name: 'Upload', 
     href: '/upload/console', 
-    icon: '/ModuleIcons/JiGRtemps.png', 
+    icon: '/icons/JiGRcamera.png', 
     section: 'modules', 
     context: 'both',
     subItems: [
       { name: 'Console', href: '/upload/console', icon: '📊' },
-      { name: 'Action', href: '/upload/action', icon: '📤' },
+      { name: 'Capture', href: '/upload/capture', icon: '📤' },
       { name: 'Reports', href: '/upload/reports', icon: '📋' }
     ]
   },
@@ -68,7 +68,7 @@ export default function AppleSidebar({
   onBackgroundSelectorToggle 
 }: AppleSidebarProps) {
   const pathname = usePathname()
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -76,13 +76,8 @@ export default function AppleSidebar({
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
       
-      // Auto-collapse on mobile, expand on tablet+
-      if (mobile) {
-        setIsCollapsed(true)
-      } else if (window.innerWidth >= 1024) {
-        // Auto-expand on desktop
-        setIsCollapsed(false)
-      }
+      // Always start collapsed on all devices
+      setIsCollapsed(true)
     }
     
     checkMobile()
@@ -109,259 +104,223 @@ export default function AppleSidebar({
   return (
     <>
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-300 ease-in-out z-40 ${
-        isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
-      }`}>
+      <div 
+        className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-5000 ease-in-out z-40 ${
+          isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
+        }`}
+        onMouseEnter={() => setIsCollapsed(false)}
+        onTouchStart={() => setIsCollapsed(false)}
+      >
         
         {/* Header */}
         <div className="p-4 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            {/* Client Avatar & Title */}
-            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-              <div 
-                className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 ${
-                  isCollapsed ? 'w-10 h-10 cursor-pointer hover:bg-white/30 transition-all duration-200' : 'w-12 h-12'
-                }`}
-                onClick={isCollapsed ? () => setIsCollapsed(false) : undefined}
-                title={isCollapsed ? 'Expand Sidebar' : undefined}
-              >
-                <span className={`text-white font-bold ${isCollapsed ? 'text-base' : 'text-lg'}`}>
-                  {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                </span>
-              </div>
-              {!isCollapsed && (
-                <div>
-                  <span className={`${getTextStyle('body')} text-white font-semibold`}>
-                    {user?.user_metadata?.full_name || user?.email || 'User'}
-                  </span>
-                  <p className={`${getTextStyle('meta')} ${DesignTokens.colors.text.onGlassSecondary}`}>
-                    {activeSection === 'admin' ? 'Admin Portal' : 'Console'}
-                  </p>
-                </div>
-              )}
+          <div className="flex items-center justify-center">
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
+              <span className="text-white font-bold text-2xl">C</span>
             </div>
-
-            {/* Collapse Toggle - Only show when expanded */}
-            {!isMobile && !isCollapsed && (
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-                title="Collapse Sidebar"
-              >
-                <svg 
-                  className="w-4 h-4" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Navigation Sections */}
-        <div className="flex-1 overflow-y-auto py-4">
+        {/* Navigation Sections - Three Equal Thirds */}
+        <div className="flex-1 flex flex-col">
           
-          {/* QUICK ACTIONS Section */}
-          <div className={isCollapsed ? 'mb-8' : 'px-3 mb-6'}>
+          {/* TOP THIRD: QUICK ACTIONS */}
+          <div className="flex-1 flex flex-col justify-center py-2">
             {!isCollapsed && (
-              <div className={`px-3 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs`}>
+              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
                 QUICK ACTIONS
               </div>
             )}
-            <nav className={isCollapsed ? 'space-y-4' : 'space-y-2'}>
-              {quickActionItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center rounded-lg transition-all duration-200 group ${
-                    isCollapsed ? 'justify-center py-4 mx-2' : 'px-3 py-3'
-                  } ${
-                    pathname === item.href
-                      ? 'bg-white/15 text-white backdrop-blur-sm shadow-sm'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                  title={isCollapsed ? item.name : undefined}
-                >
-                  <div className={`flex items-center justify-center ${
-                    isCollapsed ? 'w-12 h-12 mx-auto' : 'w-8 h-8 mr-3'
-                  }`}>
-                    <img 
-                      src={item.icon} 
-                      alt={item.name}
-                      className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-6 h-6 object-contain'}
-                    />
-                  </div>
-                  {!isCollapsed && (
-                    <span className={`${getTextStyle('body')} font-medium text-sm`}>
-                      {item.name}
-                    </span>
-                  )}
-                </Link>
-              ))}
+            <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+              {/* Camera Icon - Top */}
+              <div className="flex justify-center items-center py-2">
+                <img 
+                  src="/icons/JiGRcamera.png" 
+                  alt="Camera" 
+                  className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
+                  title="Quick Upload - Capture documents instantly"
+                />
+              </div>
+              
+              {/* Sign Out Icon - Bottom */}
+              <div className="flex justify-center items-center py-2">
+                <img 
+                  src="/icons/JiGRsignout.png" 
+                  alt="Sign Out" 
+                  className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-12 h-12 object-contain'}
+                  title="Sign Out - End your session safely"
+                />
+              </div>
             </nav>
           </div>
 
-          {/* MODULES Section */}
-          <div className={isCollapsed ? 'mb-8' : 'px-3 mb-6'}>
+          {/* Separator Line */}
+          <div className="flex justify-center py-2">
+            <div className="w-[60%] h-px bg-white/20"></div>
+          </div>
+
+          {/* MIDDLE THIRD: MODULES */}
+          <div className="flex-1 flex flex-col justify-center py-2">
             {!isCollapsed && (
-              <div className={`px-3 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs`}>
+              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
                 MODULES
               </div>
             )}
-            <nav className={isCollapsed ? 'space-y-4' : 'space-y-2'}>
-              {moduleItems.map((item) => (
-                <div key={item.href}>
-                  {/* Main Module Link */}
-                  <Link
-                    href={item.href}
-                    className={`flex items-center rounded-lg transition-all duration-200 group ${
-                      isCollapsed ? 'justify-center py-4 mx-2' : 'px-3 py-3'
-                    } ${
-                      pathname.startsWith(item.href.split('/').slice(0, 2).join('/'))
-                        ? 'bg-white/15 text-white backdrop-blur-sm shadow-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/10'
-                    }`}
-                    title={isCollapsed ? item.name : undefined}
-                  >
-                    <div className={`flex items-center justify-center ${
-                      isCollapsed ? 'w-12 h-12 mx-auto' : 'w-8 h-8 mr-3'
-                    }`}>
+            <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+              {isCollapsed ? (
+                <>
+                  {/* Collapsed: Just the modules icon */}
+                  <div className="flex justify-center items-center py-3">
+                    <img 
+                      src="/icons/JiGRmodules.png" 
+                      alt="Modules" 
+                      className="w-12 h-12 object-contain"
+                      title="Modules - Access all application features"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Expanded: Modules icon on left + 2x2 grid */}
+                  <div className="flex items-center justify-between py-2 px-2">
+                    {/* Modules icon - stays on left */}
+                    <div className="flex-shrink-0">
                       <img 
-                        src={item.icon} 
-                        alt={item.name}
-                        className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-6 h-6 object-contain'}
+                        src="/icons/JiGRmodules.png" 
+                        alt="Modules" 
+                        className="w-12 h-12 object-contain"
+                        title="Modules - Access all application features"
                       />
                     </div>
-                    {!isCollapsed && (
-                      <span className={`${getTextStyle('body')} font-medium text-sm`}>
-                        {item.name}
-                      </span>
-                    )}
-                  </Link>
-                  
-                  {/* Sub-navigation for Three-Page modules */}
-                  {!isCollapsed && item.subItems && pathname.startsWith(item.href.split('/').slice(0, 2).join('/')) && (
-                    <div className="ml-6 mt-2 space-y-1">
-                      {item.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 text-xs ${
-                            pathname === subItem.href
-                              ? 'bg-white/20 text-white font-medium'
-                              : 'text-white/60 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          {subItem.icon && (
-                            <span className="mr-2 text-sm">{subItem.icon}</span>
-                          )}
-                          <span>{subItem.name}</span>
-                        </Link>
-                      ))}
+                    
+                    {/* 3x3 Grid of module icons - centered */}
+                    <div className="grid grid-cols-3 grid-rows-3 gap-1">
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRuploadWhite.png" 
+                          alt="Upload Module" 
+                          className="w-10 h-10 object-contain"
+                          title="Upload Module - Document scanning and processing"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRstockWhite.png" 
+                          alt="Stock Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Stock Module - Inventory management and tracking"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRtemp.png" 
+                          alt="Temperature Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Temperature Module - Fridge and freezer monitoring"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        {/* Mid-left empty */}
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRadmin2.png" 
+                          alt="Admin Module" 
+                          className="w-10 h-10 object-contain"
+                          title="Admin Module - User management and system settings"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        {/* Mid-right empty */}
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRdiaryWhite.png" 
+                          alt="Diary Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Diary Module - Daily logs and incident reporting"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRrecipes.png" 
+                          alt="Recipes Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Recipes Module - Recipe management and costing"
+                        />
+                      </div>
+                      <div className="flex justify-center items-center p-1">
+                        <img 
+                          src="/icons/JiGRstocktake.png" 
+                          alt="Stocktake Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Stocktake Module - Periodic inventory audits"
+                        />
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                    
+                    {/* Right spacer for balance */}
+                    <div className="flex-shrink-0 w-12"></div>
+                  </div>
+                </>
+              )}
             </nav>
           </div>
 
-        </div>
-
-        {/* SETTINGS Section (Bottom) */}
-        <div className="border-t border-white/10 px-3 py-4">
-          {!isCollapsed && (
-            <div className={`px-3 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs`}>
-              SETTINGS
-            </div>
-          )}
-          <nav className="space-y-2">
-            {settingsItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
-                  pathname === item.href
-                    ? 'bg-white/15 text-white backdrop-blur-sm shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-                title={isCollapsed ? item.name : undefined}
-              >
-                <div className={`w-8 h-8 flex items-center justify-center ${isCollapsed ? 'mx-auto' : 'mr-3'}`}>
-                  <img 
-                    src={item.icon} 
-                    alt={item.name}
-                    className="w-6 h-6 object-contain"
-                  />
-                </div>
-                {!isCollapsed && (
-                  <span className={`${getTextStyle('body')} font-medium text-sm`}>
-                    {item.name}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-4">
-          {/* Background Selector & Sign Out Row */}
-          <div className={`flex items-center ${isCollapsed ? 'flex-col space-y-2' : 'justify-between mb-3'}`}>
-            {/* Background Selector */}
-            {onBackgroundSelectorToggle && (
-              <button
-                onClick={onBackgroundSelectorToggle}
-                className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-                title="Change Background"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </button>
-            )}
-
-            {/* Sign Out */}
-            {onSignOut && (
-              <button
-                onClick={onSignOut}
-                className={`flex items-center p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 ${
-                  isCollapsed ? '' : 'space-x-2'
-                }`}
-                title={isCollapsed ? 'Sign Out' : undefined}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                {!isCollapsed && <span className="text-sm">Sign Out</span>}
-              </button>
-            )}
+          {/* Separator Line */}
+          <div className="flex justify-center py-2">
+            <div className="w-[60%] h-px bg-white/20"></div>
           </div>
 
-          {/* User Info */}
-          {!isCollapsed && user && (
-            <Link 
-              href="/admin/profile" 
-              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all duration-200"
-            >
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
-                <span className="text-white text-xs font-medium">
-                  {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`${getTextStyle('body')} text-white font-medium text-xs truncate`}>
-                  {user?.user_metadata?.full_name || user?.email || 'User'}
+          {/* BOTTOM THIRD: SETTINGS, USER AVATAR, VERSION */}
+          <div className="absolute bottom-0 left-0 right-0">
+            <div className="pb-4">
+              <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+                <div className="flex justify-center items-center py-2">
+                  <img 
+                    src="/icons/JiGRadmin.png" 
+                    alt="Settings" 
+                    className="w-12 h-12 object-contain"
+                    title="Settings - Configure system preferences"
+                  />
                 </div>
-                <div className={`${getTextStyle('meta')} ${DesignTokens.colors.text.onGlassSecondary} text-xs`}>
-                  {userClient?.role || (activeSection === 'admin' ? 'Admin' : 'Console')}
+                
+                {/* User Avatar */}
+                <div className="flex justify-center items-center py-2">
+                  <div 
+                    className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 ${
+                      isCollapsed ? 'cursor-pointer hover:bg-white/30 transition-all duration-200' : ''
+                    }`}
+                    onClick={isCollapsed ? () => setIsCollapsed(false) : undefined}
+                    title={isCollapsed ? 'Expand Sidebar' : 'User Profile'}
+                  >
+                    <span className="text-white font-bold text-lg">
+                      {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                    </span>
+                  </div>
+                </div>
+              </nav>
+              
+              {/* System Status Icon */}
+              <div className={`flex items-center ${isCollapsed ? 'justify-center mb-2 mt-4' : 'justify-center mb-1 mt-8'}`}>
+                <div className="flex items-center space-x-2" title="System Status - All services operational">
+                  <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                  {!isCollapsed && (
+                    <span className="text-emerald-300 text-xs font-medium">
+                      System Online
+                    </span>
+                  )}
                 </div>
               </div>
-            </Link>
-          )}
+              
+              {/* Version Number */}
+              <div className="text-center mb-4">
+                <span className="text-white/30 text-xs font-mono" title="Application Version - v1.8.20">v1.8.20</span>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
 
       {/* Overlay when sidebar is expanded */}
