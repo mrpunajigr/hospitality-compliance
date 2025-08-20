@@ -108,18 +108,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // Regular protected routes that require Supabase authentication
-  const protectedPaths = ['/console', '/admin', '/upload']
+  const protectedPaths = ['/admin'] // Temporarily removing upload for testing
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
   )
 
-  // Allow demo access to console and upload pages (development/testing)
-  const isDemoAccess = request.nextUrl.pathname.startsWith('/console') || 
-                       request.nextUrl.pathname.startsWith('/upload')
+  // Allow open access to upload routes for testing OCR enhancement
+  const isUploadPath = request.nextUrl.pathname.startsWith('/upload')
+  const isConsolePath = request.nextUrl.pathname.startsWith('/console')
   
-  // If accessing protected route without authentication, redirect to signin
-  // (except for demo access)
-  if (isProtectedPath && !user && !isDemoAccess) {
+  // If accessing admin routes without authentication, redirect to signin
+  if (isProtectedPath && !user) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/signin'
     redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
