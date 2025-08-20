@@ -30,6 +30,21 @@ export class ImagePreprocessor {
     const opts = { ...this.defaultOptions, ...options };
     const originalSize = file.size;
 
+    // Check if browser can process this file format
+    if (!this.isSupportedByBrowser(file)) {
+      console.warn(`Unsupported format: ${file.type} (${file.name}). Browser cannot process HEIC/HEIF files.`);
+      
+      return {
+        processedFile: file,
+        originalSize,
+        processedSize: file.size,
+        compressionRatio: 1,
+        resized: false,
+        converted: false,
+        processingTime: performance.now() - startTime
+      };
+    }
+
     // Skip processing if file is already small and in good format
     if (file.size <= opts.maxFileSize && this.isOptimalFormat(file)) {
       return {
@@ -172,6 +187,14 @@ export class ImagePreprocessor {
   private isOptimalFormat(file: File): boolean {
     const optimalFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     return optimalFormats.includes(file.type.toLowerCase());
+  }
+
+  private isSupportedByBrowser(file: File): boolean {
+    // HEIC files are not supported by HTML Image element in most browsers
+    const unsupportedFormats = ['image/heic', 'image/heif'];
+    return !unsupportedFormats.includes(file.type.toLowerCase()) && 
+           !file.name.toLowerCase().endsWith('.heic') && 
+           !file.name.toLowerCase().endsWith('.heif');
   }
 
   private async wasResized(originalFile: File, processedFile: File): Promise<boolean> {

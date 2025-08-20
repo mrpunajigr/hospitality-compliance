@@ -47,7 +47,13 @@ export class ImageQualityValidator {
         });
         
         fileToAnalyze = preprocessingResult.processedFile;
-        console.log(`Preprocessed to ${ImagePreprocessor.formatFileSize(fileToAnalyze.size)} in ${preprocessingResult.processingTime.toFixed(0)}ms`);
+        
+        // If preprocessing didn't actually process the file (e.g., unsupported format)
+        if (preprocessingResult.processedFile === imageFile) {
+          console.log('File format not supported for preprocessing, analyzing original file');
+        } else {
+          console.log(`Preprocessed to ${ImagePreprocessor.formatFileSize(fileToAnalyze.size)} in ${preprocessingResult.processingTime.toFixed(0)}ms`);
+        }
       }
 
       // Add timeout to prevent hanging
@@ -65,8 +71,8 @@ export class ImageQualityValidator {
         metrics.fileSize = imageFile.size; // Show original file size in metrics
       }
 
-      const suggestions = this.generateSuggestions(metrics, preprocessingResult);
-      const warnings = this.generateWarnings(metrics, preprocessingResult);
+      const suggestions = this.generateSuggestions(metrics, preprocessingResult, imageFile);
+      const warnings = this.generateWarnings(metrics, preprocessingResult, imageFile);
       const acceptable = this.isAcceptableForOCR(metrics);
       const score = this.calculateQualityScore(metrics);
 
@@ -267,13 +273,17 @@ export class ImageQualityValidator {
     return Math.round(score);
   }
 
-  private generateSuggestions(metrics: QualityMetrics, preprocessing?: PreprocessingResult): string[] {
+  private generateSuggestions(metrics: QualityMetrics, preprocessing?: PreprocessingResult, originalFile?: File): string[] {
     const suggestions: string[] = [];
 
     // Add preprocessing feedback
     if (preprocessing) {
-      if (preprocessing.converted) {
-        suggestions.push(`Converted from ${preprocessing.processedFile.type} to JPEG for better compatibility`);
+      if (preprocessing.processedFile === originalFile && originalFile && originalFile.name.toLowerCase().includes('.heic')) {
+        suggestions.push("HEIC format detected - browser cannot process this format for quality analysis");
+        suggestions.push("Consider converting to JPEG/PNG format for detailed quality feedback");
+        suggestions.push("File will still be uploaded for OCR processing");
+      } else if (preprocessing.converted) {
+        suggestions.push(`Converted from ${originalFile?.type || 'original format'} to JPEG for better compatibility`);
       }
       if (preprocessing.resized) {
         suggestions.push(`Resized image for faster processing (${preprocessing.compressionRatio.toFixed(1)}x smaller)`);
@@ -316,11 +326,14 @@ export class ImageQualityValidator {
     return suggestions;
   }
 
-  private generateWarnings(metrics: QualityMetrics, preprocessing?: PreprocessingResult): string[] {
+  private generateWarnings(metrics: QualityMetrics, preprocessing?: PreprocessingResult, originalFile?: File): string[] {
     const warnings: string[] = [];
 
     // Add preprocessing warnings
     if (preprocessing) {
+      if (preprocessing.processedFile === originalFile && originalFile && originalFile.name.toLowerCase().includes('.heic')) {
+        warnings.push("HEIC format cannot be analyzed for quality - quality metrics are estimates");
+      }
       if (preprocessing.compressionRatio > 10) {
         warnings.push("Image was heavily compressed - some quality may be lost");
       }
