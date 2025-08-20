@@ -56,6 +56,35 @@ export class ImageQualityValidator {
         }
       }
 
+      // Check if the file format can be analyzed
+      if (!this.isSupportedByBrowser(fileToAnalyze)) {
+        console.log(`Cannot analyze ${fileToAnalyze.name} - unsupported format for quality analysis`);
+        
+        // Return estimated metrics for unsupported formats
+        const metrics: QualityMetrics = {
+          brightness: 50,
+          contrast: 50, 
+          sharpness: 50,
+          resolution: 2000 * 1500, // Estimate for modern cameras
+          fileSize: imageFile.size, // Use original file size
+          aspectRatio: 1.33 // Common 4:3 ratio
+        };
+
+        const suggestions = this.generateSuggestions(metrics, preprocessingResult, imageFile);
+        const warnings = this.generateWarnings(metrics, preprocessingResult, imageFile);
+        const acceptable = true; // Accept for OCR processing despite no analysis
+        const score = 50; // Neutral score
+
+        return {
+          acceptable,
+          score,
+          metrics,
+          suggestions,
+          warnings,
+          preprocessing: preprocessingResult
+        };
+      }
+
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Quality analysis timeout')), 8000);
@@ -215,6 +244,14 @@ export class ImageQualityValidator {
   private isOptimalFormat(file: File): boolean {
     const optimalFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     return optimalFormats.includes(file.type.toLowerCase());
+  }
+
+  private isSupportedByBrowser(file: File): boolean {
+    // HEIC files are not supported by HTML Image element in most browsers
+    const unsupportedFormats = ['image/heic', 'image/heif'];
+    const isUnsupportedType = unsupportedFormats.includes(file.type.toLowerCase());
+    const isUnsupportedExtension = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    return !isUnsupportedType && !isUnsupportedExtension;
   }
 
   private isAcceptableForOCR(metrics: QualityMetrics): boolean {
