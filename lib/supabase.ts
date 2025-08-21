@@ -51,11 +51,11 @@ export const STORAGE_BUCKET = 'delivery-dockets'
 export const DELIVERY_DOCKETS_BUCKET = 'delivery-dockets'
 
 // Fallback implementations for database functions
-export const getImageUrl = (path: string) => ''
-export const getDeliveryDocketSignedUrl = (path: string) => Promise.resolve('')
-export const getDeliveryDocketImageUrl = (path: string) => ''
-export const getDeliveryDocketThumbnail = (path: string) => ''
-export const getDeliveryDocketPreview = (path: string) => ''
+export const getImageUrl = (...args: any[]) => ''
+export const getDeliveryDocketSignedUrl = (...args: any[]) => Promise.resolve('')
+export const getDeliveryDocketImageUrl = (...args: any[]) => ''
+export const getDeliveryDocketThumbnail = (...args: any[]) => ''
+export const getDeliveryDocketPreview = (...args: any[]) => ''
 
 export const getUserClients = (...args: any[]) => Promise.resolve([])
 export const hasClientAccess = (...args: any[]) => Promise.resolve(false)
