@@ -621,7 +621,7 @@ export class JiGRCoreSystem extends BaseJiGRModule {
         const moduleInstance = this.getModuleByName(moduleName as any)
         if (moduleInstance) {
           await moduleInstance.configure(config)
-          (this.config as any)[moduleName] = { 
+          ;(this.config as any)[moduleName] = { 
             ...(this.config as any)[moduleName], 
             ...config 
           }
