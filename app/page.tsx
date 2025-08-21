@@ -7,13 +7,6 @@ export default function HomePage() {
   const [processing, setProcessing] = useState(false)
   const [results, setResults] = useState<string>('')
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-    }
-  }
-
   const [qualityCheck, setQualityCheck] = useState<any>(null)
   const [currentStep, setCurrentStep] = useState('upload')
 
