@@ -6,7 +6,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { getModuleRegistry } from './ModuleRegistry'
+import { moduleRegistry } from './ModuleRegistry'
 import type { BaseJiGRModule } from './BaseJiGRModule'
 
 // =============================================================================
@@ -604,7 +604,7 @@ export const getEnhancedCommunicationSystem = (): EnhancedModuleCommunication =>
  */
 export const initializeModuleCommunication = async (): Promise<EnhancedModuleCommunication> => {
   const communicationSystem = getEnhancedCommunicationSystem()
-  const moduleRegistry = getModuleRegistry()
+  // Use the imported moduleRegistry instance
   
   // Connect all currently loaded modules
   const loadedModules = moduleRegistry.getLoadedModules()
