@@ -1,0 +1,7 @@
+{
+  "deployment": "active",
+  "timestamp": "2025-08-21T15:57:00Z",
+  "version": "v1.8.19",
+  "status": "Hello World test deployment",
+  "commit": "083d0d71"
+}
