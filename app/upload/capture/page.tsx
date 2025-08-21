@@ -1,177 +1,173 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import EnhancedUpload from '../../components/delivery/EnhancedUpload'
+import { supabase } from '@/lib/supabase'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
+import { getCardStyle, getTextStyle } from '@/lib/design-system'
 
 export default function UploadActionPage() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [processing, setProcessing] = useState(false)
-  const [results, setResults] = useState<string>('')
+  const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [lastUpload, setLastUpload] = useState<any>(null)
+  const [showNotification, setShowNotification] = useState(false)
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
+  // Enhanced authentication with demo mode support
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        setUser(user)
+        
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+          }
+        } catch (error) {
+          console.error('Error loading client info:', error)
+        }
+      } else {
+        // Demo mode fallback
+        console.log('🚀 Demo mode - OCR Enhancement system ready')
+        const demoUser = {
+          id: 'demo-user-ocr-enhanced',
+          email: 'demo@ocrenhancement.com',
+          user_metadata: { full_name: 'OCR Demo User' }
+        }
+        const demoClient = {
+          id: 'demo-client-ocr',
+          name: 'OCR Enhancement Demo',
+          business_type: 'restaurant'
+        }
+        setUser(demoUser)
+        setUserClient(demoClient)
+      }
+      
+      setLoading(false)
     }
+
+    checkAuth()
+  }, [])
+
+  const handleUploadSuccess = (result: any) => {
+    setLastUpload(result)
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 5000)
   }
 
-  const handleUpload = async () => {
-    if (!selectedFile) return
-    
-    setProcessing(true)
-    setResults('Processing delivery docket...')
-    
-    // Simulate OCR processing
-    setTimeout(() => {
-      setResults(`
-🎉 OCR Enhancement Results:
-        
-📄 Document: ${selectedFile.name}
-📏 Size: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-🔍 Quality: Excellent - High resolution detected
-        
-📋 Extracted Information:
-• Supplier: Fresh Foods Ltd
-• Delivery Date: ${new Date().toLocaleDateString()}
-• Temperature: 4°C (Chilled) ✅
-• Items: 15 products identified
-• Compliance Status: PASSED
-        
-⚠️ Compliance Alerts:
-• All temperatures within safe range
-• No violations detected
-• Document quality sufficient for audit
-
-🚀 OCR Enhancement System Working!`)
-      setProcessing(false)
-    }, 2000)
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8fafc'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>🔄</div>
+          <h2 style={{ color: '#1e293b', fontSize: '24px' }}>Loading OCR Enhancement System...</h2>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div style={{
       minHeight: '100vh',
-      padding: '20px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      fontFamily: 'system-ui, sans-serif'
+      backgroundColor: '#f8fafc'
     }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '30px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        marginBottom: '20px'
-      }}>
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: 'bold',
-          marginBottom: '10px',
-          color: '#1e293b'
-        }}>
-          🎯 OCR Enhancement System - Live Test
-        </h1>
-        
-        <p style={{
-          fontSize: '16px',
-          color: '#64748b',
-          marginBottom: '30px'
-        }}>
-          Upload a delivery docket to test the enhanced OCR processing with quality validation
-        </p>
-
+      {/* Success Notification */}
+      {showNotification && lastUpload && (
         <div style={{
-          border: '2px dashed #cbd5e1',
-          borderRadius: '8px',
-          padding: '40px',
-          textAlign: 'center',
-          marginBottom: '20px',
-          backgroundColor: '#f8fafc'
-        }}>
-          <div style={{ marginBottom: '20px', fontSize: '48px' }}>📁</div>
-          
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            style={{
-              marginBottom: '20px',
-              padding: '10px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              width: '100%',
-              maxWidth: '400px'
-            }}
-          />
-          
-          {selectedFile && (
-            <div style={{ marginBottom: '20px' }}>
-              <p style={{ color: '#059669', fontWeight: 'bold' }}>
-                ✅ File selected: {selectedFile.name}
-              </p>
-            </div>
-          )}
-          
-          <button
-            onClick={handleUpload}
-            disabled={!selectedFile || processing}
-            style={{
-              backgroundColor: selectedFile && !processing ? '#3b82f6' : '#9ca3af',
-              color: 'white',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: selectedFile && !processing ? 'pointer' : 'not-allowed',
-              minWidth: '200px'
-            }}
-          >
-            {processing ? '⏳ Processing...' : '🚀 Process with OCR'}
-          </button>
-        </div>
-      </div>
-
-      {results && (
-        <div style={{
-          backgroundColor: '#1e293b',
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#10b981',
           color: 'white',
-          borderRadius: '12px',
-          padding: '30px',
-          fontSize: '14px',
-          fontFamily: 'monospace',
-          lineHeight: '1.6',
-          whiteSpace: 'pre-line',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          padding: '15px 20px',
+          borderRadius: '10px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          zIndex: 1000
         }}>
-          {results}
+          ✅ OCR processing completed successfully!
         </div>
       )}
 
+      {/* Header */}
       <div style={{
-        marginTop: '30px',
-        textAlign: 'center',
-        padding: '20px',
         backgroundColor: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        padding: '20px 40px',
+        borderBottom: '1px solid #e2e8f0',
+        marginBottom: '20px'
       }}>
-        <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>🧪 Test Features</h3>
-        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <div style={{ padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-            ✅ Image Quality Validation
-          </div>
-          <div style={{ padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-            🔍 Enhanced OCR Processing
-          </div>
-          <div style={{ padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-            🌡️ Temperature Compliance
-          </div>
-          <div style={{ padding: '10px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-            📋 Automated Data Extraction
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: 'bold',
+          color: '#1e293b',
+          marginBottom: '8px'
+        }}>
+          🎯 OCR Enhancement System
+        </h1>
+        <p style={{
+          fontSize: '18px',
+          color: '#64748b'
+        }}>
+          Advanced delivery docket processing with quality validation
+        </p>
+        {userClient && (
+          <p style={{
+            fontSize: '14px',
+            color: '#10b981',
+            marginTop: '8px'
+          }}>
+            📊 {userClient.name} - Enhanced Processing Mode
+          </p>
+        )}
+      </div>
+
+      {/* Main Upload Interface */}
+      <div style={{ padding: '0 20px' }}>
+        <EnhancedUpload
+          onUploadSuccess={handleUploadSuccess}
+          user={user}
+          userClient={userClient}
+        />
+      </div>
+
+      {/* Recent Results */}
+      {lastUpload && (
+        <div style={{
+          margin: '20px',
+          padding: '20px',
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#1e293b',
+            marginBottom: '15px'
+          }}>
+            🏆 Latest Processing Result
+          </h3>
+          <div style={{
+            backgroundColor: '#f8fafc',
+            padding: '15px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontFamily: 'monospace'
+          }}>
+            <p><strong>Status:</strong> {lastUpload.status}</p>
+            <p><strong>Quality Score:</strong> {lastUpload.qualityScore || 'N/A'}/100</p>
+            <p><strong>Processing Time:</strong> {lastUpload.processingTime || 'N/A'}ms</p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
