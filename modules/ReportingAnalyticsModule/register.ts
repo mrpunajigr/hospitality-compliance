@@ -5,7 +5,7 @@
  * SAFETY: This only registers the module - no changes to existing code
  */
 
-import { getModuleRegistry } from '@/lib/ModuleRegistry'
+import { moduleRegistry } from '@/lib/ModuleRegistry'
 import { getReportingAnalyticsCore } from './ReportingAnalyticsCore'
 
 /**
@@ -13,7 +13,7 @@ import { getReportingAnalyticsCore } from './ReportingAnalyticsCore'
  */
 export const registerReportingAnalyticsModule = async () => {
   try {
-    const registry = getModuleRegistry()
+    const registry = moduleRegistry
     const reportingModule = getReportingAnalyticsCore()
     
     // Register the module instance

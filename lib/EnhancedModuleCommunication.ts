@@ -269,7 +269,9 @@ export class EnhancedModuleCommunication extends EventEmitter {
    * Unsubscribe from events
    */
   unsubscribe(subscriptionId: string): boolean {
-    for (const [eventType, subscriptions] of this.subscriptions.entries()) {
+    const entries = Array.from(this.subscriptions.entries())
+    for (let i = 0; i < entries.length; i++) {
+      const [eventType, subscriptions] = entries[i]
       const index = subscriptions.findIndex(sub => sub.id === subscriptionId)
       if (index !== -1) {
         const subscription = subscriptions[index]
@@ -500,7 +502,9 @@ export class EnhancedModuleCommunication extends EventEmitter {
   getActiveSubscriptions(): Record<string, EventSubscription[]> {
     const result: Record<string, EventSubscription[]> = {}
     
-    for (const [eventType, subscriptions] of this.subscriptions.entries()) {
+    const entries = Array.from(this.subscriptions.entries())
+    for (let i = 0; i < entries.length; i++) {
+      const [eventType, subscriptions] = entries[i]
       result[eventType] = subscriptions.filter(sub => sub.isActive)
     }
     
@@ -536,8 +540,8 @@ export class EnhancedModuleCommunication extends EventEmitter {
     
     // Subscribe module to system events
     this.subscribe(moduleId, 'system:*', async (event) => {
-      if (module.isActive && typeof module.handleSystemEvent === 'function') {
-        await module.handleSystemEvent(event)
+      if (module.isActive && typeof (module as any).handleSystemEvent === 'function') {
+        await (module as any).handleSystemEvent(event)
       }
     })
     
@@ -567,7 +571,9 @@ export class EnhancedModuleCommunication extends EventEmitter {
     const moduleId = module.manifest.name
     
     // Remove all subscriptions for this module
-    for (const [eventType, subscriptions] of this.subscriptions.entries()) {
+    const entries = Array.from(this.subscriptions.entries())
+    for (let i = 0; i < entries.length; i++) {
+      const [eventType, subscriptions] = entries[i]
       const filtered = subscriptions.filter(sub => sub.subscriberId !== moduleId)
       if (filtered.length !== subscriptions.length) {
         this.subscriptions.set(eventType, filtered)
@@ -608,18 +614,20 @@ export const initializeModuleCommunication = async (): Promise<EnhancedModuleCom
   
   // Connect all currently loaded modules
   const loadedModules = moduleRegistry.getLoadedModules()
-  for (const [moduleId, moduleInstance] of loadedModules.entries()) {
-    communicationSystem.connectModule(moduleInstance)
+  const entries = Array.from(loadedModules.entries())
+  for (let i = 0; i < entries.length; i++) {
+    const [moduleId, moduleInstance] = entries[i]
+    communicationSystem.connectModule(moduleInstance as any)
   }
   
   // Listen for new modules being loaded
   moduleRegistry.on('module-loaded', ({ moduleId, module }) => {
-    communicationSystem.connectModule(module)
+    communicationSystem.connectModule(module as any)
   })
   
   // Listen for modules being unloaded
   moduleRegistry.on('module-unloaded', ({ moduleId, module }) => {
-    communicationSystem.disconnectModule(module)
+    communicationSystem.disconnectModule(module as any)
   })
   
   console.log('🚀 Enhanced Module Communication System initialized')

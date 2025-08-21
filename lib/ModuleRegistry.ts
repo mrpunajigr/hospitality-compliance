@@ -498,9 +498,9 @@ export class ModuleRegistry extends EventEmitter {
       totalActive: modules.filter(m => m.isActive).length,
       coreModules: manifests.filter(m => m.category === 'core').length,
       addonModules: manifests.filter(m => m.category === 'addon').length,
-      industries: [...new Set(manifests.flatMap(m => m.industry))],
+      industries: Array.from(new Set(manifests.flatMap(m => m.industry))),
       capabilities: Array.from(this.capabilities.keys()),
-      loadOrder: [...this.loadOrder]
+      loadOrder: Array.from(this.loadOrder)
     }
   }
   
@@ -685,8 +685,9 @@ export class ModuleRegistry extends EventEmitter {
       }
     }
     
-    for (const node of graph.keys()) {
-      visit(node)
+    const nodes = Array.from(graph.keys())
+    for (let i = 0; i < nodes.length; i++) {
+      visit(nodes[i])
     }
     
     return result
@@ -731,7 +732,9 @@ export class ModuleRegistry extends EventEmitter {
   private findDependentModules(moduleId: string): string[] {
     const dependents: string[] = []
     
-    for (const [otherId, deps] of this.dependencies.entries()) {
+    const dependencyEntries = Array.from(this.dependencies.entries())
+    for (let i = 0; i < dependencyEntries.length; i++) {
+      const [otherId, deps] = dependencyEntries[i]
       if (deps.includes(moduleId)) {
         const moduleInstance = this.modules.get(otherId)
         if (moduleInstance && moduleInstance.isActive) {

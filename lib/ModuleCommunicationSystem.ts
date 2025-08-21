@@ -218,7 +218,9 @@ export class ModuleMessageBus extends EventEmitter {
   getSubscriptions(moduleId: string): string[] {
     const subscriptions: string[] = []
     
-    for (const [eventType, subscribers] of this.subscriptions.entries()) {
+    const entries = Array.from(this.subscriptions.entries())
+    for (let i = 0; i < entries.length; i++) {
+      const [eventType, subscribers] = entries[i]
       if (subscribers.has(moduleId)) {
         subscriptions.push(eventType)
       }
@@ -288,7 +290,8 @@ export class ModuleMessageBus extends EventEmitter {
       from: 'communication-system',
       to: '*',
       type: 'check-activation-readiness',
-      payload: { moduleId }
+      payload: { moduleId },
+      priority: 'medium'
     })
     
     // Publish activation complete
@@ -440,14 +443,18 @@ export class ModuleMessageBus extends EventEmitter {
     const cutoffTime = new Date(now.getTime() - this.messageTimeout * 2) // Keep for 2x timeout
     
     // Clear old messages
-    for (const [id, message] of this.messages.entries()) {
+    const messageEntries = Array.from(this.messages.entries())
+    for (let i = 0; i < messageEntries.length; i++) {
+      const [id, message] = messageEntries[i]
       if (message.timestamp < cutoffTime) {
         this.messages.delete(id)
       }
     }
     
     // Clear old responses
-    for (const [id, response] of this.responses.entries()) {
+    const responseEntries = Array.from(this.responses.entries())
+    for (let i = 0; i < responseEntries.length; i++) {
+      const [id, response] = responseEntries[i]
       if (response.timestamp < cutoffTime) {
         this.responses.delete(id)
       }

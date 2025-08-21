@@ -58,7 +58,7 @@ export class ReportingAnalyticsCore extends BaseJiGRModule {
       confidenceThreshold: 0.8
     }
 
-    const manifest: JiGRModuleManifest = {
+    const manifest = {
       name: '@jigr/reporting-analytics-addon',
       version: '1.0.0',
       description: 'Advanced reporting, analytics, and insights for hospitality compliance',
@@ -68,37 +68,37 @@ export class ReportingAnalyticsCore extends BaseJiGRModule {
           name: 'compliance-analytics',
           version: '1.0.0',
           description: 'Real-time compliance analytics and metrics calculation',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: 'report-generation',
           version: '1.0.0', 
           description: 'PDF, CSV, and Excel report generation with templates',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: 'supplier-analytics',
           version: '1.0.0',
           description: 'Supplier performance tracking and risk assessment',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: 'predictive-insights',
           version: '1.0.0',
           description: 'AI-powered predictive analytics and recommendations',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: 'dashboard-metrics',
           version: '1.0.0',
           description: 'Real-time dashboard metrics and visualizations',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: 'inspector-portal',
           version: '1.0.0',
           description: 'Secure inspector access and compliance documentation',
-          interface: {}
+          interface: 'analytics'
         }
       ],
       
@@ -107,13 +107,13 @@ export class ReportingAnalyticsCore extends BaseJiGRModule {
           name: '@jigr/database-core',
           version: '^1.0.0',
           description: 'Database operations for analytics data',
-          interface: {}
+          interface: 'analytics'
         },
         {
           name: '@jigr/authentication-core',
           version: '^1.0.0', 
           description: 'User authentication and authorization',
-          interface: {}
+          interface: 'analytics'
         }
       ],
       
@@ -141,7 +141,7 @@ export class ReportingAnalyticsCore extends BaseJiGRModule {
       }
     }
 
-    super(manifest)
+    super(manifest as any)
     this.config = defaultConfig
     this.metricsCache = new Map()
     this.reportCache = new Map()

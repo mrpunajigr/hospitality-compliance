@@ -105,8 +105,13 @@ export class CoreModuleEventIntegration {
    */
   async integrateDatabaseCore(): Promise<void> {
     try {
-      const { getDatabaseCore } = await import('./core/Database')
-      const dbCore = getDatabaseCore()
+      const { getDatabaseModule } = await import('./core/Database')
+      const dbCore = getDatabaseModule()
+
+      if (!dbCore) {
+        console.warn('Database Core not available, skipping integration')
+        return
+      }
 
       // Connect to communication system
       this.communicationSystem.connectModule(dbCore)
@@ -207,8 +212,13 @@ export class CoreModuleEventIntegration {
    */
   async integrateDesignSystemCore(): Promise<void> {
     try {
-      const { getDesignSystemCore } = await import('./core/DesignSystem')
-      const designCore = getDesignSystemCore()
+      const { getDesignSystemModule } = await import('./core/DesignSystem')
+      const designCore = getDesignSystemModule()
+
+      if (!designCore) {
+        console.warn('Design System Core not available, skipping integration')
+        return
+      }
 
       // Connect to communication system
       this.communicationSystem.connectModule(designCore)
@@ -360,17 +370,21 @@ export class AddOnModuleEventIntegration {
    */
   async integrateTemperatureComplianceModule(): Promise<void> {
     try {
-      const { getTemperatureComplianceModule } = await import('../modules/TemperatureComplianceModule')
-      const tempModule = getTemperatureComplianceModule()
+      // TODO: TemperatureComplianceModule not yet implemented
+      console.warn('TemperatureComplianceModule not available, skipping integration')
+      return
+      
+      // const { getTemperatureComplianceModule } = await import('../modules/TemperatureComplianceModule')
+      // const tempModule = getTemperatureComplianceModule()
 
-      // Connect to communication system
-      this.communicationSystem.connectModule(tempModule)
+      // // Connect to communication system
+      // this.communicationSystem.connectModule(tempModule)
 
-      // Set up temperature event publishing
-      this.setupTemperatureEventPublishing(tempModule)
+      // // Set up temperature event publishing
+      // this.setupTemperatureEventPublishing(tempModule)
 
-      // Set up temperature event subscriptions
-      this.setupTemperatureEventSubscriptions(tempModule)
+      // // Set up temperature event subscriptions
+      // this.setupTemperatureEventSubscriptions(tempModule)
 
       console.log('🌡️ Temperature Compliance Module integrated with event system')
     } catch (error) {

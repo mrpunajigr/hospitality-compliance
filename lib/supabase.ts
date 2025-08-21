@@ -26,7 +26,7 @@ try {
     DatabaseModule = require('./core/Database')
   }
 } catch (error) {
-  console.warn('Database module not available, using fallbacks:', error.message)
+  console.warn('Database module not available, using fallbacks:', error instanceof Error ? error.message : 'Unknown error')
 }
 
 // Fallback to direct supabase import if Database module not available

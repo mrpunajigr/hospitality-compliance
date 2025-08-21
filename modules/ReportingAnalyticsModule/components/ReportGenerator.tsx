@@ -290,7 +290,7 @@ export default function ReportGenerator({
 
               {/* Report Type Selection */}
               <div className="mb-6">
-                <label className={`block ${getTextStyle('inputLabel')} text-gray-700 mb-2`}>
+                <label className={`block ${getTextStyle('label')} text-gray-700 mb-2`}>
                   Report Type
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -317,7 +317,7 @@ export default function ReportGenerator({
 
               {/* Format Selection */}
               <div className="mb-6">
-                <label className={`block ${getTextStyle('inputLabel')} text-gray-700 mb-2`}>
+                <label className={`block ${getTextStyle('label')} text-gray-700 mb-2`}>
                   Output Format
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -342,7 +342,7 @@ export default function ReportGenerator({
 
               {/* Date Range */}
               <div className="mb-6">
-                <label className={`block ${getTextStyle('inputLabel')} text-gray-700 mb-2`}>
+                <label className={`block ${getTextStyle('label')} text-gray-700 mb-2`}>
                   Date Range
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -380,7 +380,7 @@ export default function ReportGenerator({
               {/* Filters */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <label className={`${getTextStyle('inputLabel')} text-gray-700`}>
+                  <label className={`${getTextStyle('label')} text-gray-700`}>
                     Filters (Optional)
                   </label>
                   <button
@@ -435,7 +435,7 @@ export default function ReportGenerator({
 
               {/* Options */}
               <div className="mb-6">
-                <label className={`block ${getTextStyle('inputLabel')} text-gray-700 mb-3`}>
+                <label className={`block ${getTextStyle('label')} text-gray-700 mb-3`}>
                   Report Options
                 </label>
                 <div className="space-y-2">
