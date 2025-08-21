@@ -51,29 +51,29 @@ export const STORAGE_BUCKET = 'delivery-dockets'
 export const DELIVERY_DOCKETS_BUCKET = 'delivery-dockets'
 
 // Fallback implementations for database functions
-export const getImageUrl = () => ''
-export const getDeliveryDocketSignedUrl = () => Promise.resolve('')
-export const getDeliveryDocketImageUrl = () => ''
-export const getDeliveryDocketThumbnail = () => ''
-export const getDeliveryDocketPreview = () => ''
+export const getImageUrl = (path: string) => ''
+export const getDeliveryDocketSignedUrl = (path: string) => Promise.resolve('')
+export const getDeliveryDocketImageUrl = (path: string) => ''
+export const getDeliveryDocketThumbnail = (path: string) => ''
+export const getDeliveryDocketPreview = (path: string) => ''
 
-export const getUserClients = () => Promise.resolve([])
-export const hasClientAccess = () => Promise.resolve(false)
-export const getUserClientRole = () => Promise.resolve(null)
+export const getUserClients = (...args: any[]) => Promise.resolve([])
+export const hasClientAccess = (...args: any[]) => Promise.resolve(false)
+export const getUserClientRole = (...args: any[]) => Promise.resolve(null)
 
-export const getDeliveryRecords = () => Promise.resolve([])
-export const createDeliveryRecord = () => Promise.resolve({})
+export const getDeliveryRecords = (...args: any[]) => Promise.resolve([])
+export const createDeliveryRecord = (...args: any[]) => Promise.resolve({})
 
-export const getSuppliers = () => Promise.resolve([])
-export const createSupplier = () => Promise.resolve({})
+export const getSuppliers = (...args: any[]) => Promise.resolve([])
+export const createSupplier = (...args: any[]) => Promise.resolve({})
 
-export const getTeamMembers = () => Promise.resolve([])
-export const createInvitation = () => Promise.resolve({})
+export const getTeamMembers = (...args: any[]) => Promise.resolve([])
+export const createInvitation = (...args: any[]) => Promise.resolve({})
 
-export const getComplianceAlerts = () => Promise.resolve([])
-export const acknowledgeAlert = () => Promise.resolve({})
+export const getComplianceAlerts = (...args: any[]) => Promise.resolve([])
+export const acknowledgeAlert = (...args: any[]) => Promise.resolve({})
 
-export const createAuditLog = () => Promise.resolve({})
+export const createAuditLog = (...args: any[]) => Promise.resolve({})
 
 // =============================================================================
 // MIGRATION COMMENTS
