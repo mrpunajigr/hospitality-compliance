@@ -37,6 +37,10 @@
   ],
   "exclude": [
     "node_modules",
-    "supabase/functions/**/*.ts"
+    "supabase/functions/**/*.ts",
+    "_temp_backup/**/*.ts",
+    "_temp_backup/**/*.tsx",
+    ":assets/**/*.ts",
+    ":assets/**/*.tsx"
   ]
 }
