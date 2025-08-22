@@ -101,7 +101,7 @@ export default function SignInPage() {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/chef-workspace1jpg.jpg')`,
+          backgroundImage: `url('/chef-workspace.jpg')`,
           filter: 'brightness(0.6)'
         }}
       />
