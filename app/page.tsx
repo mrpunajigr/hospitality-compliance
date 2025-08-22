@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { getCardStyle, getTextStyle } from '../lib/design-system'
 
 export default function HomePage() {
   return (
@@ -9,7 +8,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className={`${getTextStyle('pageTitle')} text-white mb-2`}>
+          <h1 className="text-4xl font-bold text-white mb-2">
             🎉 Complete OCR Enhancement System
           </h1>
           <p className="text-purple-200 text-lg">
@@ -20,7 +19,7 @@ export default function HomePage() {
         {/* Main Features */}
         <div className="mb-8">
           <div className="grid md:grid-cols-2 gap-6">
-            <Link href="/ocr-enhanced" className={`${getCardStyle('primary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/ocr-enhanced" className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 hover:bg-white/20 transition-colors text-center block">
               <h2 className="text-white text-xl font-bold mb-3">🚀 Enhanced OCR Processing</h2>
               <p className="text-white/80 mb-4">Multi-step OCR workflow with quality validation</p>
               <div className="text-purple-300 text-sm">
@@ -28,7 +27,7 @@ export default function HomePage() {
               </div>
             </Link>
             
-            <Link href="/upload/capture" className={`${getCardStyle('primary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/upload/capture" className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 hover:bg-white/20 transition-colors text-center block">
               <h2 className="text-white text-xl font-bold mb-3">📷 Document Capture</h2>
               <p className="text-white/80 mb-4">Advanced document capture with preprocessing</p>
               <div className="text-purple-300 text-sm">
@@ -40,21 +39,21 @@ export default function HomePage() {
 
         {/* Navigation Grid */}
         <div className="mb-8">
-          <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6 text-center`}>
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
             System Navigation
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Link href="/console/dashboard" className={`${getCardStyle('secondary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/console/dashboard" className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-colors text-center block">
               <h3 className="text-white font-semibold mb-2">📊 Dashboard</h3>
               <p className="text-white/70 text-sm">View analytics and compliance reports</p>
             </Link>
             
-            <Link href="/upload/console" className={`${getCardStyle('secondary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/upload/console" className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-colors text-center block">
               <h3 className="text-white font-semibold mb-2">🚀 Upload Console</h3>
               <p className="text-white/70 text-sm">Professional upload interface</p>
             </Link>
             
-            <Link href="/admin/company-settings" className={`${getCardStyle('secondary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/admin/company-settings" className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-colors text-center block">
               <h3 className="text-white font-semibold mb-2">⚙️ Admin Settings</h3>
               <p className="text-white/70 text-sm">Company configuration and management</p>
             </Link>
@@ -64,12 +63,12 @@ export default function HomePage() {
         {/* Authentication & Development */}
         <div className="mb-8">
           <div className="grid md:grid-cols-2 gap-4">
-            <Link href="/signin" className={`${getCardStyle('secondary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/signin" className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-colors text-center block">
               <h3 className="text-white font-semibold mb-2">🔐 Authentication</h3>
               <p className="text-white/70 text-sm">Sign in to access secure features</p>
             </Link>
             
-            <Link href="/dev/login" className={`${getCardStyle('secondary')} hover:bg-white/20 transition-colors text-center block`}>
+            <Link href="/dev/login" className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-colors text-center block">
               <h3 className="text-white font-semibold mb-2">🛠️ Development</h3>
               <p className="text-white/70 text-sm">Development tools and testing</p>
             </Link>
@@ -100,7 +99,7 @@ export default function HomePage() {
 
         {/* System Status */}
         <div className="text-center">
-          <div className={getCardStyle('secondary')}>
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6">
             <h3 className="text-white font-semibold mb-4">🏆 System Status</h3>
             <div className="grid md:grid-cols-3 gap-4 text-sm">
               <div className="text-green-300">
