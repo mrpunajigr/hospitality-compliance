@@ -97,11 +97,11 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Optimized Chef Workspace Background */}
+      {/* Chef Workspace Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('${getChefWorkspaceBackground()}')`,
+          backgroundImage: `url('/chef-workspace1jpg.jpg')`,
           filter: 'brightness(0.6)'
         }}
       />
