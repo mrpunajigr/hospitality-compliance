@@ -232,8 +232,8 @@ export default function UploadActionPage() {
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white text-sm font-bold">Quick Capture</h2>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-white text-lg font-semibold text-center w-full">Quick Capture</h2>
             </div>
             <div className="text-center mb-6">
               <img 
@@ -248,7 +248,7 @@ export default function UploadActionPage() {
               <button 
                 data-camera-trigger
                 onClick={handleCameraCapture}
-                className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10"
+                className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Camera Capture
               </button>
@@ -265,11 +265,11 @@ export default function UploadActionPage() {
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white text-sm font-bold">Bulk Upload</h2>
+            <div className="flex items-center justify-center mb-4 relative">
+              <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
               <button
                 onClick={() => setShowQualityUpload(!showQualityUpload)}
-                className="text-purple-300 hover:text-white text-xs underline"
+                className="absolute right-0 text-purple-300 hover:text-white text-xs underline transition-colors duration-200"
               >
                 {showQualityUpload ? 'Hide' : 'Quality Mode'}
               </button>
@@ -286,7 +286,7 @@ export default function UploadActionPage() {
             >
               <button 
                 onClick={() => setShowQualityUpload(true)}
-                className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10"
+                className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-purple-500/10 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Select Files
               </button>
@@ -311,8 +311,8 @@ export default function UploadActionPage() {
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white text-sm font-bold">Ready Queue</h2>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
             </div>
             <div className="text-center mb-6">
               <img 
@@ -336,10 +336,10 @@ export default function UploadActionPage() {
               <button 
                 disabled={queuedFiles.length === 0}
                 onClick={processQueuedFiles}
-                className={`w-full py-3 px-4 text-sm font-medium bg-transparent transition-all duration-200 ${
+                className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl ${
                   queuedFiles.length === 0 
-                    ? 'text-green-300/50 cursor-not-allowed' 
-                    : 'text-green-300 hover:bg-white/10'
+                    ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
+                    : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
                 Process Queue
@@ -368,7 +368,7 @@ export default function UploadActionPage() {
                 <h3 className="text-white text-lg font-bold">Quality-Enhanced Upload</h3>
                 <button
                   onClick={() => setShowQualityUpload(false)}
-                  className="text-white/70 hover:text-white"
+                  className="text-white/70 hover:text-white transition-colors duration-200 p-1 hover:bg-white/10 rounded-md"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -407,7 +407,7 @@ export default function UploadActionPage() {
                         </div>
                         <button
                           onClick={() => removeFromQueue(index)}
-                          className="text-red-400 hover:text-red-300"
+                          className="text-red-400 hover:text-red-300 transition-colors duration-200 p-1 hover:bg-red-500/10 rounded-md"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -477,8 +477,8 @@ export default function UploadActionPage() {
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-white text-sm font-bold">No Uploads Today</h2>
+              <div className="flex items-center justify-center mb-2">
+                <h2 className="text-white text-lg font-semibold text-center w-full">No Uploads Today</h2>
               </div>
             </div>
           </div>
@@ -498,8 +498,8 @@ export default function UploadActionPage() {
             >
               <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
               <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-black text-sm font-bold">Capture Tips</h2>
+                <div className="flex items-center justify-center mb-4">
+                  <h2 className="text-white text-lg font-semibold text-center w-full">Capture Tips</h2>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-2">
