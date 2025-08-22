@@ -26,6 +26,7 @@ interface AppleSidebarProps {
   onSignOut?: () => void
   logoUrl?: string
   activeSection: 'admin' | 'console' | 'upload'
+  currentUploadPage?: 'console' | 'capture' | 'reports'
   onBackgroundSelectorToggle?: () => void
 }
 
@@ -65,6 +66,7 @@ export default function AppleSidebar({
   onSignOut, 
   logoUrl, 
   activeSection,
+  currentUploadPage,
   onBackgroundSelectorToggle 
 }: AppleSidebarProps) {
   const pathname = usePathname()
@@ -122,6 +124,49 @@ export default function AppleSidebar({
           </div>
         </div>
 
+        {/* Upload Module Navigation - Only show on upload pages */}
+        {activeSection === 'upload' && (
+          <div className="border-b border-white/10 py-4">
+            {!isCollapsed && (
+              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
+                UPLOAD MODULE
+              </div>
+            )}
+            <nav className={isCollapsed ? 'space-y-1' : 'space-y-1 px-3'}>
+              <a 
+                href="/upload/console"
+                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
+                  currentUploadPage === 'console' 
+                    ? 'bg-blue-600/30 text-white font-medium' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {isCollapsed ? 'C' : 'Console'}
+              </a>
+              <a 
+                href="/upload/capture"
+                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
+                  currentUploadPage === 'capture' 
+                    ? 'bg-green-600/30 text-white font-medium' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {isCollapsed ? 'A' : 'Capture'}
+              </a>
+              <a 
+                href="/upload/reports"
+                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
+                  currentUploadPage === 'reports' 
+                    ? 'bg-purple-600/30 text-white font-medium' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {isCollapsed ? 'R' : 'Reports'}
+              </a>
+            </nav>
+          </div>
+        )}
+
         {/* Navigation Sections - Three Equal Thirds */}
         <div className="flex-1 flex flex-col">
           
@@ -175,9 +220,13 @@ export default function AppleSidebar({
                     <img 
                       src="/icons/JiGRmodules.png" 
                       alt="Modules" 
-                      className="w-12 h-12 object-contain"
+                      className="w-12 h-12 object-contain brightness-0 invert"
                       title="Modules - Access all application features"
-                      onError={(e) => console.log('Failed to load JiGRmodules.png:', e)}
+                      onError={(e) => {
+                        console.error('Failed to load JiGRmodules.png:', e);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                      onLoad={() => console.log('JiGRmodules.png loaded successfully')}
                     />
                   </div>
                 </>
@@ -190,9 +239,13 @@ export default function AppleSidebar({
                       <img 
                         src="/icons/JiGRmodules.png" 
                         alt="Modules" 
-                        className="w-12 h-12 object-contain"
+                        className="w-12 h-12 object-contain brightness-0 invert"
                         title="Modules - Access all application features"
-                        onError={(e) => console.log('Failed to load JiGRmodules.png (expanded):', e)}
+                        onError={(e) => {
+                          console.error('Failed to load JiGRmodules.png (expanded):', e);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        onLoad={() => console.log('JiGRmodules.png (expanded) loaded successfully')}
                       />
                     </div>
                     

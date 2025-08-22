@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AppleSidebar from '../components/AppleSidebar'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
@@ -13,6 +13,7 @@ interface UploadLayoutProps {
 
 export default function UploadLayout({ children }: UploadLayoutProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
@@ -78,15 +79,36 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   }
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{
-        backgroundImage: 'url(/chef-workspace1jpg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+    <div className="min-h-screen relative">
+      {/* Safari 12 Compatible Background */}
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+      
+      {/* Kitchen workspace overlay for context */}
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: 'url(/chef-workspace1jpg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.3
+        }}
+      />
+      
+      {/* Pattern overlay for visual interest */}
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{
+          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+          opacity: 0.2
+        }}
+      />
 {showBackgroundSelector && (
         <BackgroundSelector 
           selectedBackground=""
@@ -100,6 +122,11 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         userClient={userClient}
         onSignOut={handleSignOut}
         activeSection="upload"
+        currentUploadPage={
+          pathname.includes('/console') ? 'console' : 
+          pathname.includes('/capture') ? 'capture' : 
+          pathname.includes('/reports') ? 'reports' : 'console'
+        }
         onBackgroundSelectorToggle={() => setShowBackgroundSelector(!showBackgroundSelector)}
       />
       

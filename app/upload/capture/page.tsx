@@ -154,7 +154,7 @@ export default function UploadActionPage() {
               <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
                 UPLOAD
               </h1>
-              <p className={`${getTextStyle('body')} text-white/80 drop-shadow-md`}>
+              <p className="text-white/80 drop-shadow-md italic text-xs">
                 Document upload, processing, and compliance management
               </p>
               {userClient && (
@@ -170,7 +170,7 @@ export default function UploadActionPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 hidden md:landscape:flex">
               <a 
                 href="/upload/console" 
                 className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"

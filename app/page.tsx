@@ -58,20 +58,26 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background with Safari 12+ compatibility */}
+      {/* Safari 12 Compatible Background - Pure CSS */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #3730a3 50%, #1e293b 100%)',
-          backgroundImage: 'url("https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1920&q=80")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 25%, #3730a3 50%, #2563eb 75%, #1e293b 100%)',
+          backgroundAttachment: 'fixed'
         }}
       />
       
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} />
+      {/* Pattern overlay for visual interest */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+          opacity: 0.3
+        }}
+      />
+      
+      {/* Text readability overlay */}
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
 
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20">

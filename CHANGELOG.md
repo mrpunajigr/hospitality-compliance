@@ -1,3 +1,8 @@
+### v1.8.23.001 (2025-08-22) - ENHANCEMENT
+- **✨ ENHANCEMENT**: iPad portrait navigation - sidebar integration with responsive nav pills
+- **🕐 Build Time**: 8/23/2025, 12:35:13 AM
+- **🔧 Environment**: development
+
 ### v1.8.19.033a (2025-08-19) - FEAT
 - **📝 FEAT**: Module 2 Results Card Configuration component - complete customizable field selection for upload results display
 - **🕐 Build Time**: 8/19/2025, 6:13:46 PM
