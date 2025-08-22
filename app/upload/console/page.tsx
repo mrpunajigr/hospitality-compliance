@@ -1,382 +1,347 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-
-interface QualityResult {
-  score: number
-  issues: string[]
-  recommendations: string[]
-}
+// Upload Console - Module Dashboard Overview
+import { useState, useEffect } from 'react'
+import EnhancedComplianceDashboard from '../../components/compliance/EnhancedComplianceDashboard'
+import SimpleResultsCard from '../../components/results/SimpleResultsCard'
+import { supabase } from '@/lib/supabase'
+import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
+import { getUserClient, UserClient } from '@/lib/auth-utils'
+import Image from 'next/image'
 
 export default function UploadConsolePage() {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [processing, setProcessing] = useState(false)
-  const [results, setResults] = useState<any>(null)
-  const [qualityChecks, setQualityChecks] = useState<QualityResult[]>([])
-  const [currentStep, setCurrentStep] = useState('upload')
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [latestDeliveryRecord, setLatestDeliveryRecord] = useState<any>(null)
+  const [processingResults, setProcessingResults] = useState<any>(null)
 
-  const analyzeImageQuality = useCallback(async (file: File): Promise<QualityResult> => {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    const score = Math.floor(Math.random() * 25) + 75
-    const issues = []
-    const recommendations = []
-    
-    if (score < 85) {
-      issues.push('Image could be clearer')
-      recommendations.push('Ensure good lighting when capturing')
+  // Authentication handled by upload layout
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        setUser(user)
+        
+        try {
+          const clientInfo = await getUserClient(user.id)
+          if (clientInfo) {
+            setUserClient(clientInfo)
+            console.log('✅ Upload Console: Real user authenticated with company:', clientInfo.name)
+          } else {
+            console.log('ℹ️ Upload Console: User has no associated company')
+          }
+        } catch (error) {
+          console.error('Error loading client info:', error)
+        }
+      } else {
+        // Check for demo mode - Compliance path triggers demo mode automatically
+        const isDemoMode = typeof window !== 'undefined' && (
+          window.location.pathname.startsWith('/compliance') ||
+          new URLSearchParams(window.location.search).get('demo') === 'true' ||
+          document.cookie.includes('demo-session=active')
+        )
+        
+        if (isDemoMode) {
+          console.log('🚀 Upload Console demo mode detected')
+          const demoUser = {
+            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+            email: 'demo@example.com',
+            app_metadata: {},
+            user_metadata: { full_name: 'Demo User - Upload Console' },
+            aud: 'authenticated',
+            role: 'authenticated',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setUser(demoUser)
+          console.log('✅ Demo user set for compliance console')
+        }
+      }
+      setLoading(false)
     }
     
-    if (file.size > 4 * 1024 * 1024) {
-      recommendations.push('Large file - processing may take longer')
-    }
-    
-    return { score, issues, recommendations }
+    checkAuth()
   }, [])
 
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    if (files.length === 0) return
+  // Fetch latest delivery records for console overview
+  useEffect(() => {
+    const fetchLatestResults = async () => {
+      try {
+        const { data: deliveryRecords, error } = await supabase
+          .from('delivery_records')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1)
 
-    setSelectedFiles(files)
-    setCurrentStep('quality')
-    setQualityChecks([])
+        console.log('📊 Upload Console: Fetched delivery records:', deliveryRecords)
 
-    for (const file of files) {
-      const quality = await analyzeImageQuality(file)
-      setQualityChecks(prev => [...prev, quality])
-    }
-  }, [analyzeImageQuality])
+        if (error) {
+          console.error('Error fetching delivery records:', error)
+          return
+        }
 
-  const handleProcessFiles = useCallback(async () => {
-    if (selectedFiles.length === 0) return
-    
-    setProcessing(true)
-    setCurrentStep('processing')
-    
-    await new Promise(resolve => setTimeout(resolve, 2500))
-    
-    const processedResults = selectedFiles.map((file, index) => ({
-      filename: file.name,
-      size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-      qualityScore: qualityChecks[index]?.score || 85,
-      extraction: {
-        supplier: ['Premium Suppliers Ltd', 'Global Food Co', 'Fresh Direct'][Math.floor(Math.random() * 3)],
-        deliveryDate: new Date().toLocaleDateString(),
-        temperature: `${Math.floor(Math.random() * 5) + 3}°C`,
-        items: Math.floor(Math.random() * 25) + 8,
-        compliance: Math.random() > 0.2 ? 'PASSED' : 'REQUIRES REVIEW'
-      },
-      processing: {
-        time: Math.floor(Math.random() * 1500) + 1200,
-        confidence: Math.floor(Math.random() * 15) + 85
+        if (deliveryRecords && deliveryRecords.length > 0) {
+          const record = deliveryRecords[0]
+          console.log('📊 Upload Console: Latest record:', record)
+          setLatestDeliveryRecord(record)
+          
+          if (record.analysis || record.extraction_data) {
+            const resultsData = record.analysis || record.extraction_data
+            console.log('📊 Upload Console: Setting processing results:', resultsData)
+            setProcessingResults(resultsData)
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchLatestResults:', error)
       }
-    }))
-    
-    setResults(processedResults)
-    setProcessing(false)
-    setCurrentStep('results')
-  }, [selectedFiles, qualityChecks])
+    }
 
-  const resetUpload = () => {
-    setSelectedFiles([])
-    setResults(null)
-    setQualityChecks([])
-    setCurrentStep('upload')
+    if (user) {
+      fetchLatestResults()
+    }
+  }, [user])
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className={getCardStyle('primary')}>
+            <div className="text-center">
+              <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className={`${getTextStyle('body')} font-medium`}>Loading Upload Console...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#0f172a',
-      color: 'white',
-      padding: '20px'
-    }}>
-      {/* Header */}
-      <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: '16px',
-        padding: '30px',
-        marginBottom: '20px'
-      }}>
-        <h1 style={{
-          fontSize: '36px',
-          fontWeight: 'bold',
-          color: '#10b981',
-          textAlign: 'center',
-          marginBottom: '10px'
-        }}>
-          🎯 Enhanced OCR Console
-        </h1>
-        <p style={{
-          fontSize: '18px',
-          color: '#94a3b8',
-          textAlign: 'center'
-        }}>
-          Professional delivery docket processing with real-time quality validation
-        </p>
-        
-        {/* Progress Steps */}
-        <div style={{ display: 'flex', gap: '15px', marginTop: '25px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {['upload', 'quality', 'processing', 'results'].map((step, index) => (
-            <div key={step} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '25px',
-              backgroundColor: currentStep === step ? '#10b981' : 
-                              ['upload', 'quality', 'processing'].indexOf(currentStep) > index ? 'rgba(16, 185, 129, 0.3)' : 'rgba(107, 114, 128, 0.3)',
-              color: currentStep === step ? 'white' : '#94a3b8',
-              border: currentStep === step ? '2px solid #10b981' : '1px solid rgba(107, 114, 128, 0.3)'
-            }}>
-              <span style={{ fontWeight: 'bold' }}>{index + 1}</span>
-              <span style={{ textTransform: 'capitalize', fontWeight: '500' }}>{step}</span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+      
+      {/* Console Header */}
+      <div className="mb-16">
+        <div className="grid grid-cols-4 gap-6 items-center">
+          <div className="flex items-center space-x-4 col-span-2">
+            <Image 
+              src="/ModuleIcons/JiGRupload.png" 
+              alt="Upload Module" 
+              width={96} 
+              height={96}
+              className="object-contain"
+            />
+            <div>
+              <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
+                UPLOAD
+              </h1>
+              <p className={`${getTextStyle('body')} text-white/80 drop-shadow-md`}>
+                Document upload, processing, and compliance management
+              </p>
+              {userClient && (
+                <p className="text-blue-300 text-sm mt-1">
+                  {userClient.name} • {userClient.role}
+                </p>
+              )}
+              {user && !userClient && (
+                <p className="text-blue-300 text-sm mt-1">
+                  {user.user_metadata?.full_name || user.email} • Demo Mode
+                </p>
+              )}
             </div>
-          ))}
+          </div>
+          <div className="flex justify-center">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+              <a 
+                href="/upload/console" 
+                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+              >
+                Console
+              </a>
+              <a 
+                href="/upload/capture" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Capture
+              </a>
+              <a 
+                href="/upload/reports" 
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+              >
+                Reports
+              </a>
+            </div>
+          </div>
+          <div></div>
         </div>
       </div>
 
-      {/* Upload Section */}
-      {currentStep === 'upload' && (
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          border: '2px dashed #10b981',
-          borderRadius: '16px',
-          padding: '50px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '72px', marginBottom: '25px' }}>📊</div>
-          <h2 style={{ fontSize: '28px', marginBottom: '20px', color: '#10b981' }}>
-            Upload Delivery Dockets
-          </h2>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileSelect}
-            style={{
-              marginBottom: '25px',
-              padding: '15px',
-              fontSize: '16px',
-              borderRadius: '10px',
-              border: '2px solid #374151',
-              backgroundColor: '#1f2937',
-              color: 'white',
-              width: '100%',
-              maxWidth: '450px'
-            }}
-          />
-          <p style={{ color: '#94a3b8', fontSize: '16px' }}>
-            Select multiple delivery docket images for batch processing
-          </p>
-        </div>
-      )}
-
-      {/* Quality Check Section */}
-      {currentStep === 'quality' && (
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          borderRadius: '16px',
-          padding: '30px'
-        }}>
-          <h2 style={{ fontSize: '28px', marginBottom: '25px', color: '#10b981' }}>
-            🔍 Quality Analysis Console
-          </h2>
-          
-          {selectedFiles.map((file, index) => (
-            <div key={index} style={{
-              padding: '20px',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '12px',
-              marginBottom: '15px'
-            }}>
-              <h3 style={{ fontSize: '18px', marginBottom: '15px', color: '#10b981' }}>{file.name}</h3>
-              {qualityChecks[index] ? (
-                <div>
-                  <div style={{ marginBottom: '15px' }}>
-                    <strong>Quality Score: </strong>
-                    <span style={{ 
-                      color: qualityChecks[index].score >= 85 ? '#10b981' : '#fbbf24',
-                      fontWeight: 'bold',
-                      fontSize: '18px'
-                    }}>
-                      {qualityChecks[index].score}/100
-                    </span>
-                  </div>
-                  {qualityChecks[index].issues.length > 0 && (
-                    <div style={{ marginBottom: '10px' }}>
-                      <strong style={{ color: '#f87171' }}>Issues:</strong>
-                      <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                        {qualityChecks[index].issues.map((issue, i) => (
-                          <li key={i} style={{ color: '#fca5a5' }}>{issue}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {qualityChecks[index].recommendations.length > 0 && (
-                    <div>
-                      <strong style={{ color: '#34d399' }}>Recommendations:</strong>
-                      <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                        {qualityChecks[index].recommendations.map((rec, i) => (
-                          <li key={i} style={{ color: '#6ee7b7' }}>{rec}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ color: '#94a3b8', fontSize: '16px' }}>⏳ Analyzing quality...</div>
-              )}
+      {/* Upload Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        {/* Total Uploads */}
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-300 text-sm font-medium">Total Uploads</span>
             </div>
-          ))}
-          
-          {qualityChecks.length === selectedFiles.length && (
-            <div style={{ textAlign: 'center', marginTop: '25px' }}>
-              <button
-                onClick={handleProcessFiles}
-                style={{
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  padding: '15px 35px',
-                  borderRadius: '10px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginRight: '15px'
-                }}
-              >
-                🚀 Process with Enhanced OCR
-              </button>
-              <button
-                onClick={resetUpload}
-                style={{
-                  backgroundColor: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  padding: '15px 35px',
-                  borderRadius: '10px',
-                  fontSize: '18px',
-                  cursor: 'pointer'
-                }}
-              >
-                Reset
-              </button>
+            <div className="text-3xl font-bold text-white mb-1">
+              {latestDeliveryRecord ? '1+' : '0'}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Processing Section */}
-      {currentStep === 'processing' && (
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          borderRadius: '16px',
-          padding: '50px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '72px', marginBottom: '25px' }}>⚙️</div>
-          <h2 style={{ fontSize: '28px', marginBottom: '25px', color: '#10b981' }}>
-            Enhanced OCR Processing
-          </h2>
-          <div style={{
-            display: 'inline-block',
-            width: '50px',
-            height: '50px',
-            border: '5px solid rgba(16, 185, 129, 0.3)',
-            borderTop: '5px solid #10b981',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }}></div>
-          <style jsx>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-          <p style={{ marginTop: '25px', color: '#94a3b8', fontSize: '18px' }}>
-            Processing {selectedFiles.length} document{selectedFiles.length !== 1 ? 's' : ''} with advanced OCR...
-          </p>
-        </div>
-      )}
-
-      {/* Results Section */}
-      {currentStep === 'results' && results && (
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.05)',
-          borderRadius: '16px',
-          padding: '30px'
-        }}>
-          <h2 style={{ fontSize: '28px', marginBottom: '25px', color: '#10b981' }}>
-            🏆 Console Processing Results
-          </h2>
-          
-          {results.map((result: any, index: number) => (
-            <div key={index} style={{
-              padding: '25px',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '12px',
-              marginBottom: '20px'
-            }}>
-              <h3 style={{ fontSize: '20px', marginBottom: '20px', color: '#10b981' }}>
-                📄 {result.filename}
-              </h3>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                <div>
-                  <h4 style={{ marginBottom: '12px', color: '#34d399', fontSize: '16px' }}>Document Analysis</h4>
-                  <p style={{ marginBottom: '8px' }}><strong>Size:</strong> {result.size}</p>
-                  <p style={{ marginBottom: '8px' }}><strong>Quality Score:</strong> <span style={{ color: '#10b981' }}>{result.qualityScore}/100</span></p>
-                  <p><strong>Processing Time:</strong> {result.processing.time}ms</p>
-                </div>
-                
-                <div>
-                  <h4 style={{ marginBottom: '12px', color: '#34d399', fontSize: '16px' }}>Extracted Information</h4>
-                  <p style={{ marginBottom: '8px' }}><strong>Supplier:</strong> {result.extraction.supplier}</p>
-                  <p style={{ marginBottom: '8px' }}><strong>Date:</strong> {result.extraction.deliveryDate}</p>
-                  <p style={{ marginBottom: '8px' }}><strong>Temperature:</strong> <span style={{ color: '#60a5fa' }}>{result.extraction.temperature}</span></p>
-                  <p><strong>Items:</strong> {result.extraction.items}</p>
-                </div>
-                
-                <div>
-                  <h4 style={{ marginBottom: '12px', color: '#34d399', fontSize: '16px' }}>Compliance Status</h4>
-                  <p style={{
-                    fontWeight: 'bold',
-                    fontSize: '18px',
-                    color: result.extraction.compliance === 'PASSED' ? '#10b981' : '#fbbf24',
-                    marginBottom: '8px'
-                  }}>
-                    {result.extraction.compliance}
-                  </p>
-                  <p><strong>Confidence:</strong> <span style={{ color: '#34d399' }}>{result.processing.confidence}%</span></p>
-                </div>
-              </div>
+            <div className="text-green-300 text-sm">
+              <span className="inline-flex items-center space-x-1">
+                <span>Ready to process</span>
+              </span>
             </div>
-          ))}
-          
-          <div style={{ textAlign: 'center', marginTop: '25px' }}>
-            <button
-              onClick={resetUpload}
-              style={{
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                padding: '15px 35px',
-                borderRadius: '10px',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              Process More Documents
-            </button>
           </div>
         </div>
-      )}
+
+        {/* Processing Status */}
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-300 text-sm font-medium">Processing</span>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">
+              {processingResults ? '1' : '0'}
+            </div>
+            <div className="text-blue-300 text-sm">
+              <span className="inline-flex items-center space-x-1">
+                <span>AI Analysis</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Success Rate */}
+        <div 
+          className="relative overflow-hidden p-6 rounded-3xl"
+          style={{
+            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-green-300 text-sm font-medium">Success Rate</span>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">
+              {processingResults ? '100%' : '--'}
+            </div>
+            <div className="text-green-300 text-sm">
+              <span className="inline-flex items-center space-x-1">
+                <span>Analysis complete</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div className="space-y-16">
+        
+        {/* Recent Activity Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          {/* Latest Upload Results */}
+          <div>
+            
+            {latestDeliveryRecord ? (
+              <SimpleResultsCard 
+                data={{
+                  id: latestDeliveryRecord.id,
+                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Processing...',
+                  delivery_date: latestDeliveryRecord.delivery_date || latestDeliveryRecord.created_at,
+                  created_at: latestDeliveryRecord.created_at,
+                  uploaded_by: latestDeliveryRecord.uploaded_by,
+                  image_path: latestDeliveryRecord.image_path,
+                  user_name: user?.user_metadata?.full_name || user?.email,
+                  confidence_score: latestDeliveryRecord.confidence_score,
+                  client_id: latestDeliveryRecord.client_id || userClient?.id
+                }}
+                userId={user?.id}
+              />
+            ) : (
+              <div 
+                className="relative overflow-hidden p-6 rounded-3xl"
+                style={{
+                  backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-blue-300 text-sm font-medium">No Uploads Today</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Enhanced Compliance Dashboard for Real Users */}
+        {userClient?.id && (
+          <div>
+            {(() => {
+              try {
+                return (
+                  <EnhancedComplianceDashboard 
+                    clientId={userClient.id}
+                    userId={user.id}
+                  />
+                )
+              } catch (error) {
+                console.error('EnhancedComplianceDashboard error:', error)
+                return (
+                  <div className={getCardStyle('primary')}>
+                    <div className="text-center py-12">
+                      <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
+                        📊 Compliance Analytics
+                      </h2>
+                      <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
+                        Dashboard is loading... If this persists, please contact support.
+                      </p>
+                      <div className="bg-orange-600/20 border border-orange-400/30 rounded-xl p-4">
+                        <p className="text-orange-200 text-sm">
+                          Loading enhanced compliance features...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+            })()}
+          </div>
+        )}
+
+      </div>
+      
     </div>
   )
 }
