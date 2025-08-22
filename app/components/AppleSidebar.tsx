@@ -142,8 +142,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span className="landscape:hidden">{isCollapsed ? 'C' : 'Console'}</span>
-                <span className="portrait:hidden">C</span>
+                <span className="md:hidden">{isCollapsed ? 'C' : 'Console'}</span>
+                <span className="hidden md:block">C</span>
               </a>
               <a 
                 href="/upload/capture"
@@ -153,8 +153,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span className="landscape:hidden">{isCollapsed ? 'A' : 'Capture'}</span>
-                <span className="portrait:hidden">A</span>
+                <span className="md:hidden">{isCollapsed ? 'A' : 'Capture'}</span>
+                <span className="hidden md:block">A</span>
               </a>
               <a 
                 href="/upload/reports"
@@ -164,8 +164,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span className="landscape:hidden">{isCollapsed ? 'R' : 'Reports'}</span>
-                <span className="portrait:hidden">R</span>
+                <span className="md:hidden">{isCollapsed ? 'R' : 'Reports'}</span>
+                <span className="hidden md:block">R</span>
               </a>
             </nav>
           </div>
@@ -201,7 +201,7 @@ export default function AppleSidebar({
                   className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
                 />
                 {!isCollapsed && (
-                  <span className="landscape:hidden portrait:block ml-2 text-white text-sm font-medium">Camera</span>
+                  <span className="block md:hidden ml-2 text-white text-sm font-medium">Camera</span>
                 )}
               </button>
               
@@ -224,7 +224,7 @@ export default function AppleSidebar({
                   className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-12 h-12 object-contain'}
                 />
                 {!isCollapsed && (
-                  <span className="landscape:hidden portrait:block ml-2 text-white text-sm font-medium">Sign Out</span>
+                  <span className="block md:hidden ml-2 text-white text-sm font-medium">Sign Out</span>
                 )}
               </button>
             </nav>
