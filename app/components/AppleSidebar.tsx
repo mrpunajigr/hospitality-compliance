@@ -220,7 +220,12 @@ export default function AppleSidebar({
                         />
                       </div>
                       <div className="flex justify-center items-center p-1">
-                        {/* Mid-left empty */}
+                        <img 
+                          src="/icons/JiGRrepairs.png" 
+                          alt="Repairs Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Repairs Module - Equipment maintenance and repair tracking"
+                        />
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
@@ -231,7 +236,12 @@ export default function AppleSidebar({
                         />
                       </div>
                       <div className="flex justify-center items-center p-1">
-                        {/* Mid-right empty */}
+                        <img 
+                          src="/icons/JiGRmenus.png" 
+                          alt="Menus Module" 
+                          className="w-10 h-10 object-contain opacity-30"
+                          title="Menus Module - Menu management and recipe planning"
+                        />
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
