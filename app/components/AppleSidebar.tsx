@@ -142,7 +142,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {isCollapsed ? 'C' : 'Console'}
+                <span className="landscape:hidden">{isCollapsed ? 'C' : 'Console'}</span>
+                <span className="portrait:hidden">C</span>
               </a>
               <a 
                 href="/upload/capture"
@@ -152,7 +153,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {isCollapsed ? 'A' : 'Capture'}
+                <span className="landscape:hidden">{isCollapsed ? 'A' : 'Capture'}</span>
+                <span className="portrait:hidden">A</span>
               </a>
               <a 
                 href="/upload/reports"
@@ -162,7 +164,8 @@ export default function AppleSidebar({
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {isCollapsed ? 'R' : 'Reports'}
+                <span className="landscape:hidden">{isCollapsed ? 'R' : 'Reports'}</span>
+                <span className="portrait:hidden">R</span>
               </a>
             </nav>
           </div>
