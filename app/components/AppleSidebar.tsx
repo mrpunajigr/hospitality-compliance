@@ -109,6 +109,7 @@ export default function AppleSidebar({
           isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
         }`}
         onMouseEnter={() => setIsCollapsed(false)}
+        onMouseLeave={() => setIsCollapsed(true)}
         onTouchStart={() => setIsCollapsed(false)}
       >
         
