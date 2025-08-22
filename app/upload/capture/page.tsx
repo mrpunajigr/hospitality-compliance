@@ -111,6 +111,33 @@ export default function UploadActionPage() {
     // Still allow manual override via the quality indicator buttons
   }
 
+  // Camera capture function
+  const handleCameraCapture = () => {
+    // Create a file input element for camera capture
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.capture = 'environment' // Use back camera on mobile devices
+    
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0]
+      if (file) {
+        console.log('📸 Camera capture file selected:', file.name)
+        // Trigger the enhanced upload component's file processing
+        const fileUploadComponent = document.querySelector('[data-file-upload]') as any
+        if (fileUploadComponent && fileUploadComponent._handleFileSelect) {
+          fileUploadComponent._handleFileSelect([file])
+        } else {
+          // Fallback: trigger file validation directly
+          handleFileValidated(file, { score: 0.8, issues: [], suggestions: [] })
+        }
+      }
+    }
+    
+    // Trigger the file picker
+    input.click()
+  }
+
   const processQueuedFiles = async () => {
     if (queuedFiles.length === 0) return
 
@@ -220,6 +247,7 @@ export default function UploadActionPage() {
             >
               <button 
                 data-camera-trigger
+                onClick={handleCameraCapture}
                 className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10"
               >
                 Camera Capture
@@ -348,12 +376,14 @@ export default function UploadActionPage() {
                 </button>
               </div>
               
-              <EnhancedFileUpload
-                onFileValidated={handleFileValidated}
-                onFileRejected={handleFileRejected}
-                allowPoorQuality={true}
-                className="mb-6"
-              />
+              <div data-file-upload>
+                <EnhancedFileUpload
+                  onFileValidated={handleFileValidated}
+                  onFileRejected={handleFileRejected}
+                  allowPoorQuality={true}
+                  className="mb-6"
+                />
+              </div>
 
               {/* Queued Files List */}
               {queuedFiles.length > 0 && (
