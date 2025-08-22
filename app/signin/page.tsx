@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import Link from 'next/link'
 
 import { getVersionDisplay } from '@/lib/version'
@@ -96,11 +97,11 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Same Background as Landing Page */}
+      {/* Optimized Chef Workspace Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3')`,
+          backgroundImage: `url('${getChefWorkspaceBackground()}')`,
           filter: 'brightness(0.6)'
         }}
       />
