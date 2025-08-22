@@ -177,6 +177,7 @@ export default function AppleSidebar({
                       alt="Modules" 
                       className="w-12 h-12 object-contain"
                       title="Modules - Access all application features"
+                      onError={(e) => console.log('Failed to load JiGRmodules.png:', e)}
                     />
                   </div>
                 </>
@@ -191,6 +192,7 @@ export default function AppleSidebar({
                         alt="Modules" 
                         className="w-12 h-12 object-contain"
                         title="Modules - Access all application features"
+                        onError={(e) => console.log('Failed to load JiGRmodules.png (expanded):', e)}
                       />
                     </div>
                     
