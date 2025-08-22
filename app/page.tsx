@@ -58,17 +58,20 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background */}
+      {/* Background with Safari 12+ compatibility */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3')`,
-          filter: 'brightness(0.6)'
+          background: 'linear-gradient(135deg, #1e293b 0%, #3730a3 50%, #1e293b 100%)',
+          backgroundImage: 'url("https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1920&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
       />
       
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} />
 
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20">
@@ -91,7 +94,15 @@ export default function HomePage() {
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
         {/* Glass Morphism Card */}
-        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto">
+        <div 
+          className="rounded-3xl p-8 max-w-md w-full mx-auto"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
+          }}
+        >
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
@@ -113,7 +124,16 @@ export default function HomePage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-transparent transition-all"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '16px'
+                }}
+                className="focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
               />
             </div>
 
@@ -126,7 +146,16 @@ export default function HomePage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-transparent transition-all"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '16px'
+                }}
+                className="focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
               />
             </div>
 
