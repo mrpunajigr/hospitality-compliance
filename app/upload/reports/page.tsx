@@ -109,7 +109,7 @@ export default function UploadReportsPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 hidden md:flex">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 sm:flex md:hidden">
               <a 
                 href="/upload/console" 
                 className="px-4 py-2 font-medium text-black/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"

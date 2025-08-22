@@ -125,51 +125,7 @@ export default function AppleSidebar({
           </div>
         </div>
 
-        {/* Upload Module Navigation - Only show on upload pages */}
-        {activeSection === 'upload' && (
-          <div className="border-b border-white/10 py-4">
-            {!isCollapsed && (
-              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
-                UPLOAD MODULE
-              </div>
-            )}
-            <nav className={isCollapsed ? 'space-y-1' : 'space-y-1 px-3'}>
-              <a 
-                href="/upload/console"
-                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
-                  currentUploadPage === 'console' 
-                    ? 'bg-blue-600/30 text-white font-medium' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span className="sm:hidden md:block">{isCollapsed ? 'C' : 'Console'}</span>
-                <span className="hidden sm:block md:hidden">C</span>
-              </a>
-              <a 
-                href="/upload/capture"
-                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
-                  currentUploadPage === 'capture' 
-                    ? 'bg-green-600/30 text-white font-medium' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span className="sm:hidden md:block">{isCollapsed ? 'A' : 'Capture'}</span>
-                <span className="hidden sm:block md:hidden">A</span>
-              </a>
-              <a 
-                href="/upload/reports"
-                className={`block text-center py-2 px-3 rounded-lg transition-all duration-200 text-sm mx-3 ${
-                  currentUploadPage === 'reports' 
-                    ? 'bg-purple-600/30 text-white font-medium' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span className="sm:hidden md:block">{isCollapsed ? 'R' : 'Reports'}</span>
-                <span className="hidden sm:block md:hidden">R</span>
-              </a>
-            </nav>
-          </div>
-        )}
+        {/* Upload Module Navigation - REMOVED: Nav pills handle this functionality */}
 
         {/* Navigation Sections - Three Equal Thirds */}
         <div className="flex-1 flex flex-col">
