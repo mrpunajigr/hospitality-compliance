@@ -524,6 +524,68 @@ This architecture guide ensures consistent implementation patterns and maintains
 - All database changes and documentation lifecycle must follow this audit trail for production deployments
 - Archive operations included in standard project maintenance procedures
 
+## ⚡ AUTOMATED ARCHIVE UPLOAD PROTOCOL ⚡
+
+### **5-Day Archive Rule**
+**CRITICAL RULE**: All archived development files automatically upload to Supabase Storage after 5 days and are removed from local storage.
+
+### **Automated Process:**
+1. **Day 0-4**: Files remain in local `:assets/` folders for immediate access
+2. **Day 5+**: Archive Manager automatically detects eligible files
+3. **Upload Process**: Files batch upload to organized Supabase Storage buckets
+4. **Verification**: System confirms successful upload before local deletion
+5. **Cleanup**: Local files safely removed after verification
+
+### **Archive Commands:**
+```bash
+npm run archive scan       # Show files eligible for archival
+npm run archive dry-run    # Preview operations without executing  
+npm run archive upload     # Upload eligible files and cleanup local
+npm run archive manifest   # Generate archive index
+npm run archive manual path/to/file.png  # Force upload specific files
+```
+
+### **Supabase Storage Structure:**
+```
+dev-archive/
+├── screenshots/2025-08/
+│   ├── ocr-enhancement-success/
+│   └── navigation-testing/
+├── SQLmigrations/2025-08/
+│   └── [completed migrations]
+├── documentation/2025-08/
+│   ├── phase-docs/
+│   ├── implementation-summaries/
+│   └── debug-guides/
+└── design-assets/2025-08/
+```
+
+### **Archive Categories:**
+- **Screenshots**: `:assets/DevScreenshots/`, `:assets/Read/` → `dev-archive/screenshots/`
+- **SQL Migrations**: `:assets/sql completed/` → `dev-archive/SQLmigrations/`  
+- **Documentation**: `:assets/docs completed/`, `:assets/pages archived/` → `dev-archive/documentation/`
+- **Design Assets**: `:assets/design-assets/` → `dev-archive/design-assets/`
+
+### **Safety Features:**
+- **Upload verification** before local deletion
+- **Audit logging** in `:assets/archive-operations.log`
+- **Rollback capability** from Supabase Storage
+- **Manual override** for immediate upload or exclusion
+- **Dry run mode** for preview without execution
+
+### **Benefits:**
+- 🗂️ **Centralized archive** - All dev artifacts accessible in Supabase
+- 💾 **Local storage cleanup** - Automatic removal of old files
+- 🔍 **Organized history** - Time-based folder structure for easy navigation
+- 🌐 **Team accessibility** - Shared archive for all developers
+- 📊 **Audit trail** - Complete log of all archive operations
+
+### **Integration with Existing Workflow:**
+- Archive Manager runs automatically when Claude detects eligible files
+- Manual upload available for immediate archival needs
+- All archive operations logged for audit compliance
+- Supports existing naming conventions and folder structures
+
 # JiGR Ecosystem Naming Convention
 
 ## ⚡ MANDATORY NAMING POLICY ⚡

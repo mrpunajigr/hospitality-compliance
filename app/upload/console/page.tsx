@@ -7,6 +7,7 @@ import SimpleResultsCard from '../../components/results/SimpleResultsCard'
 import { supabase } from '@/lib/supabase'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
+import { getModuleAsset } from '@/lib/image-storage'
 import Image from 'next/image'
 
 export default function UploadConsolePage() {
@@ -126,7 +127,7 @@ export default function UploadConsolePage() {
         <div className="grid grid-cols-4 gap-6 items-center">
           <div className="flex items-center space-x-4 col-span-2">
             <Image 
-              src="/ModuleIcons/JiGRupload.png" 
+              src={getModuleAsset('icons/JiGRupload', { width: 96, height: 96 })} 
               alt="Upload Module" 
               width={96} 
               height={96}
@@ -152,7 +153,7 @@ export default function UploadConsolePage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 hidden md:landscape:flex">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 flex md:landscape:hidden">
               <a 
                 href="/upload/console" 
                 className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"

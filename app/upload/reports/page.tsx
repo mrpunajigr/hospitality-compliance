@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
+import { getModuleAsset, getMappedIcon } from '@/lib/image-storage'
 import Image from 'next/image'
 
 export default function UploadReportsPage() {
@@ -82,7 +83,7 @@ export default function UploadReportsPage() {
         <div className="grid grid-cols-4 gap-6 items-center">
           <div className="flex items-center space-x-4 col-span-2">
             <Image 
-              src="/ModuleIcons/JiGRupload.png" 
+              src={getModuleAsset('icons/JiGRupload', { width: 96, height: 96 })} 
               alt="Upload Module" 
               width={96} 
               height={96}
@@ -108,7 +109,7 @@ export default function UploadReportsPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 hidden md:landscape:flex">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 flex md:landscape:hidden">
               <a 
                 href="/upload/console" 
                 className="px-4 py-2 font-medium text-black/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
@@ -192,7 +193,7 @@ export default function UploadReportsPage() {
               <div className={`${getCardStyle('secondary')} flex flex-col`}>
                 <div className="text-center mb-4 flex-1">
                   <img 
-                    src="/icons/JiGRsummary.png" 
+                    src={getMappedIcon('JiGRsummary', 48)} 
                     alt="Summary" 
                     className="w-12 h-12 object-contain mx-auto mb-3"
                   />
@@ -210,7 +211,7 @@ export default function UploadReportsPage() {
               <div className={`${getCardStyle('secondary')} flex flex-col`}>
                 <div className="text-center mb-4 flex-1">
                   <img 
-                    src="/icons/JiGRwarning.png" 
+                    src={getMappedIcon('JiGRwarning', 48)} 
                     alt="Warning" 
                     className="w-12 h-12 object-contain mx-auto mb-3"
                   />
@@ -228,7 +229,7 @@ export default function UploadReportsPage() {
               <div className={getCardStyle('secondary')}>
                 <div className="text-center mb-4">
                   <img 
-                    src="/icons/JiGRStats.png" 
+                    src={getMappedIcon('JiGRStats', 48)} 
                     alt="Statistics" 
                     className="w-12 h-12 object-contain mx-auto mb-3"
                   />

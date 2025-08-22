@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import AppleSidebar from '../components/AppleSidebar'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import BackgroundSelector from '../components/BackgroundSelector'
@@ -93,7 +94,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
       <div 
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: 'url(/chef-workspace1jpg.jpg)',
+          backgroundImage: `url(${getChefWorkspaceBackground()})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

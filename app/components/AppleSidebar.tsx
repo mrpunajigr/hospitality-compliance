@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DesignTokens, getTextStyle } from '@/lib/design-system'
+import { getMappedIcon, getUIIcon } from '@/lib/image-storage'
 
 interface SidebarNavItem {
   name: string
@@ -181,7 +182,7 @@ export default function AppleSidebar({
               {/* Camera Icon - Top */}
               <div className="flex justify-center items-center py-2">
                 <img 
-                  src="/icons/JiGRcamera.png" 
+                  src={getMappedIcon('JiGRcamera', isCollapsed ? 48 : 64)} 
                   alt="Camera" 
                   className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
                   title="Quick Upload - Capture documents instantly"
@@ -191,7 +192,7 @@ export default function AppleSidebar({
               {/* Sign Out Icon - Bottom */}
               <div className="flex justify-center items-center py-2">
                 <img 
-                  src="/icons/JiGRsignout.png" 
+                  src={getMappedIcon('JiGRsignout', isCollapsed ? 40 : 48)} 
                   alt="Sign Out" 
                   className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-12 h-12 object-contain'}
                   title="Sign Out - End your session safely"
@@ -218,7 +219,7 @@ export default function AppleSidebar({
                   {/* Collapsed: Just the modules icon */}
                   <div className="flex justify-center items-center py-3">
                     <img 
-                      src="/icons/JiGRmodules.png" 
+                      src={getMappedIcon('JiGRmodules', 48)} 
                       alt="Modules" 
                       className="w-12 h-12 object-contain brightness-0 invert"
                       title="Modules - Access all application features"
@@ -237,7 +238,7 @@ export default function AppleSidebar({
                     {/* Modules icon - stays on left */}
                     <div className="flex-shrink-0">
                       <img 
-                        src="/icons/JiGRmodules.png" 
+                        src={getMappedIcon('JiGRmodules', 48)} 
                         alt="Modules" 
                         className="w-12 h-12 object-contain brightness-0 invert"
                         title="Modules - Access all application features"
@@ -253,7 +254,7 @@ export default function AppleSidebar({
                     <div className="grid grid-cols-3 grid-rows-3 gap-1">
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRuploadWhite.png" 
+                          src={getMappedIcon('JiGRuploadWhite', 40)} 
                           alt="Upload Module" 
                           className="w-10 h-10 object-contain"
                           title="Upload Module - Document scanning and processing"
@@ -261,7 +262,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRstockWhite.png" 
+                          src={getMappedIcon('JiGRstockWhite', 40)} 
                           alt="Stock Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Stock Module - Inventory management and tracking"
@@ -269,7 +270,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRtemp.png" 
+                          src={getMappedIcon('JiGRtemp', 40)} 
                           alt="Temperature Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Temperature Module - Fridge and freezer monitoring"
@@ -277,7 +278,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRrepairs.png" 
+                          src={getMappedIcon('JiGRrepairs', 40)} 
                           alt="Repairs Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Repairs Module - Equipment maintenance and repair tracking"
@@ -285,7 +286,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRadmin2.png" 
+                          src={getMappedIcon('JiGRadmin2', 40)} 
                           alt="Admin Module" 
                           className="w-10 h-10 object-contain"
                           title="Admin Module - User management and system settings"
@@ -293,7 +294,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRmenus.png" 
+                          src={getMappedIcon('JiGRmenus', 40)} 
                           alt="Menus Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Menus Module - Menu management and recipe planning"
@@ -301,7 +302,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRdiaryWhite.png" 
+                          src={getMappedIcon('JiGRdiaryWhite', 40)} 
                           alt="Diary Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Diary Module - Daily logs and incident reporting"
@@ -309,7 +310,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRrecipes.png" 
+                          src={getMappedIcon('JiGRrecipes', 40)} 
                           alt="Recipes Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Recipes Module - Recipe management and costing"
@@ -317,7 +318,7 @@ export default function AppleSidebar({
                       </div>
                       <div className="flex justify-center items-center p-1">
                         <img 
-                          src="/icons/JiGRstocktake.png" 
+                          src={getMappedIcon('JiGRstocktake', 40)} 
                           alt="Stocktake Module" 
                           className="w-10 h-10 object-contain opacity-30"
                           title="Stocktake Module - Periodic inventory audits"
@@ -344,7 +345,7 @@ export default function AppleSidebar({
               <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
                 <div className="flex justify-center items-center py-2">
                   <img 
-                    src="/icons/JiGRadmin.png" 
+                    src={getMappedIcon('JiGRadmin', 48)} 
                     alt="Settings" 
                     className="w-12 h-12 object-contain"
                     title="Settings - Configure system preferences"
