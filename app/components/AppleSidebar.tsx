@@ -183,24 +183,50 @@ export default function AppleSidebar({
             )}
             <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
               {/* Camera Icon - Top */}
-              <div className="flex justify-center items-center py-2">
+              <button 
+                onClick={() => {
+                  window.location.href = '/upload/capture'
+                  // Trigger camera capture after navigation
+                  setTimeout(() => {
+                    const cameraButton = document.querySelector('[data-camera-trigger]') as HTMLButtonElement
+                    if (cameraButton) cameraButton.click()
+                  }, 500)
+                }}
+                className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
+                title="Quick Camera - Capture documents instantly"
+              >
                 <img 
                   src={getMappedIcon('JiGRcamera', isCollapsed ? 48 : 64)} 
                   alt="Camera" 
                   className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
-                  title="Quick Upload - Capture documents instantly"
                 />
-              </div>
+                {!isCollapsed && (
+                  <span className="landscape:hidden portrait:block ml-2 text-white text-sm font-medium">Camera</span>
+                )}
+              </button>
               
               {/* Sign Out Icon - Bottom */}
-              <div className="flex justify-center items-center py-2">
+              <button 
+                onClick={() => {
+                  if (onSignOut) {
+                    onSignOut()
+                  } else {
+                    // Fallback signout
+                    window.location.href = '/signin'
+                  }
+                }}
+                className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
+                title="Sign Out - End your session safely"
+              >
                 <img 
                   src={getMappedIcon('JiGRsignout', isCollapsed ? 40 : 48)} 
                   alt="Sign Out" 
                   className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-12 h-12 object-contain'}
-                  title="Sign Out - End your session safely"
                 />
-              </div>
+                {!isCollapsed && (
+                  <span className="landscape:hidden portrait:block ml-2 text-white text-sm font-medium">Sign Out</span>
+                )}
+              </button>
             </nav>
           </div>
 
@@ -287,14 +313,17 @@ export default function AppleSidebar({
                           title="Repairs Module - Equipment maintenance and repair tracking"
                         />
                       </div>
-                      <div className="flex justify-center items-center p-1">
+                      <button 
+                        onClick={() => window.location.href = '/admin'}
+                        className="flex justify-center items-center p-1 hover:bg-white/10 rounded-lg transition-all duration-200"
+                        title="Admin Module - User management and system settings"
+                      >
                         <img 
                           src={getMappedIcon('JiGRadmin2', 40)} 
                           alt="Admin Module" 
                           className="w-10 h-10 object-contain"
-                          title="Admin Module - User management and system settings"
                         />
-                      </div>
+                      </button>
                       <div className="flex justify-center items-center p-1">
                         <img 
                           src={getMappedIcon('JiGRmenus', 40)} 

@@ -218,7 +218,10 @@ export default function UploadActionPage() {
             <div 
               className="w-full rounded-xl relative overflow-hidden"
             >
-              <button className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10">
+              <button 
+                data-camera-trigger
+                className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10"
+              >
                 Camera Capture
               </button>
             </div>
