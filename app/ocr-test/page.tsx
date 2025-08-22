@@ -32,13 +32,7 @@ export default function OCRTestPage() {
 
         <div className="mb-8">
           <div 
-            className="relative overflow-hidden p-8 rounded-3xl"
-            style={{
-              backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
+            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden"
           >
             <div className="relative">
               <h2 className="text-white text-xl font-bold mb-6">Upload & Analyze</h2>

@@ -181,15 +181,7 @@ export default function UploadConsolePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
         {/* Total Uploads */}
-        <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
+        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
@@ -207,15 +199,7 @@ export default function UploadConsolePage() {
         </div>
 
         {/* Processing Status */}
-        <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
+        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
@@ -233,15 +217,7 @@ export default function UploadConsolePage() {
         </div>
 
         {/* Success Rate */}
-        <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
+        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
@@ -284,15 +260,7 @@ export default function UploadConsolePage() {
                 userId={user?.id}
               />
             ) : (
-              <div 
-                className="relative overflow-hidden p-6 rounded-3xl"
-                style={{
-                  backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              >
+              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="flex items-center justify-between mb-2">

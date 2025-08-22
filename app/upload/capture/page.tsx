@@ -200,13 +200,7 @@ export default function UploadActionPage() {
         
         {/* Quick Capture Card */}
         <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
+          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -222,12 +216,6 @@ export default function UploadActionPage() {
             </div>
             <div 
               className="w-full rounded-xl relative overflow-hidden"
-              style={{
-                backgroundImage: 'url(/LiquidGlassAssets/button.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
             >
               <button className="w-full text-white py-3 px-4 transition-all duration-200 text-sm font-medium bg-transparent hover:bg-white/10">
                 Camera Capture
@@ -241,13 +229,7 @@ export default function UploadActionPage() {
 
         {/* Bulk Upload Card */}
         <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
+          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -269,12 +251,6 @@ export default function UploadActionPage() {
             </div>
             <div 
               className="w-full rounded-xl relative overflow-hidden"
-              style={{
-                backgroundImage: 'url(/LiquidGlassAssets/button.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
             >
               <button 
                 onClick={() => setShowQualityUpload(true)}
@@ -299,13 +275,7 @@ export default function UploadActionPage() {
 
         {/* Ready Queue Card */}
         <div 
-          className="relative overflow-hidden p-6 rounded-3xl"
-          style={{
-            backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
+          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -330,12 +300,6 @@ export default function UploadActionPage() {
             </div>
             <div 
               className={`w-full rounded-xl relative overflow-hidden ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
-              style={{
-                backgroundImage: 'url(/LiquidGlassAssets/button.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
             >
               <button 
                 disabled={queuedFiles.length === 0}
@@ -358,7 +322,7 @@ export default function UploadActionPage() {
       {showQualityUpload && (
         <div className="mb-8">
           <div 
-            className="relative overflow-hidden p-8 rounded-3xl"
+            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden"
             style={{
               backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
               backgroundSize: 'cover',
@@ -431,7 +395,7 @@ export default function UploadActionPage() {
           <div className="md:col-span-2">
             {lastUpload ? (
           <div 
-            className="relative overflow-hidden p-6 rounded-3xl"
+            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
             style={{
               backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
               backgroundSize: 'cover',
@@ -469,7 +433,7 @@ export default function UploadActionPage() {
           </div>
         ) : (
           <div 
-            className="relative overflow-hidden p-6 rounded-3xl"
+            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
             style={{
               backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
               backgroundSize: 'cover',
@@ -490,7 +454,7 @@ export default function UploadActionPage() {
           {/* Tips Card - 3rd Column */}
           <div>
             <div 
-              className="relative overflow-hidden p-6 rounded-3xl"
+              className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
               style={{
                 backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
                 backgroundSize: 'cover',
