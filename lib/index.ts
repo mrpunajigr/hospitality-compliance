@@ -80,7 +80,7 @@ export const initializeJiGRCoreSystem = async (
   // Initialize event communication system if enabled (default: true)
   if (config?.enableEventCommunication !== false) {
     try {
-      const { initializeModuleEventSystem } = await import('../ModuleEventIntegration')
+      const { initializeModuleEventSystem } = await import('./ModuleEventIntegration')
       await initializeModuleEventSystem()
       console.log('📡 Event Communication System active')
     } catch (error) {
@@ -153,7 +153,7 @@ export const emergencySystemRestart = async () => {
     
     // Restart event communication system
     try {
-      const { initializeModuleEventSystem } = await import('../ModuleEventIntegration')
+      const { initializeModuleEventSystem } = await import('./ModuleEventIntegration')
       await initializeModuleEventSystem()
       console.log('📡 Event Communication System restarted')
     } catch (error) {
@@ -221,7 +221,7 @@ export const initializeJiGRSuiteWithEvents = async (options?: {
   // Initialize AddOn modules if requested
   if (options?.enableAdvancedReporting) {
     try {
-      const { setupEnterpriseAnalytics } = await import('../../modules/ReportingAnalyticsModule')
+      const { setupEnterpriseAnalytics } = await import('../modules/ReportingAnalyticsModule')
       await setupEnterpriseAnalytics()
       console.log('📊 Enterprise Analytics enabled')
     } catch (error) {
