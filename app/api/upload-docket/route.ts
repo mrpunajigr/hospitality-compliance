@@ -137,69 +137,80 @@ export async function POST(request: NextRequest) {
       console.log('Profile upsert error:', profileError.message)
     }
 
-    // Create delivery record in database with demo processing results
-    const mockData = {
-      supplierName: 'Fresh Dairy Co.',
-      docketNumber: `FD-${Date.now()}`,
-      deliveryDate: new Date().toISOString(),
-      products: ['milk', 'cheese', 'butter'],
-      confidenceScore: 0.92
+    // Call the real Supabase Edge Function for Document AI processing
+    console.log('🤖 Calling Supabase Edge Function for Document AI processing...')
+    
+    const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`
+    const processingResponse = await fetch(edgeFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        bucketId: 'delivery-dockets',
+        fileName: fileName,
+        filePath: uploadResult.path,
+        userId: userId,
+        clientId: clientId
+      })
+    })
+
+    if (!processingResponse.ok) {
+      const errorText = await processingResponse.text()
+      console.error('🤖 Document AI processing failed:', errorText)
+      
+      // Fallback to basic record creation if AI processing fails
+      const { data: deliveryRecord, error: dbError } = await supabaseAdmin
+        .from('delivery_records')
+        .insert({
+          client_id: clientId,
+          user_id: userId,
+          image_path: uploadResult.path,
+          processing_status: 'failed',
+          error_message: `Document AI processing failed: ${errorText}`,
+          raw_extracted_text: 'AI processing failed - file uploaded but not processed'
+        })
+        .select()
+        .single()
+        
+      if (dbError) {
+        console.error('Fallback database error:', dbError)
+        return NextResponse.json(
+          { error: `Database error: ${dbError.message}` },
+          { status: 500 }
+        )
+      }
+        
+      return NextResponse.json({
+        success: false,
+        message: 'File uploaded but AI processing failed',
+        deliveryRecordId: deliveryRecord.id,
+        filePath: uploadResult.path,
+        processingError: errorText
+      })
     }
 
-    const { data: deliveryRecord, error: dbError } = await supabaseAdmin
+    const processingResult = await processingResponse.json()
+    console.log('🤖 Document AI processing result:', processingResult)
+
+    // The Edge Function should have created the delivery record, so we'll fetch it
+    const { data: deliveryRecord, error: fetchError } = await supabaseAdmin
       .from('delivery_records')
-      .insert({
-        client_id: clientId,
-        user_id: null, // Set to null to bypass foreign key constraint for demo
-        supplier_name: mockData.supplierName,
-        docket_number: mockData.docketNumber,
-        delivery_date: mockData.deliveryDate,
-        products: mockData.products,
-        image_path: uploadResult.path,
-        processing_status: 'completed',
-        confidence_score: mockData.confidenceScore,
-        raw_extracted_text: 'Demo OCR text: Fresh Dairy Co. delivery docket with temperature readings.'
-      })
-      .select()
+      .select('*')
+      .eq('image_path', uploadResult.path)
       .single()
 
-    if (dbError) {
-      console.error('Database error:', dbError)
+    if (fetchError || !deliveryRecord) {
+      console.error('Error fetching processed delivery record:', fetchError)
       return NextResponse.json(
-        { error: `Database error: ${dbError.message}` },
+        { error: 'AI processing completed but could not retrieve record' },
         { status: 500 }
       )
     }
 
-    // Add temperature readings for demo
-    const temperatureReadings = [
-      {
-        delivery_record_id: deliveryRecord.id,
-        temperature_value: 3.2,
-        temperature_unit: 'C',
-        product_type: 'chilled',
-        is_compliant: true,
-        risk_level: 'low',
-        safe_min_temp: 0,
-        safe_max_temp: 4,
-        context: 'Dairy products temperature: 3.2°C'
-      },
-      {
-        delivery_record_id: deliveryRecord.id,
-        temperature_value: -18.5,
-        temperature_unit: 'C', 
-        product_type: 'frozen',
-        is_compliant: true,
-        risk_level: 'low',
-        safe_min_temp: -25,
-        safe_max_temp: -18,
-        context: 'Frozen goods temperature: -18.5°C'
-      }
-    ]
-
-    await supabaseAdmin
-      .from('temperature_readings')
-      .insert(temperatureReadings)
+    // Temperature readings should be created by the Edge Function during AI processing
+    // No need to create mock temperature data here
 
     // Create audit log
     await supabaseAdmin
@@ -220,8 +231,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      deliveryRecord,
-      filePath: uploadResult.path
+      message: 'Document uploaded and processed successfully',
+      deliveryRecordId: deliveryRecord.id,
+      filePath: uploadResult.path,
+      enhancedExtraction: processingResult?.extractionResult || null,
+      processingStatus: deliveryRecord.processing_status,
+      confidenceScore: deliveryRecord.confidence_score
     })
 
   } catch (error) {
