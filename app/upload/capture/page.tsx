@@ -315,17 +315,8 @@ export default function UploadActionPage() {
                 className="w-16 h-16 object-contain mx-auto mb-4"
               />
             </div>
-            <div className="text-center mb-4">
-              <div className="text-2xl font-bold text-white">{queuedFiles.length}</div>
-              <div className="text-green-200 text-xs">Images ready</div>
-              {queuedFiles.length > 0 && (
-                <div className="text-green-300 text-xs mt-1">
-                  Avg Quality: {Math.round(queuedFiles.reduce((sum, item) => sum + item.qualityReport.score, 0) / queuedFiles.length)}%
-                </div>
-              )}
-            </div>
             <div 
-              className={`w-full rounded-xl relative overflow-hidden ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
+              className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
             >
               <button 
                 disabled={queuedFiles.length === 0}
@@ -339,7 +330,7 @@ export default function UploadActionPage() {
                 Process Queue
               </button>
             </div>
-            <p className="text-green-200 text-xs mt-2 text-center">
+            <p className="text-green-200 text-xs text-center">
               {queuedFiles.length} Images ready
             </p>
           </div>
