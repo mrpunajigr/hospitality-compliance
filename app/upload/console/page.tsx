@@ -109,16 +109,6 @@ export default function UploadConsolePage() {
     }
   }, [user])
 
-  // Also fetch data on component mount regardless of user state
-  useEffect(() => {
-    console.log('🔍 Console: Component mounted, forcing data fetch')
-    const timer = setTimeout(() => {
-      fetchLatestResults()
-    }, 1000) // Wait 1 second for auth to settle
-    
-    return () => clearTimeout(timer)
-  }, [])
-
   // Add manual refresh function
   const refreshData = async () => {
     console.log('🔄 Manual refresh triggered')
@@ -137,6 +127,16 @@ export default function UploadConsolePage() {
       }
     }
   }
+
+  // Auto-fetch data on component mount
+  useEffect(() => {
+    console.log('🔍 Console: Component mounted, triggering auto-refresh in 2 seconds')
+    const timer = setTimeout(() => {
+      refreshData()
+    }, 2000)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   if (loading) {
     return (
