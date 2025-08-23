@@ -265,14 +265,8 @@ export default function UploadActionPage() {
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
-            <div className="flex items-center justify-center mb-4 relative">
+            <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
-              <button
-                onClick={() => setShowQualityUpload(!showQualityUpload)}
-                className="absolute right-0 text-purple-300 hover:text-white text-xs underline transition-colors duration-200"
-              >
-                {showQualityUpload ? 'Hide' : 'Quality Mode'}
-              </button>
             </div>
             <div className="text-center mb-6">
               <img 
@@ -345,6 +339,9 @@ export default function UploadActionPage() {
                 Process Queue
               </button>
             </div>
+            <p className="text-green-200 text-xs mt-2 text-center">
+              {queuedFiles.length} Images ready
+            </p>
           </div>
         </div>
 
