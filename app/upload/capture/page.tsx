@@ -169,8 +169,8 @@ export default function UploadActionPage() {
         // Create FormData for API upload (same as EnhancedUpload component)
         const formData = new FormData()
         formData.append('file', queuedFile.file)
-        formData.append('clientId', userClient?.id || 'demo-client-id')
-        formData.append('userId', user?.id || 'demo-user-id')
+        formData.append('clientId', userClient?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+        formData.append('userId', user?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10')
         formData.append('qualityScore', queuedFile.qualityReport.score.toString())
 
         // Call the real upload API
@@ -416,12 +416,6 @@ export default function UploadActionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div 
             className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
-            style={{
-              backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
@@ -491,12 +485,6 @@ export default function UploadActionPage() {
             {lastUpload ? (
           <div 
             className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-            style={{
-              backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
@@ -529,12 +517,6 @@ export default function UploadActionPage() {
         ) : (
           <div 
             className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-            style={{
-              backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
