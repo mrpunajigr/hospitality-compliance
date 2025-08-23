@@ -213,7 +213,8 @@ export default function UploadActionPage() {
     } catch (error) {
       console.error('❌ Processing failed:', error)
       // Show error to user but keep files in queue for retry
-      alert(`Processing failed: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`Processing failed: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }
