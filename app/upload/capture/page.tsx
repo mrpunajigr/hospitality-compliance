@@ -129,7 +129,20 @@ export default function UploadActionPage() {
           fileUploadComponent._handleFileSelect([file])
         } else {
           // Fallback: trigger file validation directly
-          handleFileValidated(file, { score: 0.8, issues: [], suggestions: [] })
+          handleFileValidated(file, { 
+            acceptable: true,
+            score: 80, 
+            metrics: {
+              brightness: 0.5,
+              contrast: 0.5,
+              sharpness: 0.5,
+              resolution: 1,
+              fileSize: file.size,
+              aspectRatio: 1
+            },
+            suggestions: [], 
+            warnings: [] 
+          })
         }
       }
     }
