@@ -21,3 +21,15 @@ Create a simple feedback interface that:
    - Show accuracy improvement over time
    - Track which suppliers have best/worst AI accuracy
    - Display confidence scores for extractions
+
+   // Add feedback buttons to your results display
+const FeedbackSystem = {
+  onCorrectExtraction: () => savePositiveFeedback(extractedData),
+  onIncorrectExtraction: () => saveCorrection(originalData, correctedData),
+  onMissingData: () => saveGap(expectedField, missingValue)
+}
+# Training Data You'll Collect
+✅ 50+ delivery dockets with temperature readings
+✅ Various supplier formats (Countdown, Foodstuffs, etc.)
+✅ Different handwriting styles for signatures
+✅ Various temperature recording formats (2°C, 5.5°, TEMP: 4°C)

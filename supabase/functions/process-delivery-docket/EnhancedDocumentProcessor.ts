@@ -4,6 +4,7 @@
 import { 
   classifyProductTemperatureRequirements, 
   analyzeTemperatureCompliance,
+  analyzeLineItemsCount,
   type ProductClassification,
   type TemperatureReading,
   type LineItem,
@@ -50,6 +51,16 @@ export interface DocumentAIExtraction {
   
   analysis: {
     productClassification: ProductClassification
+    lineItemAnalysis: {
+      distinctProductCount: number
+      totalLineItems: number
+      confidence: number
+      analysis: {
+        productNames: string[]
+        duplicatesFound: number
+        extractionMethod: 'structured_data' | 'text_analysis' | 'hybrid'
+      }
+    }
     estimatedValue: number
     itemCount: number
     processingTime: number
@@ -246,6 +257,30 @@ export async function processDocumentWithEnhancedAI(
       productClassification = await fallbackProductClassification(enhancedData.lineItems)
       fallbackData.processingNotes = (fallbackData.processingNotes || '') + '; Used fallback classification'
     }
+
+    // Stage 4.5: Enhanced Line Item Analysis
+    console.log('📊 Stage 4.5: Enhanced line item analysis...')
+    let lineItemAnalysis
+    try {
+      lineItemAnalysis = analyzeLineItemsCount(entityData.text, enhancedData.lineItems)
+      console.log(`  📋 Found ${lineItemAnalysis.distinctProductCount} distinct products from ${lineItemAnalysis.totalLineItems} total items`)
+      console.log(`  🎯 Extraction method: ${lineItemAnalysis.analysis.extractionMethod} (confidence: ${lineItemAnalysis.confidence})`)
+      if (lineItemAnalysis.analysis.duplicatesFound > 0) {
+        console.log(`  ⚠️ Found ${lineItemAnalysis.analysis.duplicatesFound} potential duplicates`)
+      }
+    } catch (error) {
+      console.warn('⚠️ Stage 4.5 failed, using basic line item count:', error)
+      lineItemAnalysis = {
+        distinctProductCount: enhancedData.lineItems.length,
+        totalLineItems: enhancedData.lineItems.length,
+        confidence: 0.5,
+        analysis: {
+          productNames: enhancedData.lineItems.map(item => item.description),
+          duplicatesFound: 0,
+          extractionMethod: 'text_analysis' as const
+        }
+      }
+    }
     
     // Stage 5: Temperature Compliance Analysis (with fallback)
     console.log('🌡️ Stage 5: Temperature compliance analysis...')
@@ -295,6 +330,7 @@ export async function processDocumentWithEnhancedAI(
       lineItems: validatedData.lineItems,
       analysis: {
         productClassification,
+        lineItemAnalysis,
         estimatedValue: calculateEstimatedValue(validatedData.lineItems),
         itemCount: validatedData.lineItems.length,
         processingTime,
@@ -342,6 +378,16 @@ export async function processDocumentWithEnhancedAI(
           riskLevel: 'unknown',
           confidence: 0.0,
           emergencyFallback: true
+        },
+        lineItemAnalysis: {
+          distinctProductCount: 0,
+          totalLineItems: 0,
+          confidence: 0,
+          analysis: {
+            productNames: [],
+            duplicatesFound: 0,
+            extractionMethod: 'text_analysis' as const
+          }
         },
         estimatedValue: 0,
         itemCount: 0,

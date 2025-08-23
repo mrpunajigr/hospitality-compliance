@@ -10,7 +10,7 @@ import { processDocumentWithEnhancedAI, type DocumentAIExtraction } from './Enha
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const GOOGLE_CREDENTIALS = Deno.env.get('GOOGLE_CLOUD_CREDENTIALS')!
-const DOCUMENT_AI_PROCESSOR_ID = Deno.env.get('DOCUMENT_AI_PROCESSOR_ID')!
+const DOCUMENT_AI_PROCESSOR_ID = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID')!
 
 // Initialize Supabase client with service role
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
@@ -158,6 +158,8 @@ async function processDeliveryDocket({
       console.log('Enhanced OCR processing successful')
       console.log(`Extracted ${enhancedExtraction.lineItems.length} line items`)
       console.log(`Product classification confidence: ${enhancedExtraction.analysis.productClassification.summary.confidence}`)
+      console.log(`Line item analysis: ${enhancedExtraction.analysis.lineItemAnalysis.distinctProductCount} distinct products from ${enhancedExtraction.analysis.lineItemAnalysis.totalLineItems} total items`)
+      console.log(`Product categories found: ${enhancedExtraction.analysis.productClassification.summary.frozenCount} frozen, ${enhancedExtraction.analysis.productClassification.summary.chilledCount} chilled, ${enhancedExtraction.analysis.productClassification.summary.ambientCount} ambient`)
       
     } catch (ocrError) {
       console.error('Enhanced Google Document AI failed:', ocrError)
@@ -180,10 +182,13 @@ async function processDeliveryDocket({
       // Enhanced fields
       extractedLineItems: enhancedExtraction.lineItems,
       productClassification: enhancedExtraction.analysis.productClassification,
+      lineItemAnalysis: enhancedExtraction.analysis.lineItemAnalysis,
+      distinctProductCount: enhancedExtraction.analysis.lineItemAnalysis.distinctProductCount,
       confidenceScores: {
         supplier: enhancedExtraction.supplier.confidence,
         deliveryDate: enhancedExtraction.deliveryDate.confidence,
         temperatureData: enhancedExtraction.temperatureData.readings.map(t => t.confidence),
+        lineItemAnalysis: enhancedExtraction.analysis.lineItemAnalysis.confidence,
         overall: enhancedExtraction.analysis.overallConfidence
       },
       complianceAnalysis: enhancedExtraction.temperatureData.analysis,
