@@ -532,12 +532,6 @@ export default function UploadActionPage() {
           <div>
             <div 
               className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-              style={{
-                backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
             >
               <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
               <div className="relative">

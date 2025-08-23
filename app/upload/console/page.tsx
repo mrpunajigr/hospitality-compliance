@@ -77,6 +77,7 @@ export default function UploadConsolePage() {
           .limit(1)
 
         console.log('📊 Upload Console: Fetched delivery records:', deliveryRecords)
+        console.log('📊 Total delivery records found:', deliveryRecords?.length || 0)
 
         if (error) {
           console.error('Error fetching delivery records:', error)
