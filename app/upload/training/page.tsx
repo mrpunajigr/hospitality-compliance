@@ -287,19 +287,47 @@ export default function TrainingReviewPage() {
                 Original Document
               </h3>
               <div className="relative aspect-[3/4] bg-slate-800 rounded-lg overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center text-white">
+                {currentRecord.image_path ? (
+                  <img
+                    src={getImageUrl(currentRecord.image_path)}
+                    alt="Delivery Docket"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      console.error('Image failed to load:', currentRecord.image_path)
+                      // Try signed URL as fallback
+                      getSignedImageUrl(currentRecord.image_path).then(signedUrl => {
+                        if (e.target instanceof HTMLImageElement) {
+                          e.target.src = signedUrl
+                        }
+                      }).catch(err => {
+                        console.error('Signed URL also failed:', err)
+                        // Show placeholder if both fail
+                        if (e.target instanceof HTMLImageElement) {
+                          e.target.style.display = 'none'
+                        }
+                      })
+                    }}
+                  />
+                ) : null}
+                
+                {/* Fallback content if no image path or image fails to load */}
+                <div className="w-full h-full flex items-center justify-center text-white absolute inset-0" id="image-fallback">
                   <div className="text-center p-4">
                     <div className="text-4xl mb-2">📄</div>
                     <div className="text-sm text-slate-300">Delivery Docket</div>
                     <div className="text-xs text-slate-400 mt-2">
-                      File: {currentRecord.image_path}
+                      File: {currentRecord.image_path || 'No path'}
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
-                      (Image loading temporarily disabled)
+                      Loading image...
                     </div>
                   </div>
                 </div>
-                {/* TODO: Fix Supabase Storage bucket permissions for image access */}
+                
+                {/* Image path info overlay - only show when image loads */}
+                <div className="absolute bottom-2 left-2 right-2 bg-black/50 text-white text-xs p-2 rounded opacity-0 hover:opacity-100 transition-opacity">
+                  Path: {currentRecord.image_path || 'No path'}
+                </div>
               </div>
             </div>
           </div>
