@@ -174,13 +174,18 @@ export default function UploadActionPage() {
         formData.append('qualityScore', queuedFile.qualityReport.score.toString())
 
         // Call the real upload API
+        console.log(`📡 Calling /api/upload-docket for ${queuedFile.file.name}`)
         const uploadResponse = await fetch('/api/upload-docket', {
           method: 'POST',
           body: formData
         })
 
+        console.log(`📡 Response status: ${uploadResponse.status} ${uploadResponse.statusText}`)
+
         if (!uploadResponse.ok) {
-          throw new Error(`Upload failed: ${uploadResponse.statusText}`)
+          const errorText = await uploadResponse.text()
+          console.error(`❌ API Error Details:`, errorText)
+          throw new Error(`Upload failed (${uploadResponse.status}): ${errorText}`)
         }
 
         const result = await uploadResponse.json()
