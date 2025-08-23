@@ -21,7 +21,8 @@
     "production": "node scripts/mark-production.js",
     "version-check": "cat version.json",
     "generate-static-version": "node scripts/generate-static-version.js",
-    "archive": "node scripts/archive-manager.js"
+    "archive": "node scripts/archive-manager.js",
+    "cleanup": "node scripts/cleanup-demo-data.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
