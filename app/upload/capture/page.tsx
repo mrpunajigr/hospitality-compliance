@@ -308,12 +308,13 @@ export default function UploadActionPage() {
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
             </div>
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <img 
                 src={getMappedIcon('JiGRqueue', 64)} 
                 alt="Queue" 
                 className="w-16 h-16 object-contain mx-auto mb-4"
               />
+              <div className="text-3xl font-bold text-white mb-2">{queuedFiles.length}</div>
             </div>
             <div 
               className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
