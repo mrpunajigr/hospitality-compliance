@@ -341,9 +341,9 @@ export default function UploadActionPage() {
 
       {/* Quality Upload Interface */}
       {showQualityUpload && (
-        <div className="mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div 
-            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden"
+            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
             style={{
               backgroundImage: 'url(/LiquidGlassAssets/Container.png)',
               backgroundSize: 'cover',
