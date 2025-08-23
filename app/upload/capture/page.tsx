@@ -308,28 +308,31 @@ export default function UploadActionPage() {
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
             </div>
-            <div className="text-center mb-4">
+            <div className="text-center mb-6">
               <img 
                 src={getMappedIcon('JiGRqueue', 64)} 
                 alt="Queue" 
                 className="w-16 h-16 object-contain mx-auto mb-4"
               />
-              <div className="text-3xl font-bold text-white mb-4">{queuedFiles.length}</div>
-              <div 
-                className={`w-full rounded-xl relative overflow-hidden ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
+            </div>
+            <div 
+              className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
+            >
+              <button 
+                disabled={queuedFiles.length === 0}
+                onClick={processQueuedFiles}
+                className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl ${
+                  queuedFiles.length === 0 
+                    ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
+                    : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
+                }`}
               >
-                <button 
-                  disabled={queuedFiles.length === 0}
-                  onClick={processQueuedFiles}
-                  className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl ${
-                    queuedFiles.length === 0 
-                      ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
-                      : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
-                  }`}
-                >
-                  Process Queue
-                </button>
-              </div>
+                Process Queue
+              </button>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">{queuedFiles.length}</div>
+              <div className="text-green-200 text-xs">images ready</div>
             </div>
           </div>
         </div>
