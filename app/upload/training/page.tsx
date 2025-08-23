@@ -182,14 +182,13 @@ export default function TrainingReviewPage() {
   const getImageUrl = (imagePath: string) => {
     if (!imagePath) return '/placeholder-image.png'
     
-    // Use signed URL for secure access instead of public URL
+    // Use public URL for public bucket
     const { data } = supabase.storage
       .from('delivery-dockets')
       .getPublicUrl(imagePath)
     
-    console.log('Image URL:', data.publicUrl, 'for path:', imagePath)
+    console.log('🖼️ Image URL generated:', data.publicUrl, 'for path:', imagePath)
     
-    // If public URL fails, we'll handle it in the onError
     return data.publicUrl
   }
 
@@ -293,19 +292,49 @@ export default function TrainingReviewPage() {
                     alt="Delivery Docket"
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      console.error('Image failed to load:', currentRecord.image_path)
+                      console.error('❌ Image failed to load:', {
+                        path: currentRecord.image_path,
+                        url: getImageUrl(currentRecord.image_path),
+                        error: e
+                      })
+                      
                       // Try signed URL as fallback
                       getSignedImageUrl(currentRecord.image_path).then(signedUrl => {
+                        console.log('🔄 Trying signed URL fallback:', signedUrl)
                         if (e.target instanceof HTMLImageElement) {
                           e.target.src = signedUrl
                         }
                       }).catch(err => {
-                        console.error('Signed URL also failed:', err)
-                        // Show placeholder if both fail
+                        console.error('❌ Signed URL also failed:', err)
+                        // Show fallback UI
                         if (e.target instanceof HTMLImageElement) {
                           e.target.style.display = 'none'
                         }
+                        // Show the fallback div
+                        const fallback = document.getElementById('image-fallback')
+                        if (fallback) {
+                          fallback.innerHTML = `
+                            <div class="text-center p-4">
+                              <div class="text-4xl mb-2">❌</div>
+                              <div class="text-sm text-red-300">Image Load Failed</div>
+                              <div class="text-xs text-slate-400 mt-2">
+                                Path: ${currentRecord.image_path}
+                              </div>
+                              <div class="text-xs text-slate-500 mt-1">
+                                Check bucket permissions and file existence
+                              </div>
+                            </div>
+                          `
+                        }
                       })
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image loaded successfully:', currentRecord.image_path)
+                      // Hide fallback when image loads
+                      const fallback = document.getElementById('image-fallback')
+                      if (fallback) {
+                        fallback.style.display = 'none'
+                      }
                     }}
                   />
                 ) : null}
