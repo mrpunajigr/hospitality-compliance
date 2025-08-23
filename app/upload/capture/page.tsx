@@ -20,6 +20,7 @@ export default function UploadActionPage() {
   const [showNotification, setShowNotification] = useState(false)
   const [showQualityUpload, setShowQualityUpload] = useState(false)
   const [queuedFiles, setQueuedFiles] = useState<Array<{file: File, qualityReport: QualityReport}>>([])
+  const [isProcessing, setIsProcessing] = useState(false)
   const router = useRouter()
 
   // Authentication handled by upload layout
@@ -154,23 +155,68 @@ export default function UploadActionPage() {
   const processQueuedFiles = async () => {
     if (queuedFiles.length === 0) return
 
-    console.log(`Processing ${queuedFiles.length} files with quality validation`)
-    // Here you would integrate with the existing EnhancedUpload component
-    // For now, we'll just simulate processing
+    console.log(`🚀 Processing ${queuedFiles.length} files with AI extraction`)
     
-    setLastUpload({
-      id: Date.now(),
-      supplier_name: 'Quality Enhanced Upload',
-      created_at: new Date().toISOString(),
-      image_path: URL.createObjectURL(queuedFiles[0].file)
-    })
+    setIsProcessing(true)
     
-    setQueuedFiles([])
-    setShowNotification(true)
-    
-    setTimeout(() => {
-      setShowNotification(false)
-    }, 6000)
+    try {
+      // Process each file through the real AI pipeline
+      const results = []
+      
+      for (const queuedFile of queuedFiles) {
+        console.log(`📄 Processing: ${queuedFile.file.name}`)
+        
+        // Create FormData for API upload (same as EnhancedUpload component)
+        const formData = new FormData()
+        formData.append('file', queuedFile.file)
+        formData.append('clientId', userClient?.id || 'demo-client-id')
+        formData.append('userId', user?.id || 'demo-user-id')
+        formData.append('qualityScore', queuedFile.qualityReport.score.toString())
+
+        // Call the real upload API
+        const uploadResponse = await fetch('/api/upload-docket', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed: ${uploadResponse.statusText}`)
+        }
+
+        const result = await uploadResponse.json()
+        console.log('✅ AI Processing complete:', result)
+        
+        results.push(result)
+        
+        // Update UI with real result
+        if (result.enhancedExtraction) {
+          setLastUpload({
+            id: result.deliveryRecordId || Date.now(),
+            supplier_name: result.enhancedExtraction.supplier?.value || 'Unknown Supplier',
+            created_at: new Date().toISOString(),
+            image_path: URL.createObjectURL(queuedFile.file),
+            ai_extraction: result.enhancedExtraction
+          })
+        }
+      }
+      
+      // Clear queue after successful processing
+      setQueuedFiles([])
+      setShowNotification(true)
+      
+      console.log(`🎉 Successfully processed ${results.length} documents`)
+      
+      setTimeout(() => {
+        setShowNotification(false)
+      }, 6000)
+      
+    } catch (error) {
+      console.error('❌ Processing failed:', error)
+      // Show error to user but keep files in queue for retry
+      alert(`Processing failed: ${error.message}`)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const removeFromQueue = (index: number) => {
@@ -332,15 +378,22 @@ export default function UploadActionPage() {
               className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
             >
               <button 
-                disabled={queuedFiles.length === 0}
+                disabled={queuedFiles.length === 0 || isProcessing}
                 onClick={processQueuedFiles}
                 className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl ${
-                  queuedFiles.length === 0 
+                  queuedFiles.length === 0 || isProcessing
                     ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
                     : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
-                Process Queue
+                {isProcessing ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-green-300 border-t-transparent rounded-full"></div>
+                    <span>Processing AI...</span>
+                  </div>
+                ) : (
+                  'Process Queue'
+                )}
               </button>
             </div>
             <div className="text-center">
