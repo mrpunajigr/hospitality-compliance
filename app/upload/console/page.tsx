@@ -100,10 +100,33 @@ export default function UploadConsolePage() {
       }
     }
 
+    console.log('🔍 Console useEffect: user state:', user ? 'User exists' : 'No user')
     if (user) {
+      console.log('🔍 Console: Calling fetchLatestResults()')
       fetchLatestResults()
+    } else {
+      console.log('🔍 Console: Skipping fetchLatestResults - no user')
     }
   }, [user])
+
+  // Add manual refresh function
+  const refreshData = async () => {
+    console.log('🔄 Manual refresh triggered')
+    if (user) {
+      const { data: deliveryRecords, error } = await supabase
+        .from('delivery_records')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      console.log('🔄 Manual refresh - Found records:', deliveryRecords?.length || 0)
+      console.log('🔄 Manual refresh - Records:', deliveryRecords)
+      
+      if (error) {
+        console.error('🔄 Manual refresh error:', error)
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -177,6 +200,16 @@ export default function UploadConsolePage() {
           </div>
           <div></div>
         </div>
+      </div>
+
+      {/* DEBUG: Manual refresh button */}
+      <div className="mb-4 text-center">
+        <button 
+          onClick={refreshData}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          🔄 Debug: Refresh Data
+        </button>
       </div>
 
       {/* Upload Statistics Cards */}
