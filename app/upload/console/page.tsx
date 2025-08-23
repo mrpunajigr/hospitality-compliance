@@ -112,18 +112,30 @@ export default function UploadConsolePage() {
   // Add manual refresh function
   const refreshData = async () => {
     console.log('🔄 Manual refresh triggered')
-    if (user) {
-      const { data: deliveryRecords, error } = await supabase
-        .from('delivery_records')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10)
+    const { data: deliveryRecords, error } = await supabase
+      .from('delivery_records')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10)
 
-      console.log('🔄 Manual refresh - Found records:', deliveryRecords?.length || 0)
-      console.log('🔄 Manual refresh - Records:', deliveryRecords)
+    console.log('🔄 Manual refresh - Found records:', deliveryRecords?.length || 0)
+    console.log('🔄 Manual refresh - Records:', deliveryRecords)
+    
+    if (error) {
+      console.error('🔄 Manual refresh error:', error)
+      return
+    }
+
+    // Update the actual state with the fetched data
+    if (deliveryRecords && deliveryRecords.length > 0) {
+      const record = deliveryRecords[0]
+      console.log('🔄 Setting latest delivery record:', record.id)
+      setLatestDeliveryRecord(record)
       
-      if (error) {
-        console.error('🔄 Manual refresh error:', error)
+      if (record.analysis || record.extraction_data) {
+        const resultsData = record.analysis || record.extraction_data
+        console.log('🔄 Setting processing results:', resultsData)
+        setProcessingResults(resultsData)
       }
     }
   }
