@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     console.log(`📋 Found ${corrections.length} training corrections`)
 
     // Group corrections by delivery record (one record might have multiple corrections)
-    const recordCorrections = corrections.reduce((acc, correction) => {
+    const recordCorrections = corrections.reduce((acc: any, correction: any) => {
       const recordId = correction.delivery_record_id
       if (!acc[recordId]) {
         acc[recordId] = {
@@ -227,7 +227,7 @@ async function exportDocumentAIFormat(records: any[]) {
   const trainingData: TrainingDataEntry[] = []
 
   for (const { record, corrections } of records) {
-    const bestCorrection = corrections.reduce((best, current) => {
+    const bestCorrection = corrections.reduce((best: any, current: any) => {
       const currentConfidence = current.reviewer_confidence === 'high' ? 3 : 
                                current.reviewer_confidence === 'medium' ? 2 : 1
       const bestConfidence = best.reviewer_confidence === 'high' ? 3 : 
@@ -305,7 +305,7 @@ async function exportJSONLFormat(records: any[]) {
   const jsonlLines = []
 
   for (const { record, corrections } of records) {
-    const bestCorrection = corrections.reduce((best, current) => {
+    const bestCorrection = corrections.reduce((best: any, current: any) => {
       const currentConfidence = current.reviewer_confidence === 'high' ? 3 : 
                                current.reviewer_confidence === 'medium' ? 2 : 1
       const bestConfidence = best.reviewer_confidence === 'high' ? 3 : 
