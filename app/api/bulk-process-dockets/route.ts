@@ -197,7 +197,8 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error(`❌ Error processing ${file.name}:`, error)
           results.failed++
-          results.errors.push(`${file.name}: ${error.message || 'Unknown error'}`)
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          results.errors.push(`${file.name}: ${errorMessage}`)
           return null
         }
       })
