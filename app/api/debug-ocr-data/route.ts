@@ -81,7 +81,7 @@ export async function GET(request: Request) {
 
     console.log('🔍 Compliance alerts found:', complianceAlerts?.length, 'Error:', alertsError)
 
-    // Test 5: Analyze data completeness
+    // Test 5: Analyze data completeness  
     let dataStats = null
     let statsError = null
     try {
