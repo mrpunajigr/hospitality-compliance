@@ -291,7 +291,7 @@ export default function TrainingReviewPage() {
               <div className="relative aspect-[3/4] bg-slate-800 rounded-lg overflow-hidden">
                 {currentRecord.image_path ? (
                   <img
-                    src={currentRecord.image_path ? `https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/delivery-dockets/${currentRecord.image_path}` : '/placeholder-image.png'}
+                    src={getImageUrl(currentRecord.image_path)}
                     alt="Delivery Docket"
                     className="w-full h-full object-contain"
                     onError={(e) => {
