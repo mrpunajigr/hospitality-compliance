@@ -176,7 +176,7 @@ async function exportAutoMLFormat(records: any[]) {
 
     // Extract product entities
     if (correctedData.products && correctedData.products.length > 0) {
-      correctedData.products.forEach(product => {
+      correctedData.products.forEach((product: any) => {
         const productIndex = record.raw_extracted_text?.indexOf(product)
         if (productIndex !== -1) {
           entities.push({
