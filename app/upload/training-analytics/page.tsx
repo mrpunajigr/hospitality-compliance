@@ -101,7 +101,7 @@ export default function TrainingAnalyticsPage() {
   }
 
   const overallAccuracy = (analytics?.accuracyTrend?.length ?? 0) > 0
-    ? analytics.accuracyTrend.reduce((sum, item) => sum + item.accuracy_score, 0) / analytics.accuracyTrend.length
+    ? analytics!.accuracyTrend.reduce((sum, item) => sum + item.accuracy_score, 0) / analytics!.accuracyTrend.length
     : 0
 
   return (

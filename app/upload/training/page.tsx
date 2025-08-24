@@ -8,6 +8,7 @@ import TrainingNavigation from '@/components/training/TrainingNavigation'
 
 interface DeliveryRecord {
   id: string
+  client_id: string
   supplier_name: string
   delivery_date: string
   extracted_temperatures: any[]
@@ -53,7 +54,7 @@ export default function TrainingReviewPage() {
         .from('ai_training_corrections')
         .select('delivery_record_id')
 
-      const reviewedIds = corrections?.map(c => c.delivery_record_id) || []
+      const reviewedIds = corrections?.map((c: any) => c.delivery_record_id) || []
 
       // Get delivery records that haven't been reviewed for training
       let query = supabase
@@ -527,7 +528,7 @@ export default function TrainingReviewPage() {
                       </label>
                       <input
                         type="text"
-                        value={correction.corrected_extraction.temperatures?.map(t => `${t.value}°${t.unit}`).join(', ') || ''}
+                        value={correction.corrected_extraction.temperatures?.map((t: any) => `${t.value}°${t.unit}`).join(', ') || ''}
                         onChange={(e) => {
                           const temps = e.target.value.split(',').map(temp => {
                             const match = temp.trim().match(/(-?\d+\.?\d*)[°]?([CF]?)/i)
