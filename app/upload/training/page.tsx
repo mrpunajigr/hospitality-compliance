@@ -523,7 +523,7 @@ export default function TrainingReviewPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Temperature Readings (comma separated, e.g. "4°C, -18°F")
+                        Temperature Readings (comma separated, e.g. &quot;4°C, -18°F&quot;)
                       </label>
                       <input
                         type="text"

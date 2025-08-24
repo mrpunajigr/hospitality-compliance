@@ -224,7 +224,7 @@ export default function DebugTrainingPage() {
             <div className="mt-6">
               <h3 className="text-lg font-medium text-white mb-3">Available for Training</h3>
               <p className="text-slate-300">
-                Records with status 'completed' that haven't been corrected yet: 
+                Records with status &apos;completed&apos; that haven&apos;t been corrected yet: 
                 <span className="ml-2 text-white font-bold">
                   {deliveryRecords.filter(r => 
                     r.processing_status === 'completed' && 
