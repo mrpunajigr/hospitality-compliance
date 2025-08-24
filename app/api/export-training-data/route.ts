@@ -128,7 +128,7 @@ async function exportAutoMLFormat(records: any[]) {
 
   for (const { record, corrections } of records) {
     // Get the most recent correction (highest confidence)
-    const bestCorrection = corrections.reduce((best, current) => {
+    const bestCorrection = corrections.reduce((best: any, current: any) => {
       const currentConfidence = current.reviewer_confidence === 'high' ? 3 : 
                                current.reviewer_confidence === 'medium' ? 2 : 1
       const bestConfidence = best.reviewer_confidence === 'high' ? 3 : 
