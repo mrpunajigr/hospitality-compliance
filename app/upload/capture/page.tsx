@@ -21,6 +21,7 @@ export default function UploadActionPage() {
   const [showQualityUpload, setShowQualityUpload] = useState(false)
   const [queuedFiles, setQueuedFiles] = useState<Array<{file: File, qualityReport: QualityReport}>>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const [processingSuccess, setProcessingSuccess] = useState(false)
   const router = useRouter()
 
   // Authentication handled by upload layout
@@ -105,6 +106,7 @@ export default function UploadActionPage() {
   const handleFileValidated = (file: File, qualityReport: QualityReport) => {
     console.log('File validated for OCR:', file.name, 'Quality score:', qualityReport.score)
     setQueuedFiles(prev => [...prev, { file, qualityReport }])
+    setProcessingSuccess(false) // Reset success state when new files added
   }
 
   const handleFileRejected = (file: File, qualityReport: QualityReport) => {
@@ -208,8 +210,14 @@ export default function UploadActionPage() {
       // Clear queue after successful processing
       setQueuedFiles([])
       setShowNotification(true)
+      setProcessingSuccess(true)
       
       console.log(`🎉 Successfully processed ${results.length} documents`)
+      
+      // Show success feedback for 3 seconds, then reset
+      setTimeout(() => {
+        setProcessingSuccess(false)
+      }, 3000)
       
       setTimeout(() => {
         setShowNotification(false)
@@ -384,15 +392,26 @@ export default function UploadActionPage() {
               className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
             >
               <button 
-                disabled={queuedFiles.length === 0 || isProcessing}
+                disabled={queuedFiles.length === 0 || isProcessing || processingSuccess}
                 onClick={processQueuedFiles}
                 className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl ${
-                  queuedFiles.length === 0 || isProcessing
+                  processingSuccess
+                    ? 'text-green-400 bg-green-500/20 border-green-400/40 shadow-lg shadow-green-500/20'
+                    : queuedFiles.length === 0 || isProcessing
                     ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
                     : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
-                {isProcessing ? (
+                {processingSuccess ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span>Processing Complete!</span>
+                  </div>
+                ) : isProcessing ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin h-4 w-4 border-2 border-green-300 border-t-transparent rounded-full"></div>
                     <span>Processing AI...</span>

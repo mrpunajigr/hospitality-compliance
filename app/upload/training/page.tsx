@@ -33,6 +33,91 @@ interface TrainingCorrection {
   notes: string
 }
 
+interface TrainingImageProps {
+  imagePath: string
+  alt: string
+  className?: string
+  onError?: (e: any) => void
+}
+
+function TrainingImage({ imagePath, alt, className, onError }: TrainingImageProps) {
+  const [imageUrl, setImageUrl] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    const loadImage = async () => {
+      if (!imagePath) {
+        setImageUrl('/placeholder-image.png')
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        // Try signed URL first for production reliability
+        console.log('🖼️ Loading image with signed URL for:', imagePath)
+        const { data, error } = await supabase.storage
+          .from('delivery-dockets')
+          .createSignedUrl(imagePath, 3600)
+        
+        if (error) {
+          console.warn('⚠️ Signed URL failed, trying public URL:', error)
+          // Fallback to public URL
+          const { data: publicData } = supabase.storage
+            .from('delivery-dockets')
+            .getPublicUrl(imagePath)
+          setImageUrl(publicData.publicUrl)
+        } else {
+          console.log('✅ Signed URL generated:', data.signedUrl)
+          setImageUrl(data.signedUrl)
+        }
+      } catch (err) {
+        console.error('❌ Image URL generation failed:', err)
+        setError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadImage()
+  }, [imagePath])
+
+  if (isLoading) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-slate-800`}>
+        <div className="animate-spin h-8 w-8 border-2 border-blue-400 border-t-transparent rounded-full"></div>
+      </div>
+    )
+  }
+
+  if (error || !imageUrl) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-slate-800 text-center p-4`}>
+        <div>
+          <div className="text-4xl mb-2">❌</div>
+          <div className="text-sm text-red-300">Image Load Failed</div>
+          <div className="text-xs text-slate-400 mt-2">
+            Path: {imagePath}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      alt={alt}
+      className={className}
+      onError={(e) => {
+        console.error('❌ Image failed to load:', { path: imagePath, url: imageUrl })
+        setError(true)
+        onError?.(e)
+      }}
+    />
+  )
+}
+
 export default function TrainingReviewPage() {
   const [deliveryRecords, setDeliveryRecords] = useState<DeliveryRecord[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -183,15 +268,15 @@ export default function TrainingReviewPage() {
   const getImageUrl = (imagePath: string) => {
     if (!imagePath) return '/placeholder-image.png'
     
-    // Generate public URL for the public bucket
+    // Try public URL first, but use signed URL as primary for production reliability
+    console.log('🖼️ Generating image URL for path:', JSON.stringify(imagePath))
+    
+    // Generate public URL for fallback
     const { data } = supabase.storage
       .from('delivery-dockets') 
       .getPublicUrl(imagePath)
     
-    console.log('🖼️ Image URL generated:', data.publicUrl, 'for path:', imagePath)
-    console.log('🔍 Expected format: https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/delivery-dockets/' + imagePath)
-    console.log('🎯 imagePath value:', JSON.stringify(imagePath))
-    
+    console.log('🔍 Public URL generated:', data.publicUrl)
     return data.publicUrl
   }
 
@@ -290,47 +375,10 @@ export default function TrainingReviewPage() {
               </h3>
               <div className="relative aspect-[3/4] bg-slate-800 rounded-lg overflow-hidden">
                 {currentRecord.image_path ? (
-                  <img
-                    src={getImageUrl(currentRecord.image_path)}
+                  <TrainingImage 
+                    imagePath={currentRecord.image_path}
                     alt="Delivery Docket"
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      console.error('❌ Image failed to load:', {
-                        path: currentRecord.image_path,
-                        url: getImageUrl(currentRecord.image_path),
-                        error: e
-                      })
-                      
-                      // Try signed URL as fallback
-                      getSignedImageUrl(currentRecord.image_path).then(signedUrl => {
-                        console.log('🔄 Trying signed URL fallback:', signedUrl)
-                        if (e.target instanceof HTMLImageElement) {
-                          e.target.src = signedUrl
-                        }
-                      }).catch(err => {
-                        console.error('❌ Signed URL also failed:', err)
-                        // Show fallback UI
-                        if (e.target instanceof HTMLImageElement) {
-                          e.target.style.display = 'none'
-                        }
-                        // Show the fallback div
-                        const fallback = document.getElementById('image-fallback')
-                        if (fallback) {
-                          fallback.innerHTML = `
-                            <div class="text-center p-4">
-                              <div class="text-4xl mb-2">❌</div>
-                              <div class="text-sm text-red-300">Image Load Failed</div>
-                              <div class="text-xs text-slate-400 mt-2">
-                                Path: ${currentRecord.image_path}
-                              </div>
-                              <div class="text-xs text-slate-500 mt-1">
-                                Check bucket permissions and file existence
-                              </div>
-                            </div>
-                          `
-                        }
-                      })
-                    }}
                     onLoad={() => {
                       console.log('✅ Image loaded successfully:', currentRecord.image_path)
                       // Hide fallback when image loads
