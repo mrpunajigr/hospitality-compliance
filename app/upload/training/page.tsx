@@ -182,12 +182,14 @@ export default function TrainingReviewPage() {
   const getImageUrl = (imagePath: string) => {
     if (!imagePath) return '/placeholder-image.png'
     
-    // Use public URL for public bucket
+    // Generate public URL for the public bucket
     const { data } = supabase.storage
-      .from('delivery-dockets')
+      .from('delivery-dockets') 
       .getPublicUrl(imagePath)
     
     console.log('🖼️ Image URL generated:', data.publicUrl, 'for path:', imagePath)
+    console.log('🔍 Expected format: https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/delivery-dockets/' + imagePath)
+    console.log('🎯 imagePath value:', JSON.stringify(imagePath))
     
     return data.publicUrl
   }
@@ -288,7 +290,7 @@ export default function TrainingReviewPage() {
               <div className="relative aspect-[3/4] bg-slate-800 rounded-lg overflow-hidden">
                 {currentRecord.image_path ? (
                   <img
-                    src={getImageUrl(currentRecord.image_path)}
+                    src={currentRecord.image_path ? `https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/delivery-dockets/${currentRecord.image_path}` : '/placeholder-image.png'}
                     alt="Delivery Docket"
                     className="w-full h-full object-contain"
                     onError={(e) => {
