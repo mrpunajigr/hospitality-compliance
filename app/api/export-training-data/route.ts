@@ -262,7 +262,7 @@ async function exportDocumentAIFormat(records: any[]) {
     }
 
     if (correctedData.temperatures) {
-      correctedData.temperatures.forEach((temp, index) => {
+      correctedData.temperatures.forEach((temp: any, index: number) => {
         entities.push({
           textSegment: {
             startOffset: (index * 10).toString(),
