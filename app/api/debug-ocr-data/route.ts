@@ -82,15 +82,17 @@ export async function GET(request: Request) {
     console.log('🔍 Compliance alerts found:', complianceAlerts?.length, 'Error:', alertsError)
 
     // Test 5: Analyze data completeness
-    const { data: dataStats, error: statsError } = await supabaseAdmin
-      .rpc('analyze_extraction_completeness')
-      .catch(() => {
-        // If function doesn't exist, create a manual analysis
-        return supabaseAdmin
-          .from('delivery_records')
-          .select('*')
-          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-      })
+    let dataStats = null
+    let statsError = null
+    try {
+      const { data, error } = await supabaseAdmin
+        .rpc('analyze_extraction_completeness')
+      dataStats = data
+      statsError = error
+    } catch (error) {
+      // If function doesn't exist, set error for manual analysis fallback
+      statsError = error as any
+    }
 
     // Test 6: Check for processing errors
     const { data: errorRecords, error: errorQueryError } = await supabaseAdmin
