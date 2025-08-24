@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
 
       const stats = {
         totalCorrections: totalStats?.length || 0,
-        averageReviewTime: totalStats?.length > 0 
+        averageReviewTime: (totalStats?.length ?? 0) > 0 
           ? Math.round(totalStats.reduce((sum, record) => sum + (record.review_time_seconds || 0), 0) / totalStats.length!)
           : 0,
         correctionsToday: totalStats?.filter(record => {
