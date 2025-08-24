@@ -158,7 +158,7 @@ async function exportAutoMLFormat(records: any[]) {
 
     // Extract temperature entities
     if (correctedData.temperatures && correctedData.temperatures.length > 0) {
-      correctedData.temperatures.forEach(temp => {
+      correctedData.temperatures.forEach((temp: any) => {
         const tempString = `${temp.value}°${temp.unit}`
         const tempIndex = record.raw_extracted_text?.indexOf(tempString)
         if (tempIndex !== -1) {
