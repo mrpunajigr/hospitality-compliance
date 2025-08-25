@@ -257,7 +257,7 @@ export default function TrainingReviewPage() {
               .list(folderPath || '', { limit: 100 })
 
             const fileName = pathParts[pathParts.length - 1]
-            const fileExists = fileList?.some(f => f.name === fileName)
+            const fileExists = fileList?.some((f: any) => f.name === fileName)
 
             if (fileExists) {
               console.log(`✅ File verified for record ${record.id}: ${record.image_path}`)
