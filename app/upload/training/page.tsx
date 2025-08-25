@@ -55,6 +55,23 @@ function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingI
       }
 
       try {
+        // Debug: Check actual bucket contents
+        console.log('🔍 Checking bucket structure for path:', imagePath)
+        
+        // Try to list files in the bucket to understand structure
+        const pathParts = imagePath.split('/')
+        const folderPath = pathParts.slice(0, -1).join('/')
+        
+        const { data: bucketList, error: listError } = await supabase.storage
+          .from('delivery-dockets')
+          .list(folderPath || '', {
+            limit: 5
+          })
+          
+        if (bucketList) {
+          console.log('📁 Bucket contents in', folderPath, ':', bucketList.map(f => f.name))
+        }
+        
         // Try public URL first since bucket is configured as public
         console.log('🖼️ Loading image with public URL for:', imagePath)
         const { data: publicData } = supabase.storage
