@@ -69,7 +69,7 @@ function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingI
           })
           
         if (bucketList) {
-          console.log('📁 Bucket contents in', folderPath, ':', bucketList.map(f => f.name))
+          console.log('📁 Bucket contents in', folderPath, ':', bucketList.map((f: any) => f.name))
         }
         
         // Try public URL first since bucket is configured as public
