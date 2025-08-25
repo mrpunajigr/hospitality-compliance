@@ -27,7 +27,125 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { bucketId, fileName, filePath, userId, clientId } = await req.json()
+    const { bucketId, fileName, filePath, userId, clientId, test_auth_only } = await req.json()
+
+    // TEST MODE: If test_auth_only is true, run authentication test
+    if (test_auth_only === true) {
+      console.log('🧪 RUNNING AUTHENTICATION TEST MODE')
+      
+      try {
+        // Test environment variables
+        console.log('📋 Environment check:')
+        console.log('  GOOGLE_CREDENTIALS:', GOOGLE_CREDENTIALS ? `✅ Present (${GOOGLE_CREDENTIALS.length} chars)` : '❌ Missing')
+        console.log('  DOCUMENT_AI_PROCESSOR_ID:', DOCUMENT_AI_PROCESSOR_ID ? `✅ Present (${DOCUMENT_AI_PROCESSOR_ID})` : '❌ Missing')
+        
+        if (!GOOGLE_CREDENTIALS || !DOCUMENT_AI_PROCESSOR_ID) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Missing environment variables',
+            details: {
+              hasCredentials: !!GOOGLE_CREDENTIALS,
+              hasProcessorId: !!DOCUMENT_AI_PROCESSOR_ID
+            }
+          }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          })
+        }
+        
+        // Test credentials parsing
+        console.log('🔑 Test 1: Parsing Google credentials...')
+        const credentials = JSON.parse(GOOGLE_CREDENTIALS)
+        console.log('✅ Credentials parsed successfully')
+        console.log('  Client email:', credentials.client_email)
+        console.log('  Project ID:', credentials.project_id)
+        console.log('  Private key present:', !!credentials.private_key)
+        
+        // Test JWT creation and token exchange
+        console.log('🔐 Test 2: Creating JWT and getting access token...')
+        const accessToken = await getAccessToken(credentials)
+        console.log('✅ Access token obtained, length:', accessToken.length)
+        
+        // Test Document AI API with minimal request
+        console.log('📄 Test 3: Testing Document AI API...')
+        const testImageBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+        
+        const requestBody = {
+          rawDocument: {
+            content: testImageBase64,
+            mimeType: 'image/png'
+          }
+        }
+        
+        const apiUrl = `https://documentai.googleapis.com/v1/${DOCUMENT_AI_PROCESSOR_ID}:process`
+        console.log('Making request to:', apiUrl)
+        
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        })
+        
+        console.log('Document AI API response status:', response.status)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('❌ Document AI API error:', errorText)
+          return new Response(JSON.stringify({
+            success: false,
+            test: 'authentication_test',
+            error: 'Document AI API error',
+            details: {
+              status: response.status,
+              statusText: response.statusText,
+              body: errorText
+            }
+          }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+          })
+        }
+        
+        const data = await response.json()
+        console.log('✅ Document AI API responded successfully')
+        
+        return new Response(JSON.stringify({
+          success: true,
+          test: 'authentication_test',
+          message: 'All Google Cloud authentication tests passed',
+          details: {
+            credentialsParsed: true,
+            jwtCreated: true,
+            accessTokenObtained: true,
+            documentAiApiWorking: true,
+            processorId: DOCUMENT_AI_PROCESSOR_ID,
+            clientEmail: credentials.client_email,
+            responsePreview: data ? 'Document AI returned valid response' : 'No response data'
+          }
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+      } catch (error) {
+        console.error('🚨 Authentication test failed:', error)
+        return new Response(JSON.stringify({
+          success: false,
+          test: 'authentication_test',
+          error: 'Authentication test failed',
+          details: {
+            message: error.message,
+            stack: error.stack
+          }
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      }
+    }
 
     // Validate required parameters
     if (!bucketId || !fileName || !filePath || !userId || !clientId) {
@@ -390,7 +508,8 @@ async function getAccessToken(credentials: any): Promise<string> {
     const jwt = await createJWT(payload, credentials.private_key)
     console.log('JWT created successfully, length:', jwt.length)
     
-    // Exchange JWT for access token
+    // Exchange JWT for access token with enhanced logging
+    console.log('🎟️ Exchanging JWT for access token...')
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -402,16 +521,31 @@ async function getAccessToken(credentials: any): Promise<string> {
       })
     })
     
-    console.log('Token exchange response status:', tokenResponse.status)
+    console.log('📊 Token exchange response status:', tokenResponse.status)
     
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
-      console.error('Token exchange error:', errorText)
+      console.error('❌ Token exchange failed:', errorText)
+      console.error('🔍 JWT preview (first 100 chars):', jwt.substring(0, 100))
+      console.error('🔍 Payload used:', JSON.stringify(payload, null, 2))
+      
+      // Parse error details if JSON
+      try {
+        const errorData = JSON.parse(errorText)
+        console.error('🔍 Parsed error details:', JSON.stringify(errorData, null, 2))
+        
+        if (errorData.error === 'invalid_grant') {
+          throw new Error(`Invalid JWT signature - check Google Cloud service account key format`)
+        }
+      } catch (parseError) {
+        // Not JSON, use raw text
+      }
+      
       throw new Error(`Token exchange failed: ${tokenResponse.status} - ${errorText}`)
     }
     
     const tokenData = await tokenResponse.json()
-    console.log('Access token obtained successfully')
+    console.log('✅ Access token obtained successfully, length:', tokenData.access_token.length)
     return tokenData.access_token
     
   } catch (error) {
@@ -450,40 +584,72 @@ async function createJWT(payload: any, privateKey: string): Promise<string> {
 }
 
 async function importPrivateKey(privateKey: string): Promise<CryptoKey> {
-  // Clean the private key
-  const pemHeader = '-----BEGIN PRIVATE KEY-----'
-  const pemFooter = '-----END PRIVATE KEY-----'
-  
-  let cleanKey = privateKey.trim()
-  if (!cleanKey.startsWith(pemHeader)) {
-    cleanKey = `${pemHeader}\n${cleanKey}\n${pemFooter}`
+  try {
+    console.log('🔑 Importing Google Cloud private key...')
+    
+    // Clean the private key more thoroughly
+    const pemHeader = '-----BEGIN PRIVATE KEY-----'
+    const pemFooter = '-----END PRIVATE KEY-----'
+    
+    let cleanKey = privateKey.trim()
+    
+    // Handle escaped newlines (common in environment variables)
+    cleanKey = cleanKey.replace(/\\n/g, '\n')
+    
+    // Ensure proper PEM format
+    if (!cleanKey.startsWith(pemHeader)) {
+      cleanKey = `${pemHeader}\n${cleanKey}\n${pemFooter}`
+    }
+    
+    // Extract the base64 content
+    const pemContents = cleanKey
+      .replace(pemHeader, '')
+      .replace(pemFooter, '')
+      .replace(/\s/g, '') // Remove all whitespace including newlines
+    
+    console.log('🔍 Private key base64 length:', pemContents.length)
+    
+    // Validate base64 format
+    if (!pemContents.match(/^[A-Za-z0-9+/]+=*$/)) {
+      throw new Error('Private key contains invalid base64 characters')
+    }
+    
+    // Convert to binary with better error handling
+    let binaryDer
+    try {
+      binaryDer = atob(pemContents)
+    } catch (decodeError) {
+      console.error('❌ Base64 decode failed:', decodeError)
+      throw new Error(`Base64 decode failed: ${decodeError.message}`)
+    }
+    
+    const keyBuffer = new Uint8Array(binaryDer.length)
+    for (let i = 0; i < binaryDer.length; i++) {
+      keyBuffer[i] = binaryDer.charCodeAt(i)
+    }
+    
+    console.log('🔧 Key buffer created, size:', keyBuffer.length)
+    
+    // Import the key with enhanced error handling
+    const importedKey = await crypto.subtle.importKey(
+      'pkcs8',
+      keyBuffer.buffer,
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        hash: 'SHA-256'
+      },
+      false,
+      ['sign']
+    )
+    
+    console.log('✅ Private key imported successfully')
+    return importedKey
+    
+  } catch (error) {
+    console.error('❌ Private key import failed:', error)
+    console.error('🔍 Key preview (first 100 chars):', privateKey.substring(0, 100))
+    throw new Error(`Private key import failed: ${error.message}`)
   }
-  
-  const pemContents = cleanKey
-    .replace(pemHeader, '')
-    .replace(pemFooter, '')
-    .replace(/\s/g, '')
-  
-  console.log('Importing private key, base64 length:', pemContents.length)
-  
-  // Convert to binary
-  const binaryDer = atob(pemContents)
-  const keyBuffer = new Uint8Array(binaryDer.length)
-  for (let i = 0; i < binaryDer.length; i++) {
-    keyBuffer[i] = binaryDer.charCodeAt(i)
-  }
-  
-  // Import the key
-  return await crypto.subtle.importKey(
-    'pkcs8',
-    keyBuffer.buffer,
-    {
-      name: 'RSASSA-PKCS1-v1_5',
-      hash: 'SHA-256'
-    },
-    false,
-    ['sign']
-  )
 }
 
 async function signMessage(message: string, key: CryptoKey): Promise<ArrayBuffer> {
