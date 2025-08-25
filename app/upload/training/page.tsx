@@ -64,31 +64,33 @@ function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingI
         console.log('✅ Public URL generated:', publicData.publicUrl)
         setImageUrl(publicData.publicUrl)
         
-        // Test if the URL actually works by creating a test image
-        const testImg = new Image()
-        testImg.onload = () => {
-          console.log('✅ Public URL confirmed working')
-        }
-        testImg.onerror = async () => {
-          console.warn('⚠️ Public URL failed, trying signed URL fallback')
-          try {
-            const { data: signedData, error } = await supabase.storage
-              .from('delivery-dockets')
-              .createSignedUrl(imagePath, 3600)
-            
-            if (!error && signedData) {
-              console.log('🔄 Using signed URL fallback:', signedData.signedUrl)
-              setImageUrl(signedData.signedUrl)
-            } else {
-              console.error('❌ Both public and signed URLs failed')
+        // Test if the URL actually works by creating a test image (client-side only)
+        if (typeof window !== 'undefined') {
+          const testImg = document.createElement('img')
+          testImg.onload = () => {
+            console.log('✅ Public URL confirmed working')
+          }
+          testImg.onerror = async () => {
+            console.warn('⚠️ Public URL failed, trying signed URL fallback')
+            try {
+              const { data: signedData, error } = await supabase.storage
+                .from('delivery-dockets')
+                .createSignedUrl(imagePath, 3600)
+              
+              if (!error && signedData) {
+                console.log('🔄 Using signed URL fallback:', signedData.signedUrl)
+                setImageUrl(signedData.signedUrl)
+              } else {
+                console.error('❌ Both public and signed URLs failed')
+                setError(true)
+              }
+            } catch (signedError) {
+              console.error('❌ Signed URL fallback failed:', signedError)
               setError(true)
             }
-          } catch (signedError) {
-            console.error('❌ Signed URL fallback failed:', signedError)
-            setError(true)
           }
+          testImg.src = publicData.publicUrl
         }
-        testImg.src = publicData.publicUrl
         
       } catch (err) {
         console.error('❌ Image URL generation failed:', err)
