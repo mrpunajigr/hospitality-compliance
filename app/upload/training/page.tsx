@@ -65,11 +65,26 @@ function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingI
         const { data: bucketList, error: listError } = await supabase.storage
           .from('delivery-dockets')
           .list(folderPath || '', {
-            limit: 5
+            limit: 10
           })
           
         if (bucketList) {
           console.log('📁 Bucket contents in', folderPath, ':', bucketList.map((f: any) => f.name))
+          
+          // Try to find the actual file with different extensions
+          const baseFileName = imagePath.split('/').pop()?.split('.')[0] // Get filename without extension
+          const actualFile = bucketList.find((f: any) => 
+            f.name.startsWith(baseFileName || '') && 
+            (f.name.endsWith('.jpeg') || f.name.endsWith('.jpg') || f.name.endsWith('.HEIC') || f.name.endsWith('.png'))
+          )
+          
+          if (actualFile) {
+            console.log('🎯 Found actual file:', actualFile.name, 'instead of:', imagePath)
+            // Update imagePath to use the actual file
+            const actualPath = [...pathParts.slice(0, -1), actualFile.name].join('/')
+            console.log('🔄 Using corrected path:', actualPath)
+            imagePath = actualPath
+          }
         }
         
         // Try public URL first since bucket is configured as public
