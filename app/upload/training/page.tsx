@@ -196,9 +196,11 @@ export default function TrainingReviewPage() {
       const reviewedIds = corrections?.map((c: any) => c.delivery_record_id) || []
 
       // Get delivery records that haven't been reviewed for training
+      // Prioritize successful processing records over failed ones
       let query = supabase
         .from('delivery_records')
         .select('*')
+        .neq('processing_status', 'failed') // Exclude failed processing records first
         .order('created_at', { ascending: false })
         .limit(50) // Load batch of 50 for review
 
@@ -207,7 +209,25 @@ export default function TrainingReviewPage() {
         query = query.not('id', 'in', `(${reviewedIds.join(',')})`)
       }
 
-      const { data: records, error } = await query
+      let { data: records, error } = await query
+
+      // If no successful records found, then include failed records as fallback
+      if (!records || records.length === 0) {
+        console.log('🔄 No successful records found, including failed records...')
+        query = supabase
+          .from('delivery_records')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50)
+        
+        if (reviewedIds.length > 0) {
+          query = query.not('id', 'in', `(${reviewedIds.join(',')})`)
+        }
+        
+        const fallbackResult = await query
+        records = fallbackResult.data
+        error = fallbackResult.error
+      }
 
       if (error) {
         console.error('Error loading records:', error)
