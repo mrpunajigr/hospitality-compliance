@@ -74,11 +74,11 @@ export async function POST(request: NextRequest) {
         try {
           console.log(`📄 Processing file ${fileIndex + 1}/${files.length}: ${file.name}`)
 
-          // Create unique file path
+          // Create organized file path with proper date structure
           const timestamp = Date.now() + fileIndex // Ensure uniqueness
           const dateFolder = new Date().toISOString().split('T')[0] // YYYY-MM-DD
           const fileName = `bulk_${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-          const filePath = `${clientId}/${dateFolder}/bulk_upload/${fileName}`
+          const filePath = `${dateFolder}/bulk_upload/${fileName}` // Remove client ID from path
           
           console.log(`📂 Upload path details:`)
           console.log(`   • Client ID: ${clientId}`)
