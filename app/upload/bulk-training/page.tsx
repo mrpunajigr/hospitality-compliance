@@ -60,8 +60,8 @@ export default function BulkTrainingUploadPage() {
     try {
       const formData = new FormData()
       
-      // Add configuration
-      formData.append('clientId', 'demo-client-id') // You'll want to get this from auth context
+      // Add configuration - using dev company ID
+      formData.append('clientId', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11') // Dev company ID
       formData.append('userId', 'demo-user-id') // You'll want to get this from auth context
       formData.append('processingPriority', processingPriority)
       formData.append('batchSize', batchSize.toString())
