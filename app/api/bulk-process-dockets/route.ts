@@ -123,28 +123,37 @@ export async function POST(request: NextRequest) {
 
           // Call the real Supabase Edge Function for Document AI processing
           console.log(`🤖 Processing with AI: ${file.name}`)
+          console.log(`🔗 Edge Function URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`)
+          console.log(`🔑 Using Service Role Key: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? 'AVAILABLE' : 'MISSING'}`)
           
           const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`
+          const requestBody = {
+            bucketId: 'delivery-dockets',
+            fileName: fileName,
+            filePath: uploadResult.path,
+            userId: userId,
+            clientId: clientId,
+            metadata: {
+              bulkUpload: true,
+              originalFileName: file.name,
+              processingPriority: processingPriority,
+              batchIndex: fileIndex
+            }
+          }
+          
+          console.log(`📤 Edge Function request body:`, JSON.stringify(requestBody, null, 2))
+          
           const processingResponse = await fetch(edgeFunctionUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
             },
-            body: JSON.stringify({
-              bucketId: 'delivery-dockets',
-              fileName: fileName,
-              filePath: uploadResult.path,
-              userId: userId,
-              clientId: clientId,
-              metadata: {
-                bulkUpload: true,
-                originalFileName: file.name,
-                processingPriority: processingPriority,
-                batchIndex: fileIndex
-              }
-            })
+            body: JSON.stringify(requestBody)
           })
+          
+          console.log(`📥 Edge Function response status: ${processingResponse.status}`)
+          console.log(`📥 Edge Function response headers:`, Object.fromEntries(processingResponse.headers.entries()))
 
           if (!processingResponse.ok) {
             const errorText = await processingResponse.text()
@@ -287,11 +296,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Bulk processing error:', error)
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('❌ Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ 
+    const errorResponse = { 
       error: 'Bulk processing failed', 
-      details: errorMessage 
-    }, { status: 500 })
+      details: errorMessage,
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    }
+    
+    console.log('🔍 Sending error response:', JSON.stringify(errorResponse, null, 2))
+    
+    return NextResponse.json(errorResponse, { status: 500 })
   }
 }
 
