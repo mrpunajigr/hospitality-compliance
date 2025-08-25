@@ -38,9 +38,10 @@ interface TrainingImageProps {
   alt: string
   className?: string
   onError?: (e: any) => void
+  onLoad?: () => void
 }
 
-function TrainingImage({ imagePath, alt, className, onError }: TrainingImageProps) {
+function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingImageProps) {
   const [imageUrl, setImageUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -109,6 +110,7 @@ function TrainingImage({ imagePath, alt, className, onError }: TrainingImageProp
       src={imageUrl}
       alt={alt}
       className={className}
+      onLoad={onLoad}
       onError={(e) => {
         console.error('❌ Image failed to load:', { path: imagePath, url: imageUrl })
         setError(true)
