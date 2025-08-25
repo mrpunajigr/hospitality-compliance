@@ -159,20 +159,39 @@ export async function POST(request: NextRequest) {
           }
 
           const processingResult = await processingResponse.json()
-          console.log(`🤖 AI processing completed for ${file.name}`)
+          console.log(`🤖 AI processing completed for ${file.name}:`, processingResult)
 
-          // Find the created delivery record
-          const { data: deliveryRecord } = await supabaseAdmin
-            .from('delivery_records')
-            .select('id')
-            .eq('image_path', uploadResult.path)
-            .single()
+          // Find the created delivery record (with retry for timing issues)
+          let deliveryRecord = null
+          let retries = 3
+          
+          while (retries > 0 && !deliveryRecord) {
+            const { data, error } = await supabaseAdmin
+              .from('delivery_records')
+              .select('id')
+              .eq('image_path', uploadResult.path)
+              .single()
+              
+            if (data) {
+              deliveryRecord = data
+            } else {
+              console.log(`⏳ Delivery record not found yet, retrying... (${retries} attempts left)`)
+              await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1 second
+              retries--
+            }
+          }
 
           if (deliveryRecord) {
             results.deliveryRecords.push(deliveryRecord.id)
             results.processed++
-            
-            // Create audit log for bulk processing
+            console.log(`✅ Successfully processed ${file.name} - Record ID: ${deliveryRecord.id}`)
+          } else {
+            console.error(`❌ Could not find delivery record for ${file.name} after AI processing`)
+            results.errors.push(`${file.name}: Record not found after AI processing`)
+          }
+          
+          // Create audit log for bulk processing (only if record found)
+          if (deliveryRecord) {
             await supabaseAdmin
               .from('audit_logs')
               .insert({

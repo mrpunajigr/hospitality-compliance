@@ -55,23 +55,41 @@ function TrainingImage({ imagePath, alt, className, onError, onLoad }: TrainingI
       }
 
       try {
-        // Try signed URL first for production reliability
-        console.log('🖼️ Loading image with signed URL for:', imagePath)
-        const { data, error } = await supabase.storage
+        // Try public URL first since bucket is configured as public
+        console.log('🖼️ Loading image with public URL for:', imagePath)
+        const { data: publicData } = supabase.storage
           .from('delivery-dockets')
-          .createSignedUrl(imagePath, 3600)
+          .getPublicUrl(imagePath)
         
-        if (error) {
-          console.warn('⚠️ Signed URL failed, trying public URL:', error)
-          // Fallback to public URL
-          const { data: publicData } = supabase.storage
-            .from('delivery-dockets')
-            .getPublicUrl(imagePath)
-          setImageUrl(publicData.publicUrl)
-        } else {
-          console.log('✅ Signed URL generated:', data.signedUrl)
-          setImageUrl(data.signedUrl)
+        console.log('✅ Public URL generated:', publicData.publicUrl)
+        setImageUrl(publicData.publicUrl)
+        
+        // Test if the URL actually works by creating a test image
+        const testImg = new Image()
+        testImg.onload = () => {
+          console.log('✅ Public URL confirmed working')
         }
+        testImg.onerror = async () => {
+          console.warn('⚠️ Public URL failed, trying signed URL fallback')
+          try {
+            const { data: signedData, error } = await supabase.storage
+              .from('delivery-dockets')
+              .createSignedUrl(imagePath, 3600)
+            
+            if (!error && signedData) {
+              console.log('🔄 Using signed URL fallback:', signedData.signedUrl)
+              setImageUrl(signedData.signedUrl)
+            } else {
+              console.error('❌ Both public and signed URLs failed')
+              setError(true)
+            }
+          } catch (signedError) {
+            console.error('❌ Signed URL fallback failed:', signedError)
+            setError(true)
+          }
+        }
+        testImg.src = publicData.publicUrl
+        
       } catch (err) {
         console.error('❌ Image URL generation failed:', err)
         setError(true)
