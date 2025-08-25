@@ -94,10 +94,7 @@ export default function BulkTrainingUploadPage() {
         setFiles([])
       }
       
-      // Reset success state after 3 seconds
-      setTimeout(() => {
-        setProcessingComplete(false)
-      }, 3000)
+      // Success state persists until new files are added (prevents duplicate processing)
 
     } catch (error) {
       console.error('❌ Bulk processing error:', error)
