@@ -143,14 +143,21 @@ export async function POST(request: NextRequest) {
           
           console.log(`📤 Edge Function request body:`, JSON.stringify(requestBody, null, 2))
           
+          // Add timeout for Google Cloud AI processing
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+          
           const processingResponse = await fetch(edgeFunctionUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
           })
+          
+          clearTimeout(timeoutId) // Clear timeout if request completes
           
           console.log(`📥 Edge Function response status: ${processingResponse.status}`)
           console.log(`📥 Edge Function response headers:`, Object.fromEntries(processingResponse.headers.entries()))
@@ -186,8 +193,20 @@ export async function POST(request: NextRequest) {
             return deliveryRecord?.id || null
           }
 
-          const processingResult = await processingResponse.json()
-          console.log(`🤖 AI processing completed for ${file.name}:`, processingResult)
+          // Validate JSON response before parsing
+          const responseText = await processingResponse.text()
+          console.log(`📄 Raw Edge Function response for ${file.name}:`, responseText.substring(0, 500), '...')
+          
+          let processingResult
+          try {
+            processingResult = JSON.parse(responseText)
+            console.log(`🤖 AI processing completed for ${file.name}:`, processingResult)
+          } catch (jsonError) {
+            console.error(`❌ JSON parsing failed for ${file.name}:`, jsonError)
+            console.error(`❌ Raw response (first 1000 chars):`, responseText.substring(0, 1000))
+            results.errors.push(`${file.name}: Invalid JSON response from Edge Function`)
+            return null
+          }
 
           // Find the created delivery record (with retry for timing issues)
           let deliveryRecord = null
@@ -244,8 +263,14 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error(`❌ Error processing ${file.name}:`, error)
           results.failed++
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-          results.errors.push(`${file.name}: ${errorMessage}`)
+          
+          if (error.name === 'AbortError') {
+            console.error(`⏰ Timeout processing ${file.name} - Google Cloud AI took too long`)
+            results.errors.push(`${file.name}: Processing timeout (Google Cloud AI took >60s)`)
+          } else {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+            results.errors.push(`${file.name}: ${errorMessage}`)
+          }
           return null
         }
       })
