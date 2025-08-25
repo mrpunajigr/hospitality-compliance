@@ -17,6 +17,7 @@ interface BulkProcessingStats {
 export default function BulkTrainingUploadPage() {
   const [files, setFiles] = useState<File[]>([])
   const [processing, setProcessing] = useState(false)
+  const [processingComplete, setProcessingComplete] = useState(false)
   const [results, setResults] = useState<BulkProcessingStats | null>(null)
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
   const [processingPriority, setProcessingPriority] = useState<'high' | 'medium' | 'low'>('medium')
@@ -29,6 +30,7 @@ export default function BulkTrainingUploadPage() {
     )
     
     setFiles(prev => [...prev, ...imageFiles])
+    setProcessingComplete(false) // Reset success state when new files added
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -85,11 +87,17 @@ export default function BulkTrainingUploadPage() {
       console.log('✅ Bulk processing completed:', data)
 
       setResults(data.results)
+      setProcessingComplete(true)
       
       // Clear files on success
       if (data.results.processed > 0) {
         setFiles([])
       }
+      
+      // Reset success state after 3 seconds
+      setTimeout(() => {
+        setProcessingComplete(false)
+      }, 3000)
 
     } catch (error) {
       console.error('❌ Bulk processing error:', error)
@@ -285,10 +293,21 @@ export default function BulkTrainingUploadPage() {
                 <div className="flex gap-4 mt-6">
                   <button
                     onClick={startBulkProcessing}
-                    disabled={processing || files.length === 0}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                    disabled={processing || processingComplete || files.length === 0}
+                    className={`flex-1 font-medium py-3 px-6 rounded-lg transition-colors ${
+                      processingComplete
+                        ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
+                        : 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white'
+                    }`}
                   >
-                    {processing ? (
+                    {processingComplete ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Processing Complete!</span>
+                      </div>
+                    ) : processing ? (
                       <div className="flex items-center justify-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         <span>Processing...</span>
