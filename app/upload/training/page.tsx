@@ -235,7 +235,47 @@ export default function TrainingReviewPage() {
       }
 
       console.log(`📋 Found ${records?.length || 0} unreviewed records`)
-      setDeliveryRecords(records || [])
+      
+      // Verify file existence for each record before showing in training
+      if (records && records.length > 0) {
+        console.log('🔍 Verifying file existence for all records...')
+        const recordsWithFiles = []
+        
+        for (const record of records) {
+          if (!record.image_path) {
+            console.log(`⚠️ Skipping record ${record.id} - no image path`)
+            continue
+          }
+
+          try {
+            // Check if file actually exists in storage by listing folder contents
+            const pathParts = record.image_path.split('/')
+            const folderPath = pathParts.slice(0, -1).join('/')
+            
+            const { data: fileList } = await supabase.storage
+              .from('delivery-dockets')
+              .list(folderPath || '', { limit: 100 })
+
+            const fileName = pathParts[pathParts.length - 1]
+            const fileExists = fileList?.some(f => f.name === fileName)
+
+            if (fileExists) {
+              console.log(`✅ File verified for record ${record.id}: ${record.image_path}`)
+              recordsWithFiles.push(record)
+            } else {
+              console.log(`❌ File missing for record ${record.id}: ${record.image_path}`)
+            }
+          } catch (verifyError) {
+            console.error(`❌ File verification failed for record ${record.id}:`, verifyError)
+          }
+        }
+
+        console.log(`📁 ${recordsWithFiles.length} records have actual files out of ${records.length} total records`)
+        setDeliveryRecords(recordsWithFiles)
+      } else {
+        setDeliveryRecords([])
+      }
+      
       setLoading(false)
     } catch (error) {
       console.error('Error loading records:', error)

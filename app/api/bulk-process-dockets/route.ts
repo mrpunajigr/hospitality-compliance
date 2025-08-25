@@ -79,6 +79,13 @@ export async function POST(request: NextRequest) {
           const dateFolder = new Date().toISOString().split('T')[0] // YYYY-MM-DD
           const fileName = `bulk_${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
           const filePath = `${clientId}/${dateFolder}/bulk_upload/${fileName}`
+          
+          console.log(`📂 Upload path details:`)
+          console.log(`   • Client ID: ${clientId}`)
+          console.log(`   • Date folder: ${dateFolder}`)
+          console.log(`   • File name: ${fileName}`)
+          console.log(`   • Full path: ${filePath}`)
+          console.log(`   • Original name: ${file.name}`)
 
           // Convert File to Buffer
           const buffer = Buffer.from(await file.arrayBuffer())
@@ -100,7 +107,19 @@ export async function POST(request: NextRequest) {
           }
 
           console.log(`✅ Uploaded: ${file.name} -> ${filePath}`)
+          console.log(`📁 Upload result:`, JSON.stringify(uploadResult, null, 2))
           results.uploaded++
+          
+          // Verify file was actually uploaded by checking bucket
+          const { data: verifyData, error: verifyError } = await supabaseAdmin.storage
+            .from('delivery-dockets')
+            .list(filePath.split('/').slice(0, -1).join('/'))
+          
+          if (verifyData) {
+            const fileName = filePath.split('/').pop()
+            const fileExists = verifyData.some(f => f.name === fileName)
+            console.log(`🔍 File verification: ${fileExists ? 'EXISTS' : 'MISSING'} in bucket after upload`)
+          }
 
           // Call the real Supabase Edge Function for Document AI processing
           console.log(`🤖 Processing with AI: ${file.name}`)
