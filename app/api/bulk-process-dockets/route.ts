@@ -264,7 +264,7 @@ export async function POST(request: NextRequest) {
           console.error(`❌ Error processing ${file.name}:`, error)
           results.failed++
           
-          if (error.name === 'AbortError') {
+          if (error instanceof Error && error.name === 'AbortError') {
             console.error(`⏰ Timeout processing ${file.name} - Google Cloud AI took too long`)
             results.errors.push(`${file.name}: Processing timeout (Google Cloud AI took >60s)`)
           } else {
