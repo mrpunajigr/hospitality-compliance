@@ -9,8 +9,10 @@ import { processDocumentWithEnhancedAI, type DocumentAIExtraction } from './Enha
 // Environment variables
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const GOOGLE_CREDENTIALS = Deno.env.get('GOOGLE_CLOUD_CREDENTIALS')!
-const DOCUMENT_AI_PROCESSOR_ID = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID')!
+// AWS environment variables
+const AWS_ACCESS_KEY_ID = Deno.env.get('AWS_ACCESS_KEY_ID')!
+const AWS_SECRET_ACCESS_KEY = Deno.env.get('AWS_SECRET_ACCESS_KEY')!
+const AWS_REGION = Deno.env.get('AWS_REGION') || 'us-east-1'
 
 // Initialize Supabase client with service role
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
@@ -36,16 +38,18 @@ serve(async (req) => {
       try {
         // Test environment variables
         console.log('📋 Environment check:')
-        console.log('  GOOGLE_CREDENTIALS:', GOOGLE_CREDENTIALS ? `✅ Present (${GOOGLE_CREDENTIALS.length} chars)` : '❌ Missing')
-        console.log('  DOCUMENT_AI_PROCESSOR_ID:', DOCUMENT_AI_PROCESSOR_ID ? `✅ Present (${DOCUMENT_AI_PROCESSOR_ID})` : '❌ Missing')
+        console.log('  AWS_ACCESS_KEY_ID:', AWS_ACCESS_KEY_ID ? `✅ Present` : '❌ Missing')
+        console.log('  AWS_SECRET_ACCESS_KEY:', AWS_SECRET_ACCESS_KEY ? `✅ Present` : '❌ Missing')
+        console.log('  AWS_REGION:', AWS_REGION)
         
-        if (!GOOGLE_CREDENTIALS || !DOCUMENT_AI_PROCESSOR_ID) {
+        if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
           return new Response(JSON.stringify({
             success: false,
-            error: 'Missing environment variables',
+            error: 'Missing AWS credentials',
             details: {
-              hasCredentials: !!GOOGLE_CREDENTIALS,
-              hasProcessorId: !!DOCUMENT_AI_PROCESSOR_ID
+              hasAccessKey: !!AWS_ACCESS_KEY_ID,
+              hasSecretKey: !!AWS_SECRET_ACCESS_KEY,
+              region: AWS_REGION
             }
           }), {
             status: 400,
