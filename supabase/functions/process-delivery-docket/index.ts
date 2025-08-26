@@ -63,8 +63,8 @@ serve(async (req) => {
         
         // Test JWT creation and token exchange
         console.log('🔐 Test 2: Creating JWT and getting access token...')
-        const accessToken = await getAccessToken(credentials)
-        console.log('✅ Access token obtained, length:', accessToken.length)
+        const apiKey = await getGoogleCloudApiKey()
+        console.log('✅ API Key obtained, length:', apiKey.length)
         
         // Test Document AI API with minimal request
         console.log('📄 Test 3: Testing Document AI API...')
@@ -77,13 +77,12 @@ serve(async (req) => {
           }
         }
         
-        const apiUrl = `https://documentai.googleapis.com/v1/${DOCUMENT_AI_PROCESSOR_ID}:process`
-        console.log('Making request to:', apiUrl)
+        const apiUrl = `https://documentai.googleapis.com/v1/${DOCUMENT_AI_PROCESSOR_ID}:process?key=${apiKey}`
+        console.log('Making API key request to:', apiUrl.replace(apiKey, 'API_KEY_HIDDEN'))
         
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(requestBody)
@@ -264,7 +263,7 @@ async function processDeliveryDocket({
     try {
       // Get access token for API calls
       const credentials = JSON.parse(GOOGLE_CREDENTIALS)
-      const accessToken = await getAccessToken(credentials)
+      const apiKey = await getGoogleCloudApiKey()
       
       // Process with enhanced multi-stage pipeline
       enhancedExtraction = await processDocumentWithEnhancedAI(
@@ -446,14 +445,13 @@ async function processWithDocumentAI(imageBuffer: ArrayBuffer): Promise<string> 
       }
     }
 
-    const apiUrl = `https://documentai.googleapis.com/v1/${DOCUMENT_AI_PROCESSOR_ID}:process`
+    const apiUrl = `https://documentai.googleapis.com/v1/${DOCUMENT_AI_PROCESSOR_ID}:process?key=${apiKey}`
     console.log('Making Document AI API call to:', apiUrl)
 
     // Call Document AI API directly with fetch
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody)
@@ -488,78 +486,21 @@ async function processWithDocumentAI(imageBuffer: ArrayBuffer): Promise<string> 
   }
 }
 
-// Google Cloud authentication using official client approach
-async function getAccessToken(credentials: any): Promise<string> {
+// Simple Google Cloud API Key authentication (no JWT complexity!)
+async function getGoogleCloudApiKey(): Promise<string> {
   try {
-    console.log('🔐 Using Google Cloud service account authentication...')
-    console.log('📧 Service account:', credentials.client_email)
+    console.log('🔑 Using Google Cloud API Key authentication...')
     
-    // Create the JWT assertion using Google's standard format
-    const now = Math.floor(Date.now() / 1000)
-    const exp = now + 3600 // 1 hour expiration
-    
-    const header = {
-      alg: 'RS256',
-      typ: 'JWT',
-      kid: credentials.private_key_id
+    const apiKey = Deno.env.get('GOOGLE_CLOUD_API_KEY')
+    if (!apiKey) {
+      throw new Error('GOOGLE_CLOUD_API_KEY environment variable not found')
     }
     
-    const payload = {
-      iss: credentials.client_email,
-      sub: credentials.client_email, // Add subject claim
-      aud: 'https://oauth2.googleapis.com/token',
-      iat: now,
-      exp: exp,
-      scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/documentai'
-    }
-    
-    console.log('🎯 Creating JWT with enhanced payload:', JSON.stringify(payload, null, 2))
-    
-    // Create JWT with proper Google Cloud format
-    const jwt = await createGoogleCloudJWT(header, payload, credentials.private_key)
-    console.log('✅ Google Cloud JWT created, length:', jwt.length)
-    
-    // Exchange for access token
-    console.log('🔄 Exchanging JWT for Google Cloud access token...')
-    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwt
-      })
-    })
-    
-    console.log('📊 Token response status:', tokenResponse.status)
-    
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text()
-      console.error('❌ Token exchange failed:', errorText)
-      
-      try {
-        const errorData = JSON.parse(errorText)
-        console.error('📋 Error details:', JSON.stringify(errorData, null, 2))
-        
-        if (errorData.error === 'invalid_grant') {
-          console.error('🔍 JWT header used:', JSON.stringify(header, null, 2))
-          console.error('🔍 JWT payload used:', JSON.stringify(payload, null, 2))
-          throw new Error(`Google Cloud authentication failed - invalid JWT format or credentials`)
-        }
-      } catch (parseError) {
-        // Not JSON
-      }
-      
-      throw new Error(`Google Cloud token exchange failed: ${tokenResponse.status} - ${errorText}`)
-    }
-    
-    const tokenData = await tokenResponse.json()
-    console.log('🎉 Google Cloud access token obtained! Length:', tokenData.access_token.length)
-    return tokenData.access_token
+    console.log('✅ API Key found, length:', apiKey.length)
+    return apiKey
     
   } catch (error) {
-    console.error('❌ Google Cloud authentication error:', error)
+    console.error('❌ Google Cloud API Key error:', error)
     throw error
   }
 }
