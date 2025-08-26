@@ -200,6 +200,7 @@ export default function TrainingReviewPage() {
       let query = supabase
         .from('delivery_records')
         .select('*')
+        .eq('client_id', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11') // Filter by dev company ID
         .neq('processing_status', 'failed') // Exclude failed processing records first
         .order('created_at', { ascending: false })
         .limit(50) // Load batch of 50 for review
