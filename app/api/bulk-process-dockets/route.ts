@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
           
           // Add timeout for Google Cloud AI processing
           const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+          const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout for large documents
           
           const processingResponse = await fetch(edgeFunctionUrl, {
             method: 'POST',
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
           
           if (error instanceof Error && error.name === 'AbortError') {
             console.error(`⏰ Timeout processing ${file.name} - Google Cloud AI took too long`)
-            results.errors.push(`${file.name}: Processing timeout (Google Cloud AI took >60s)`)
+            results.errors.push(`${file.name}: Processing timeout (Google Cloud AI took >3 minutes)`)
           } else {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error'
             results.errors.push(`${file.name}: ${errorMessage}`)
