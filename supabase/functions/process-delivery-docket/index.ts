@@ -630,12 +630,12 @@ async function importPrivateKey(privateKey: string): Promise<CryptoKey> {
     
     console.log('🔧 Key buffer created, size:', keyBuffer.length)
     
-    // Import the key with enhanced error handling
+    // Import the key with proper RSA-PSS algorithm for Google Cloud compatibility
     const importedKey = await crypto.subtle.importKey(
       'pkcs8',
       keyBuffer.buffer,
       {
-        name: 'RSASSA-PKCS1-v1_5',
+        name: 'RSA-PSS',
         hash: 'SHA-256'
       },
       false,
@@ -657,7 +657,10 @@ async function signMessage(message: string, key: CryptoKey): Promise<ArrayBuffer
   console.log('Signing message of length:', messageBuffer.length)
   
   const signature = await crypto.subtle.sign(
-    'RSASSA-PKCS1-v1_5',
+    {
+      name: 'RSA-PSS',
+      saltLength: 32
+    },
     key,
     messageBuffer
   )
