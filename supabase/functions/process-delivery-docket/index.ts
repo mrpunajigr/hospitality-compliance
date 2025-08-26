@@ -488,28 +488,39 @@ async function processWithDocumentAI(imageBuffer: ArrayBuffer): Promise<string> 
   }
 }
 
-// Improved JWT implementation for Google Cloud service account authentication
+// Google Cloud authentication using official client approach
 async function getAccessToken(credentials: any): Promise<string> {
   try {
+    console.log('🔐 Using Google Cloud service account authentication...')
+    console.log('📧 Service account:', credentials.client_email)
+    
+    // Create the JWT assertion using Google's standard format
     const now = Math.floor(Date.now() / 1000)
     const exp = now + 3600 // 1 hour expiration
     
-    const payload = {
-      iss: credentials.client_email,
-      scope: 'https://www.googleapis.com/auth/cloud-platform',
-      aud: 'https://oauth2.googleapis.com/token',
-      iat: now,
-      exp: exp
+    const header = {
+      alg: 'RS256',
+      typ: 'JWT',
+      kid: credentials.private_key_id
     }
     
-    console.log('Creating JWT with payload:', JSON.stringify(payload, null, 2))
+    const payload = {
+      iss: credentials.client_email,
+      sub: credentials.client_email, // Add subject claim
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: now,
+      exp: exp,
+      scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/documentai'
+    }
     
-    // Create JWT token
-    const jwt = await createJWT(payload, credentials.private_key)
-    console.log('JWT created successfully, length:', jwt.length)
+    console.log('🎯 Creating JWT with enhanced payload:', JSON.stringify(payload, null, 2))
     
-    // Exchange JWT for access token with enhanced logging
-    console.log('🎟️ Exchanging JWT for access token...')
+    // Create JWT with proper Google Cloud format
+    const jwt = await createGoogleCloudJWT(header, payload, credentials.private_key)
+    console.log('✅ Google Cloud JWT created, length:', jwt.length)
+    
+    // Exchange for access token
+    console.log('🔄 Exchanging JWT for Google Cloud access token...')
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -521,59 +532,63 @@ async function getAccessToken(credentials: any): Promise<string> {
       })
     })
     
-    console.log('📊 Token exchange response status:', tokenResponse.status)
+    console.log('📊 Token response status:', tokenResponse.status)
     
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error('❌ Token exchange failed:', errorText)
-      console.error('🔍 JWT preview (first 100 chars):', jwt.substring(0, 100))
-      console.error('🔍 Payload used:', JSON.stringify(payload, null, 2))
       
-      // Parse error details if JSON
       try {
         const errorData = JSON.parse(errorText)
-        console.error('🔍 Parsed error details:', JSON.stringify(errorData, null, 2))
+        console.error('📋 Error details:', JSON.stringify(errorData, null, 2))
         
         if (errorData.error === 'invalid_grant') {
-          throw new Error(`Invalid JWT signature - check Google Cloud service account key format`)
+          console.error('🔍 JWT header used:', JSON.stringify(header, null, 2))
+          console.error('🔍 JWT payload used:', JSON.stringify(payload, null, 2))
+          throw new Error(`Google Cloud authentication failed - invalid JWT format or credentials`)
         }
       } catch (parseError) {
-        // Not JSON, use raw text
+        // Not JSON
       }
       
-      throw new Error(`Token exchange failed: ${tokenResponse.status} - ${errorText}`)
+      throw new Error(`Google Cloud token exchange failed: ${tokenResponse.status} - ${errorText}`)
     }
     
     const tokenData = await tokenResponse.json()
-    console.log('✅ Access token obtained successfully, length:', tokenData.access_token.length)
+    console.log('🎉 Google Cloud access token obtained! Length:', tokenData.access_token.length)
     return tokenData.access_token
     
   } catch (error) {
-    console.error('Error in getAccessToken:', error)
+    console.error('❌ Google Cloud authentication error:', error)
     throw error
   }
 }
 
-// Use a well-tested JWT library approach for Google Cloud
-async function createJWT(payload: any, privateKey: string): Promise<string> {
+// Google Cloud compatible JWT creation with proper headers and key handling
+async function createGoogleCloudJWT(header: any, payload: any, privateKey: string): Promise<string> {
   try {
-    const header = { alg: 'RS256', typ: 'JWT' }
+    console.log('🔨 Creating Google Cloud JWT with enhanced format...')
+    console.log('📋 Using header:', JSON.stringify(header))
     
-    // Encode header and payload
+    // Encode header and payload using the provided header (not duplicate)
     const encodedHeader = base64UrlEncode(JSON.stringify(header))
     const encodedPayload = base64UrlEncode(JSON.stringify(payload))
     const unsignedToken = `${encodedHeader}.${encodedPayload}`
     
-    console.log('Creating JWT for payload:', JSON.stringify(payload))
-    console.log('Unsigned token:', unsignedToken.substring(0, 150) + '...')
+    console.log('📦 Payload summary:', JSON.stringify(payload))
+    console.log('📝 Unsigned token (first 150 chars):', unsignedToken.substring(0, 150) + '...')
     
-    // Use a simpler RSA-PSS approach that's more compatible
-    const keyData = await importPrivateKey(privateKey)
-    const signature = await signMessage(unsignedToken, keyData)
+    // Import private key with enhanced Google Cloud compatibility
+    console.log('🔑 Importing private key for Google Cloud...')
+    const keyData = await importPrivateKeyForGoogleCloud(privateKey)
+    
+    // Sign with Google Cloud optimized algorithm
+    console.log('✍️ Signing JWT for Google Cloud...')
+    const signature = await signJWTForGoogleCloud(unsignedToken, keyData)
     const encodedSignature = base64UrlEncode(arrayBufferToBase64(signature))
     
     const jwt = `${unsignedToken}.${encodedSignature}`
-    console.log('Final JWT length:', jwt.length)
+    console.log('🎉 Google Cloud JWT completed, length:', jwt.length)
     
     return jwt
     
@@ -583,7 +598,7 @@ async function createJWT(payload: any, privateKey: string): Promise<string> {
   }
 }
 
-async function importPrivateKey(privateKey: string): Promise<CryptoKey> {
+async function importPrivateKeyForGoogleCloud(privateKey: string): Promise<CryptoKey> {
   try {
     console.log('🔑 Importing Google Cloud private key...')
     
@@ -630,12 +645,12 @@ async function importPrivateKey(privateKey: string): Promise<CryptoKey> {
     
     console.log('🔧 Key buffer created, size:', keyBuffer.length)
     
-    // Import the key with proper RSA-PSS algorithm for Google Cloud compatibility
+    // Import the key with RSASSA-PKCS1-v1_5 (standard for JWT RS256)
     const importedKey = await crypto.subtle.importKey(
       'pkcs8',
       keyBuffer.buffer,
       {
-        name: 'RSA-PSS',
+        name: 'RSASSA-PKCS1-v1_5',
         hash: 'SHA-256'
       },
       false,
@@ -652,15 +667,12 @@ async function importPrivateKey(privateKey: string): Promise<CryptoKey> {
   }
 }
 
-async function signMessage(message: string, key: CryptoKey): Promise<ArrayBuffer> {
+async function signJWTForGoogleCloud(message: string, key: CryptoKey): Promise<ArrayBuffer> {
   const messageBuffer = new TextEncoder().encode(message)
   console.log('Signing message of length:', messageBuffer.length)
   
   const signature = await crypto.subtle.sign(
-    {
-      name: 'RSA-PSS',
-      saltLength: 32
-    },
+    'RSASSA-PKCS1-v1_5',
     key,
     messageBuffer
   )
