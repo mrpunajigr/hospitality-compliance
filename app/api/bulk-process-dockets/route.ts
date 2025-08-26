@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
           const timestamp = Date.now() + fileIndex // Ensure uniqueness
           const dateFolder = new Date().toISOString().split('T')[0] // YYYY-MM-DD
           const fileName = `bulk_${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-          const filePath = `${dateFolder}/bulk_upload/${fileName}` // Remove client ID from path
+          const filePath = `${clientId}/${dateFolder}/${fileName}` // Use client ID folder structure
           
           console.log(`📂 Upload path details:`)
           console.log(`   • Client ID: ${clientId}`)
