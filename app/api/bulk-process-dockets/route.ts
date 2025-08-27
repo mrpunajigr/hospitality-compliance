@@ -142,6 +142,7 @@ export async function POST(request: NextRequest) {
           }
           
           console.log(`📤 Edge Function request body:`, JSON.stringify(requestBody, null, 2))
+          console.log(`🔑 Using Service Role Key: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET (length: ' + process.env.SUPABASE_SERVICE_ROLE_KEY.length + ')' : 'MISSING'}`)
           
           // Add timeout for Google Cloud AI processing
           const controller = new AbortController()
@@ -164,7 +165,10 @@ export async function POST(request: NextRequest) {
 
           if (!processingResponse.ok) {
             const errorText = await processingResponse.text()
-            console.error(`🤖 AI processing failed for ${file.name}:`, errorText)
+            console.error(`🤖 Edge Function failed for ${file.name}:`)
+            console.error(`   Status: ${processingResponse.status}`)
+            console.error(`   Response: ${errorText}`)
+            console.error(`   URL: ${edgeFunctionUrl}`)
             
             // Create basic record even if AI processing fails
             const { data: deliveryRecord, error: dbError } = await supabaseAdmin
