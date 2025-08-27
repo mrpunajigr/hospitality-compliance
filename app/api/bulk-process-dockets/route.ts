@@ -170,6 +170,18 @@ export async function POST(request: NextRequest) {
             console.error(`   Response: ${errorText}`)
             console.error(`   URL: ${edgeFunctionUrl}`)
             
+            // Return the error to frontend so we can see it
+            return NextResponse.json({
+              success: false,
+              error: 'Edge Function failed',
+              details: {
+                status: processingResponse.status,
+                response: errorText,
+                url: edgeFunctionUrl,
+                fileName: file.name
+              }
+            }, { status: 500 })
+            
             // Create basic record even if AI processing fails
             const { data: deliveryRecord, error: dbError } = await supabaseAdmin
               .from('delivery_records')
