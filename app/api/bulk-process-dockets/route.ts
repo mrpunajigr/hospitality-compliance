@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
               .from('delivery_records')
               .insert({
                 client_id: clientId,
-                user_id: userId,
+                user_id: null,
                 image_path: uploadResult?.path || `failed_upload_${file.name}`,
                 processing_status: 'failed',
                 error_message: `AI processing failed: ${errorText}`,
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
               .from('audit_logs')
               .insert({
                 client_id: clientId,
-                user_id: userId,
+                user_id: null,
                 action: 'bulk.document.processed',
                 resource_type: 'delivery_record',
                 resource_id: deliveryRecord.id,
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
       .from('audit_logs')
       .insert({
         client_id: clientId,
-        user_id: userId,
+        user_id: null,
         action: 'bulk.processing.completed',
         resource_type: 'bulk_operation',
         resource_id: null,
