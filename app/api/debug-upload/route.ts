@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     
     // Get the first file
     let testFile = null
-    for (const [key, value] of formData.entries()) {
+    const entries = Array.from(formData.entries())
+    for (const [key, value] of entries) {
       if (key.startsWith('file_') && value instanceof File) {
         testFile = value
         console.log('🐛 DEBUG UPLOAD: Found file =', testFile.name, testFile.size, 'bytes')
