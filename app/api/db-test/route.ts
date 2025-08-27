@@ -24,7 +24,7 @@ export async function POST() {
       .from('delivery_records')
       .insert({
         client_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        user_id: 'test-user-db-direct',
+        user_id: '00000000-0000-0000-0000-000000000002',
         supplier_name: 'DB TEST API WORKING',
         image_path: 'test/direct-db-test.jpg',
         processing_status: 'completed',
