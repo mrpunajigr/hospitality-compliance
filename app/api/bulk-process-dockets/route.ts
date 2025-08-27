@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
               .insert({
                 client_id: clientId,
                 user_id: userId,
-                image_path: uploadResult.path,
+                image_path: uploadResult?.path || `failed_upload_${file.name}`,
                 processing_status: 'failed',
                 error_message: `AI processing failed: ${errorText}`,
                 raw_extracted_text: 'Bulk upload - AI processing failed',
