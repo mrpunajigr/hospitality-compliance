@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
             bucketId: 'delivery-dockets',
             fileName: fileName,
             filePath: uploadResult.path,
-            userId: userId,
+            userId: null,
             clientId: clientId,
             metadata: {
               bulkUpload: true,

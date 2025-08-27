@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         bucketId: 'delivery-dockets',
         fileName: fileName,
         filePath: uploadResult.path,
-        userId: userId,
+        userId: null,
         clientId: clientId
       })
     })
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
         .from('delivery_records')
         .insert({
           client_id: clientId,
-          user_id: userId,
+          user_id: null,
           image_path: uploadResult.path,
           processing_status: 'failed',
           error_message: `Document AI processing failed: ${errorText}`,

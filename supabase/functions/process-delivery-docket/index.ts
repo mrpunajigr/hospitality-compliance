@@ -105,6 +105,26 @@ serve(async (req) => {
     }
 
     console.log(`Processing docket: ${fileName} for client: ${clientId}`)
+    
+    // DEBUGGING: Create a test record immediately to prove Edge Function is running
+    try {
+      const { data: debugRecord, error: debugError } = await supabase.from('delivery_records').insert({
+        client_id: clientId,
+        user_id: userId,
+        image_path: filePath,
+        processing_status: 'debug_test',
+        raw_extracted_text: `EDGE FUNCTION DEBUG TEST - ${new Date().toISOString()} - Function is executing!`,
+        error_message: 'This is a test record to verify Edge Function execution'
+      }).select()
+      
+      if (debugError) {
+        console.error('❌ Failed to create debug test record:', debugError)
+      } else {
+        console.log('✅ Debug test record created successfully:', debugRecord)
+      }
+    } catch (debugErr) {
+      console.error('❌ Debug record creation exception:', debugErr)
+    }
 
     // Validate user access (now enabled for all modes)
     const hasAccess = await validateUserAccess(userId, clientId)
