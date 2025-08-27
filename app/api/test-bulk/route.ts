@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
     
     // Count files
     let fileCount = 0
-    for (const [key, value] of formData.entries()) {
+    const entries = Array.from(formData.entries())
+    for (const [key, value] of entries) {
       if (key.startsWith('file_') && value instanceof File) {
         fileCount++
         console.log(`🧪 TEST API: File ${fileCount}: ${value.name} (${value.size} bytes)`)
