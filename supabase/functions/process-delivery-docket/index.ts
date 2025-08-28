@@ -408,49 +408,14 @@ async function processWithAWSTextract(imageBase64: string, mimeType: string): Pr
     const imageBytes = Uint8Array.from(atob(imageBase64), c => c.charCodeAt(0))
     console.log('📄 Image size:', imageBytes.length, 'bytes')
     
-    // TEMPORARY: Using mock AWS Textract response until proper SDK is available
-    console.log('📤 Using mock AWS Textract processing...')
+    // Real AWS Textract processing
+    console.log('📤 Calling AWS Textract DetectDocumentText...')
     
-    // Simulate realistic delivery docket content
-    const mockTextractResult = {
-      Blocks: [
-        {
-          BlockType: 'LINE',
-          Text: 'DELIVERY DOCKET'
-        },
-        {
-          BlockType: 'LINE', 
-          Text: 'Fresh Foods Co.'
-        },
-        {
-          BlockType: 'LINE',
-          Text: `Docket: DD-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
-        },
-        {
-          BlockType: 'LINE',
-          Text: `Date: ${new Date().toLocaleDateString('en-GB')}`
-        },
-        {
-          BlockType: 'LINE',
-          Text: 'Temperature: 4°C'
-        },
-        {
-          BlockType: 'LINE',
-          Text: 'Products: Fresh lettuce 2kg'
-        },
-        {
-          BlockType: 'LINE',
-          Text: 'Roma tomatoes 1.5kg'
-        },
-        {
-          BlockType: 'LINE',
-          Text: 'Whole milk 2L'
-        }
-      ]
-    }
+    // Call AWS Textract DetectDocumentText API
+    const textractResult = await callAWSTextract(imageBytes, accessKeyId, secretAccessKey, region)
     
-    console.log('🎉 Mock AWS Textract processing completed!')
-    const textractResult = mockTextractResult
+    console.log('🎉 AWS Textract processing completed!')
+    console.log('📄 Detected blocks:', textractResult.Blocks?.length || 0)
     
     // Extract text from AWS Textract result
     return extractTextFromTextract(textractResult)
@@ -459,6 +424,109 @@ async function processWithAWSTextract(imageBase64: string, mimeType: string): Pr
     console.error('❌ AWS Textract error:', error)
     throw error
   }
+}
+
+// Real AWS Textract API call
+async function callAWSTextract(imageBytes: Uint8Array, accessKeyId: string, secretAccessKey: string, region: string): Promise<any> {
+  // AWS API details
+  const service = 'textract'
+  const host = `textract.${region}.amazonaws.com`
+  const method = 'POST'
+  const endpoint = `https://${host}/`
+  
+  // Prepare the request body
+  const requestBody = JSON.stringify({
+    Document: {
+      Bytes: Array.from(imageBytes)
+    }
+  })
+  
+  // Create AWS signature
+  const now = new Date()
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
+  const dateStamp = amzDate.substring(0, 8)
+  
+  // Create the canonical request
+  const canonicalHeaders = [
+    `host:${host}`,
+    `x-amz-date:${amzDate}`,
+    `x-amz-target:Textract.DetectDocumentText`
+  ].join('\n')
+  
+  const signedHeaders = 'host;x-amz-date;x-amz-target'
+  const payloadHash = await sha256(requestBody)
+  
+  const canonicalRequest = [
+    method,
+    '/',
+    '',
+    canonicalHeaders,
+    '',
+    signedHeaders,
+    payloadHash
+  ].join('\n')
+  
+  // Create string to sign
+  const algorithm = 'AWS4-HMAC-SHA256'
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`
+  const stringToSign = [
+    algorithm,
+    amzDate,
+    credentialScope,
+    await sha256(canonicalRequest)
+  ].join('\n')
+  
+  // Calculate signature
+  const signature = await getSignatureKey(secretAccessKey, dateStamp, region, service, stringToSign)
+  
+  // Create authorization header
+  const authorization = `${algorithm} Credential=${accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`
+  
+  // Make the request
+  const response = await fetch(endpoint, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Date': amzDate,
+      'X-Amz-Target': 'Textract.DetectDocumentText',
+      'Authorization': authorization
+    },
+    body: requestBody
+  })
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('AWS Textract error:', response.status, errorText)
+    throw new Error(`AWS Textract failed: ${response.status} ${errorText}`)
+  }
+  
+  return await response.json()
+}
+
+// Helper functions for AWS signature
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function hmac(key: Uint8Array, message: string): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  )
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(message))
+  return new Uint8Array(signature)
+}
+
+async function getSignatureKey(key: string, dateStamp: string, regionName: string, serviceName: string, stringToSign: string): Promise<string> {
+  const kDate = await hmac(new TextEncoder().encode('AWS4' + key), dateStamp)
+  const kRegion = await hmac(kDate, regionName)
+  const kService = await hmac(kRegion, serviceName)
+  const kSigning = await hmac(kService, 'aws4_request')
+  const signature = await hmac(kSigning, stringToSign)
+  
+  return Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 // Helper functions for AWS Textract
