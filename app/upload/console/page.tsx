@@ -140,6 +140,39 @@ export default function UploadConsolePage() {
     }
   }
 
+  // Emergency clear function for stuck processing states
+  const emergencyClearAll = () => {
+    console.log('🚨 Emergency clear triggered - clearing all states')
+    
+    // Clear all React states
+    setLatestDeliveryRecord(null)
+    setProcessingResults(null)
+    setLoading(false)
+    
+    // Clear browser storage
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.clear()
+        sessionStorage.clear()
+        // Remove any stuck DOM elements
+        document.querySelectorAll('[class*="modal"], [class*="overlay"], [class*="backdrop"]').forEach(el => {
+          if (el.textContent?.includes('Processing')) {
+            el.remove()
+          }
+        })
+        console.log('🚨 Emergency clear completed - all states and storage cleared')
+        
+        // Force page refresh after clearing
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+        
+      } catch (error) {
+        console.error('Error during emergency clear:', error)
+      }
+    }
+  }
+
   // Auto-fetch data on component mount
   useEffect(() => {
     console.log('🔍 Console: Component mounted, triggering auto-refresh in 2 seconds')
@@ -224,13 +257,21 @@ export default function UploadConsolePage() {
         </div>
       </div>
 
-      {/* DEBUG: Manual refresh button */}
-      <div className="mb-4 text-center">
+      {/* DEBUG: Manual refresh and emergency clear buttons */}
+      <div className="mb-4 text-center space-x-4">
         <button 
           onClick={refreshData}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           🔄 Debug: Refresh Data
+        </button>
+        
+        <button 
+          onClick={emergencyClearAll}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          title="Clear all processing states and reload page"
+        >
+          🚨 Emergency Clear
         </button>
       </div>
 
