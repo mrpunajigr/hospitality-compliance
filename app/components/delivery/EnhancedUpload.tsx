@@ -78,15 +78,23 @@ interface RawTextractDisplayProps {
 
 function RawTextractDisplay({ recordId }: RawTextractDisplayProps) {
   const [rawText, setRawText] = useState<string>('Loading AWS Textract results...')
+  const [loading, setLoading] = useState(false)
   
   useEffect(() => {
+    let isCancelled = false
+    
     const fetchRawText = async () => {
+      if (!recordId || loading) return
+      
+      setLoading(true)
       try {
         const { data, error } = await supabase
           .from('delivery_records')
           .select('raw_extracted_text, processing_metadata')
           .eq('id', recordId)
           .single()
+        
+        if (isCancelled) return
         
         if (error) throw error
         
@@ -96,13 +104,21 @@ function RawTextractDisplay({ recordId }: RawTextractDisplayProps) {
           setRawText('No raw text available - processing may have failed')
         }
       } catch (error) {
-        console.error('Error fetching raw text:', error)
-        setRawText('Error loading AWS Textract results')
+        if (!isCancelled) {
+          console.error('Error fetching raw text:', error)
+          setRawText('Error loading AWS Textract results')
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false)
+        }
       }
     }
     
-    if (recordId) {
-      fetchRawText()
+    fetchRawText()
+    
+    return () => {
+      isCancelled = true
     }
   }, [recordId])
   
