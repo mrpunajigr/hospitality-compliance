@@ -380,21 +380,13 @@ export default function UploadConsolePage() {
           <div>
             
             {latestDeliveryRecord ? (
-              <SimpleResultsCard 
-                data={{
-                  id: latestDeliveryRecord.id,
-                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Unknown Supplier',
-                  delivery_date: latestDeliveryRecord.delivery_date || latestDeliveryRecord.created_at,
-                  created_at: latestDeliveryRecord.created_at,
-                  uploaded_by: latestDeliveryRecord.uploaded_by,
-                  image_path: latestDeliveryRecord.image_path,
-                  user_name: user?.user_metadata?.full_name || user?.email,
-                  confidence_score: latestDeliveryRecord.confidence_score,
-                  client_id: latestDeliveryRecord.client_id || userClient?.id
-                }}
-                userId={user?.id}
-                className="!static !relative !block"
-              />
+              <div className="bg-red-500 text-white p-6 rounded-xl">
+                <h3 className="text-xl font-bold mb-2">🔥 MODAL KILL TEST</h3>
+                <p className="mb-2">COMPLETELY DIFFERENT CONTENT</p>
+                <p className="mb-2">Supplier: TEST REPLACEMENT</p>
+                <p className="mb-2">Date: {new Date().toLocaleDateString()}</p>
+                <p className="text-sm">If modal still appears, it's not from SimpleResultsCard</p>
+              </div>
             ) : (
               <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
