@@ -355,7 +355,7 @@ export default function UploadConsolePage() {
           {/* Latest Upload Results */}
           <div>
             
-            {latestDeliveryRecord ? (
+            {false && latestDeliveryRecord ? (
               <SimpleResultsCard 
                 data={{
                   id: latestDeliveryRecord.id,
