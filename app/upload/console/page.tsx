@@ -176,6 +176,19 @@ export default function UploadConsolePage() {
   // Auto-fetch data on component mount
   useEffect(() => {
     console.log('🔍 Console: Component mounted, triggering auto-refresh in 2 seconds')
+    
+    // IMMEDIATE: Clear any stuck processing modals on page load
+    setTimeout(() => {
+      const stuckElements = document.querySelectorAll('*')
+      stuckElements.forEach(el => {
+        const text = el.textContent || ''
+        if (text.includes('Processing...') && text.includes('Delivery:') && text.includes('Uploaded:')) {
+          console.log('🚨 Found stuck processing element:', el)
+          el.remove()
+        }
+      })
+    }, 100)
+    
     const timer = setTimeout(() => {
       refreshData()
     }, 2000)
@@ -346,7 +359,7 @@ export default function UploadConsolePage() {
               <SimpleResultsCard 
                 data={{
                   id: latestDeliveryRecord.id,
-                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Processing...',
+                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Unknown Supplier',
                   delivery_date: latestDeliveryRecord.delivery_date || latestDeliveryRecord.created_at,
                   created_at: latestDeliveryRecord.created_at,
                   uploaded_by: latestDeliveryRecord.uploaded_by,
