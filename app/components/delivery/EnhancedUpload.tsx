@@ -3,7 +3,7 @@
 // Enhanced Upload Component - Batch Processing for Restaurant Operations
 // Optimized for iPad Air (2013) with Safari 12 compatibility
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
 
@@ -69,6 +69,44 @@ interface EnhancedUploadProps {
   accept?: string
   maxSizeMB?: number
   maxFiles?: number
+}
+
+// Raw Textract Display Component
+interface RawTextractDisplayProps {
+  recordId: string
+}
+
+function RawTextractDisplay({ recordId }: RawTextractDisplayProps) {
+  const [rawText, setRawText] = useState<string>('Loading AWS Textract results...')
+  
+  useEffect(() => {
+    const fetchRawText = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('delivery_records')
+          .select('raw_extracted_text, processing_metadata')
+          .eq('id', recordId)
+          .single()
+        
+        if (error) throw error
+        
+        if (data?.raw_extracted_text) {
+          setRawText(data.raw_extracted_text)
+        } else {
+          setRawText('No raw text available - processing may have failed')
+        }
+      } catch (error) {
+        console.error('Error fetching raw text:', error)
+        setRawText('Error loading AWS Textract results')
+      }
+    }
+    
+    if (recordId) {
+      fetchRawText()
+    }
+  }, [recordId])
+  
+  return <span>{rawText}</span>
 }
 
 export default function EnhancedUpload({ 
@@ -593,7 +631,7 @@ export default function EnhancedUpload({
         </div>
       )}
       
-      {/* Enhanced Results Preview */}
+      {/* Enhanced Results Preview with Raw AWS Textract Text */}
       {statusCounts.completed > 0 && (
         <div className={getCardStyle('primary')}>
           <div className="p-6">
@@ -601,7 +639,7 @@ export default function EnhancedUpload({
               Processing Results ({statusCounts.completed} completed)
             </h3>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               {uploadFiles
                 .filter(f => f.status === 'completed' && f.result)
                 .map((uploadFile) => {
@@ -611,490 +649,136 @@ export default function EnhancedUpload({
                   if (!extraction) return null
                   
                   return (
-                    <div key={uploadFile.id} className="bg-white/10 rounded-xl p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="text-white font-medium">{uploadFile.file.name}</h4>
-                        <div className="text-right">
-                          <div className="text-green-300 text-sm font-medium">
-                            {((extraction.analysis?.overallConfidence || 0) * 100).toFixed(1)}% Confidence
-                          </div>
-                          <div className="text-white/60 text-xs">
-                            {extraction.analysis?.processingTime || 0}ms processing
+                    <div key={uploadFile.id} className="bg-white/10 rounded-xl p-6">
+                      
+                      {/* Header with Thumbnail and Basic Info */}
+                      <div className="flex items-start space-x-4 mb-6">
+                        {/* Large Thumbnail */}
+                        <div className="w-32 h-32 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          {uploadFile.preview ? (
+                            <img 
+                              src={uploadFile.preview} 
+                              alt={uploadFile.file.name}
+                              className="w-32 h-32 object-cover rounded-lg border border-white/30"
+                            />
+                          ) : (
+                            <span className="text-white text-4xl">📄</span>
+                          )}
+                        </div>
+                        
+                        {/* File Info and Stats */}
+                        <div className="flex-1">
+                          <h4 className="text-white font-semibold text-lg mb-2">
+                            {uploadFile.file.name}
+                          </h4>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-1">Confidence</div>
+                              <div className="text-green-300 text-lg font-bold">
+                                {((extraction.analysis?.overallConfidence || 0) * 100).toFixed(1)}%
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-1">Items Found</div>
+                              <div className="text-blue-300 text-lg font-bold">
+                                {extraction.lineItems?.length || 0}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-1">Supplier</div>
+                              <div className="text-white text-sm font-medium truncate">
+                                {extraction.supplier?.value || 'Unknown'}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-1">Process Time</div>
+                              <div className="text-purple-300 text-sm font-medium">
+                                {extraction.analysis?.processingTime || 0}ms
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Supplier */}
-                        <div className="bg-white/5 rounded-lg p-3">
-                          <div className="text-white/70 text-xs mb-1">Supplier</div>
-                          <div className="text-white text-sm font-medium">
-                            {extraction.supplier.value}
-                          </div>
-                          <div className="text-blue-300 text-xs">
-                            {(extraction.supplier.confidence * 100).toFixed(0)}% confidence
-                          </div>
+                      {/* Raw AWS Textract Text Display */}
+                      <div className="border-t border-white/20 pt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-white font-medium">🤖 AWS Textract Raw Extraction</h5>
+                          <button
+                            onClick={() => {
+                              // Copy record ID to clipboard
+                              navigator.clipboard.writeText(result.deliveryRecordId)
+                              alert('Record ID copied to clipboard')
+                            }}
+                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg"
+                          >
+                            Copy Record ID
+                          </button>
                         </div>
                         
-                        {/* Delivery Date */}
-                        <div className="bg-white/5 rounded-lg p-3">
-                          <div className="text-white/70 text-xs mb-1">Delivery Date</div>
-                          <div className="text-white text-sm font-medium">
-                            {new Date(extraction.deliveryDate.value).toLocaleDateString()}
-                          </div>
-                          <div className="text-blue-300 text-xs">
-                            {(extraction.deliveryDate.confidence * 100).toFixed(0)}% confidence
-                          </div>
-                        </div>
-                        
-                        {/* Temperature Status */}
-                        <div className="bg-white/5 rounded-lg p-3">
-                          <div className="text-white/70 text-xs mb-1">Temperature Status</div>
-                          <div className="text-white text-sm font-medium">
-                            {extraction.temperatureData?.readings?.length || 0} readings
-                          </div>
-                          <div className={`text-xs ${
-                            extraction.temperatureData?.overallCompliance === 'compliant' 
-                              ? 'text-green-300' 
-                              : extraction.temperatureData?.overallCompliance === 'violation'
-                                ? 'text-red-300'
-                                : 'text-yellow-300'
-                          }`}>
-                            {extraction.temperatureData?.overallCompliance?.toUpperCase() || 'UNKNOWN'}
-                          </div>
-                        </div>
-                        
-                        {/* Line Items */}
-                        <div className="bg-white/5 rounded-lg p-3">
-                          <div className="text-white/70 text-xs mb-1">Products</div>
-                          <div className="text-white text-sm font-medium">
-                            {extraction.lineItems?.length || 0} items
-                          </div>
-                          <div className="text-blue-300 text-xs">
-                            ${extraction.analysis?.estimatedValue?.toFixed(2) || '0.00'} est. value
-                          </div>
+                        {/* Raw Text Container */}
+                        <div className="bg-black/30 rounded-lg p-4 max-h-64 overflow-y-auto">
+                          <pre className="text-green-300 text-sm font-mono whitespace-pre-wrap break-words">
+                            <RawTextractDisplay recordId={result.deliveryRecordId} />
+                          </pre>
                         </div>
                       </div>
                       
-                      {/* Product Categories */}
-                      {extraction.productClassification.primaryCategory && (
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <div className="text-white/70 text-xs mb-2">Product Classification</div>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-xs">
-                              {extraction.productClassification.primaryCategory}
-                            </span>
-                            <span className="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">
-                              {(extraction.productClassification.summary.confidence * 100).toFixed(0)}% accuracy
-                            </span>
-                          </div>
+                      {/* Structured Data Display */}
+                      <div className="border-t border-white/20 pt-4 mt-4">
+                        <h5 className="text-white font-medium mb-3">📊 Structured Analysis</h5>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Line Items */}
+                          {extraction.lineItems && extraction.lineItems.length > 0 && (
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-2">Line Items ({extraction.lineItems.length})</div>
+                              <div className="space-y-1 max-h-32 overflow-y-auto">
+                                {extraction.lineItems.slice(0, 5).map((item: any, index: number) => (
+                                  <div key={index} className="text-white text-sm flex justify-between">
+                                    <span className="truncate flex-1">{item.description}</span>
+                                    <span className="text-blue-300 ml-2">{item.quantity}</span>
+                                  </div>
+                                ))}
+                                {extraction.lineItems.length > 5 && (
+                                  <div className="text-white/60 text-xs">
+                                    +{extraction.lineItems.length - 5} more items...
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Temperature Data */}
+                          {extraction.temperatureData && extraction.temperatureData.readings && (
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="text-white/70 text-xs mb-2">Temperature Readings</div>
+                              <div className="space-y-1">
+                                {extraction.temperatureData.readings.slice(0, 3).map((reading: any, index: number) => (
+                                  <div key={index} className="text-white text-sm flex justify-between">
+                                    <span>{reading.value}°{reading.unit}</span>
+                                    <span className={`${reading.complianceStatus === 'pass' ? 'text-green-300' : 'text-red-300'}`}>
+                                      {reading.complianceStatus}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                       
-                      {/* Temperature Readings */}
-                      {extraction.temperatureData.readings.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <div className="text-white/70 text-xs mb-2">Temperature Readings</div>
-                          <div className="flex flex-wrap gap-2">
-                            {extraction.temperatureData.readings.slice(0, 5).map((temp, idx) => (
-                              <span 
-                                key={idx}
-                                className={`px-2 py-1 rounded text-xs ${
-                                  temp.complianceStatus === 'pass' 
-                                    ? 'bg-green-600/20 text-green-300'
-                                    : temp.complianceStatus === 'fail'
-                                      ? 'bg-red-600/20 text-red-300'
-                                      : 'bg-yellow-600/20 text-yellow-300'
-                                }`}
-                              >
-                                {temp.value}°{temp.unit}
-                              </span>
-                            ))}
-                            {extraction.temperatureData.readings.length > 5 && (
-                              <span className="px-2 py-1 bg-white/20 text-white/60 rounded text-xs">
-                                +{extraction.temperatureData.readings.length - 5} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )
-                })
-              }
+                })}
             </div>
           </div>
         </div>
       )}
-    </div>
-  )
-
-  // Authentication check - after all hooks are defined (allow demo mode)
-  if (!userId) {
-    return (
-      <div className={getCardStyle('form')}>
-        <div className="text-center">
-          <div className="text-gray-500 mb-4">
-            🔐 Authentication required to upload documents
-          </div>
-          <p className="text-sm text-gray-400">
-            Please sign in to access the upload functionality
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Batch Upload Section */}
-      <div className={getCardStyle('form')}>
-        <h3 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
-          Batch Upload Delivery Documents
-        </h3>
-        
-        <div className="space-y-4">
-          {/* File Upload Area */}
-          <div 
-            className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center cursor-pointer hover:border-white/50 transition-all duration-200"
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            <div className="space-y-2">
-              <div className="text-white/60 text-lg">📤</div>
-              <p className="text-white/80 font-medium">
-                Upload multiple delivery dockets simultaneously for efficient processing
-              </p>
-              <p className="text-white/60 text-sm">
-                Drag & drop files here or click to browse
-              </p>
-              <p className="text-white/40 text-xs">
-                Supported: JPG, PNG, PDF (max {maxSizeMB}MB each, up to {maxFiles} files)
-              </p>
-            </div>
-          </div>
-
-          {/* Hidden File Input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept={accept}
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-
-          {/* Enhanced Processing Actions */}
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={processUploads}
-              disabled={uploadFiles.length === 0 || isProcessing}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-            >
-              {isProcessing ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Processing {uploadFiles.filter(f => f.status === 'processing' || f.status === 'uploading').length} files...
-                </span>
-              ) : (
-                `Process ${uploadFiles.length} Documents with Enhanced AI`
-              )}
-            </button>
-            
-            {uploadFiles.length > 0 && (
-              <button
-                onClick={clearAll}
-                disabled={isProcessing}
-                className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* AI Processing Section */}
-      <div className={getCardStyle('secondary')}>
-        <h3 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
-          AI Processing
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white/5 rounded-lg p-4 text-center">
-            <div className="text-2xl mb-2">🧠</div>
-            <div className="text-white font-medium">Enhanced Document AI</div>
-            <div className="text-white/60 text-sm">6-stage processing pipeline</div>
-          </div>
-          
-          <div className="bg-white/5 rounded-lg p-4 text-center">
-            <div className="text-2xl mb-2">🏷️</div>
-            <div className="text-white font-medium">Product Classification</div>
-            <div className="text-white/60 text-sm">Temperature compliance analysis</div>
-          </div>
-          
-          <div className="bg-white/5 rounded-lg p-4 text-center">
-            <div className="text-2xl mb-2">📊</div>
-            <div className="text-white font-medium">Confidence Scoring</div>
-            <div className="text-white/60 text-sm">Multi-factor validation</div>
-          </div>
-        </div>
-
-        {uploadFiles.length > 0 && (
-          <div>
-            
-            {/* Overall Progress */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className={`${getTextStyle('sectionTitle')} text-white`}>
-                  Upload Queue ({uploadFiles.length} files)
-                </h4>
-                {isProcessing && (
-                  <span className="text-white/80 text-sm">
-                    {Math.round(overallProgress)}% Complete
-                  </span>
-                )}
-              </div>
-              
-              {/* Status Summary */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {statusCounts.pending > 0 && (
-                  <span className="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">
-                    {statusCounts.pending} Pending
-                  </span>
-                )}
-                {statusCounts.uploading > 0 && (
-                  <span className="px-2 py-1 bg-yellow-600/20 text-yellow-300 rounded text-xs">
-                    {statusCounts.uploading} Uploading
-                  </span>
-                )}
-                {statusCounts.processing > 0 && (
-                  <span className="px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-xs">
-                    {statusCounts.processing} Processing
-                  </span>
-                )}
-                {statusCounts.completed > 0 && (
-                  <span className="px-2 py-1 bg-green-600/20 text-green-300 rounded text-xs">
-                    {statusCounts.completed} Completed
-                  </span>
-                )}
-                {statusCounts.error > 0 && (
-                  <span className="px-2 py-1 bg-red-600/20 text-red-300 rounded text-xs">
-                    {statusCounts.error} Failed
-                  </span>
-                )}
-              </div>
-
-              {/* Overall Progress Bar */}
-              {isProcessing && (
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${overallProgress}%` }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* File List */}
-            <div className="space-y-3">
-              {uploadFiles.map(file => {
-                // Safety check for file object
-                if (!file || !file.file) {
-                  return null
-                }
-                return (
-                <div key={file.id} className="bg-white/5 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">
-                        {file.status === 'completed' ? '✅' : 
-                         file.status === 'error' ? '❌' :
-                         file.status === 'processing' ? '⚙️' :
-                         file.status === 'uploading' ? '⬆️' : '⏳'}
-                      </div>
-                      <div>
-                        <div className="text-white font-medium text-sm">{file.file.name}</div>
-                        <div className="text-white/60 text-xs">
-                          {(file.file.size / 1024 / 1024).toFixed(1)} MB
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="text-white text-sm font-medium">
-                        {file.status.charAt(0).toUpperCase() + file.status.slice(1)}
-                      </div>
-                      {file.progress > 0 && (
-                        <div className="text-white/60 text-xs">
-                          {file.progress}%
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="w-full bg-white/20 rounded-full h-1 mb-2">
-                    <div 
-                      className={`h-1 rounded-full transition-all duration-500 ${
-                        file.status === 'completed' ? 'bg-green-500' :
-                        file.status === 'error' ? 'bg-red-500' :
-                        'bg-blue-500'
-                      }`}
-                      style={{ width: `${file.progress}%` }}
-                    />
-                  </div>
-                  
-                  {/* Enhanced Extraction Results */}
-                  {file.status === 'completed' && file.result && file.result.enhancedExtraction && (
-                    <div className="mt-3 p-3 bg-white/5 rounded-lg">
-                      <div className="text-white/70 text-xs mb-2">Enhanced Extraction Results</div>
-                      <img src={file.preview} alt="Document preview" className="w-full h-32 object-cover rounded mb-3" />
-                      
-                      {(() => {
-                        try {
-                          const extraction = file.result?.enhancedExtraction
-                          if (!extraction) {
-                            return <div className="text-white/60 text-sm">No extraction data available</div>
-                          }
-                          return (
-                          <div className="space-y-3">
-                            {/* Supplier and Date */}
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-white/70 text-xs mb-1">Supplier</div>
-                                <div className="text-white text-sm font-medium">
-                                  {extraction.supplier.value}
-                                </div>
-                                <div className="text-blue-300 text-xs">
-                                  {(extraction.supplier.confidence * 100).toFixed(0)}% confidence
-                                </div>
-                              </div>
-                              
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-white/70 text-xs mb-1">Delivery Date</div>
-                                <div className="text-white text-sm font-medium">
-                                  {new Date(extraction.deliveryDate.value).toLocaleDateString()}
-                                </div>
-                                <div className="text-blue-300 text-xs">
-                                  {(extraction.deliveryDate.confidence * 100).toFixed(0)}% confidence
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Analysis Summary */}
-                            <div className="grid grid-cols-3 gap-3">
-                              {/* Overall Confidence */}
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-white/70 text-xs mb-1">Overall Confidence</div>
-                                <div className="text-white text-sm font-medium">
-                                  {((extraction.analysis?.overallConfidence || 0) * 100).toFixed(1)}%
-                                </div>
-                                <div className={`text-xs ${
-                                  (extraction.analysis?.overallConfidence || 0) > 0.8 ? 'text-green-300' : 
-                                  (extraction.analysis?.overallConfidence || 0) > 0.6 ? 'text-yellow-300' : 
-                                  'text-red-300'
-                                }`}>
-                                  {(extraction.analysis?.overallConfidence || 0) > 0.8 ? 'HIGH' : 
-                                   (extraction.analysis?.overallConfidence || 0) > 0.6 ? 'MEDIUM' : 'LOW'}
-                                </div>
-                              </div>
-                              
-                              {/* Temperature Status */}
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-white/70 text-xs mb-1">Temperature Status</div>
-                                <div className="text-white text-sm font-medium">
-                                  {extraction.temperatureData.readings.length} readings
-                                </div>
-                                <div className={`text-xs ${
-                                  extraction.temperatureData.overallCompliance === 'compliant' 
-                                    ? 'text-green-300' 
-                                    : extraction.temperatureData.overallCompliance === 'violation'
-                                      ? 'text-red-300'
-                                      : 'text-yellow-300'
-                                }`}>
-                                  {extraction.temperatureData.overallCompliance.toUpperCase()}
-                                </div>
-                              </div>
-                              
-                              {/* Line Items */}
-                              <div className="bg-white/5 rounded-lg p-3">
-                                <div className="text-white/70 text-xs mb-1">Products</div>
-                                <div className="text-white text-sm font-medium">
-                                  {extraction.lineItems?.length || 0} items
-                                </div>
-                                <div className="text-blue-300 text-xs">
-                                  ${extraction.analysis?.estimatedValue?.toFixed(2) || '0.00'} est. value
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Product Categories */}
-                            {extraction.productClassification?.primaryCategory && (
-                              <div className="mt-3 pt-3 border-t border-white/10">
-                                <div className="text-white/70 text-xs mb-2">Product Classification</div>
-                                <div className="flex flex-wrap gap-2">
-                                  <span className="px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-xs">
-                                    {extraction.productClassification.primaryCategory}
-                                  </span>
-                                  <span className="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">
-                                    {((extraction.productClassification.summary?.confidence || 0) * 100).toFixed(0)}% accuracy
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Temperature Readings */}
-                            {extraction.temperatureData?.readings?.length > 0 && (
-                              <div className="mt-3 pt-3 border-t border-white/10">
-                                <div className="text-white/70 text-xs mb-2">Temperature Readings</div>
-                                <div className="flex flex-wrap gap-2">
-                                  {(extraction.temperatureData.readings || []).slice(0, 5).map((temp, idx) => (
-                                    <span 
-                                      key={idx}
-                                      className={`px-2 py-1 rounded text-xs ${
-                                        temp.complianceStatus === 'pass' 
-                                          ? 'bg-green-600/20 text-green-300' 
-                                          : temp.complianceStatus === 'fail'
-                                            ? 'bg-red-600/20 text-red-300'
-                                            : 'bg-yellow-600/20 text-yellow-300'
-                                      }`}
-                                    >
-                                      {temp.value}°{temp.unit}
-                                    </span>
-                                  ))}
-                                  {(extraction.temperatureData?.readings?.length || 0) > 5 && (
-                                    <span className="px-2 py-1 bg-white/20 text-white/60 rounded text-xs">
-                                      +{(extraction.temperatureData?.readings?.length || 0) - 5} more
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          )
-                        } catch (error) {
-                          console.error('Error rendering extraction results:', error)
-                          return <div className="text-white/60 text-sm">Error displaying extraction results</div>
-                        }
-                      })()}
-                    </div>
-                  )}
-                  
-                  {/* Error Message */}
-                  {file.status === 'error' && file.error && (
-                    <div className="mt-2 p-2 bg-red-600/20 border border-red-600/30 rounded text-red-300 text-xs">
-                      {file.error}
-                    </div>
-                  )}
-                </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }
