@@ -177,16 +177,40 @@ export default function UploadConsolePage() {
   useEffect(() => {
     console.log('🔍 Console: Component mounted, triggering auto-refresh in 2 seconds')
     
-    // IMMEDIATE: Clear any stuck processing modals on page load
+    // NUCLEAR: Clear ALL browser caches and persistent elements
     setTimeout(() => {
-      const stuckElements = document.querySelectorAll('*')
-      stuckElements.forEach(el => {
+      // Clear browser storage
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // Clear all potentially stuck elements with more aggressive targeting
+      const allElements = document.querySelectorAll('*')
+      allElements.forEach(el => {
         const text = el.textContent || ''
-        if (text.includes('Processing...') && text.includes('Delivery:') && text.includes('Uploaded:')) {
-          console.log('🚨 Found stuck processing element:', el)
+        const computedStyle = window.getComputedStyle(el)
+        
+        // Remove elements that:
+        // 1. Contain delivery/supplier text AND are positioned absolutely/fixed
+        // 2. Have high z-index (modal-like)
+        // 3. Are outside normal document flow
+        if (
+          (text.includes('Unknown Supplier') || text.includes('CONSOLE PAGE TEST') || text.includes('Supplier Processing')) &&
+          (text.includes('Delivery:') || text.includes('Uploaded:')) &&
+          (computedStyle.position === 'fixed' || 
+           computedStyle.position === 'absolute' || 
+           parseInt(computedStyle.zIndex) > 100)
+        ) {
+          console.log('🚨 NUCLEAR: Removing stuck cached element:', el, text)
           el.remove()
         }
       })
+      
+      // Force DOM refresh
+      document.body.style.display = 'none'
+      setTimeout(() => {
+        document.body.style.display = ''
+      }, 50)
+      
     }, 100)
     
     const timer = setTimeout(() => {
