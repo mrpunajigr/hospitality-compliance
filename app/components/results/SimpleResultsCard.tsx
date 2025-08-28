@@ -39,6 +39,11 @@ export default function SimpleResultsCard({ data, className = '', userId, config
   const [thumbnailLoading, setThumbnailLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [previewOpen, setPreviewOpen] = useState(false)
+  
+  // FORCE RESET: Ensure modal is never stuck open
+  useEffect(() => {
+    setPreviewOpen(false)
+  }, [])
 
   // Load thumbnail and preview URLs
   useEffect(() => {
@@ -235,8 +240,8 @@ export default function SimpleResultsCard({ data, className = '', userId, config
         </div>
       </div>
 
-      {/* Image Preview Modal */}
-      {previewOpen && previewUrl && (
+      {/* Image Preview Modal - TEMPORARILY DISABLED TO FIX STUCK MODAL */}
+      {false && previewOpen && previewUrl && (
         <ImagePreviewModal
           imagePath={null}
           imageUrl={previewUrl}
