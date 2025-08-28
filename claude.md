@@ -9,6 +9,7 @@ Standard Workflow
 8. Keep all Table names short when creating the database schema.
 9. When I give you a Screenshot or File, do not ask permisson to READ, Just do it.
 10. When in AUTO-ACCEPT EDIT mode, it means I trust you. Do Not ask for permisson, unless it is a CRITICAL step.
+11. **ALWAYS give codes or commands in a .md file** - Claude terminal ALWAYS truncates instructions, so put all commands in markdown files for easy copying.
 
 # ⚠️ MANDATORY: Page Archival Protocol
 

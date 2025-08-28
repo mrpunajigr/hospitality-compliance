@@ -414,6 +414,24 @@ export default function EnhancedUpload({
     setOverallProgress(0)
   }, [])
 
+  // Emergency clear all states (for stuck processing issues)
+  const emergencyClear = useCallback(() => {
+    setUploadFiles([])
+    setIsProcessing(false)
+    setOverallProgress(0)
+    // Clear any browser storage that might be persisting state
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('uploadFiles')
+        localStorage.removeItem('processingState')
+        localStorage.removeItem('enhancedUploadState')
+      } catch (error) {
+        console.log('Could not clear localStorage:', error)
+      }
+    }
+    console.log('🚨 Emergency clear executed - all upload states reset')
+  }, [])
+
   // Get status counts
   const statusCounts = {
     pending: uploadFiles.filter(f => f.status === 'pending').length,
@@ -475,6 +493,14 @@ export default function EnhancedUpload({
                 className="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
               >
                 Clear All
+              </button>
+              
+              <button
+                onClick={emergencyClear}
+                className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
+                title="Emergency clear - use if processing gets stuck"
+              >
+                🚨 Reset
               </button>
             </div>
           )}
