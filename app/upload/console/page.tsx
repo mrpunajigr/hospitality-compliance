@@ -355,7 +355,7 @@ export default function UploadConsolePage() {
           {/* Latest Upload Results */}
           <div>
             
-            {false && latestDeliveryRecord ? (
+            {latestDeliveryRecord ? (
               <SimpleResultsCard 
                 data={{
                   id: latestDeliveryRecord.id,
@@ -369,6 +369,7 @@ export default function UploadConsolePage() {
                   client_id: latestDeliveryRecord.client_id || userClient?.id
                 }}
                 userId={user?.id}
+                className="!static !relative !block"
               />
             ) : (
               <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
