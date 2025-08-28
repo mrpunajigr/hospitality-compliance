@@ -359,7 +359,7 @@ export default function UploadConsolePage() {
               <SimpleResultsCard 
                 data={{
                   id: latestDeliveryRecord.id,
-                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Unknown Supplier',
+                  supplier_name: "CONSOLE PAGE TEST - This should show in layout only",
                   delivery_date: latestDeliveryRecord.delivery_date || latestDeliveryRecord.created_at,
                   created_at: latestDeliveryRecord.created_at,
                   uploaded_by: latestDeliveryRecord.uploaded_by,
