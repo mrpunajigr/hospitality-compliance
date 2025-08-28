@@ -169,7 +169,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           
           {/* Simple Results Card - Clean Design at Top */}
-          {latestDeliveryRecord ? (
+          {false && latestDeliveryRecord ? (
             <div>
               <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
                 📋 Latest Delivery Processing
