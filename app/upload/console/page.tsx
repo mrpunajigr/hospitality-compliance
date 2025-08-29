@@ -19,16 +19,11 @@ export default function UploadConsolePage() {
 
   // Authentication handled by upload layout
   useEffect(() => {
-    console.log('🔍 AUTH USEEFFECT STARTING - This should always show')
-    
     const checkAuth = async () => {
       try {
-        console.log('🔍 Getting user from Supabase...')
         const { data: { user } } = await supabase.auth.getUser()
-        console.log('🔍 Supabase returned user:', user ? 'User found' : 'No user from Supabase')
         
         if (user) {
-          console.log('🔍 Real user found, setting user state...')
           setUser(user)
           
           try {
@@ -36,15 +31,12 @@ export default function UploadConsolePage() {
             if (clientInfo) {
               setUserClient(clientInfo)
               console.log('✅ Upload Console: Real user authenticated with company:', clientInfo.name)
-            } else {
-              console.log('ℹ️ Upload Console: User has no associated company')
             }
           } catch (error) {
             console.error('Error loading client info:', error)
           }
         } else {
-          // FORCE DEMO MODE - No authentication required for upload console
-          console.log('🚀 NO SUPABASE USER - FORCING demo mode')
+          // Demo mode fallback
           const demoUser = {
             id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
             email: 'demo@example.com',
@@ -55,35 +47,16 @@ export default function UploadConsolePage() {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-          console.log('🔍 About to call setUser with demo user...')
           setUser(demoUser)
-          console.log('✅ setUser(demoUser) called - demo user should now be set')
         }
       } catch (error) {
-        console.error('🚨 ERROR in checkAuth:', error)
-        // Force demo user even if there's an error
-        const demoUser = {
-          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-          email: 'demo@example.com',
-          app_metadata: {},
-          user_metadata: { full_name: 'Demo User - Upload Console ERROR FALLBACK' },
-          aud: 'authenticated',
-          role: 'authenticated',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        setUser(demoUser)
-        console.log('✅ ERROR FALLBACK - demo user set due to checkAuth error')
+        console.error('Authentication error:', error)
       }
       
-      console.log('🔍 About to call setLoading(false)...')
       setLoading(false)
-      console.log('✅ setLoading(false) called - loading should now be false')
     }
     
-    console.log('🔍 About to call checkAuth()...')
     checkAuth()
-    console.log('✅ checkAuth() called - async function should now be running')
   }, [])
 
   // Fetch latest delivery records for console overview
@@ -160,79 +133,9 @@ export default function UploadConsolePage() {
     }
   }
 
-  // Emergency clear function for stuck processing states
-  const emergencyClearAll = () => {
-    console.log('🚨 Emergency clear triggered - clearing all states')
-    
-    // Clear all React states
-    setLatestDeliveryRecord(null)
-    setProcessingResults(null)
-    setLoading(false)
-    
-    // Clear browser storage
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.clear()
-        sessionStorage.clear()
-        // Remove any stuck DOM elements
-        document.querySelectorAll('[class*="modal"], [class*="overlay"], [class*="backdrop"]').forEach(el => {
-          if (el.textContent?.includes('Processing')) {
-            el.remove()
-          }
-        })
-        console.log('🚨 Emergency clear completed - all states and storage cleared')
-        
-        // Force page refresh after clearing
-        setTimeout(() => {
-          window.location.reload()
-        }, 1000)
-        
-      } catch (error) {
-        console.error('Error during emergency clear:', error)
-      }
-    }
-  }
 
   // Auto-fetch data on component mount
   useEffect(() => {
-    console.log('🔍 Console: Component mounted, triggering auto-refresh in 2 seconds')
-    
-    // NUCLEAR: Clear ALL browser caches and persistent elements
-    setTimeout(() => {
-      // Clear browser storage
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      // Clear all potentially stuck elements with more aggressive targeting
-      const allElements = document.querySelectorAll('*')
-      allElements.forEach(el => {
-        const text = el.textContent || ''
-        const computedStyle = window.getComputedStyle(el)
-        
-        // Remove elements that:
-        // 1. Contain delivery/supplier text AND are positioned absolutely/fixed
-        // 2. Have high z-index (modal-like)
-        // 3. Are outside normal document flow
-        if (
-          (text.includes('Unknown Supplier') || text.includes('CONSOLE PAGE TEST') || text.includes('Supplier Processing')) &&
-          (text.includes('Delivery:') || text.includes('Uploaded:')) &&
-          (computedStyle.position === 'fixed' || 
-           computedStyle.position === 'absolute' || 
-           parseInt(computedStyle.zIndex) > 100)
-        ) {
-          console.log('🚨 NUCLEAR: Removing stuck cached element:', el, text)
-          el.remove()
-        }
-      })
-      
-      // Force DOM refresh
-      document.body.style.display = 'none'
-      setTimeout(() => {
-        document.body.style.display = ''
-      }, 50)
-      
-    }, 100)
-    
     const timer = setTimeout(() => {
       refreshData()
     }, 2000)
@@ -314,23 +217,6 @@ export default function UploadConsolePage() {
         </div>
       </div>
 
-      {/* DEBUG: Manual refresh and emergency clear buttons */}
-      <div className="mb-4 text-center space-x-4">
-        <button 
-          onClick={refreshData}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          🔄 Debug: Refresh Data
-        </button>
-        
-        <button 
-          onClick={emergencyClearAll}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          title="Clear all processing states and reload page"
-        >
-          🚨 Emergency Clear
-        </button>
-      </div>
 
       {/* Upload Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -400,13 +286,20 @@ export default function UploadConsolePage() {
           <div>
             
             {latestDeliveryRecord ? (
-              <div className="bg-red-500 text-white p-6 rounded-xl">
-                <h3 className="text-xl font-bold mb-2">🔥 MODAL KILL TEST</h3>
-                <p className="mb-2">COMPLETELY DIFFERENT CONTENT</p>
-                <p className="mb-2">Supplier: TEST REPLACEMENT</p>
-                <p className="mb-2">Date: {new Date().toLocaleDateString()}</p>
-                <p className="text-sm">If modal still appears, it&apos;s not from SimpleResultsCard</p>
-              </div>
+              <SimpleResultsCard 
+                data={{
+                  id: latestDeliveryRecord.id,
+                  supplier_name: latestDeliveryRecord.supplier_name || latestDeliveryRecord.supplier_info || latestDeliveryRecord.supplier || latestDeliveryRecord.company_name || 'Unknown Supplier',
+                  delivery_date: latestDeliveryRecord.delivery_date || latestDeliveryRecord.created_at,
+                  created_at: latestDeliveryRecord.created_at,
+                  uploaded_by: latestDeliveryRecord.uploaded_by,
+                  image_path: latestDeliveryRecord.image_path,
+                  user_name: user?.user_metadata?.full_name || user?.email,
+                  confidence_score: latestDeliveryRecord.confidence_score,
+                  client_id: latestDeliveryRecord.client_id || userClient?.id
+                }}
+                userId={user?.id}
+              />
             ) : (
               <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
