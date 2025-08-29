@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
       body: {
         bucketId,
         fileName,
-        imagePath: filePath,  // Edge function expects 'imagePath' parameter
+        imagePath: filePath,  // FIXED: Edge function expects 'imagePath' parameter
+        filePath,  // Also send original for compatibility
         deliveryRecordId,
         userId: null,
         clientId,
