@@ -19,43 +19,71 @@ export default function UploadConsolePage() {
 
   // Authentication handled by upload layout
   useEffect(() => {
+    console.log('🔍 AUTH USEEFFECT STARTING - This should always show')
+    
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        setUser(user)
+      try {
+        console.log('🔍 Getting user from Supabase...')
+        const { data: { user } } = await supabase.auth.getUser()
+        console.log('🔍 Supabase returned user:', user ? 'User found' : 'No user from Supabase')
         
-        try {
-          const clientInfo = await getUserClient(user.id)
-          if (clientInfo) {
-            setUserClient(clientInfo)
-            console.log('✅ Upload Console: Real user authenticated with company:', clientInfo.name)
-          } else {
-            console.log('ℹ️ Upload Console: User has no associated company')
+        if (user) {
+          console.log('🔍 Real user found, setting user state...')
+          setUser(user)
+          
+          try {
+            const clientInfo = await getUserClient(user.id)
+            if (clientInfo) {
+              setUserClient(clientInfo)
+              console.log('✅ Upload Console: Real user authenticated with company:', clientInfo.name)
+            } else {
+              console.log('ℹ️ Upload Console: User has no associated company')
+            }
+          } catch (error) {
+            console.error('Error loading client info:', error)
           }
-        } catch (error) {
-          console.error('Error loading client info:', error)
+        } else {
+          // FORCE DEMO MODE - No authentication required for upload console
+          console.log('🚀 NO SUPABASE USER - FORCING demo mode')
+          const demoUser = {
+            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+            email: 'demo@example.com',
+            app_metadata: {},
+            user_metadata: { full_name: 'Demo User - Upload Console' },
+            aud: 'authenticated',
+            role: 'authenticated',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          console.log('🔍 About to call setUser with demo user...')
+          setUser(demoUser)
+          console.log('✅ setUser(demoUser) called - demo user should now be set')
         }
-      } else {
-        // FORCE DEMO MODE - No authentication required for upload console
-        console.log('🚀 Upload Console FORCING demo mode - no auth required')
+      } catch (error) {
+        console.error('🚨 ERROR in checkAuth:', error)
+        // Force demo user even if there's an error
         const demoUser = {
           id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
           email: 'demo@example.com',
           app_metadata: {},
-          user_metadata: { full_name: 'Demo User - Upload Console' },
+          user_metadata: { full_name: 'Demo User - Upload Console ERROR FALLBACK' },
           aud: 'authenticated',
           role: 'authenticated',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
         setUser(demoUser)
-        console.log('✅ FORCED demo user set - should clear any auth modals')
+        console.log('✅ ERROR FALLBACK - demo user set due to checkAuth error')
       }
+      
+      console.log('🔍 About to call setLoading(false)...')
       setLoading(false)
+      console.log('✅ setLoading(false) called - loading should now be false')
     }
     
+    console.log('🔍 About to call checkAuth()...')
     checkAuth()
+    console.log('✅ checkAuth() called - async function should now be running')
   }, [])
 
   // Fetch latest delivery records for console overview
