@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const { bucketId, fileName, filePath, deliveryRecordId, userId, clientId, testMode = false } = await request.json()
 
     // Validate required parameters
-    if (!bucketId || !fileName || !filePath || !userId || !clientId) {
+    if (!bucketId || !fileName || !filePath || !clientId) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }

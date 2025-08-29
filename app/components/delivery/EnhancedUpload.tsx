@@ -341,6 +341,7 @@ export default function EnhancedUpload({
           bucketId: 'delivery-dockets',
           fileName: file.name,
           filePath: uploadResult.filePath,
+          deliveryRecordId: uploadResult.deliveryRecordId,
           userId: userId,
           clientId: effectiveClientId
         })
