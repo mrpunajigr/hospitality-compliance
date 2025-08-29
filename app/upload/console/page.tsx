@@ -385,7 +385,7 @@ export default function UploadConsolePage() {
                 <p className="mb-2">COMPLETELY DIFFERENT CONTENT</p>
                 <p className="mb-2">Supplier: TEST REPLACEMENT</p>
                 <p className="mb-2">Date: {new Date().toLocaleDateString()}</p>
-                <p className="text-sm">If modal still appears, it's not from SimpleResultsCard</p>
+                <p className="text-sm">If modal still appears, it&apos;s not from SimpleResultsCard</p>
               </div>
             ) : (
               <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
