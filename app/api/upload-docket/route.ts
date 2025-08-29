@@ -150,7 +150,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         bucketId: 'delivery-dockets',
         fileName: fileName,
-        filePath: uploadResult.path,
+        imagePath: uploadResult.path,
+        deliveryRecordId: deliveryRecord.id,
         userId: null,
         clientId: clientId
       })
