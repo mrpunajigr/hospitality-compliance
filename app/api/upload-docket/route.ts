@@ -137,8 +137,32 @@ export async function POST(request: NextRequest) {
       console.log('Profile upsert error:', profileError.message)
     }
 
+    // Create initial delivery record first
+    console.log('💾 Creating initial delivery record...')
+    const { data: deliveryRecord, error: dbError } = await supabaseAdmin
+      .from('delivery_records')
+      .insert({
+        client_id: clientId,
+        user_id: null,
+        image_path: uploadResult.path,
+        processing_status: 'processing',
+        raw_extracted_text: 'Processing with AWS Textract...'
+      })
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error('Database error:', dbError)
+      return NextResponse.json(
+        { error: `Database error: ${dbError.message}` },
+        { status: 500 }
+      )
+    }
+
+    console.log('✅ Delivery record created:', deliveryRecord.id)
+
     // Call the real Supabase Edge Function for Document AI processing
-    console.log('🤖 Calling Supabase Edge Function for Document AI processing...')
+    console.log('🤖 Calling Supabase Edge Function for AWS Textract processing...')
     
     const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`
     const processingResponse = await fetch(edgeFunctionUrl, {
@@ -161,26 +185,18 @@ export async function POST(request: NextRequest) {
       const errorText = await processingResponse.text()
       console.error('🤖 Document AI processing failed:', errorText)
       
-      // Fallback to basic record creation if AI processing fails
-      const { data: deliveryRecord, error: dbError } = await supabaseAdmin
+      // Update existing record with failure status
+      const { error: updateError } = await supabaseAdmin
         .from('delivery_records')
-        .insert({
-          client_id: clientId,
-          user_id: null,
-          image_path: uploadResult.path,
+        .update({
           processing_status: 'failed',
-          error_message: `Document AI processing failed: ${errorText}`,
-          raw_extracted_text: 'AI processing failed - file uploaded but not processed'
+          error_message: `AWS Textract processing failed: ${errorText}`,
+          raw_extracted_text: 'AWS processing failed - file uploaded but not processed'
         })
-        .select()
-        .single()
+        .eq('id', deliveryRecord.id)
         
-      if (dbError) {
-        console.error('Fallback database error:', dbError)
-        return NextResponse.json(
-          { error: `Database error: ${dbError.message}` },
-          { status: 500 }
-        )
+      if (updateError) {
+        console.error('Failed to update record with error status:', updateError)
       }
         
       return NextResponse.json({
@@ -193,22 +209,25 @@ export async function POST(request: NextRequest) {
     }
 
     const processingResult = await processingResponse.json()
-    console.log('🤖 Document AI processing result:', processingResult)
+    console.log('🤖 AWS Textract processing result:', processingResult)
 
-    // The Edge Function should have created the delivery record, so we'll fetch it
-    const { data: deliveryRecord, error: fetchError } = await supabaseAdmin
+    // Fetch updated record after Edge Function processing
+    const { data: updatedRecord, error: fetchError } = await supabaseAdmin
       .from('delivery_records')
       .select('*')
-      .eq('image_path', uploadResult.path)
+      .eq('id', deliveryRecord.id)
       .single()
 
-    if (fetchError || !deliveryRecord) {
-      console.error('Error fetching processed delivery record:', fetchError)
+    if (fetchError || !updatedRecord) {
+      console.error('Error fetching updated delivery record:', fetchError)
       return NextResponse.json(
-        { error: 'AI processing completed but could not retrieve record' },
+        { error: 'AWS Textract processing completed but could not retrieve updated record' },
         { status: 500 }
       )
     }
+
+    // Use updated record for response
+    const finalRecord = updatedRecord
 
     // Temperature readings should be created by the Edge Function during AI processing
     // No need to create mock temperature data here
@@ -221,7 +240,7 @@ export async function POST(request: NextRequest) {
         user_id: null, // Set to null to bypass foreign key constraint for demo
         action: 'document.uploaded',
         resource_type: 'delivery_record',
-        resource_id: deliveryRecord.id,
+        resource_id: finalRecord.id,
         details: {
           fileName: file.name,
           fileSize: file.size,
@@ -233,11 +252,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Document uploaded and processed successfully',
-      deliveryRecordId: deliveryRecord.id,
+      deliveryRecordId: finalRecord.id,
       filePath: uploadResult.path,
       enhancedExtraction: processingResult?.extractionResult || null,
-      processingStatus: deliveryRecord.processing_status,
-      confidenceScore: deliveryRecord.confidence_score
+      processingStatus: finalRecord.processing_status,
+      confidenceScore: finalRecord.confidence_score
     })
 
   } catch (error) {
