@@ -30,7 +30,12 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`API: Processing docket ${fileName} for client ${clientId}, record: ${deliveryRecordId}, testMode: ${testMode}`)
-    console.log('🔍 API Route - About to send imagePath:', filePath)
+    console.log('🔍 API Route DEBUG - Parameters:')
+    console.log('  filePath received:', filePath)
+    console.log('  deliveryRecordId received:', deliveryRecordId)
+    console.log('  clientId received:', clientId)
+    console.log('🔍 API Route - About to send to Edge Function:')
+    console.log('  imagePath (mapped from filePath):', filePath)
 
     // Call the Supabase Edge Function
     const supabase = getSupabaseAdmin()
