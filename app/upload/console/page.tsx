@@ -37,28 +37,20 @@ export default function UploadConsolePage() {
           console.error('Error loading client info:', error)
         }
       } else {
-        // Check for demo mode - Compliance path triggers demo mode automatically
-        const isDemoMode = typeof window !== 'undefined' && (
-          window.location.pathname.startsWith('/compliance') ||
-          new URLSearchParams(window.location.search).get('demo') === 'true' ||
-          document.cookie.includes('demo-session=active')
-        )
-        
-        if (isDemoMode) {
-          console.log('🚀 Upload Console demo mode detected')
-          const demoUser = {
-            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-            email: 'demo@example.com',
-            app_metadata: {},
-            user_metadata: { full_name: 'Demo User - Upload Console' },
-            aud: 'authenticated',
-            role: 'authenticated',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-          setUser(demoUser)
-          console.log('✅ Demo user set for compliance console')
+        // FORCE DEMO MODE - No authentication required for upload console
+        console.log('🚀 Upload Console FORCING demo mode - no auth required')
+        const demoUser = {
+          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+          email: 'demo@example.com',
+          app_metadata: {},
+          user_metadata: { full_name: 'Demo User - Upload Console' },
+          aud: 'authenticated',
+          role: 'authenticated',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
+        setUser(demoUser)
+        console.log('✅ FORCED demo user set - should clear any auth modals')
       }
       setLoading(false)
     }
