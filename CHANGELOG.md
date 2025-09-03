@@ -1,3 +1,8 @@
+### v1.9.3.008 (2025-09-03) - MAJOR
+- **📝 MAJOR**: Enhanced Document AI parser with 9-field structured extraction + Complete session recovery system
+- **🕐 Build Time**: 9/4/2025, 6:56:32 AM
+- **🔧 Environment**: development
+
 ### v1.8.23.004a (2025-08-23) - MAJOR
 - **📝 MAJOR**: Complete upload module with real AI processing - end-to-end system working
 - **🕐 Build Time**: 8/23/2025, 4:30:00 PM

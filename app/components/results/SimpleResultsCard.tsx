@@ -19,6 +19,11 @@ interface SimpleResultsData {
   user_name?: string
   confidence_score?: number
   client_id?: string // For demo mode detection
+  // Required fields for Results Card
+  line_items?: any[] | string // Array of line items or stringified JSON
+  temperature_reading?: string // Handwritten temperature
+  analysis?: any // Full analysis data
+  extraction_data?: any // OCR extraction data
   // Module 2 AI Processing - Optional fields for Results Card configuration
   item_code?: string
   item_description?: string
@@ -35,40 +40,21 @@ interface SimpleResultsCardProps {
 }
 
 export default function SimpleResultsCard({ data, className = '', userId, config = DEFAULT_CONFIG }: SimpleResultsCardProps) {
+  console.log('🔍 SimpleResultsCard RENDER: Full data object:', data)
+  console.log('🔍 SimpleResultsCard RENDER: Supplier name:', data.supplier_name)
+  console.log('🔍 SimpleResultsCard RENDER: Raw extracted text length:', data.raw_extracted_text?.length)
+  
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
   const [thumbnailLoading, setThumbnailLoading] = useState(true)
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [previewOpen, setPreviewOpen] = useState(false)
 
-  // Load thumbnail and preview URLs
+  // Skip thumbnail loading to avoid storage errors
   useEffect(() => {
-    const loadImages = async () => {
-      if (!data.image_path) {
-        setThumbnailLoading(false)
-        return
-      }
-
-      try {
-        setThumbnailLoading(true)
-        
-        // Generate both thumbnail and preview URLs with user context
-        const userOptions = { userId, clientId: data.client_id }
-        const [thumbnailSignedUrl, previewSignedUrl] = await Promise.all([
-          getDeliveryDocketThumbnail(data.image_path, userOptions),
-          getDeliveryDocketPreview(data.image_path, userOptions)
-        ])
-        
-        setThumbnailUrl(thumbnailSignedUrl)
-        setPreviewUrl(previewSignedUrl)
-        
-      } catch (error) {
-        console.error('Failed to load delivery docket images:', error)
-      } finally {
-        setThumbnailLoading(false)
-      }
-    }
-
-    loadImages()
+    console.log('🔍 SimpleResultsCard: Skipping image loading to focus on data display')
+    setThumbnailLoading(false)
+    setThumbnailUrl('')
+    setPreviewUrl('')
   }, [data.image_path])
 
   // Format dates for display
@@ -123,6 +109,98 @@ export default function SimpleResultsCard({ data, className = '', userId, config
             {/* Delivery Date */}
             <div className={`${getTextStyle('body')} text-white/80`}>
               <span className="text-white/60">Delivery:</span> {formatDeliveryDate(data.delivery_date)}
+            </div>
+
+            {/* Individual Line Items and Temperature */}
+            <div className="space-y-2 text-sm">
+              {/* Temperature Reading */}
+              {(() => {
+                let temperature = data.temperature_reading
+                try {
+                  // Parse Google Cloud extraction data from raw_extracted_text
+                  if (!temperature && data.raw_extracted_text) {
+                    const extractedData = JSON.parse(data.raw_extracted_text)
+                    if (extractedData.temperature_reading) {
+                      temperature = extractedData.temperature_reading
+                    }
+                  }
+                } catch (e) {
+                  console.log('Error parsing temperature from raw_extracted_text:', e)
+                }
+                // Fallback to other sources
+                if (!temperature && data.analysis?.temperature) {
+                  temperature = data.analysis.temperature
+                }
+                if (!temperature && data.extraction_data?.temperature) {
+                  temperature = data.extraction_data.temperature
+                }
+                
+                return temperature ? (
+                  <div className="text-white/70">
+                    <span className="text-white/50">Temperature:</span> {temperature}
+                  </div>
+                ) : null
+              })()}
+
+              {/* Enhanced 9-Field Structured Data Display */}
+              {(() => {
+                let extractedData: any = null
+                let structuredData: any = null
+                
+                try {
+                  // Parse Google Cloud extraction data from raw_extracted_text
+                  if (data.raw_extracted_text) {
+                    extractedData = JSON.parse(data.raw_extracted_text)
+                    structuredData = extractedData.structured_data
+                    console.log('🔍 SimpleResultsCard: Structured data:', structuredData)
+                    console.log('🔍 Line items array:', structuredData?.line_items)
+                  }
+                } catch (e) {
+                  console.log('Error parsing structured data:', e)
+                  return null
+                }
+
+                if (!structuredData) return null
+
+                return (
+                  <div className="text-white/70 space-y-2">
+                    {/* Invoice Header (Fields 1-3 + 9) */}
+                    <div className="border-b border-white/10 pb-2">
+                      <div className="text-white/50 text-xs mb-1">Invoice Details:</div>
+                      <div className="text-white/80 text-xs space-y-1">
+                        <div>🧾 #{structuredData.invoice_number}</div>
+                        <div>📅 {structuredData.delivery_date}</div>
+                        <div>💰 {structuredData.grand_total}</div>
+                      </div>
+                    </div>
+
+                    {/* VEGF Products Table (Fields 4-8) */}
+                    {structuredData.line_items && Array.isArray(structuredData.line_items) && structuredData.line_items.length > 0 && (
+                      <div>
+                        <div className="text-white/50 text-xs mb-1">VEGF Products ({structuredData.line_items.length}):</div>
+                        <div className="space-y-1 max-h-64 overflow-y-auto">
+                          {structuredData.line_items.map((item: any, index: number) => (
+                            <div key={index} className="text-white/80 text-xs bg-white/5 rounded px-2 py-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-blue-200">{item.item_code}</span>
+                                <span className="text-green-200">{item.item_total}</span>
+                              </div>
+                              <div className="text-white/70 text-xs mt-1">
+                                {item.item_description}
+                              </div>
+                              <div className="flex justify-between text-white/50 text-xs mt-1">
+                                <span>{item.quantity}</span>
+                                <span>{item.unit_price}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+
             </div>
 
             {/* Module 2 Optional Fields - Dynamic based on configuration */}
@@ -204,17 +282,30 @@ export default function SimpleResultsCard({ data, className = '', userId, config
                   <div className="text-white/40 text-xs">Loading...</div>
                 </div>
               ) : thumbnailUrl ? (
-                // Signed URL image
+                // Use signed URL when available
                 <img
                   src={thumbnailUrl}
                   alt="Delivery docket thumbnail"
                   className="w-20 h-20 object-cover rounded-xl border-2 border-white/20 hover:border-white/40 transition-colors shadow-lg"
                   loading="lazy"
                   onLoad={() => {
-                    console.log('✅ SimpleResultsCard: Thumbnail loaded successfully')
+                    console.log('✅ Signed URL thumbnail loaded:', thumbnailUrl)
                   }}
                   onError={(e) => {
-                    console.log('❌ SimpleResultsCard: Thumbnail failed to load')
+                    console.error('❌ Signed URL thumbnail failed to load:', thumbnailUrl)
+                    console.error('❌ Image path in data:', data.image_path)
+                    console.error('❌ Image error event:', e)
+                    
+                    // Test the URL directly
+                    fetch(thumbnailUrl, { method: 'HEAD' })
+                      .then(response => {
+                        console.log('🔍 Direct fetch response status:', response.status)
+                        console.log('🔍 Direct fetch response headers:', [...response.headers.entries()])
+                      })
+                      .catch(fetchError => {
+                        console.error('❌ Direct fetch failed:', fetchError)
+                      })
+                    
                     // Fallback to document icon
                     const target = e.currentTarget
                     target.style.display = 'none'
