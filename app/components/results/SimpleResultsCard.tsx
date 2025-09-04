@@ -263,7 +263,7 @@ export default function SimpleResultsCard({ data, className = '', userId, config
                     fetch(thumbnailUrl, { method: 'HEAD' })
                       .then(response => {
                         console.log('🔍 Direct fetch response status:', response.status)
-                        console.log('🔍 Direct fetch response headers:', [...response.headers.entries()])
+                        console.log('🔍 Direct fetch response headers:', Object.fromEntries(response.headers.entries()))
                       })
                       .catch(fetchError => {
                         console.error('❌ Direct fetch failed:', fetchError)
