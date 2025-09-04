@@ -74,19 +74,37 @@ export default function AppleSidebar({
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [isPortrait, setIsPortrait] = useState(true)
+  const [isIPad, setIsIPad] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => {
+    const checkDeviceAndOrientation = () => {
       const mobile = window.innerWidth < 768
-      setIsMobile(mobile)
+      const iPad = window.innerWidth >= 768 && window.innerWidth <= 1024
+      const portrait = window.innerHeight > window.innerWidth
       
-      // Always start collapsed on all devices
-      setIsCollapsed(true)
+      setIsMobile(mobile)
+      setIsIPad(iPad)
+      setIsPortrait(portrait)
+      
+      // iPad adaptive behavior
+      if (iPad) {
+        // Portrait: Always start collapsed for more content space
+        // Landscape: Can expand sidebar if needed
+        setIsCollapsed(portrait)
+      } else {
+        // Always start collapsed on mobile and desktop
+        setIsCollapsed(true)
+      }
     }
     
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    checkDeviceAndOrientation()
+    window.addEventListener('resize', checkDeviceAndOrientation)
+    window.addEventListener('orientationchange', checkDeviceAndOrientation)
+    return () => {
+      window.removeEventListener('resize', checkDeviceAndOrientation)
+      window.removeEventListener('orientationchange', checkDeviceAndOrientation)
+    }
   }, [])
 
   // Filter items by section and context
@@ -109,12 +127,10 @@ export default function AppleSidebar({
     <>
       {/* Sidebar */}
       <div 
-        className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-5000 ease-in-out z-40 ${
+        className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-5000 ease-in-out z-40 TouchTarget ${
           isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
-        }`}
-        onMouseEnter={() => setIsCollapsed(false)}
-        onMouseLeave={() => setIsCollapsed(true)}
-        onTouchStart={() => setIsCollapsed(false)}
+        } ${isIPad ? 'AppleSidebar' : ''}`}
+        onTouchStart={() => isIPad && !isPortrait && setIsCollapsed(false)}
       >
         
         {/* Header */}
@@ -133,11 +149,6 @@ export default function AppleSidebar({
           
           {/* TOP THIRD: QUICK ACTIONS */}
           <div className="flex-1 flex flex-col justify-center py-2">
-            {!isCollapsed && (
-              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
-                QUICK ACTIONS
-              </div>
-            )}
             <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
               {/* Camera Icon - Top */}
               <button 
@@ -149,7 +160,9 @@ export default function AppleSidebar({
                     if (cameraButton) cameraButton.click()
                   }, 500)
                 }}
-                className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
+                className={`flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full TouchTarget ${
+                  isIPad ? 'min-h-[44px] px-2' : ''
+                }`}
                 title="Quick Camera - Capture documents instantly"
               >
                 <img 
@@ -172,7 +185,9 @@ export default function AppleSidebar({
                     window.location.href = '/signin'
                   }
                 }}
-                className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
+                className={`flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full TouchTarget ${
+                  isIPad ? 'min-h-[44px] px-2' : ''
+                }`}
                 title="Sign Out - End your session safely"
               >
                 <img 
@@ -194,21 +209,19 @@ export default function AppleSidebar({
 
           {/* MIDDLE THIRD: MODULES */}
           <div className="flex-1 flex flex-col justify-center py-2">
-            {!isCollapsed && (
-              <div className={`px-6 pb-3 ${getTextStyle('meta')} text-white/50 uppercase tracking-wider font-medium text-xs text-center`}>
-                MODULES
-              </div>
-            )}
             <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
               {isCollapsed ? (
                 <>
-                  {/* Collapsed: Just the modules icon */}
-                  <div className="flex justify-center items-center py-3">
+                  {/* Collapsed: Modules icon with click to expand */}
+                  <div 
+                    className="flex justify-center items-center py-3 cursor-pointer hover:bg-white/10 rounded-lg transition-all duration-200"
+                    onClick={() => setIsCollapsed(false)}
+                    title="Click to view modules"
+                  >
                     <img 
                       src={getMappedIcon('JiGRmodules', 48)} 
                       alt="Modules" 
                       className="w-12 h-12 object-contain brightness-0 invert"
-                      title="Modules - Access all application features"
                       onError={(e) => {
                         console.error('Failed to load JiGRmodules.png:', e);
                         e.currentTarget.style.display = 'none';
@@ -220,7 +233,10 @@ export default function AppleSidebar({
               ) : (
                 <>
                   {/* Expanded: Modules icon on left + 2x2 grid */}
-                  <div className="flex items-center justify-between py-2 px-2">
+                  <div 
+                    className="flex items-center justify-between py-2 px-2"
+                    onMouseLeave={() => setIsCollapsed(true)}
+                  >
                     {/* Modules icon - stays on left */}
                     <div className="flex-shrink-0">
                       <img 
@@ -332,14 +348,17 @@ export default function AppleSidebar({
           <div className="absolute bottom-0 left-0 right-0">
             <div className="pb-4">
               <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
-                <div className="flex justify-center items-center py-2">
+                <button 
+                  onClick={() => window.location.href = '/admin/company'}
+                  className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
+                  title="Admin - Company management and settings"
+                >
                   <img 
                     src={getMappedIcon('JiGRadmin', 48)} 
-                    alt="Settings" 
+                    alt="Admin" 
                     className="w-12 h-12 object-contain"
-                    title="Settings - Configure system preferences"
                   />
-                </div>
+                </button>
                 
                 {/* User Avatar */}
                 <div className="flex justify-center items-center py-2">
@@ -371,7 +390,7 @@ export default function AppleSidebar({
               
               {/* Version Number */}
               <div className="text-center mb-4">
-                <span className="text-white/30 text-xs font-mono" title="Application Version - v1.8.20">v1.8.20</span>
+                <span className="text-white/30 text-xs font-mono" title="Application Version - v1.9.4.001">v1.9.4.001</span>
               </div>
             </div>
           </div>

@@ -112,19 +112,19 @@ export default function UploadReportsPage() {
             <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
               <a 
                 href="/upload/console" 
-                className="px-4 py-2 font-medium text-black/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-4 py-2 font-medium text-black/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Reports
               </a>
