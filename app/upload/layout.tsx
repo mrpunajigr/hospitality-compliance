@@ -7,6 +7,7 @@ import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import AppleSidebar from '../components/AppleSidebar'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import BackgroundSelector from '../components/BackgroundSelector'
+import { PlatformProvider } from '@/lib/platform-context'
 
 interface UploadLayoutProps {
   children: React.ReactNode
@@ -80,7 +81,8 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <PlatformProvider>
+      <div className="min-h-screen relative ContentArea">
       {/* Safari 12 Compatible Background */}
       <div 
         className="fixed inset-0 -z-10"
@@ -90,15 +92,15 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         }}
       />
       
-      {/* Kitchen workspace overlay for context */}
+      {/* Kitchen workspace overlay for context - iPad Safari 12 fallback */}
       <div 
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: `url(${getChefWorkspaceBackground()})`,
+          backgroundImage: `url(${getChefWorkspaceBackground()}), linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.3
+          opacity: 0.4
         }}
       />
       
@@ -136,6 +138,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
       <div className="ml-[150px] min-h-screen">
         {children}
       </div>
-    </div>
+      </div>
+    </PlatformProvider>
   )
 }
