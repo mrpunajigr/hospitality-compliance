@@ -57,7 +57,7 @@ export default function SimpleResultsCard({ data, className = '', userId, config
     const loadThumbnail = async () => {
       try {
         console.log('🔍 Loading thumbnail for:', data.image_path)
-        const response = await fetch(`/api/get-upload-url?fileName=${encodeURIComponent(data.image_path)}&userId=${userId}`)
+        const response = await fetch(`/api/get-upload-url?fileName=${encodeURIComponent(data.image_path || '')}&userId=${userId || ''}`)
         
         if (!response.ok) {
           console.error('❌ API response not ok:', response.status, response.statusText)
