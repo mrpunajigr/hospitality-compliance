@@ -1,4 +1,4 @@
-// Health check API for Vercel deployment verification
+// Health check API for Netlify deployment verification
 // Checks environment variables and basic connectivity
 
 import { NextRequest, NextResponse } from 'next/server'

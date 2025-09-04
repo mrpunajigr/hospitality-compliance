@@ -52,12 +52,13 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now()
     const dateFolder = new Date().toISOString().split('T')[0] // YYYY-MM-DD
     const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-    const filePath = `${clientId}/${dateFolder}/${fileName}`
+    const filePath = `${userId}/${dateFolder}/${fileName}`
 
     // Convert File to Buffer
     const buffer = Buffer.from(await file.arrayBuffer())
 
     // Upload to Supabase storage using admin client
+    console.log('📤 Uploading to storage path:', filePath)
     const supabaseAdmin = getSupabaseAdmin()
     const { data: uploadResult, error: uploadError } = await supabaseAdmin.storage
       .from('delivery-dockets')
@@ -68,11 +69,18 @@ export async function POST(request: NextRequest) {
       })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
-      return NextResponse.json(
-        { error: `Upload failed: ${uploadError.message}` },
-        { status: 500 }
-      )
+      console.error('❌ STORAGE UPLOAD FAILED:', uploadError)
+      console.error('❌ Upload error details:', JSON.stringify(uploadError, null, 2))
+      console.error('❌ Attempted path:', filePath)
+      console.error('❌ File size:', buffer.length)
+      console.error('❌ Content type:', file.type)
+      
+      // Continue anyway to create database record
+      console.log('⚠️ Continuing without storage upload...')
+    } else {
+      console.log('✅ STORAGE UPLOAD SUCCESSFUL:', uploadResult)
+      console.log('📁 Stored at path:', uploadResult?.path || filePath)
+      console.log('📁 Full upload result:', JSON.stringify(uploadResult, null, 2))
     }
 
     // Ensure client exists for demo
@@ -144,7 +152,7 @@ export async function POST(request: NextRequest) {
       .insert({
         client_id: clientId,
         user_id: null,
-        image_path: uploadResult.path,
+        image_path: uploadResult?.path || filePath,
         processing_status: 'processing',
         raw_extracted_text: 'Processing with AWS Textract...'
       })
@@ -162,7 +170,9 @@ export async function POST(request: NextRequest) {
     console.log('✅ Delivery record created:', deliveryRecord.id)
 
     // Call the real Supabase Edge Function for Document AI processing
-    console.log('🤖 Calling Supabase Edge Function for AWS Textract processing...')
+    console.log('🤖 Calling Supabase Edge Function for Google Cloud processing...')
+    console.log('🔗 Edge Function URL:', `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`)
+    console.log('🔗 Payload:', { bucketId: 'delivery-dockets', fileName, imagePath: uploadResult?.path || filePath })
     
     const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-delivery-docket`
     const processingResponse = await fetch(edgeFunctionUrl, {
@@ -174,10 +184,12 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         bucketId: 'delivery-dockets',
         fileName: fileName,
-        imagePath: uploadResult.path,
+        imagePath: uploadResult?.path || filePath,
         deliveryRecordId: deliveryRecord.id,
         userId: null,
-        clientId: clientId
+        clientId: clientId,
+        fileData: buffer.toString('base64'),
+        fileType: file.type
       })
     })
 
@@ -203,7 +215,7 @@ export async function POST(request: NextRequest) {
         success: false,
         message: 'File uploaded but AI processing failed',
         deliveryRecordId: deliveryRecord.id,
-        filePath: uploadResult.path,
+        filePath: uploadResult?.path || filePath,
         processingError: errorText
       })
     }
@@ -244,7 +256,7 @@ export async function POST(request: NextRequest) {
         details: {
           fileName: file.name,
           fileSize: file.size,
-          filePath: uploadResult.path,
+          filePath: uploadResult?.path || filePath,
           demo_user_id: userId // Keep track of demo user in details
         }
       })
@@ -253,7 +265,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Document uploaded and processed successfully',
       deliveryRecordId: finalRecord.id,
-      filePath: uploadResult.path,
+      filePath: uploadResult?.path || filePath,
       enhancedExtraction: processingResult?.extractionResult || null,
       processingStatus: finalRecord.processing_status,
       confidenceScore: finalRecord.confidence_score

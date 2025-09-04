@@ -97,6 +97,67 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
 }
 
+/* Platform-Aware Styling System for iPad Optimization */
+
+/* Web Platform Mode - Standard responsive behavior (default) */
+.PlatformWeb {
+  /* Inherits existing responsive design - no changes */
+}
+
+/* iOS Platform Mode - Apple HIG compliant iPad optimization */
+.PlatformIOS {
+  /* iPad-specific design tokens */
+  --touch-target-min: 44px;
+  --content-margin: 24px;
+  --nav-height: 93px;
+  --status-bar-height: 24px;
+  --home-indicator-clearance: 19.5px;
+}
+
+/* iOS Platform - Touch Target Standards */
+.PlatformIOS .TouchTarget,
+.PlatformIOS button,
+.PlatformIOS a,
+.PlatformIOS input,
+.PlatformIOS select {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+}
+
+/* iOS Platform - Content Area Optimization */
+.PlatformIOS .ContentArea {
+  padding-left: var(--content-margin);
+  padding-right: var(--content-margin);
+}
+
+/* iOS Platform - Navigation Adaptation */
+.PlatformIOS .AppleSidebar {
+  /* Sidebar optimizations for iPad */
+}
+
+/* iOS Platform - Orientation-Specific Layouts */
+@media (orientation: portrait) {
+  .PlatformIOS .AdaptiveLayout {
+    /* Portrait mode: More compact layouts */
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .PlatformIOS .NavigationMode {
+    /* Prefer tab bar in portrait */
+  }
+}
+
+@media (orientation: landscape) {
+  .PlatformIOS .AdaptiveLayout {
+    /* Landscape mode: Expanded layouts */
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .PlatformIOS .NavigationMode {
+    /* Allow expanded sidebar in landscape */
+  }
+}
+
 /* Safari 12 compatible backdrop-blur alternatives */
 .backdrop-blur-2xl {
   /* Fallback for Safari 12 - use semi-transparent background */

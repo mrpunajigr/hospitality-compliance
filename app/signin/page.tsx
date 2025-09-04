@@ -12,6 +12,33 @@ import Link from 'next/link'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
+// Development-only Platform Selector Component
+interface PlatformSelectorProps {
+  onPlatformChange: (platform: 'web' | 'ios') => void
+  currentPlatform: 'web' | 'ios'
+}
+
+const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelectorProps) => {
+  // Only show in development environment
+  if (process.env.NODE_ENV === 'production') return null
+  
+  return (
+    <div className="text-center mt-4 pt-4 border-t border-white/10">
+      <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-xl p-3 mb-2">
+        <p className="text-yellow-200 text-xs font-medium mb-2">🧪 Development Testing Mode</p>
+        <select 
+          value={currentPlatform} 
+          onChange={(e) => onPlatformChange(e.target.value as 'web' | 'ios')}
+          className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="web">🌐 Web App Version</option>
+          <option value="ios">📱 iPad Optimized Version</option>
+        </select>
+      </div>
+    </div>
+  )
+}
+
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -19,6 +46,7 @@ export default function SignInPage() {
     password: ''
   })
   const [error, setError] = useState('')
+  const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +124,7 @@ export default function SignInPage() {
 
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className={`min-h-screen relative overflow-hidden Platform${platformMode.charAt(0).toUpperCase()}${platformMode.slice(1)}`}>
       {/* Chef Workspace Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -222,6 +250,12 @@ export default function SignInPage() {
               v1.8.18a
             </p>
           </div>
+
+          {/* Development Platform Selector */}
+          <PlatformSelector 
+            currentPlatform={platformMode}
+            onPlatformChange={setPlatformMode}
+          />
         </div>
       </div>
     </div>

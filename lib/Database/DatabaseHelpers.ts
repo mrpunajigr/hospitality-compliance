@@ -60,8 +60,8 @@ const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
 
 // Detect demo mode by checking if user has a real client ID
 const isDemoMode = (userId?: string, clientId?: string): boolean => {
-  // If no user or using demo client ID, we're in demo mode
-  return !userId || !clientId || clientId === '550e8400-e29b-41d4-a716-446655440001'
+  // Only demo mode for sample files, not for real client uploads
+  return false // Disabled - let real uploads show real thumbnails
 }
 
 // Request deduplication to prevent infinite loops
@@ -84,27 +84,24 @@ export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number
     return ''
   }
   
-  // Demo mode: Return placeholder images immediately without API calls
-  if (path.startsWith('sample-docket-') || isDemoMode(options?.userId, options?.clientId)) {
-    const demoImages: Record<string, string> = {
-      'sample-docket-1.jpg': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop&crop=center',
-      'sample-docket-2.jpg': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center', 
-      'sample-docket-3.jpg': 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=300&fit=crop&crop=center'
-    }
-    
-    // Return appropriate demo image without console warnings
-    if (path.startsWith('sample-docket-')) {
-      return demoImages[path] || demoImages['sample-docket-1.jpg']
-    }
-    
-    // For non-sample paths in demo mode, return a generic placeholder silently
-    return demoImages['sample-docket-1.jpg']
-  }
+  // No demo mode - only real signed URLs
   
   // Production mode: Only attempt real storage calls for authenticated users
   try {
     // Extract filename from database path since files are stored at root level
     const filename = path.split('/').pop() || path
+    
+    console.log('🔍 Generating signed URL for:', filename)
+    console.log('🔍 Using bucket:', DELIVERY_DOCKETS_BUCKET)
+    console.log('🔍 Original path:', path)
+    
+    // First check if file exists
+    const { data: listData, error: listError } = await supabase.storage
+      .from(DELIVERY_DOCKETS_BUCKET)
+      .list('', { limit: 100 })
+    
+    console.log('🔍 Files in bucket:', listData?.map(f => f.name) || [])
+    console.log('🔍 Looking for file:', filename)
     
     const signedUrlPromise = supabase.storage
       .from(DELIVERY_DOCKETS_BUCKET)
@@ -114,19 +111,20 @@ export const getDeliveryDocketSignedUrl = async (path: string, expiresIn: number
     const { data, error } = await withTimeout(signedUrlPromise, 10000)
     
     if (error) {
-      // Return placeholder silently for missing files in production
-      return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop&crop=center'
+      console.error('❌ Signed URL generation failed:', error)
+      return ''
     }
     
     if (data?.signedUrl) {
+      console.log('✅ Signed URL generated:', data.signedUrl)
       return data.signedUrl
     }
     
-    // No signed URL available - return placeholder
-    return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop&crop=center'
+    console.log('❌ No signed URL returned from Supabase')
+    return ''
   } catch (error) {
-    // Silent fallback for production errors
-    return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop&crop=center'
+    console.error('❌ Signed URL exception:', error)
+    return ''
   }
 }
 

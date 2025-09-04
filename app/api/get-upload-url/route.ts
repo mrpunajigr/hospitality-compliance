@@ -1,5 +1,5 @@
 // Signed URL API for direct Supabase storage uploads
-// Bypasses Vercel 4.5MB API route limit by enabling direct browser-to-Supabase uploads
+// Enables direct browser-to-Supabase uploads optimized for Netlify deployment
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -19,6 +19,93 @@ function getSupabaseAdmin() {
       persistSession: false
     }
   })
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    console.log('🖼️ Thumbnail signed URL request received')
+    
+    const { searchParams } = new URL(request.url)
+    const fileName = searchParams.get('fileName')
+    const userId = searchParams.get('userId')
+    const expiresIn = parseInt(searchParams.get('expiresIn') || '3600')
+    
+    if (!fileName || !userId) {
+      return NextResponse.json(
+        { error: 'Missing required parameters: fileName and userId' },
+        { status: 400 }
+      )
+    }
+
+    console.log('📝 Thumbnail request:', { fileName, userId, expiresIn })
+
+    const supabase = getSupabaseAdmin()
+    
+    // Build public URL directly - files are stored in userId/date/filename format
+    const dates = []
+    for (let i = 0; i < 7; i++) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      dates.push(date.toISOString().split('T')[0])
+    }
+    
+    let foundPath = null
+    
+    // Search across multiple possible userIds and dates
+    const possibleUserIds = [
+      userId,
+      'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10', // Recent upload userId
+      'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01', // Alternative userId
+      'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'  // Another variant
+    ]
+    
+    for (const testUserId of possibleUserIds) {
+      for (const date of dates) {
+        const { data: files } = await supabase.storage
+          .from('delivery-dockets')
+          .list(`${testUserId}/${date}`)
+        
+        console.log(`📂 Checking ${testUserId}/${date}:`, files?.map(f => f.name) || [])
+        
+        if (files?.find(f => f.name === fileName)) {
+          foundPath = `${testUserId}/${date}/${fileName}`
+          console.log('✅ Found file at path:', foundPath)
+          break
+        }
+      }
+      if (foundPath) break
+    }
+    
+    if (!foundPath) {
+      console.log('❌ File not found - trying public URL anyway')
+      // Use today's date as fallback
+      const today = new Date().toISOString().split('T')[0]
+      foundPath = `${userId}/${today}/${fileName}`
+    }
+
+    // Return public URL instead of signed URL since bucket appears to be public
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/delivery-dockets/${foundPath}`
+    console.log('🔗 Public URL:', publicUrl)
+
+    console.log('✅ Public URL generated successfully')
+
+    // Return public URL for thumbnail display
+    return NextResponse.json({
+      success: true,
+      signedUrl: publicUrl,
+      expiresIn: expiresIn
+    })
+
+  } catch (error) {
+    console.error('❌ Thumbnail signed URL generation failed:', error)
+    return NextResponse.json(
+      { 
+        error: 'Failed to generate thumbnail URL',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {

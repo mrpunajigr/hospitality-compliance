@@ -6,6 +6,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import { DeliveryDocketCardContainer } from './fresh-delivery-docket-card'
 
 interface EnhancedExtractionResult {
   deliveryRecordId: string
@@ -331,40 +332,69 @@ export default function EnhancedUpload({
           : f
       ))
 
-      // Process with OCR
-      const ocrResponse = await fetch('/api/process-docket', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      // EMERGENCY: Call Edge Function directly to bypass API route issues
+      console.log('🚨 EMERGENCY: Calling Edge Function directly to bypass API route')
+      
+      const { data: processResponse, error: edgeFunctionError } = await supabase.functions.invoke('process-delivery-docket', {
+        body: {
           bucketId: 'delivery-dockets',
           fileName: file.name,
-          filePath: uploadResult.filePath,
+          imagePath: uploadResult.filePath,
           deliveryRecordId: uploadResult.deliveryRecordId,
           userId: userId,
           clientId: effectiveClientId
-        })
+        }
       })
 
-      if (!ocrResponse.ok) {
-        const errorText = await ocrResponse.text()
-        throw new Error(`OCR processing failed: ${errorText}`)
+      if (edgeFunctionError) {
+        console.error('🚨 Edge Function error:', edgeFunctionError)
+        throw new Error(`Edge Function error: ${edgeFunctionError.message}`)
       }
 
-      const enhancedResult: EnhancedExtractionResult = await ocrResponse.json()
+      if (!processResponse.success) {
+        console.error('🚨 Edge Function returned success: false:', processResponse)
+        throw new Error(`Processing failed: ${processResponse.message}`)
+      }
+
+      // Big Claude's debug logging - RAW RESPONSE
+      console.log('📍 RAW Edge Function Response:', processResponse)
+      console.log('📍 Response type:', typeof processResponse)
+      console.log('📍 Response keys:', Object.keys(processResponse))
+      console.log('📍 Success field:', processResponse.success)
+      console.log('📍 Enhanced extraction exists:', 'enhancedExtraction' in processResponse)
+      console.log('📍 Enhanced extraction value:', processResponse.enhancedExtraction)
+
+      // CRITICAL FIX: Validate enhancedExtraction exists
+      if (!processResponse.enhancedExtraction) {
+        console.error('🚨 No enhancedExtraction in response - Edge Function not returning data properly')
+        console.error('🚨 Full response:', JSON.stringify(processResponse, null, 2))
+        throw new Error('No extraction data received from processing')
+      }
+
+      // CRITICAL FIX: Map response to correct interface structure
+      const enhancedResult: EnhancedExtractionResult = {
+        deliveryRecordId: processResponse.deliveryRecordId,
+        enhancedExtraction: processResponse.enhancedExtraction
+      }
+
+      console.log('📍 Mapped enhanced result:', enhancedResult)
 
       // Mark as completed with enhanced extraction data
-      setUploadFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
-          ? { 
-              ...f, 
-              status: 'completed', 
-              progress: 100, 
-              result: enhancedResult
-            }
-          : f
-      ))
+      setUploadFiles(prev => {
+        const updated = prev.map(f => 
+          f.id === uploadFile.id 
+            ? { 
+                ...f, 
+                status: 'completed' as const, 
+                progress: 100, 
+                result: enhancedResult
+              }
+            : f
+        )
+        console.log('📍 Updated upload files:', updated)
+        console.log('📍 Completed files count:', updated.filter(f => f.status === 'completed').length)
+        return updated
+      })
 
       return {
         ...uploadResult.deliveryRecord,
@@ -456,6 +486,13 @@ export default function EnhancedUpload({
     processing: uploadFiles.filter(f => f.status === 'processing').length,
     completed: uploadFiles.filter(f => f.status === 'completed').length,
     error: uploadFiles.filter(f => f.status === 'error').length
+  }
+  
+  // Big Claude's debug logging
+  console.log('🔍 Current status counts:', statusCounts)
+  console.log('🔍 Card rendering condition (completed > 0):', statusCounts.completed > 0)
+  if (uploadFiles.length > 0) {
+    console.log('🔍 Upload files state:', uploadFiles.map(f => ({ id: f.id, status: f.status, hasResult: !!f.result })))
   }
 
   return (
@@ -674,154 +711,9 @@ export default function EnhancedUpload({
         </div>
       )}
       
-      {/* Enhanced Results Preview with Raw AWS Textract Text */}
-      {statusCounts.completed > 0 && (
-        <div className={getCardStyle('primary')}>
-          <div className="p-6">
-            <h3 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
-              Processing Results ({statusCounts.completed} completed)
-            </h3>
-            
-            <div className="space-y-6">
-              {uploadFiles
-                .filter(f => f.status === 'completed' && f.result)
-                .map((uploadFile) => {
-                  const result = uploadFile.result
-                  if (!result) return null
-                  const extraction = result.enhancedExtraction
-                  if (!extraction) return null
-                  
-                  return (
-                    <div key={uploadFile.id} className="bg-white/10 rounded-xl p-6">
-                      
-                      {/* Header with Thumbnail and Basic Info */}
-                      <div className="flex items-start space-x-4 mb-6">
-                        {/* Large Thumbnail */}
-                        <div className="w-32 h-32 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                          {uploadFile.preview ? (
-                            <img 
-                              src={uploadFile.preview} 
-                              alt={uploadFile.file.name}
-                              className="w-32 h-32 object-cover rounded-lg border border-white/30"
-                            />
-                          ) : (
-                            <span className="text-white text-4xl">📄</span>
-                          )}
-                        </div>
-                        
-                        {/* File Info and Stats */}
-                        <div className="flex-1">
-                          <h4 className="text-white font-semibold text-lg mb-2">
-                            {uploadFile.file.name}
-                          </h4>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-1">Confidence</div>
-                              <div className="text-green-300 text-lg font-bold">
-                                {((extraction.analysis?.overallConfidence || 0) * 100).toFixed(1)}%
-                              </div>
-                            </div>
-                            
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-1">Items Found</div>
-                              <div className="text-blue-300 text-lg font-bold">
-                                {extraction.lineItems?.length || 0}
-                              </div>
-                            </div>
-                            
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-1">Supplier</div>
-                              <div className="text-white text-sm font-medium truncate">
-                                {extraction.supplier?.value || 'Unknown'}
-                              </div>
-                            </div>
-                            
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-1">Process Time</div>
-                              <div className="text-purple-300 text-sm font-medium">
-                                {extraction.analysis?.processingTime || 0}ms
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Raw AWS Textract Text Display */}
-                      <div className="border-t border-white/20 pt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h5 className="text-white font-medium">🤖 AWS Textract Raw Extraction</h5>
-                          <button
-                            onClick={() => {
-                              // Copy record ID to clipboard
-                              navigator.clipboard.writeText(result.deliveryRecordId)
-                              alert('Record ID copied to clipboard')
-                            }}
-                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg"
-                          >
-                            Copy Record ID
-                          </button>
-                        </div>
-                        
-                        {/* Raw Text Container */}
-                        <div className="bg-black/30 rounded-lg p-4 max-h-64 overflow-y-auto">
-                          <pre className="text-green-300 text-sm font-mono whitespace-pre-wrap break-words">
-                            <RawTextractDisplay recordId={result.deliveryRecordId} />
-                          </pre>
-                        </div>
-                      </div>
-                      
-                      {/* Structured Data Display */}
-                      <div className="border-t border-white/20 pt-4 mt-4">
-                        <h5 className="text-white font-medium mb-3">📊 Structured Analysis</h5>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Line Items */}
-                          {extraction.lineItems && extraction.lineItems.length > 0 && (
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-2">Line Items ({extraction.lineItems.length})</div>
-                              <div className="space-y-1 max-h-32 overflow-y-auto">
-                                {extraction.lineItems.slice(0, 5).map((item: any, index: number) => (
-                                  <div key={index} className="text-white text-sm flex justify-between">
-                                    <span className="truncate flex-1">{item.description}</span>
-                                    <span className="text-blue-300 ml-2">{item.quantity}</span>
-                                  </div>
-                                ))}
-                                {extraction.lineItems.length > 5 && (
-                                  <div className="text-white/60 text-xs">
-                                    +{extraction.lineItems.length - 5} more items...
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Temperature Data */}
-                          {extraction.temperatureData && extraction.temperatureData.readings && (
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="text-white/70 text-xs mb-2">Temperature Readings</div>
-                              <div className="space-y-1">
-                                {extraction.temperatureData.readings.slice(0, 3).map((reading: any, index: number) => (
-                                  <div key={index} className="text-white text-sm flex justify-between">
-                                    <span>{reading.value}°{reading.unit}</span>
-                                    <span className={`${reading.complianceStatus === 'pass' ? 'text-green-300' : 'text-red-300'}`}>
-                                      {reading.complianceStatus}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                    </div>
-                  )
-                })}
-            </div>
-          </div>
-        </div>
-      )}
+
+      {/* Big Claude's Fresh Card Component */}
+      <DeliveryDocketCardContainer uploadFiles={uploadFiles} />
     </div>
   )
 }

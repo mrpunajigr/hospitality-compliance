@@ -26,8 +26,26 @@ Located in `:assets/docs completed/` folder:
 - UI component development and Safari compatibility fixes
 - Debugging protocols and troubleshooting guides
 
+## Session Logs & Decision History
+- **SessionLogs/** - Complete conversation captures
+- **DecisionHistory.md** - Extracted key decisions across sessions
+- **CurrentSessionStatus.md** - Latest development state with log references
+
+## Session Management Scripts
+- **scripts/ClaudeWithLogging.sh** - Start logged Claude Code session
+- **scripts/UpdateSessionLog.sh** - Add context to current session
+- **scripts/SearchSessionLogs.sh** - Find specific topics in conversation history
+- **scripts/ExtractDecisions.sh** - Generate decision audit trail
+
+## Using Session Logs
+1. **Starting Development**: Review latest session log for context
+2. **Debugging Issues**: Search logs for similar problem resolution
+3. **Understanding Decisions**: Check decision history for architectural choices
+4. **Session Continuity**: Reference conversation logs for detailed context
+
 ## Development Protocols
 - **Naming Convention**: PascalCase for all files - enforced project-wide
+- **Session Logging**: Always use ClaudeWithLogging.sh wrapper for documentation
 - **Version Control**: Standard git workflow, no automatic commits
 - **Testing**: Manual testing with test@jigr.app and test70_IMG_3250.jpg
 - **Deployment**: Supabase edge functions with Docker integration

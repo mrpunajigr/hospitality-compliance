@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import AppleSidebar from '@/app/components/AppleSidebar'
+import { PlatformProvider } from '@/lib/platform-context'
 
 export default function AdminLayout({
   children,
@@ -48,7 +49,8 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <PlatformProvider>
+      <div className="min-h-screen relative overflow-hidden ContentArea">
       {/* Background */}
       <div 
         className="absolute inset-0 bg-cover bg-no-repeat"
@@ -76,6 +78,7 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </PlatformProvider>
   )
 }

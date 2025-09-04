@@ -60,8 +60,38 @@ JiGR is a hospitality compliance SaaS platform that processes delivery dockets u
 - **Expected Output**: 9 structured fields with individual VEGF product line items
 - **Database Client**: b13e93dd-e981-4d43-97e6-26b7713fb90c (JIGR client ID)
 
+## Session Documentation Protocol
+
+### Starting a New Session
+1. **Always use logging wrapper**: `./scripts/ClaudeWithLogging.sh`
+2. **Update session context**: `./scripts/UpdateSessionLog.sh` 
+3. **Reference previous logs**: Check `SessionLogs/` for decision history
+
+### During Session
+- Important decisions are automatically captured
+- Code changes are logged with reasoning
+- Problem-solving approaches are documented
+
+### Ending Session
+- Update `CurrentSessionStatus.md` with progress
+- Reference session log file in status update
+- Note key decisions for next session continuity
+
+### Session Log Benefits
+- **Decision Audit Trail**: Why specific approaches were chosen
+- **Problem Resolution History**: Successful debugging methods
+- **Code Change Rationale**: Context for all modifications
+- **Continuity Bridge**: Next session can review decision-making process
+
 ## Common Commands
 ```bash
+# Start logged Claude Code session
+./scripts/ClaudeWithLogging.sh
+
+# Search session logs for topics
+./scripts/SearchSessionLogs.sh "parser fix"
+./scripts/SearchSessionLogs.sh "storage error"
+
 # Deploy edge function
 DOCKER_HOST=unix://$HOME/.rd/docker.sock npx supabase functions deploy process-delivery-docket
 

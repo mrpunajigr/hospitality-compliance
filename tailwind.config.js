@@ -7,6 +7,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        // iPad-specific breakpoints for orientation-aware design
+        'ipad-portrait': {'raw': '(min-width: 768px) and (max-width: 1024px) and (orientation: portrait)'},
+        'ipad-landscape': {'raw': '(min-width: 1024px) and (orientation: landscape)'},
+        'ipad': {'raw': '(min-width: 768px) and (max-width: 1024px)'},
+        // Legacy breakpoints remain unchanged
+      },
       fontFamily: {
         // Standardized Typography System
         'lora': ['Lora', 'Georgia', 'Times New Roman', 'serif'],

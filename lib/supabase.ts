@@ -29,7 +29,13 @@ try {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   
   if (supabaseUrl && supabaseAnonKey) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storageKey: 'hospitality-compliance-auth'
+      }
+    })
   }
   
   if (supabaseUrl && supabaseServiceKey) {
@@ -50,30 +56,30 @@ export const supabaseAdmin = supabaseAdminClient
 export const STORAGE_BUCKET = 'delivery-dockets'
 export const DELIVERY_DOCKETS_BUCKET = 'delivery-dockets'
 
-// Fallback implementations for database functions
-export const getImageUrl = (...args: any[]) => ''
-export const getDeliveryDocketSignedUrl = (...args: any[]) => Promise.resolve('')
-export const getDeliveryDocketImageUrl = (...args: any[]) => ''
-export const getDeliveryDocketThumbnail = (...args: any[]) => ''
-export const getDeliveryDocketPreview = (...args: any[]) => ''
+// Import proper implementations from Database module
+export { 
+  getImageUrl, 
+  getDeliveryDocketSignedUrl, 
+  getDeliveryDocketImageUrl, 
+  getDeliveryDocketThumbnail, 
+  getDeliveryDocketPreview 
+} from '@/lib/Database/DatabaseHelpers'
 
-export const getUserClients = (...args: any[]) => Promise.resolve([])
-export const hasClientAccess = (...args: any[]) => Promise.resolve(false)
-export const getUserClientRole = (...args: any[]) => Promise.resolve(null)
-
-export const getDeliveryRecords = (...args: any[]) => Promise.resolve([])
-export const createDeliveryRecord = (...args: any[]) => Promise.resolve({})
-
-export const getSuppliers = (...args: any[]) => Promise.resolve([])
-export const createSupplier = (...args: any[]) => Promise.resolve({})
-
-export const getTeamMembers = (...args: any[]) => Promise.resolve([])
-export const createInvitation = (...args: any[]) => Promise.resolve({})
-
-export const getComplianceAlerts = (...args: any[]) => Promise.resolve([])
-export const acknowledgeAlert = (...args: any[]) => Promise.resolve({})
-
-export const createAuditLog = (...args: any[]) => Promise.resolve({})
+// Import all other database helpers from Database module
+export { 
+  getUserClients,
+  hasClientAccess, 
+  getUserClientRole,
+  getDeliveryRecords,
+  createDeliveryRecord,
+  getSuppliers,
+  createSupplier,
+  getTeamMembers,
+  createInvitation,
+  getComplianceAlerts,
+  acknowledgeAlert,
+  createAuditLog
+} from '@/lib/Database/DatabaseHelpers'
 
 // =============================================================================
 // MIGRATION COMMENTS

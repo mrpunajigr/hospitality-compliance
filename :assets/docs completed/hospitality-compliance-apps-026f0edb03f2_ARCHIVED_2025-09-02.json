@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "hospitality-compliance-apps",
+  "private_key_id": "026f0edb03f28c28ad947ec14188d99d7f13211c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDUyMaygwK6ZjMv\nJQF43145FKsbghMgHc+oV2liIrY8YuLW+mYS5M/rHtW8HCdsLI/sDuWjKWiDnYw9\nXw9acPBIQjWzgdgo2M5dKd/2I3+RwjgfwXwGUaDAaX8nOHjsYBWRxKHzPL7EJ4tQ\nPxCBXS6zqS/3cBLLWNsbLqRghO0++HiDYA8BMUFBeuDI4adkjir+kZy6Pd6gLDwb\nKE9N4/W8m2LbMwH7NBN8t17bIF1waFp0XwCNB+ZzDO36189Pq3BT382p7BCbqpWl\n8XZ4LRmaCcOZdIZt3RWx/xVcrnfBYEDSLbyAVXrNnkUrI5k6l9jALjBdmJJX7iiU\nOQQc6JRnAgMBAAECggEAAcAA+ljffd73Tsz0HSVhJgEIgzpno9z65zyIzljQvOBn\nUzNOAZvGJf3j7h8hJ9+Z82wP8W6WwHZcP+j3PFwvbbi1rltEBtn5oISGpgSWuQEq\n6v/xYC/trYdwl0b8n50OsFs4pcJ7IyvcFnXeUeINT0b18QgH74o0ix2wFmcheGIY\n6n4E0qLdfjFPe3/SzOwHFTWxqpNjnU/DiReZrx4IHDnQd+JhSVmFaTkBNMUL3BJk\nUuDPk2jGAwsFn3S5z9M3l4G5xEW6qqJcxFup/zGiL4+tHjLkF+nkTNUFPUse8dLC\nz0cEmJX1RUNPIo5164FlgMctQcMNZdLFNB6jnoUf4QKBgQD6EB5g7ZI9+qAXDApG\nGLr4a7Ou+PQwLUGZ0fGTAehz373QmPg0B4usLnGk/VyiKjt26hJy+3TyymVTp642\noWchiodIZSCfETrEhlfMJEOpLqHZhfqsc5ccKF3uwynU+iPyILE0bbRmZ8n/Fyoe\nb6iEGok3/3sgQtD2mbO3lUYEcQKBgQDZ1hPvTyN2qb0FMnwL7Op3zd38009KYDay\n+k6W6NonBjjoXlLyLTf0A4HXa6fio58qLhgXrPSXmt1uZvHmT7y/e013fvp+MSG7\n4iBiM8pjB0GYcYM2Nh/gfwc7WTpuFb4k4RBNXeI3cHpRim4XiyQL5XC1baRBsj5t\n3/98bK8yVwKBgQCZB0gv9PLr7vYNZJbc8sFoyTA6watd2DQvF+WIG0DPuHqGrzYl\nUQDOq9VsLIiFzOZ7DR+hMfUNp4J+wTzBveBJDGdhjFF8RqT6I2STTxYA8MKnRXB0\nHIC7AJELTm/JIBLjV9JZzVD64kUhUGG8IoSz4zFaDYSh54HNh54NmNIyYQKBgQDJ\nDCHd7oZmkIYZ89w1DXXhGKnXHBfEJ0SUrxw1f7dH6SBApj2bskw/87S0Y3HRZP4T\nafNmdoRQH+haary7ucAUYfK/ZPw/14yw4STOPcp+10WdMrbNI+sLwXGlPtcEnyCc\n3PO00/9i93aNJ1wwcoTUTfBWIllFIQMpWWFtLsoLhQKBgQCyaMxZ/f2+xAIHKPzw\nKP9RjkvrTXNQgt28yXsybWorzMR6b4avYp4z59n94gwFcQvFg6QliY/t0sJO0lJD\niD4gXsDx+pu9YwnE6dxL9ydAtBlHj2Fl38QBDnII/cLVthz8AbbQeM+IR0lgzn47\nbWk7eLCfRN6G+lecHBI4PznkNQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "delivery-docket-ai@hospitality-compliance-apps.iam.gserviceaccount.com",
+  "client_id": "100708400346212642496",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/delivery-docket-ai%40hospitality-compliance-apps.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

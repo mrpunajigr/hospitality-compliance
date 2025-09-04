@@ -61,7 +61,7 @@ export default function SafariCompatibleUpload({
 
       setProgress('Getting upload URL...')
 
-      // Step 1: Get signed URL for direct Supabase upload (bypasses Vercel 4.5MB limit)
+      // Step 1: Get signed URL for direct Supabase upload (optimized for Netlify)
       const signedUrlResponse = await fetch('/api/get-upload-url', {
         method: 'POST',
         headers: {
