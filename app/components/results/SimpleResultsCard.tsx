@@ -20,6 +20,7 @@ interface SimpleResultsData {
   confidence_score?: number
   client_id?: string // For demo mode detection
   item_count?: number // Simple item count
+  raw_extracted_text?: string // Raw OCR text
   // Required fields for Results Card
   line_items?: any[] | string // Array of line items or stringified JSON
   temperature_reading?: string // Handwritten temperature
