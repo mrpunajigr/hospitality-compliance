@@ -1,0 +1,428 @@
+'use client'
+
+import React, { ReactNode, useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { useAuth, useClientWithUsers } from './MultiTenantAuthContext'
+import { hasPermission, type Permission, type UserRole } from './auth'
+
+// =====================================================
+// TYPES
+// =====================================================
+
+interface RouteProtectionConfig {
+  requireAuth?: boolean
+  requireClient?: boolean
+  requiredRole?: UserRole
+  requiredPermissions?: Permission[]
+  allowedRoles?: UserRole[]
+  redirectTo?: string
+  fallbackComponent?: ReactNode
+}
+
+interface ProtectedRouteProps extends RouteProtectionConfig {
+  children: ReactNode
+  loading?: ReactNode
+}
+
+// =====================================================
+// ROUTE PROTECTION COMPONENT
+// =====================================================
+
+export function ProtectedRoute({ 
+  children, 
+  requireAuth = true,
+  requireClient = false,
+  requiredRole,
+  requiredPermissions = [],
+  allowedRoles,
+  redirectTo,
+  fallbackComponent,
+  loading: LoadingComponent
+}: ProtectedRouteProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const auth = useAuth()
+  const client = useClientWithUsers()
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
+  const [permissionChecks, setPermissionChecks] = useState<boolean[]>([])
+
+  // Check permissions when client or role changes
+  useEffect(() => {
+    async function checkPermissions() {
+      if (!client.client || requiredPermissions.length === 0) {
+        setPermissionChecks([])
+        return
+      }
+
+      const checks = await Promise.all(
+        requiredPermissions.map(permission => 
+          hasPermission(client.client!.id, permission)
+        )
+      )
+      
+      setPermissionChecks(checks)
+    }
+
+    checkPermissions()
+  }, [client.client, requiredPermissions])
+
+  // Authorization logic
+  useEffect(() => {
+    if (auth.loading) {
+      setIsAuthorized(null)
+      return
+    }
+
+    // Check authentication
+    if (requireAuth && !auth.user) {
+      setIsAuthorized(false)
+      return
+    }
+
+    // Check client requirement
+    if (requireClient && !client.client) {
+      setIsAuthorized(false)
+      return
+    }
+
+    // Check role requirements
+    if (requiredRole && client.userRole) {
+      const roleHierarchy: Record<UserRole, number> = {
+        staff: 1,
+        manager: 2,
+        admin: 3,
+        owner: 4
+      }
+      
+      const userLevel = roleHierarchy[client.userRole]
+      const requiredLevel = roleHierarchy[requiredRole]
+      
+      if (userLevel < requiredLevel) {
+        setIsAuthorized(false)
+        return
+      }
+    }
+
+    // Check allowed roles
+    if (allowedRoles && client.userRole && !allowedRoles.includes(client.userRole)) {
+      setIsAuthorized(false)
+      return
+    }
+
+    // Check permissions
+    if (requiredPermissions.length > 0) {
+      const hasAllPermissions = permissionChecks.length > 0 && 
+        permissionChecks.every(hasPermission => hasPermission)
+      
+      if (!hasAllPermissions) {
+        setIsAuthorized(false)
+        return
+      }
+    }
+
+    // All checks passed
+    setIsAuthorized(true)
+  }, [
+    auth.loading, 
+    auth.user, 
+    client.client, 
+    client.userRole,
+    requireAuth,
+    requireClient,
+    requiredRole,
+    allowedRoles,
+    permissionChecks,
+    requiredPermissions.length
+  ])
+
+  // Handle redirects
+  useEffect(() => {
+    if (isAuthorized === false) {
+      let targetPath = redirectTo
+
+      if (!targetPath) {
+        if (requireAuth && !auth.user) {
+          targetPath = `/signin?redirect=${encodeURIComponent(pathname)}`
+        } else if (requireClient && !client.client) {
+          targetPath = '/onboarding'
+        } else {
+          targetPath = '/unauthorized'
+        }
+      }
+
+      router.push(targetPath)
+    }
+  }, [isAuthorized, redirectTo, requireAuth, requireClient, auth.user, client.client, pathname, router])
+
+  // Render states
+  if (auth.loading || isAuthorized === null) {
+    return LoadingComponent || <DefaultLoadingScreen />
+  }
+
+  if (isAuthorized === false) {
+    return fallbackComponent || <DefaultUnauthorizedScreen />
+  }
+
+  return <>{children}</>
+}
+
+// =====================================================
+// HIGHER-ORDER COMPONENTS
+// =====================================================
+
+// HOC for pages that require authentication
+export function withAuth<P extends object>(
+  Component: React.ComponentType<P>,
+  config: Omit<RouteProtectionConfig, 'requireAuth'> = {}
+) {
+  return function AuthenticatedComponent(props: P) {
+    return (
+      <ProtectedRoute requireAuth={true} {...config}>
+        <Component {...props} />
+      </ProtectedRoute>
+    )
+  }
+}
+
+// HOC for pages that require a specific role
+export function withRole<P extends object>(
+  Component: React.ComponentType<P>,
+  requiredRole: UserRole,
+  config: Omit<RouteProtectionConfig, 'requiredRole'> = {}
+) {
+  return function RoleProtectedComponent(props: P) {
+    return (
+      <ProtectedRoute 
+        requireAuth={true} 
+        requireClient={true}
+        requiredRole={requiredRole} 
+        {...config}
+      >
+        <Component {...props} />
+      </ProtectedRoute>
+    )
+  }
+}
+
+// HOC for pages that require specific permissions
+export function withPermissions<P extends object>(
+  Component: React.ComponentType<P>,
+  requiredPermissions: Permission[],
+  config: Omit<RouteProtectionConfig, 'requiredPermissions'> = {}
+) {
+  return function PermissionProtectedComponent(props: P) {
+    return (
+      <ProtectedRoute 
+        requireAuth={true} 
+        requireClient={true}
+        requiredPermissions={requiredPermissions} 
+        {...config}
+      >
+        <Component {...props} />
+      </ProtectedRoute>
+    )
+  }
+}
+
+// =====================================================
+// ROUTE GUARD HOOKS
+// =====================================================
+
+// Hook for conditional rendering based on permissions
+export function usePermissionGuard(permission: Permission) {
+  const client = useClientWithUsers()
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    async function checkPermission() {
+      if (!client.client) {
+        setHasAccess(false)
+        return
+      }
+
+      const access = await hasPermission(client.client.id, permission)
+      setHasAccess(access)
+    }
+
+    checkPermission()
+  }, [client.client, permission])
+
+  return hasAccess
+}
+
+// Hook for role-based conditional rendering
+export function useRoleGuard(allowedRoles: UserRole[]) {
+  const client = useClientWithUsers()
+  
+  if (!client.userRole) return false
+  
+  return allowedRoles.includes(client.userRole)
+}
+
+// =====================================================
+// CONDITIONAL RENDER COMPONENTS
+// =====================================================
+
+// Component for conditional rendering based on permissions
+interface PermissionGateProps {
+  permission: Permission
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+export function PermissionGate({ permission, children, fallback = null }: PermissionGateProps) {
+  const hasAccess = usePermissionGuard(permission)
+  
+  if (hasAccess === null) {
+    return <div className="animate-pulse bg-gray-200 h-4 w-16 rounded" />
+  }
+  
+  return hasAccess ? <>{children}</> : <>{fallback}</>
+}
+
+// Component for conditional rendering based on roles
+interface RoleGateProps {
+  allowedRoles: UserRole[]
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+export function RoleGate({ allowedRoles, children, fallback = null }: RoleGateProps) {
+  const hasAccess = useRoleGuard(allowedRoles)
+  
+  return hasAccess ? <>{children}</> : <>{fallback}</>
+}
+
+// Component for admin-only content
+interface AdminOnlyProps {
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
+  return (
+    <RoleGate allowedRoles={['admin', 'owner']} fallback={fallback}>
+      {children}
+    </RoleGate>
+  )
+}
+
+// Component for owner-only content
+interface OwnerOnlyProps {
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+export function OwnerOnly({ children, fallback = null }: OwnerOnlyProps) {
+  return (
+    <RoleGate allowedRoles={['owner']} fallback={fallback}>
+      {children}
+    </RoleGate>
+  )
+}
+
+// =====================================================
+// DEFAULT SCREENS
+// =====================================================
+
+function DefaultLoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <h2 className="text-lg font-medium text-gray-900">Loading...</h2>
+        <p className="text-sm text-gray-500">Checking permissions</p>
+      </div>
+    </div>
+  )
+}
+
+function DefaultUnauthorizedScreen() {
+  const router = useRouter()
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center max-w-md">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h2 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h2>
+        <p className="text-sm text-gray-500 mb-6">
+          You don&apos;t have permission to access this page. Please contact your administrator if you believe this is an error.
+        </p>
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// =====================================================
+// ROUTE CONFIGURATION HELPERS
+// =====================================================
+
+// Define route configurations
+export const ROUTE_CONFIG = {
+  // Public routes (no protection)
+  PUBLIC: {},
+  
+  // Basic auth required
+  AUTHENTICATED: {
+    requireAuth: true
+  },
+  
+  // Client context required
+  CLIENT_REQUIRED: {
+    requireAuth: true,
+    requireClient: true
+  },
+  
+  // Role-based access
+  MANAGER_ONLY: {
+    requireAuth: true,
+    requireClient: true,
+    requiredRole: 'manager' as UserRole
+  },
+  
+  ADMIN_ONLY: {
+    requireAuth: true,
+    requireClient: true,
+    requiredRole: 'admin' as UserRole
+  },
+  
+  OWNER_ONLY: {
+    requireAuth: true,
+    requireClient: true,
+    requiredRole: 'owner' as UserRole
+  },
+  
+  // Permission-based access
+  UPLOAD_DOCUMENTS: {
+    requireAuth: true,
+    requireClient: true,
+    requiredPermissions: ['upload_documents' as Permission]
+  },
+  
+  MANAGE_TEAM: {
+    requireAuth: true,
+    requireClient: true,
+    requiredPermissions: ['invite_users' as Permission, 'manage_user_roles' as Permission]
+  },
+  
+  MANAGE_BILLING: {
+    requireAuth: true,
+    requireClient: true,
+    requiredPermissions: ['manage_billing' as Permission]
+  }
+} as const
+
+// Helper to apply route protection
+export function protectRoute(config: keyof typeof ROUTE_CONFIG) {
+  return ROUTE_CONFIG[config]
+}

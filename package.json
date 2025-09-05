@@ -1,0 +1,53 @@
+{
+  "name": "hospitality-compliance-saas",
+  "version": "1.9.3.008",
+  "private": true,
+  "browserslist": [
+    "iOS >= 12",
+    "Safari >= 12"
+  ],
+  "scripts": {
+    "dev": "npm run increment-build && next dev",
+    "build": "npm run increment-build && npm run generate-static-version && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate-types": "supabase gen types typescript --local > types/supabase.ts",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "increment-build": "node scripts/increment-build.js",
+    "log": "node scripts/log-change.js",
+    "alpha": "node scripts/increment-alpha.js",
+    "production": "node scripts/mark-production.js",
+    "version-check": "cat version.json",
+    "generate-static-version": "node scripts/generate-static-version.js",
+    "archive": "node scripts/archive-manager.js",
+    "cleanup": "node scripts/cleanup-demo-data.js"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.38.0",
+    "date-fns": "^2.30.0",
+    "dotenv": "^17.2.1",
+    "form-data": "^4.0.4",
+    "google-auth-library": "^8.9.0",
+    "next": "^15.4.5",
+    "node-fetch": "^3.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.50",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^12.3.4",
+    "postcss": "^8.4.47",
+    "supabase": "^1.100.0",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^4.9.5"
+  }
+}
