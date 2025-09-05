@@ -219,15 +219,16 @@ export const initializeJiGRSuiteWithEvents = async (options?: {
   const coreSystem = await initializeJiGRCoreSystem(config)
   
   // Initialize AddOn modules if requested
-  if (options?.enableAdvancedReporting) {
-    try {
-      const { setupEnterpriseAnalytics } = await import('../modules/ReportingAnalyticsModule')
-      await setupEnterpriseAnalytics()
-      console.log('📊 Enterprise Analytics enabled')
-    } catch (error) {
-      console.warn('⚠️ Enterprise Analytics setup failed:', error)
-    }
-  }
+  // DISABLED: ReportingAnalyticsModule not available in current build
+  // if (options?.enableAdvancedReporting) {
+  //   try {
+  //     const { setupEnterpriseAnalytics } = await import('../modules/ReportingAnalyticsModule')
+  //     await setupEnterpriseAnalytics()
+  //     console.log('📊 Enterprise Analytics enabled')
+  //   } catch (error) {
+  //     console.warn('⚠️ Enterprise Analytics setup failed:', error)
+  //   }
+  // }
   
   const eventStatus = getEventSystemStatus()
   
