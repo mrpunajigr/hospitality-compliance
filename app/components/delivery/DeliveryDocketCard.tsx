@@ -23,7 +23,7 @@ export default function DeliveryDocketCard({ record }: DeliveryDocketCardProps) 
   const [imageError, setImageError] = useState(false)
   
   // Determine compliance status based on temperature
-  const complianceStatus: 'compliant' | 'warning' | 'violation' = 'compliant' // Simplified for now
+  const complianceStatus = 'compliant' as 'compliant' | 'warning' | 'violation' // Simplified for now
   
   // Extract line items count from real Service Foods text
   const getLineItemsCount = (text: string): number => {
