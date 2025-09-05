@@ -285,25 +285,26 @@ export class AddOnModuleEventIntegration {
   /**
    * Integrate Reporting & Analytics Module with events
    */
-  async integrateReportingAnalyticsModule(): Promise<void> {
-    try {
-      const { getReportingAnalyticsCore } = await import('../modules/ReportingAnalyticsModule')
-      const reportingCore = getReportingAnalyticsCore()
+  // DISABLED: Module not available in current build
+  // async integrateReportingAnalyticsModule(): Promise<void> {
+  //   try {
+  //     const { getReportingAnalyticsCore } = await import('../modules/ReportingAnalyticsModule')
+  //     const reportingCore = getReportingAnalyticsCore()
 
-      // Connect to communication system
-      this.communicationSystem.connectModule(reportingCore)
+  //     // Connect to communication system
+  //     this.communicationSystem.connectModule(reportingCore)
 
-      // Set up reporting event publishing
-      this.setupReportingEventPublishing(reportingCore)
+  //     // Set up reporting event publishing
+  //     this.setupReportingEventPublishing(reportingCore)
 
-      // Set up reporting event subscriptions
-      this.setupReportingEventSubscriptions(reportingCore)
+  //     // Set up reporting event subscriptions
+  //     this.setupReportingEventSubscriptions(reportingCore)
 
-      console.log('📊 Reporting & Analytics Module integrated with event system')
-    } catch (error) {
-      console.warn('⚠️ Reporting & Analytics integration skipped:', error)
-    }
-  }
+  //     console.log('📊 Reporting & Analytics Module integrated with event system')
+  //   } catch (error) {
+  //     console.warn('⚠️ Reporting & Analytics integration skipped:', error)
+  //   }
+  // }
 
   private setupReportingEventPublishing(reportingCore: any): void {
     // Extend report generation to publish events
@@ -445,7 +446,7 @@ export class AddOnModuleEventIntegration {
     console.log('🔌 Integrating AddOn modules with event system...')
 
     await Promise.all([
-      this.integrateReportingAnalyticsModule(),
+      // this.integrateReportingAnalyticsModule(), // Module not available
       this.integrateTemperatureComplianceModule()
     ])
 
