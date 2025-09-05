@@ -20,4 +20,4 @@
 
 # File upload optimization (Netlify allows larger files than Vercel)
 [build.processing]
-  skip_processing = false
+  skip_processing = false# Clean build trigger Fri Sep  5 16:30:38 NZST 2025
