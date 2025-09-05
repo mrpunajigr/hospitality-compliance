@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import Image from 'next/image'
-import TrainingNavigation from '@/components/training/TrainingNavigation'
+// import TrainingNavigation from '@/components/training/TrainingNavigation'
 
 interface DeliveryRecord {
   id: string
@@ -450,7 +450,7 @@ export default function TrainingReviewPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Navigation */}
-        <TrainingNavigation />
+        {/* <TrainingNavigation /> */}
         
         {/* Header */}
         <div className={getCardStyle('primary')}>

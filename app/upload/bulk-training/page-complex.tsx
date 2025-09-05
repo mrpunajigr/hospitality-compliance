@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
-import TrainingNavigation from '@/components/training/TrainingNavigation'
+// import TrainingNavigation from '@/components/training/TrainingNavigation'
 
 interface BulkProcessingStats {
   total: number
@@ -121,7 +121,7 @@ export default function BulkTrainingUploadPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Navigation */}
-        <TrainingNavigation />
+        {/* <TrainingNavigation /> */}
         
         {/* Header */}
         <div className={getCardStyle('primary')}>
