@@ -1,0 +1,370 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom Font Loading - Kirgina */
+@font-face {
+  font-family: 'Kirgina';
+  src: url('/Kirgina.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Safari 12 compatible font loading */
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  /* iOS 12 specific optimizations */
+  -webkit-text-size-adjust: 100%;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Standardized Typography System */
+.font-lora {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+}
+
+.font-source {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.font-kirgina {
+  font-family: 'Kirgina', serif;
+}
+
+/* Typography Semantic Classes */
+.typography-title {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.typography-lead {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.typography-paragraph {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.typography-paragraph-bold {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.typography-button {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.typography-link {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.typography-brand {
+  font-family: 'Kirgina', serif;
+  font-weight: 400;
+}
+
+/* Legacy Font Classes (for backward compatibility) */
+.font-new-york {
+  font-family: "New York", -apple-system-ui-serif, ui-serif, "Times New Roman", serif;
+}
+
+.font-sf-pro {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+}
+
+/* Platform-Aware Styling System for iPad Optimization */
+
+/* Web Platform Mode - Standard responsive behavior (default) */
+.PlatformWeb {
+  /* Inherits existing responsive design - no changes */
+}
+
+/* iOS Platform Mode - Apple HIG compliant iPad optimization */
+.PlatformIOS {
+  /* iPad-specific design tokens */
+  --touch-target-min: 44px;
+  --content-margin: 24px;
+  --nav-height: 93px;
+  --status-bar-height: 24px;
+  --home-indicator-clearance: 19.5px;
+}
+
+/* iOS Platform - Touch Target Standards */
+.PlatformIOS .TouchTarget,
+.PlatformIOS button,
+.PlatformIOS a,
+.PlatformIOS input,
+.PlatformIOS select {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+}
+
+/* iOS Platform - Content Area Optimization */
+.PlatformIOS .ContentArea {
+  padding-left: var(--content-margin);
+  padding-right: var(--content-margin);
+}
+
+/* iOS Platform - Navigation Adaptation */
+.PlatformIOS .AppleSidebar {
+  /* Sidebar optimizations for iPad */
+}
+
+/* iOS Platform - Orientation-Specific Layouts */
+@media (orientation: portrait) {
+  .PlatformIOS .AdaptiveLayout {
+    /* Portrait mode: More compact layouts */
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .PlatformIOS .NavigationMode {
+    /* Prefer tab bar in portrait */
+  }
+}
+
+@media (orientation: landscape) {
+  .PlatformIOS .AdaptiveLayout {
+    /* Landscape mode: Expanded layouts */
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .PlatformIOS .NavigationMode {
+    /* Allow expanded sidebar in landscape */
+  }
+}
+
+/* Safari 12 compatible backdrop-blur alternatives */
+.backdrop-blur-2xl {
+  /* Fallback for Safari 12 - use semi-transparent background */
+  background: rgba(255, 255, 255, 0.15);
+  /* Try backdrop-filter for supported browsers */
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+}
+
+.backdrop-blur-sm {
+  /* Fallback for Safari 12 */
+  background: rgba(255, 255, 255, 0.8);
+  /* Try backdrop-filter for supported browsers */
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* Touch optimization for iPad Air (2013) */
+.touch-manipulation {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Button touch targets for iPad */
+button, .btn, a[role="button"] {
+  min-height: 44px; /* iOS recommended minimum touch target */
+  min-width: 44px;
+}
+
+/* Form input optimizations for iOS 12 */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+textarea {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+  border-radius: 0.5rem;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+/* Fix for iOS 12 viewport issues */
+@supports (-webkit-overflow-scrolling: touch) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Loading spinner animation that works in Safari 12 */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+/* Liquid Glass Effects for Logo */
+.liquid-glass-logo {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.liquid-glass-logo:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.08)
+  );
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Size Variants */
+.liquid-glass-small {
+  padding: 8px;
+  border-radius: 50%; /* Perfect circle */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  width: 64px; /* Fixed width for perfect circle */
+  height: 64px; /* Fixed height for perfect circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.liquid-glass-medium {
+  padding: 12px;
+  border-radius: 16px;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.liquid-glass-large {
+  padding: 20px;
+  border-radius: 24px;
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+/* Safari 12 Fallbacks */
+@supports not (backdrop-filter: blur(20px)) {
+  .liquid-glass-logo {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .liquid-glass-logo:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* Prismatic Text Effect for Logo */
+.prismatic-text {
+  background: linear-gradient(45deg, 
+    #00bcd4, #9c27b0, #e91e63, #4caf50, #ff9800
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Kirgina', serif;
+  font-weight: 400;
+}
+
+/* Logo Container Responsive */
+.logo-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.logo-container img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive Logo Sizes */
+@media (max-width: 640px) {
+  .liquid-glass-medium {
+    padding: 8px;
+    border-radius: 12px;
+  }
+  
+  .liquid-glass-medium img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .liquid-glass-large {
+    padding: 16px;
+    border-radius: 20px;
+  }
+  
+  .liquid-glass-large img {
+    width: 80px !important;
+    height: 80px !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .liquid-glass-medium img {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  
+  .liquid-glass-large img {
+    width: 96px !important;
+    height: 96px !important;
+  }
+}
+
+/* Logo Animation Enhancement */
+.liquid-glass-logo {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.liquid-glass-logo:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* Prismatic Glow Effect */
+.prismatic-glow {
+  filter: drop-shadow(0 0 10px rgba(0, 188, 212, 0.3))
+          drop-shadow(0 0 20px rgba(156, 39, 176, 0.2))
+          drop-shadow(0 0 30px rgba(233, 30, 99, 0.1));
+}
