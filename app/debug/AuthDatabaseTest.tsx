@@ -632,7 +632,13 @@ export default function AuthDatabaseTest() {
             <h4 className="text-white font-medium">🎯 Delivery Docket Card - Final Result</h4>
             
             {/* The actual card component with 5 required fields */}
-            <DeliveryDocketCard record={testRecord} />
+            <DeliveryDocketCard record={{
+              ...testRecord,
+              supplier_name: testRecord.supplier_name || 'Unknown Supplier',
+              delivery_date: testRecord.delivery_date || new Date().toISOString(),
+              image_path: testRecord.image_path || '',
+              raw_extracted_text: testRecord.raw_extracted_text || ''
+            }} />
             
             <h4 className="text-white font-medium">🤖 Raw Data (Debug View)</h4>
             <div className="bg-white/10 rounded-lg p-4 space-y-4">
