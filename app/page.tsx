@@ -1,186 +1,228 @@
 'use client'
 
-// Main Upload Interface - Direct access to upload functionality
-import { useState, useEffect } from 'react'
-import EnhancedComplianceDashboard from './components/compliance/EnhancedComplianceDashboard'
-import SimpleResultsCard from './components/results/SimpleResultsCard'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
-import { getUserClient, UserClient } from '@/lib/auth-utils'
-import { getModuleAsset } from '@/lib/image-storage'
-import Image from 'next/image'
 
 export default function HomePage() {
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
-  const [userClient, setUserClient] = useState<UserClient | null>(null)
-  const [latestDeliveryRecord, setLatestDeliveryRecord] = useState<any>(null)
-  const [processingResults, setProcessingResults] = useState<any>(null)
-  const [todaysUploads, setTodaysUploads] = useState<any[]>([])
-  const [totalUploads, setTotalUploads] = useState<number>(0)
-  const [processingCount, setProcessingCount] = useState<number>(0)
-  const [successRate, setSuccessRate] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  })
+  const [error, setError] = useState('')
+  const router = useRouter()
 
-  // Demo mode by default - no authentication required
-  useEffect(() => {
-    const setupDemoMode = async () => {
-      try {
-        // Always use demo mode for main page
-        const demoUser = {
-          id: 'demo-user-main',
-          email: 'demo@jigr.app',
-          app_metadata: {},
-          user_metadata: { full_name: 'Demo User - Main Interface' },
-          aud: 'authenticated',
-          role: 'authenticated',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        setUser(demoUser)
-        console.log('✅ Main page: Demo mode activated')
-      } catch (error) {
-        console.error('Demo mode setup error:', error)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      })
+
+      if (signInError) {
+        setError(signInError.message)
+        setIsLoading(false)
+        return
       }
-      
-      setLoading(false)
-    }
-    
-    setupDemoMode()
-  }, [])
 
-  // Load recent uploads for display
-  useEffect(() => {
-    const loadRecentUploads = async () => {
-      if (!user) return
+      // Successful login - redirect to dashboard
+      router.push('/upload/console')
       
-      try {
-        const { data, error } = await supabase
-          .from('delivery_records')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5)
-        
-        if (data && !error) {
-          setTodaysUploads(data)
-          if (data.length > 0) {
-            setLatestDeliveryRecord(data[0])
-          }
-          console.log(`📊 Main page: Loaded ${data.length} recent uploads`)
-        }
-      } catch (error) {
-        console.error('❌ Failed to load recent uploads:', error)
-      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+      setIsLoading(false)
     }
-    
-    loadRecentUploads()
-  }, [user])
+  }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white">Loading upload interface...</p>
-        </div>
-      </div>
-    )
+  const handleDemoAccess = async () => {
+    setIsLoading(true)
+    // Redirect to demo interface
+    router.push('/upload/console')
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 25%, #3730a3 50%, #2563eb 75%, #1e293b 100%)',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+      
+      {/* Pattern overlay */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+          opacity: 0.3
+        }}
+      />
+      
+      {/* Content overlay */}
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+
       {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700 p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Image 
-              src="/JiGR_Logo-full_figma_circle.png" 
-              alt="JiGR Logo" 
-              width={40} 
-              height={40}
-              className="rounded-full"
-            />
-            <div>
-              <h1 className="text-xl font-bold text-white">Hospitality Compliance</h1>
-              <p className="text-sm text-slate-400">AI-powered document processing</p>
+      <header className="absolute top-0 left-0 right-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-24">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12">
+                <img 
+                  src="/JiGR_Logo-full_figma_circle.png" 
+                  alt="JiGR Logo" 
+                  className="w-12 h-12 object-contain"
+                />
+              </div>
+              <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
             </div>
-          </div>
-          <div className="text-white text-sm">
-            Demo Mode Active
           </div>
         </div>
       </header>
-
+      
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Upload Dashboard */}
-        <div className={getCardStyle('primary')}>
-          <div className="p-6">
-            <h2 className={`${getTextStyle('heading')} text-white mb-6`}>
-              📤 Document Upload & Processing
-            </h2>
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
+        <div 
+          className="rounded-3xl p-8 max-w-md w-full mx-auto"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
+          }}
+        >
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              Hospitality Compliance
+            </h1>
+            <p className="text-white/70 font-light">
+              AI-powered food safety compliance platform
+            </p>
+          </div>
+
+          {/* Sign In Form */}
+          <form onSubmit={handleSignIn} className="space-y-5">
+            {/* Email */}
+            <div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '16px'
+                }}
+                className="focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all placeholder-white/50"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '16px'
+                }}
+                className="focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all placeholder-white/50"
+              />
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
+                <p className="text-red-200 text-sm text-center">{error}</p>
+              </div>
+            )}
+
+            {/* Sign In Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none mb-4"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                  Signing In...
+                </div>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+
+            {/* Demo Access Button */}
+            <button
+              type="button"
+              onClick={handleDemoAccess}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            >
+              🚀 Access Demo
+            </button>
             
-            {/* Main upload component */}
-            <EnhancedComplianceDashboard />
+          </form>
+
+          {/* Links */}
+          <div className="text-center mt-6 space-y-3">
+            <p className="text-white/70 text-sm">
+              Don&apos;t have an account?{' '}
+              <Link 
+                href="/create-account" 
+                className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
+              >
+                Create Account
+              </Link>
+            </p>
+            
+            <Link 
+              href="/landing-page" 
+              className="block text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors duration-200"
+            >
+              View System Features
+            </Link>
+          </div>
+          
+          {/* Version */}
+          <div className="text-center mt-6 pt-4 border-t border-white/10">
+            <p className="text-xs font-medium text-white/90">
+              v1.8.22.007
+            </p>
           </div>
         </div>
-
-        {/* Recent Results */}
-        {latestDeliveryRecord && (
-          <div className={getCardStyle('secondary')}>
-            <div className="p-6">
-              <h3 className={`${getTextStyle('subheading')} text-white mb-4`}>
-                🎯 Latest Processed Document
-              </h3>
-              <SimpleResultsCard data={latestDeliveryRecord} />
-            </div>
-          </div>
-        )}
-
-        {/* Recent Uploads List */}
-        {todaysUploads.length > 0 && (
-          <div className={getCardStyle('secondary')}>
-            <div className="p-6">
-              <h3 className={`${getTextStyle('subheading')} text-white mb-4`}>
-                📋 Recent Uploads ({todaysUploads.length})
-              </h3>
-              <div className="space-y-4">
-                {todaysUploads.slice(0, 3).map((record, index) => (
-                  <div key={record.id || index} className="bg-slate-700/50 rounded-lg p-4">
-                    <SimpleResultsCard data={record} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Welcome message for new users */}
-        {todaysUploads.length === 0 && (
-          <div className={getCardStyle('secondary')}>
-            <div className="p-6 text-center">
-              <h3 className={`${getTextStyle('subheading')} text-white mb-4`}>
-                🚀 Welcome to Hospitality Compliance
-              </h3>
-              <p className="text-slate-300 mb-4">
-                Upload your first delivery docket to see our 4 core features in action:
-              </p>
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                <div className="bg-blue-600/20 rounded-lg p-3">
-                  <p className="text-blue-300 font-medium">📝 Supplier Name</p>
-                </div>
-                <div className="bg-green-600/20 rounded-lg p-3">
-                  <p className="text-green-300 font-medium">📅 Delivery Date</p>
-                </div>
-                <div className="bg-purple-600/20 rounded-lg p-3">
-                  <p className="text-purple-300 font-medium">🖼️ Thumbnail</p>
-                </div>
-                <div className="bg-yellow-600/20 rounded-lg p-3">
-                  <p className="text-yellow-300 font-medium">🔢 Item Count</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
