@@ -198,27 +198,6 @@ export default function HomePage() {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
 
-            {/* Demo Access Button */}
-            <button
-              type="button"
-              onClick={() => router.push('/dev/login')}
-              style={{
-                width: '100%',
-                backgroundColor: '#16a34a',
-                color: 'white',
-                fontWeight: '600',
-                padding: '0.75rem',
-                borderRadius: '0.375rem',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontSize: '0.875rem'
-              }}
-              onMouseOver={e => ((e.target as HTMLButtonElement).style.backgroundColor = '#15803d')}
-              onMouseOut={e => ((e.target as HTMLButtonElement).style.backgroundColor = '#16a34a')}
-            >
-              ✓ Demo Access
-            </button>
           </form>
 
           {/* Links */}
