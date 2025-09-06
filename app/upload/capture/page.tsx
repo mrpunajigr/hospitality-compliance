@@ -1,95 +1,49 @@
 'use client'
 
-// Upload Action - Core Module Functionality (Document Upload & Processing)
-import { useState, useEffect } from 'react'
+// Upload Capture - Document Upload Interface
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
-import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
-import { getModuleAsset, getMappedIcon } from '@/lib/image-storage'
-import Image from 'next/image'
-import EnhancedFileUpload from '@/lib/ImageProcessing/Components/EnhancedFileUpload'
-import { QualityReport } from '@/lib/ImageProcessing/Utils/ImageQualityValidator'
+import { getCardStyle, getTextStyle } from '@/lib/design-system'
 
-export default function UploadActionPage() {
+export default function UploadCapturePage() {
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
-  const [todaysUploads, setTodaysUploads] = useState<any[]>([])
-  const [showNotification, setShowNotification] = useState(false)
-  const [showQualityUpload, setShowQualityUpload] = useState(false)
-  const [queuedFiles, setQueuedFiles] = useState<Array<{file: File, qualityReport: QualityReport}>>([])
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [processingSuccess, setProcessingSuccess] = useState(false)
+  const [processingComplete, setProcessingComplete] = useState(false)
+  const [processingResults, setProcessingResults] = useState<any>(null)
+  const [error, setError] = useState<string>('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  // Authentication handled by upload layout
+  // Simple authentication (matching console pattern)
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        setUser(user)
-        console.log('🔍 AUTH DEBUG: User found:', user.email, user.id)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
         
-        try {
-          // Query client_users junction table to get user's client
-          const { data: clientUserData, error: clientUserError } = await supabase
-            .from('client_users')
-            .select(`
-              role,
-              status,
-              clients (
-                id,
-                name,
-                business_type,
-                business_email,
-                subscription_status
-              )
-            `)
-            .eq('user_id', user.id)
-            .eq('status', 'active')
-            .limit(1)
-            
-          console.log('🔍 AUTH DEBUG: Client-user lookup result:', clientUserData, clientUserError)
+        if (user) {
+          setUser(user)
           
-          if (clientUserData && clientUserData.length > 0 && !clientUserError && clientUserData[0].clients) {
-            const clientInfo: UserClient = {
-              id: clientUserData[0].clients.id,
-              name: clientUserData[0].clients.name,
-              role: clientUserData[0].role,
-              email: clientUserData[0].clients.business_email
+          try {
+            const clientInfo = await getUserClient(user.id)
+            if (clientInfo) {
+              setUserClient(clientInfo)
             }
-            setUserClient(clientInfo)
-            console.log('✅ AUTH DEBUG: Client found via junction table:', clientInfo.name, clientInfo.id)
-          } else {
-            console.error('❌ AUTH DEBUG: No active client relationship found:', clientUserError)
-            
-            // Check what relationships exist for this user
-            const { data: allUserClients } = await supabase
-              .from('client_users')
-              .select('role, status, clients(name)')
-              .eq('user_id', user.id)
-            console.log('🔍 AUTH DEBUG: User client relationships:', allUserClients)
+          } catch (error) {
+            console.error('Error loading client info:', error)
           }
-        } catch (error) {
-          console.error('🚨 AUTH DEBUG: Database error:', error)
-        }
-      } else {
-        // Check for demo mode - Compliance path triggers demo mode automatically
-        const isDemoMode = typeof window !== 'undefined' && (
-          window.location.pathname.startsWith('/compliance') ||
-          new URLSearchParams(window.location.search).get('demo') === 'true' ||
-          document.cookie.includes('demo-session=active')
-        )
-        
-        if (isDemoMode) {
-          console.log('🚀 Upload Action demo mode detected')
+        } else {
+          // Demo mode fallback
           const demoUser = {
             id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
             email: 'demo@example.com',
             app_metadata: {},
-            user_metadata: { full_name: 'Demo User - Upload Action' },
+            user_metadata: { full_name: 'Demo User - Upload Capture' },
             aud: 'authenticated',
             role: 'authenticated',
             created_at: new Date().toISOString(),
@@ -97,39 +51,103 @@ export default function UploadActionPage() {
           }
           setUser(demoUser)
         }
+      } catch (error) {
+        console.error('Authentication error:', error)
       }
+      
       setLoading(false)
     }
     
     checkAuth()
   }, [])
 
-  // Load today's uploads
-  useEffect(() => {
-    const loadTodaysUploads = async () => {
-      if (!user) return
-      
-      try {
-        const today = new Date().toISOString().split('T')[0]
-        const { data, error } = await supabase
-          .from('delivery_records')
-          .select('*')
-          .gte('created_at', `${today}T00:00:00`)
-          .lt('created_at', `${today}T23:59:59`)
-          .order('created_at', { ascending: false })
-          .limit(10)
-        
-        if (data && !error) {
-          setTodaysUploads(data)
-          console.log(`📊 Loaded ${data.length} uploads from today`)
-        }
-      } catch (error) {
-        console.error('❌ Failed to load today\'s uploads:', error)
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file (JPG, PNG, etc.)')
+        return
       }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB')
+        return
+      }
+      
+      setSelectedFile(file)
+      setError('')
+      setProcessingComplete(false)
+      setProcessingResults(null)
     }
-    
-    loadTodaysUploads()
-  }, [user])
+  }
+
+  // Handle file upload and processing
+  const handleUpload = async () => {
+    if (!selectedFile || !user) return
+
+    setIsProcessing(true)
+    setError('')
+    setUploadProgress(0)
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      formData.append('userId', user.id)
+      
+      if (userClient?.id) {
+        formData.append('clientId', userClient.id)
+      }
+
+      // Upload with progress tracking
+      const response = await fetch('/api/upload-docket', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      setUploadProgress(100)
+      setProcessingResults(result)
+      setProcessingComplete(true)
+      
+      // Clear the file input
+      setSelectedFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+
+      console.log('✅ Upload successful:', result)
+
+    } catch (error) {
+      console.error('❌ Upload failed:', error)
+      setError(error instanceof Error ? error.message : 'Upload failed')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Remove selected file
+  const handleRemoveFile = () => {
+    setSelectedFile(null)
+    setError('')
+    setProcessingComplete(false)
+    setProcessingResults(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
 
   if (loading) {
     return (
@@ -138,7 +156,7 @@ export default function UploadActionPage() {
           <div className={getCardStyle('primary')}>
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-white font-medium">Loading Upload Action...</p>
+              <p className={`${getTextStyle('body')} font-medium`}>Loading Upload Interface...</p>
             </div>
           </div>
         </div>
@@ -146,214 +164,28 @@ export default function UploadActionPage() {
     )
   }
 
-  const handleUploadSuccess = (deliveryRecords: any[]) => {
-    console.log('Compliance batch upload successful:', deliveryRecords)
-    // Add new uploads to today's list
-    setTodaysUploads(prev => [...prev, ...deliveryRecords])
-    setShowNotification(true)
-    
-    // Auto-dismiss notification after 6 seconds
-    setTimeout(() => {
-      setShowNotification(false)
-    }, 6000)
-  }
-
-  const handleUploadError = (error: string) => {
-    console.error('Compliance batch upload failed:', error)
-  }
-
-  const handleProgressUpdate = (completedCount: number, totalCount: number) => {
-    console.log(`Compliance upload progress: ${completedCount}/${totalCount} files completed`)
-  }
-
-  const handleFileValidated = (file: File, qualityReport: QualityReport) => {
-    console.log('File validated for OCR:', file.name, 'Quality score:', qualityReport.score)
-    setQueuedFiles(prev => [...prev, { file, qualityReport }])
-    setProcessingSuccess(false) // Reset success state when new files added
-  }
-
-  const handleFileRejected = (file: File, qualityReport: QualityReport) => {
-    console.log('File rejected due to poor quality:', file.name, 'Quality score:', qualityReport.score)
-    // Still allow manual override via the quality indicator buttons
-  }
-
-  // Camera capture function - direct API processing
-  const handleCameraCapture = () => {
-    // Create a file input element for camera capture
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.capture = 'environment' // Use back camera on mobile devices
-    
-    input.onchange = async (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0]
-      if (file) {
-        console.log('📸 Camera capture file selected:', file.name)
-        
-        try {
-          // Create FormData for direct API upload
-          const formData = new FormData()
-          formData.append('file', file)
-          formData.append('clientId', userClient?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-          formData.append('userId', user?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10')
-          formData.append('qualityScore', '85') // Camera captures get good quality score
-
-          // Call the upload API directly for immediate processing
-          console.log('📡 Processing camera capture via /api/upload-docket')
-          const uploadResponse = await fetch('/api/upload-docket', {
-            method: 'POST',
-            body: formData
-          })
-
-          if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text()
-            console.error('❌ Camera capture processing failed:', errorText)
-            alert(`Camera capture failed: ${errorText}`)
-            return
-          }
-
-          const result = await uploadResponse.json()
-          console.log('✅ Camera capture processed successfully:', result)
-          
-          // Update UI with result
-          if (result.enhancedExtraction) {
-            const newUpload = {
-              id: result.deliveryRecordId || Date.now(),
-              supplier_name: result.enhancedExtraction.supplier?.value || 'Unknown Supplier',
-              created_at: new Date().toISOString(),
-              image_path: URL.createObjectURL(file),
-              ai_extraction: result.enhancedExtraction
-            }
-            setTodaysUploads(prev => [newUpload, ...prev])
-            setShowNotification(true)
-            setTimeout(() => setShowNotification(false), 6000)
-          }
-          
-        } catch (error) {
-          console.error('❌ Camera capture processing error:', error)
-          alert(`Camera capture failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-        }
-      }
-    }
-    
-    // Trigger the file picker
-    input.click()
-  }
-
-  const processQueuedFiles = async () => {
-    if (queuedFiles.length === 0) return
-
-    console.log(`🚀 Processing ${queuedFiles.length} files with AI extraction`)
-    
-    setIsProcessing(true)
-    
-    try {
-      // Process each file through the real AI pipeline
-      const results = []
-      
-      for (const queuedFile of queuedFiles) {
-        console.log(`📄 Processing: ${queuedFile.file.name}`)
-        
-        // Create FormData for API upload (same as EnhancedUpload component)
-        const formData = new FormData()
-        formData.append('file', queuedFile.file)
-        formData.append('clientId', userClient?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-        formData.append('userId', user?.id || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10')
-        formData.append('qualityScore', queuedFile.qualityReport.score.toString())
-
-        // Call the real upload API
-        console.log(`📡 Calling /api/upload-docket for ${queuedFile.file.name}`)
-        const uploadResponse = await fetch('/api/upload-docket', {
-          method: 'POST',
-          body: formData
-        })
-
-        console.log(`📡 Response status: ${uploadResponse.status} ${uploadResponse.statusText}`)
-
-        if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text()
-          console.error(`❌ API Error Details:`, errorText)
-          throw new Error(`Upload failed (${uploadResponse.status}): ${errorText}`)
-        }
-
-        const result = await uploadResponse.json()
-        console.log('✅ AI Processing complete:', result)
-        
-        results.push(result)
-        
-        // Update UI with real result
-        if (result.enhancedExtraction) {
-          const newUpload = {
-            id: result.deliveryRecordId || Date.now(),
-            supplier_name: result.enhancedExtraction.supplier?.value || 'Unknown Supplier',
-            created_at: new Date().toISOString(),
-            image_path: URL.createObjectURL(queuedFile.file),
-            ai_extraction: result.enhancedExtraction
-          }
-          setTodaysUploads(prev => [newUpload, ...prev])
-        }
-      }
-      
-      // Clear queue after successful processing
-      setQueuedFiles([])
-      setShowNotification(true)
-      setProcessingSuccess(true)
-      
-      console.log(`🎉 Successfully processed ${results.length} documents`)
-      
-      // Show success feedback for 3 seconds, then reset
-      setTimeout(() => {
-        setProcessingSuccess(false)
-      }, 3000)
-      
-      setTimeout(() => {
-        setShowNotification(false)
-      }, 6000)
-      
-    } catch (error) {
-      console.error('❌ Processing failed:', error)
-      // Show error to user but keep files in queue for retry
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      alert(`Processing failed: ${errorMessage}`)
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
-  const removeFromQueue = (index: number) => {
-    setQueuedFiles(prev => prev.filter((_, i) => i !== index))
-  }
-
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
       
-      {/* Console Header */}
+      {/* Capture Header */}
       <div className="mb-16">
         <div className="grid grid-cols-4 gap-6 items-center">
           <div className="flex items-center space-x-4 col-span-2">
-            <Image 
-              src={getModuleAsset('icons/JiGRupload', { width: 96, height: 96 })} 
-              alt="Upload Module" 
-              width={96} 
-              height={96}
-              className="object-contain"
-            />
+            <div 
+              className="w-24 h-24 bg-blue-600 rounded-lg flex items-center justify-center text-white text-4xl"
+            >
+              📤
+            </div>
             <div>
               <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
-                UPLOAD
+                CAPTURE
               </h1>
               <p className="text-white/80 drop-shadow-md italic text-xs">
-                Document upload, processing, and compliance management
+                Upload delivery dockets for processing with 4 core features
               </p>
               {userClient && (
                 <p className="text-blue-300 text-sm mt-1">
                   {userClient.name} • {userClient.role}
-                </p>
-              )}
-              {user && !userClient && (
-                <p className="text-blue-300 text-sm mt-1">
-                  {user.user_metadata?.full_name || user.email} • Demo Mode
                 </p>
               )}
             </div>
@@ -362,19 +194,19 @@ export default function UploadActionPage() {
             <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
               <a 
                 href="/upload/console" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
               >
                 Reports
               </a>
@@ -384,301 +216,192 @@ export default function UploadActionPage() {
         </div>
       </div>
 
-      {/* Capture Interface Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 AdaptiveLayout">
+      {/* Main Upload Interface */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Quick Capture Card */}
-        <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Quick Capture</h2>
-            </div>
-            <div className="text-center mb-6">
-              <img 
-                src={getMappedIcon('JiGRcamera', 64)} 
-                alt="Camera" 
-                className="w-16 h-16 object-contain mx-auto mb-4"
-              />
-            </div>
-            <div 
-              className="w-full rounded-xl relative overflow-hidden"
-            >
-              <button 
-                data-camera-trigger
-                onClick={handleCameraCapture}
-                className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] TouchTarget"
-              >
-                Camera Capture
-              </button>
-            </div>
-            <p className="text-blue-200 text-xs mt-2 text-center">
-              Single document capture
-            </p>
-          </div>
-        </div>
-
-        {/* Bulk Upload Card */}
-        <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
-            </div>
-            <div className="text-center mb-6">
-              <img 
-                src={getMappedIcon('JiGRbulk', 64)} 
-                alt="Bulk Upload" 
-                className="w-16 h-16 object-contain mx-auto mb-4"
-              />
-            </div>
-            <div 
-              className="w-full rounded-xl relative overflow-hidden"
-            >
-              <button 
-                onClick={() => setShowQualityUpload(true)}
-                className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-purple-500/10 hover:scale-[1.02] active:scale-[0.98] TouchTarget"
-              >
-                Select Files
-              </button>
-            </div>
-            <p className="text-purple-200 text-xs mt-2 text-center">
-              Multiple file upload with quality validation
-            </p>
-            <div className="mt-3 pt-3 border-t border-white/10">
-              <p className="text-purple-200/70 text-xs text-center">
-                PNG, JPG, PDF, HEIC
-              </p>
-              <p className="text-purple-200/70 text-xs text-center">
-                Max 8MB each • OCR optimized
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Ready Queue Card */}
-        <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
-            </div>
-            <div className="text-center mb-6">
-              <img 
-                src={getMappedIcon('JiGRqueue', 64)} 
-                alt="Queue" 
-                className="w-16 h-16 object-contain mx-auto mb-4"
-              />
-            </div>
-            <div 
-              className={`w-full rounded-xl relative overflow-hidden mb-4 ${queuedFiles.length === 0 ? 'opacity-50' : ''}`}
-            >
-              <button 
-                disabled={queuedFiles.length === 0 || isProcessing || processingSuccess}
-                onClick={processQueuedFiles}
-                className={`w-full py-3 px-4 text-sm font-semibold transition-all duration-300 border rounded-xl TouchTarget ${
-                  processingSuccess
-                    ? 'text-green-400 bg-green-500/20 border-green-400/40 shadow-lg shadow-green-500/20'
-                    : queuedFiles.length === 0 || isProcessing
-                    ? 'text-green-300/50 cursor-not-allowed bg-white/5 border-white/10' 
-                    : 'text-green-300 bg-white/5 hover:bg-white/15 border-white/20 hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98]'
-                }`}
-              >
-                {processingSuccess ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="flex items-center justify-center">
-                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span>Processing Complete!</span>
-                  </div>
-                ) : isProcessing ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-green-300 border-t-transparent rounded-full"></div>
-                    <span>Processing AI...</span>
-                  </div>
-                ) : (
-                  'Process Queue'
-                )}
-              </button>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">{queuedFiles.length}</div>
-              <div className="text-green-200 text-xs">images ready</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Quality Upload Interface */}
-      {showQualityUpload && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div 
-            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
-          >
-            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
+        {/* Upload Card */}
+        <div>
+          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-white text-lg font-bold">Quality-Enhanced Upload</h3>
-                <button
-                  onClick={() => setShowQualityUpload(false)}
-                  className="text-white/70 hover:text-white transition-colors duration-200 p-1 hover:bg-white/10 rounded-md"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
               
-              <div data-file-upload>
-                <EnhancedFileUpload
-                  onFileValidated={handleFileValidated}
-                  onFileRejected={handleFileRejected}
-                  allowPoorQuality={true}
-                  className="mb-6"
-                />
-              </div>
-
-              {/* Queued Files List */}
-              {queuedFiles.length > 0 && (
-                <div className="mt-6 pt-6 border-t border-white/20">
-                  <h4 className="text-white text-sm font-medium mb-4">Quality Validated Files ({queuedFiles.length})</h4>
-                  <div className="space-y-3">
-                    {queuedFiles.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white/10 rounded-lg p-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="text-white text-sm font-medium">{item.file.name}</p>
-                            <p className="text-white/60 text-xs">
-                              Quality: {item.qualityReport.score}% • {(item.file.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removeFromQueue(index)}
-                          className="text-red-400 hover:text-red-300 transition-colors duration-200 p-1 hover:bg-red-500/10 rounded-md"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+              <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Upload Document</h2>
+              
+              {!selectedFile ? (
+                // File Selection Area
+                <div 
+                  className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:border-white/50 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="text-6xl mb-4">📄</div>
+                  <h3 className="text-white text-lg font-semibold mb-2">Select Delivery Docket</h3>
+                  <p className="text-white/70 text-sm mb-4">
+                    Click to browse or drag and drop your delivery document
+                  </p>
+                  <p className="text-white/50 text-xs">
+                    Supports: JPG, PNG, PDF (max 10MB)
+                  </p>
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                // Selected File Preview
+                <div className="space-y-4">
+                  <div className="bg-white/10 rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl">📄</div>
+                      <div>
+                        <p className="text-white font-medium">{selectedFile.name}</p>
+                        <p className="text-white/70 text-sm">
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
-                    ))}
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="text-red-300 hover:text-red-200 p-2 rounded-full hover:bg-red-500/20 transition-colors"
+                      title="Remove file"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  {/* Upload Progress */}
+                  {isProcessing && (
+                    <div className="space-y-2">
+                      <div className="bg-white/20 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="bg-blue-500 h-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-white/70 text-sm text-center">
+                        Processing document... {uploadProgress}%
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Upload Button */}
+                  <button
+                    onClick={handleUpload}
+                    disabled={isProcessing}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    {isProcessing ? 'Processing...' : 'Process Document'}
+                  </button>
+                </div>
+              )}
+              
+              {/* Error Display */}
+              {error && (
+                <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-lg p-4">
+                  <p className="text-red-200 text-sm">{error}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Results/Features Card */}
+        <div>
+          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
+            <div className="relative">
+              
+              <h2 className={`${getTextStyle('sectionTitle')} text-white mb-6`}>Processing Results</h2>
+              
+              {processingComplete && processingResults ? (
+                // Success Results
+                <div className="space-y-4">
+                  <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className="text-green-300 text-lg">✅</div>
+                      <h3 className="text-green-200 font-semibold">Processing Complete</h3>
+                    </div>
+                    
+                    <div className="space-y-3 text-sm">
+                      {processingResults.supplier_name && (
+                        <div>
+                          <span className="text-green-200">Supplier:</span>
+                          <span className="text-white ml-2">{processingResults.supplier_name}</span>
+                        </div>
+                      )}
+                      {processingResults.delivery_date && (
+                        <div>
+                          <span className="text-green-200">Date:</span>
+                          <span className="text-white ml-2">{processingResults.delivery_date}</span>
+                        </div>
+                      )}
+                      {processingResults.item_count && (
+                        <div>
+                          <span className="text-green-200">Items:</span>
+                          <span className="text-white ml-2">{processingResults.item_count} products</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => router.push('/upload/console')}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    View in Console →
+                  </button>
+                </div>
+              ) : (
+                // 4 Core Features Display
+                <div className="space-y-4">
+                  <p className="text-white/70 text-sm mb-6">
+                    Your document will be processed with these 4 core features:
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
+                      <div className="text-blue-300 text-lg">🏢</div>
+                      <div>
+                        <h4 className="text-white font-medium">Supplier Name</h4>
+                        <p className="text-white/60 text-xs">Extract company/supplier information</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
+                      <div className="text-green-300 text-lg">📅</div>
+                      <div>
+                        <h4 className="text-white font-medium">Delivery Date</h4>
+                        <p className="text-white/60 text-xs">Identify delivery date and time</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
+                      <div className="text-purple-300 text-lg">🖼️</div>
+                      <div>
+                        <h4 className="text-white font-medium">Thumbnail</h4>
+                        <p className="text-white/60 text-xs">Generate document preview</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
+                      <div className="text-orange-300 text-lg">🔢</div>
+                      <div>
+                        <h4 className="text-white font-medium">Item Count</h4>
+                        <p className="text-white/60 text-xs">Count products in delivery</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
         </div>
-      )}
-
-
-      {/* Simple Upload Status */}
-      {todaysUploads.length > 0 && (
-        <div className="mt-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {todaysUploads.slice(0, 8).map((upload, index) => (
-              <div key={upload.id || index} className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4">
-                <div className="flex items-center space-x-3">
-                  {/* Thumbnail */}
-                  <div className="w-10 h-10 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                    {upload.image_path ? (
-                      <img 
-                        src={upload.image_path} 
-                        alt="Upload"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget
-                          target.style.display = 'none'
-                          const fallback = document.createElement('div')
-                          fallback.className = 'w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center'
-                          fallback.innerHTML = '<div class="text-white/60 text-sm">📄</div>'
-                          target.parentNode?.appendChild(fallback)
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white/60 text-sm">📄</div>
-                    )}
-                  </div>
-                  
-                  {/* Status & Supplier */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <div className={`w-2 h-2 rounded-full ${upload.processing_status === 'completed' ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-                      <span className="text-xs text-white/80 font-medium">
-                        {upload.processing_status === 'completed' ? 'Success' : 'Processing'}
-                      </span>
-                    </div>
-                    <div className="text-white text-sm font-medium truncate">
-                      {upload.supplier_name || 'Unknown'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tips Card */}
-      <div className="mt-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div>
-            <div 
-              className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
-              <div className="relative">
-                <div className="flex items-center justify-center mb-4">
-                  <h2 className="text-white text-lg font-semibold text-center w-full">Capture Tips</h2>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Ensure good lighting for clear text
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Keep document flat and straight
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Include full document in frame
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Avoid shadows and glare
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-
-      
     </div>
   )
 }
