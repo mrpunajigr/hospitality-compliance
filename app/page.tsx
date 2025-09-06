@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { getBrandingAsset, getChefWorkspaceBackground } from '@/lib/image-storage'
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -49,73 +48,27 @@ export default function HomePage() {
     }
   }
 
-  const backgroundUrl = getChefWorkspaceBackground()
-  const logoUrl = getBrandingAsset('jigr-logo.png')
-
   return (
-    <div 
-      style={{
-        minHeight: '100vh',
-        position: 'relative',
-        backgroundImage: `url("${backgroundUrl}")`,
-        backgroundColor: '#1f2937',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
-      {/* Dark Overlay */}
+    <div className="min-h-screen relative">
+      {/* Background Image */}
       <div 
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)'
+          backgroundImage: 'url("/restaurant-kitchen-bg.jpg")'
         }}
       />
       
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-60" />
+      
       {/* Content */}
-      <div 
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem'
-        }}
-      >
-        <div 
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(16px)',
-            borderRadius: '1rem',
-            padding: '2rem',
-            width: '100%',
-            maxWidth: '28rem',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-          }}
-        >
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white border-opacity-20">
           
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <img 
-                src={logoUrl}
-                alt="JiGR Logo"
-                style={{
-                  width: '2rem',
-                  height: '2rem',
-                  marginRight: '0.5rem',
-                  objectFit: 'contain'
-                }}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = 'none'
-                  const fallback = document.createElement('div')
-                  fallback.style.cssText = 'width: 2rem; height: 2rem; background-color: #2563eb; border-radius: 0.25rem; margin-right: 0.5rem;'
-                  e.currentTarget.parentNode?.insertBefore(fallback, e.currentTarget)
-                }}
-              />
+              <div className="w-8 h-8 bg-blue-600 rounded mr-2"></div>
               <h1 className="text-white text-xl font-semibold">Hospitality Compliance</h1>
             </div>
             
