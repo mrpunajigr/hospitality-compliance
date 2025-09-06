@@ -126,7 +126,6 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         onSignOut={handleSignOut}
         activeSection="upload"
         currentUploadPage={
-          pathname.includes('/training') ? 'training' :
           pathname.includes('/console') ? 'console' : 
           pathname.includes('/capture') ? 'capture' : 
           pathname.includes('/reports') ? 'reports' : 'console'

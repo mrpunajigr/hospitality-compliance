@@ -27,7 +27,7 @@ interface AppleSidebarProps {
   onSignOut?: () => void
   logoUrl?: string
   activeSection: 'admin' | 'console' | 'upload'
-  currentUploadPage?: 'console' | 'capture' | 'reports' | 'training'
+  currentUploadPage?: 'console' | 'capture' | 'reports'
   onBackgroundSelectorToggle?: () => void
 }
 
@@ -42,8 +42,7 @@ const sidebarNavigation: SidebarNavItem[] = [
     subItems: [
       { name: 'Console', href: '/upload/console', icon: '📊' },
       { name: 'Capture', href: '/upload/capture', icon: '📤' },
-      { name: 'Reports', href: '/upload/reports', icon: '📋' },
-      { name: 'Training', href: '/upload/training', icon: '🎯' }
+      { name: 'Reports', href: '/upload/reports', icon: '📋' }
     ]
   },
   
