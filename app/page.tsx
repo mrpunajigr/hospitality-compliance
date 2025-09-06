@@ -1,9 +1,12 @@
 'use client'
+// Cache bust: Emergency fix deployment
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { getChefWorkspaceBackground, getBrandingAsset, getModuleAsset } from '@/lib/image-storage'
+import { getStaticVersion } from '@/lib/version-static'
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -48,70 +51,127 @@ export default function HomePage() {
     }
   }
 
+  const backgroundUrl = "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg"
+  
+  console.log('Background URL:', backgroundUrl)
+  
   return (
-    <div style={{ minHeight: '100vh', position: 'relative', backgroundImage: 'url("/chef-workspace1jpg.jpg"), url("/Home-Chef-Chicago-8.webp")', backgroundColor: '#1f2937', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <>
+      {/* Landing page specific background - overrides global */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: `url("${backgroundUrl}")`,
+        backgroundColor: '#1f2937',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        zIndex: -5
+      }} />
       
-      {/* Dark Overlay */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)' }}></div>
+      <div style={{
+        minHeight: '100vh',
+        position: 'relative'
+      }}>
       
       {/* Content */}
-      <div style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(20px)', borderRadius: '1.5rem', padding: '2.5rem', width: '100%', maxWidth: '30rem', border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem'
+      }}>
+        {/* JiGR Logo Above Container */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <img 
+            src={getBrandingAsset('jgr_logo_full', { width: 120, height: 120 })} 
+            alt="JiGR Logo" 
+            style={{ width: '120px', height: 'auto', maxWidth: '120px' }}
+          />
+        </div>
+
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: '1rem',
+          padding: '2rem',
+          width: '100%',
+          maxWidth: '24rem',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}>
           
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-              <img 
-                src="/jgr_logo_full.png" 
-                alt="JiGR Logo"
-                style={{ width: '2rem', height: '2rem', marginRight: '0.5rem', objectFit: 'contain' }}
-                onError={(e) => {
-                  const target = e.currentTarget as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = document.createElement('div');
-                  fallback.style.cssText = 'width: 2rem; height: 2rem; background-color: #2563eb; border-radius: 0.25rem; margin-right: 0.5rem; display: inline-block;';
-                  target.parentNode?.insertBefore(fallback, target);
-                }}
-              />
-              <h1 style={{ color: 'white', fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>Hospitality Compliance</h1>
+              <h1 style={{ color: 'white', fontSize: '1.25rem', fontWeight: '600' }}>Hospitality Compliance</h1>
             </div>
             
-            <h2 style={{ color: 'white', fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem', margin: '0 0 0.5rem 0' }}>Welcome Back</h2>
-            <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: 0 }}>Sign in to your compliance dashboard</p>
+            <h2 style={{ color: 'white', fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Welcome Back</h2>
+            <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>Sign in to your compliance dashboard</p>
           </div>
 
           {/* Sign In Form */}
-          <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {/* Email */}
-            <div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '0.5rem', color: '#1f2937', border: 'none', fontSize: '1rem' }}
-              />
-            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '0.375rem',
+                border: 'none',
+                color: '#374151',
+                fontSize: '0.875rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
 
             {/* Password */}
-            <div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '0.5rem', color: '#1f2937', border: 'none', fontSize: '1rem' }}
-              />
-            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '0.375rem',
+                border: 'none',
+                color: '#374151',
+                fontSize: '0.875rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
 
             {/* Error Message */}
             {error && (
-              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                <p style={{ color: '#fecaca', fontSize: '0.875rem', textAlign: 'center', margin: 0 }}>{error}</p>
+              <div style={{
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(248, 113, 113, 0.3)',
+                borderRadius: '0.5rem',
+                padding: '0.75rem'
+              }}>
+                <p style={{ color: '#fecaca', fontSize: '0.875rem', textAlign: 'center' }}>{error}</p>
               </div>
             )}
 
@@ -119,9 +179,45 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={isLoading}
-              style={{ width: '100%', backgroundColor: '#2563eb', color: 'white', fontWeight: '600', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', fontSize: '1rem', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.5 : 1 }}
+              style={{
+                width: '100%',
+                backgroundColor: isLoading ? '#6b7280' : '#2563eb',
+                color: 'white',
+                fontWeight: '600',
+                padding: '0.75rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '0.875rem',
+                marginTop: '0.5rem'
+              }}
+              onMouseOver={e => !isLoading && ((e.target as HTMLButtonElement).style.backgroundColor = '#1d4ed8')}
+              onMouseOut={e => !isLoading && ((e.target as HTMLButtonElement).style.backgroundColor = '#2563eb')}
             >
               {isLoading ? 'Signing In...' : 'Sign In'}
+            </button>
+
+            {/* Demo Access Button */}
+            <button
+              type="button"
+              onClick={() => router.push('/dev/login')}
+              style={{
+                width: '100%',
+                backgroundColor: '#16a34a',
+                color: 'white',
+                fontWeight: '600',
+                padding: '0.75rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '0.875rem'
+              }}
+              onMouseOver={e => ((e.target as HTMLButtonElement).style.backgroundColor = '#15803d')}
+              onMouseOut={e => ((e.target as HTMLButtonElement).style.backgroundColor = '#16a34a')}
+            >
+              ✓ Demo Access
             </button>
           </form>
 
@@ -129,7 +225,14 @@ export default function HomePage() {
           <div style={{ textAlign: 'center', marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <Link 
               href="/forgot-password" 
-              style={{ color: '#93c5fd', fontSize: '0.875rem', textDecoration: 'none' }}
+              style={{ 
+                color: '#93c5fd', 
+                fontSize: '0.875rem', 
+                textDecoration: 'none',
+                transition: 'color 0.2s'
+              }}
+              onMouseOver={e => ((e.target as HTMLAnchorElement).style.color = '#bfdbfe')}
+              onMouseOut={e => ((e.target as HTMLAnchorElement).style.color = '#93c5fd')}
             >
               Forgot your password?
             </Link>
@@ -138,7 +241,14 @@ export default function HomePage() {
               Don&apos;t have an account?{' '}
               <Link 
                 href="/create-account" 
-                style={{ color: '#93c5fd', fontWeight: '600', textDecoration: 'none' }}
+                style={{ 
+                  color: '#93c5fd', 
+                  fontWeight: '600', 
+                  textDecoration: 'none',
+                  transition: 'color 0.2s'
+                }}
+                onMouseOver={e => ((e.target as HTMLAnchorElement).style.color = '#bfdbfe')}
+                onMouseOut={e => ((e.target as HTMLAnchorElement).style.color = '#93c5fd')}
               >
                 Sign Up
               </Link>
@@ -148,11 +258,12 @@ export default function HomePage() {
           {/* Version */}
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.6)', margin: 0 }}>
-              v1.8.22.007
+              {getStaticVersion()}d
             </p>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
