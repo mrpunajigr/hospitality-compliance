@@ -372,6 +372,24 @@ export default function UploadConsolePage() {
           </div>
         </div>
 
+        {/* Item Count Card - NEW FEATURE */}
+        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -mr-10 -mt-10"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-orange-300 text-sm font-medium">Items Processed</span>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">
+              {todaysUploads.reduce((sum, upload) => sum + (upload.item_count || 0), 0)}
+            </div>
+            <div className="text-orange-300 text-sm">
+              <span className="inline-flex items-center space-x-1">
+                <span>Products counted today</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div className="space-y-16">
@@ -502,7 +520,8 @@ export default function UploadConsolePage() {
                   line_items: latestDeliveryRecord.line_items,
                   temperature_reading: latestDeliveryRecord.temperature_reading,
                   analysis: latestDeliveryRecord.analysis,
-                  extraction_data: latestDeliveryRecord.extraction_data
+                  extraction_data: latestDeliveryRecord.extraction_data,
+                  item_count: latestDeliveryRecord.item_count // Add item count to results card
                 }}
                 userId={user?.id}
               />
