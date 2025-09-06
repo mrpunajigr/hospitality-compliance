@@ -49,19 +49,30 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', position: 'relative', backgroundImage: 'url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/restaurant-kitchen-bg.jpg"), url("/restaurant-kitchen-bg.jpg")', backgroundColor: '#1f2937', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <div style={{ minHeight: '100vh', position: 'relative', backgroundImage: 'url("/chef-workspace1jpg.jpg"), url("/Home-Chef-Chicago-8.webp")', backgroundColor: '#1f2937', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       
       {/* Dark Overlay */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)' }}></div>
       
       {/* Content */}
       <div style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(16px)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '28rem', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(20px)', borderRadius: '1.5rem', padding: '2.5rem', width: '100%', maxWidth: '30rem', border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
           
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-              <div style={{ width: '2rem', height: '2rem', backgroundColor: '#2563eb', borderRadius: '0.25rem', marginRight: '0.5rem' }}></div>
+              <img 
+                src="/jgr_logo_full.png" 
+                alt="JiGR Logo"
+                style={{ width: '2rem', height: '2rem', marginRight: '0.5rem', objectFit: 'contain' }}
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = document.createElement('div');
+                  fallback.style.cssText = 'width: 2rem; height: 2rem; background-color: #2563eb; border-radius: 0.25rem; margin-right: 0.5rem; display: inline-block;';
+                  target.parentNode?.insertBefore(fallback, target);
+                }}
+              />
               <h1 style={{ color: 'white', fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>Hospitality Compliance</h1>
             </div>
             
