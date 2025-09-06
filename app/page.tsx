@@ -49,35 +49,28 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'url("/restaurant-kitchen-bg.jpg")'
-        }}
-      />
+    <div style={{ minHeight: '100vh', position: 'relative', backgroundImage: 'url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/restaurant-kitchen-bg.jpg"), url("/restaurant-kitchen-bg.jpg")', backgroundColor: '#1f2937', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-60" />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.6)' }}></div>
       
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white border-opacity-20">
+      <div style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(16px)', borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '28rem', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}>
           
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded mr-2"></div>
-              <h1 className="text-white text-xl font-semibold">Hospitality Compliance</h1>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+              <div style={{ width: '2rem', height: '2rem', backgroundColor: '#2563eb', borderRadius: '0.25rem', marginRight: '0.5rem' }}></div>
+              <h1 style={{ color: 'white', fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>Hospitality Compliance</h1>
             </div>
             
-            <h2 className="text-white text-2xl font-bold mb-2">Welcome Back</h2>
-            <p className="text-white text-opacity-80 text-sm">Sign in to your compliance dashboard</p>
+            <h2 style={{ color: 'white', fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem', margin: '0 0 0.5rem 0' }}>Welcome Back</h2>
+            <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: 0 }}>Sign in to your compliance dashboard</p>
           </div>
 
           {/* Sign In Form */}
-          <form onSubmit={handleSignIn} className="space-y-4">
+          <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Email */}
             <div>
               <input
@@ -87,7 +80,7 @@ export default function HomePage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white bg-opacity-90 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '0.5rem', color: '#1f2937', border: 'none', fontSize: '1rem' }}
               />
             </div>
 
@@ -100,14 +93,14 @@ export default function HomePage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-white bg-opacity-90 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '0.5rem', color: '#1f2937', border: 'none', fontSize: '1rem' }}
               />
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 rounded-lg p-3">
-                <p className="text-red-200 text-sm text-center">{error}</p>
+              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '0.5rem', padding: '0.75rem' }}>
+                <p style={{ color: '#fecaca', fontSize: '0.875rem', textAlign: 'center', margin: 0 }}>{error}</p>
               </div>
             )}
 
@@ -115,26 +108,26 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+              style={{ width: '100%', backgroundColor: '#2563eb', color: 'white', fontWeight: '600', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', fontSize: '1rem', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.5 : 1 }}
             >
               {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
           {/* Links */}
-          <div className="text-center mt-6 space-y-3">
+          <div style={{ textAlign: 'center', marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <Link 
               href="/forgot-password" 
-              className="block text-blue-300 hover:text-blue-200 text-sm transition-colors duration-200"
+              style={{ color: '#93c5fd', fontSize: '0.875rem', textDecoration: 'none' }}
             >
               Forgot your password?
             </Link>
             
-            <p className="text-white text-opacity-80 text-sm">
+            <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem', margin: 0 }}>
               Don&apos;t have an account?{' '}
               <Link 
                 href="/create-account" 
-                className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
+                style={{ color: '#93c5fd', fontWeight: '600', textDecoration: 'none' }}
               >
                 Sign Up
               </Link>
@@ -142,8 +135,8 @@ export default function HomePage() {
           </div>
           
           {/* Version */}
-          <div className="text-center mt-8">
-            <p className="text-xs text-white text-opacity-60">
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.6)', margin: 0 }}>
               v1.8.22.007
             </p>
           </div>
