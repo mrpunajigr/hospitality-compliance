@@ -23,7 +23,17 @@ export default function DeliveryDocketCard({ record }: DeliveryDocketCardProps) 
   const [imageError, setImageError] = useState(false)
   
   // Determine compliance status based on temperature
-  const complianceStatus: 'compliant' | 'warning' | 'violation' = 'compliant' // Simplified for now
+  const getComplianceStatus = (): 'compliant' | 'warning' | 'violation' => {
+    const temp = getTemperature(record.raw_extracted_text)
+    if (!temp || temp === 'Not recorded') return 'warning'
+    const tempValue = parseFloat(temp.replace('°C', ''))
+    if (isNaN(tempValue)) return 'warning'
+    if (tempValue <= 4) return 'compliant'
+    if (tempValue <= 7) return 'warning'
+    return 'violation'
+  }
+  
+  const complianceStatus = getComplianceStatus()
   
   // Extract line items count from real Service Foods text
   const getLineItemsCount = (text: string): number => {

@@ -36,5 +36,14 @@ next-env.d.ts
 
 # Logs
 *.log
+
 # Local Netlify folder
 .netlify
+
+# Development Assets (archived to Supabase)
+:assets/DevScreenshots/
+:assets/BackupComponents/
+:assets/ConversationBackups/
+:assets/*.json
+lib/DesignSystemBACKUP/
+components/AppleSidebar.tsx
