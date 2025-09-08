@@ -127,7 +127,7 @@ export default function UploadConsolePage() {
             delivery_date: '2025-09-07T09:30:00.000Z',
             created_at: new Date().toISOString(),
             uploaded_by: 'steve@jigr.co.nz',
-            image_path: 'demo-gilmours-delivery-docket.jpg',
+            image_path: null, // No image to avoid 404 errors
             processing_status: 'completed',
             user_name: 'Steve Puna',
             confidence_score: 0.95,

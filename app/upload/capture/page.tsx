@@ -122,9 +122,56 @@ export default function UploadActionPage() {
         if (data && !error) {
           setTodaysUploads(data)
           console.log(`📊 Loaded ${data.length} uploads from today`)
+        } else {
+          // Add mock data for capture page when no real uploads exist
+          const mockUploads = [
+            {
+              id: 'demo-001',
+              supplier_name: 'SERVICE FOODS - AUCKLAND FOODSERVICE',
+              delivery_date: '2025-09-07T09:30:00.000Z',
+              created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+              uploaded_by: 'steve@jigr.co.nz',
+              image_path: null,
+              processing_status: 'completed',
+              item_count: 8
+            },
+            {
+              id: 'demo-002', 
+              supplier_name: 'SYSCO FOODSERVICE',
+              delivery_date: '2025-09-08T14:15:00.000Z',
+              created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+              uploaded_by: 'steve@jigr.co.nz',
+              image_path: null,
+              processing_status: 'completed',
+              item_count: 12
+            },
+            {
+              id: 'demo-003',
+              supplier_name: 'BIDFOOD LIMITED',
+              delivery_date: '2025-09-08T16:45:00.000Z', 
+              created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+              uploaded_by: 'steve@jigr.co.nz',
+              image_path: null,
+              processing_status: 'processing',
+              item_count: 6
+            }
+          ]
+          setTodaysUploads(mockUploads)
+          console.log(`📊 Loaded ${mockUploads.length} mock uploads for demo`)
         }
       } catch (error) {
         console.error('❌ Failed to load today\'s uploads:', error)
+        // Fallback to mock data on error
+        const mockUploads = [
+          {
+            id: 'demo-001',
+            supplier_name: 'SERVICE FOODS - AUCKLAND FOODSERVICE',
+            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            processing_status: 'completed',
+            item_count: 8
+          }
+        ]
+        setTodaysUploads(mockUploads)
       }
     }
     
@@ -359,22 +406,22 @@ export default function UploadActionPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 scale-75">
               <a 
                 href="/upload/console" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm"
+                className="px-3 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm"
+                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Reports
               </a>

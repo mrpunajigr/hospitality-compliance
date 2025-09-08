@@ -109,22 +109,22 @@ export default function UploadReportsPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 scale-75">
               <a 
                 href="/upload/console" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
+                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-4 py-2 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-sm TouchTarget"
+                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-4 py-2 font-semibold text-black bg-white rounded-full transition-all duration-300 text-sm TouchTarget"
+                className="px-3 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Reports
               </a>
