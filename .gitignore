@@ -44,6 +44,8 @@ next-env.d.ts
 :assets/DevScreenshots/
 :assets/BackupComponents/
 :assets/ConversationBackups/
+:assets/docs\ completed/DevScreenshots_ARCHIVED_*/
+:assets/SuccessReference/
 :assets/*.json
 lib/DesignSystemBACKUP/
 components/AppleSidebar.tsx
