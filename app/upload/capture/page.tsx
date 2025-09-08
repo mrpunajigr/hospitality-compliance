@@ -373,7 +373,7 @@ export default function UploadActionPage() {
 
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Console Header */}
       <div className="mb-16">
@@ -406,22 +406,22 @@ export default function UploadActionPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 scale-75">
+            <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-xs">
               <a 
                 href="/upload/console" 
-                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-3 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Reports
               </a>
@@ -432,7 +432,7 @@ export default function UploadActionPage() {
       </div>
 
       {/* Capture Interface Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 AdaptiveLayout">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
         
         {/* Quick Capture Card */}
         <div 

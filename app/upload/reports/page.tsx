@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
-import { getModuleAsset, getMappedIcon } from '@/lib/image-storage'
+import { getModuleAsset } from '@/lib/image-storage'
 import Image from 'next/image'
 
 export default function UploadReportsPage() {
@@ -76,7 +76,7 @@ export default function UploadReportsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Console Header */}
       <div className="mb-16">
@@ -109,22 +109,22 @@ export default function UploadReportsPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="flex space-x-1 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 scale-75">
+            <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-xs">
               <a 
                 href="/upload/console" 
-                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Console
               </a>
               <a 
                 href="/upload/capture" 
-                className="px-3 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Capture
               </a>
               <a 
                 href="/upload/reports" 
-                className="px-3 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
+                className="flex-1 text-center px-2 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
               >
                 Reports
               </a>
@@ -137,7 +137,7 @@ export default function UploadReportsPage() {
       <div>
             
             {/* Report Controls Section - At Top */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               
               {/* Report Filters - Spans Columns 1-2 */}
               <div className="lg:col-span-2 bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
@@ -187,74 +187,93 @@ export default function UploadReportsPage() {
             </div>
 
             {/* Quick Report Templates */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               
               {/* Weekly Summary */}
-              <div className={`${getCardStyle('secondary')} flex flex-col`}>
-                <div className="text-center mb-4 flex-1">
-                  <img 
-                    src={getMappedIcon('JiGRsummary', 48)} 
-                    alt="Summary" 
-                    className="w-12 h-12 object-contain mx-auto mb-3"
-                  />
-                  <h3 className={`${getTextStyle('cardTitle')} text-white`}>Weekly Summary</h3>
-                  <p className={`${getTextStyle('bodySmall')} text-white/80 mt-2`}>
+              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-center mb-4">
+                    <h2 className="text-white text-lg font-semibold text-center w-full">Weekly Summary</h2>
+                  </div>
+                  <div className="text-center mb-6">
+                    <img 
+                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRsummary.png" 
+                      alt="Summary" 
+                      className="w-16 h-16 object-contain mx-auto mb-4"
+                    />
+                  </div>
+                  <div className="w-full rounded-xl relative overflow-hidden">
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 TouchTarget">
+                      Preview
+                    </button>
+                  </div>
+                  <p className="text-blue-200 text-xs mt-2 text-center">
                     Comprehensive weekly compliance overview
                   </p>
                 </div>
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 mt-auto">
-                  Preview
-                </button>
               </div>
 
               {/* Violation Report */}
-              <div className={`${getCardStyle('secondary')} flex flex-col`}>
-                <div className="text-center mb-4 flex-1">
-                  <img 
-                    src={getMappedIcon('JiGRwarning', 48)} 
-                    alt="Warning" 
-                    className="w-12 h-12 object-contain mx-auto mb-3"
-                  />
-                  <h3 className={`${getTextStyle('cardTitle')} text-white`}>Violation Report</h3>
-                  <p className={`${getTextStyle('bodySmall')} text-white/80 mt-2`}>
+              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-red-500/10 rounded-full -mr-10 -mt-10"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-center mb-4">
+                    <h2 className="text-white text-lg font-semibold text-center w-full">Violation Report</h2>
+                  </div>
+                  <div className="text-center mb-6">
+                    <img 
+                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRwarning.png" 
+                      alt="Warning" 
+                      className="w-16 h-16 object-contain mx-auto mb-4"
+                    />
+                  </div>
+                  <div className="w-full rounded-xl relative overflow-hidden">
+                    <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 TouchTarget">
+                      Preview
+                    </button>
+                  </div>
+                  <p className="text-red-200 text-xs mt-2 text-center">
                     Delivery violations and corrective actions
                   </p>
                 </div>
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 mt-auto">
-                  Preview
-                </button>
               </div>
 
               {/* Report Statistics */}
-              <div className={getCardStyle('secondary')}>
-                <div className="text-center mb-4">
-                  <img 
-                    src={getMappedIcon('JiGRStats', 48)} 
-                    alt="Statistics" 
-                    className="w-12 h-12 object-contain mx-auto mb-3"
-                  />
-                  <h3 className={`${getTextStyle('cardTitle')} text-white`}>Report Statistics</h3>
-                  <p className={`${getTextStyle('bodySmall')} text-white/80 mt-2`}>
+              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-center mb-4">
+                    <h2 className="text-white text-lg font-semibold text-center w-full">Report Statistics</h2>
+                  </div>
+                  <div className="text-center mb-6">
+                    <img 
+                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRStats.png" 
+                      alt="Statistics" 
+                      className="w-16 h-16 object-contain mx-auto mb-4"
+                    />
+                  </div>
+                  <div className="space-y-2 text-sm px-2">
+                    <div className="flex justify-between text-white/90">
+                      <span>Total Reports:</span>
+                      <span className="font-medium text-white">23</span>
+                    </div>
+                    <div className="flex justify-between text-white/90">
+                      <span>This Month:</span>
+                      <span className="font-medium text-white">8</span>
+                    </div>
+                    <div className="flex justify-between text-white/90">
+                      <span>Avg Response:</span>
+                      <span className="font-medium text-white">2.3s</span>
+                    </div>
+                    <div className="flex justify-between text-white/90">
+                      <span>Data Points:</span>
+                      <span className="font-medium text-white">1,247</span>
+                    </div>
+                  </div>
+                  <p className="text-green-200 text-xs mt-3 text-center">
                     Generation metrics and analytics overview
                   </p>
-                </div>
-                <div className="space-y-2 text-sm px-4">
-                  <div className="flex justify-between text-black/90">
-                    <span>Total Reports:</span>
-                    <span className="font-medium text-white">23</span>
-                  </div>
-                  <div className="flex justify-between text-black/90">
-                    <span>This Month:</span>
-                    <span className="font-medium text-white">8</span>
-                  </div>
-                  <div className="flex justify-between text-black/90">
-                    <span>Avg Response:</span>
-                    <span className="font-medium text-white">2.3s</span>
-                  </div>
-                  <div className="flex justify-between text-black/90">
-                    <span>Data Points:</span>
-                    <span className="font-medium text-white">1,247</span>
-                  </div>
                 </div>
               </div>
 
@@ -264,9 +283,9 @@ export default function UploadReportsPage() {
             </div>
 
             {/* Report Table - Recent Generated Reports - 3 Columns Wide */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
-                <h3 className={`${getTextStyle('sectionTitle')} text-black mb-4`}>Recent Reports</h3>
+                <h3 className="text-gray-900 text-lg font-bold mb-4">Recent Reports</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl hover:bg-white/20 transition-all duration-200">
