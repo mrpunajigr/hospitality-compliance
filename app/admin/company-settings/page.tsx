@@ -222,26 +222,65 @@ export default function CompanySettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Upload Module Background Style */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 25%, #3730a3 50%, #2563eb 75%, #1e293b 100%)',
+            backgroundAttachment: 'fixed'
+          }}
+        />
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+            opacity: 0.3
+          }}
+        />
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+        
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8">
+            <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-white/70 text-sm mt-4">Loading settings...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Upload Module Background Style */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 25%, #3730a3 50%, #2563eb 75%, #1e293b 100%)',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+          opacity: 0.3
+        }}
+      />
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6">
           <div>
-            <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg">
               Settings
             </h1>
-            <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
+            <p className="text-white/70 text-lg drop-shadow-md">
               Manage your business information and preferences
             </p>
             {userClient && (
-              <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
+              <div className="text-white/80 text-sm drop-shadow-md mt-1">
                 {userClient.name} • {userClient.role}
               </div>
             )}
@@ -249,22 +288,22 @@ export default function CompanySettingsPage() {
           
           {/* Onboarding Welcome Message */}
           {isOnboarding && showWelcome && (
-            <div className={`${getCardStyle('primary')} mb-6 border-green-500/50`}>
+            <div className="bg-green-500/20 backdrop-blur-lg border border-green-400/30 rounded-3xl p-6 mb-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className={`${getTextStyle('sectionTitle')} text-green-400 mb-2`}>
+                  <h3 className="text-xl font-semibold text-green-300 mb-2">
                     🎉 Welcome! Your account has been created successfully!
                   </h3>
-                  <p className={`${getTextStyle('body')} text-white/90 mb-4`}>
+                  <p className="text-white/90 mb-4">
                     Let&apos;s complete your company setup to get the most out of your hospitality compliance platform.
                   </p>
-                  <div className={`${getTextStyle('meta')} text-white/70`}>
+                  <div className="text-white/70 text-sm">
                     ✅ Account Created • 📝 Complete Company Setup • 🚀 Ready to Use
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowWelcome(false)}
-                  className="text-white/60 hover:text-white/90 transition-colors"
+                  className="text-white/60 hover:text-white/90 transition-colors p-2 hover:bg-white/10 rounded-xl"
                 >
                   ✕
                 </button>
@@ -275,22 +314,22 @@ export default function CompanySettingsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className={`${getCardStyle('primary')} max-w-2xl mx-auto`}>
-          <div className="mb-6">
-            <h2 className={`${getTextStyle('sectionTitle')} text-gray-900 mb-2`}>
+      <div className="relative z-10 max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-white mb-2">
               Company Profile
             </h2>
-            <p className={`${getTextStyle('body')} text-gray-600`}>
+            <p className="text-white/70">
               Manage your company information and business details.
             </p>
           </div>
 
           {message && (
-            <div className={`mb-6 p-4 rounded-xl ${
+            <div className={`mb-6 p-4 rounded-xl backdrop-blur-lg border ${
               message.includes('Error') 
-                ? 'bg-red-50 border border-red-200 text-red-700'
-                : 'bg-green-50 border border-green-200 text-green-700'
+                ? 'bg-red-500/20 border-red-400/30 text-red-200'
+                : 'bg-green-500/20 border-green-400/30 text-green-200'
             }`}>
               {message}
             </div>
@@ -299,7 +338,7 @@ export default function CompanySettingsPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Company Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 Company Name *
               </label>
               <input
@@ -308,25 +347,26 @@ export default function CompanySettingsPage() {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className={`${getFormFieldStyle()} bg-white`}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                placeholder="Enter your company name"
               />
             </div>
 
             {/* Company Avatar */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 Company Avatar
               </label>
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center overflow-hidden">
-                    <div className="text-gray-400 text-2xl font-bold">
+                  <div className="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center overflow-hidden backdrop-blur-sm">
+                    <div className="text-white/80 text-2xl font-bold">
                       {formData.name ? formData.name.charAt(0).toUpperCase() : 'C'}
                     </div>
                   </div>
                   <button
                     type="button"
-                    className="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-full shadow-sm transition-colors"
+                    className="absolute -bottom-1 -right-1 bg-blue-500/80 hover:bg-blue-500 text-white p-1.5 rounded-full shadow-sm transition-colors backdrop-blur-sm border border-white/20"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -334,8 +374,8 @@ export default function CompanySettingsPage() {
                   </button>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Upload company profile picture</p>
-                  <p className="text-xs text-gray-500">Recommended: Square image, max 2MB</p>
+                  <p className="text-sm text-white/70 mb-1">Upload company profile picture</p>
+                  <p className="text-xs text-white/50">Recommended: Square image, max 2MB</p>
                 </div>
               </div>
             </div>
@@ -350,7 +390,7 @@ export default function CompanySettingsPage() {
 
             {/* Business Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 Business Type *
               </label>
               <select
@@ -358,21 +398,21 @@ export default function CompanySettingsPage() {
                 value={formData.business_type}
                 onChange={handleInputChange}
                 required
-                className={`${getFormFieldStyle()} bg-white`}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
               >
-                <option value="">Select Business Type</option>
-                <option value="restaurant">Restaurant</option>
-                <option value="cafe">Café</option>
-                <option value="hotel">Hotel</option>
-                <option value="catering">Catering</option>
-                <option value="other">Other</option>
+                <option value="" className="bg-slate-800 text-white">Select Business Type</option>
+                <option value="restaurant" className="bg-slate-800 text-white">Restaurant</option>
+                <option value="cafe" className="bg-slate-800 text-white">Café</option>
+                <option value="hotel" className="bg-slate-800 text-white">Hotel</option>
+                <option value="catering" className="bg-slate-800 text-white">Catering</option>
+                <option value="other" className="bg-slate-800 text-white">Other</option>
               </select>
             </div>
 
             {/* Contact Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white/80 mb-3">
                   Business Email *
                 </label>
                 <input
@@ -381,11 +421,12 @@ export default function CompanySettingsPage() {
                   value={formData.business_email}
                   onChange={handleInputChange}
                   required
-                  className={`${getFormFieldStyle()} bg-white`}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="business@company.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white/80 mb-3">
                   Phone Number
                 </label>
                 <input
@@ -393,14 +434,15 @@ export default function CompanySettingsPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`${getFormFieldStyle()} bg-white`}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                  placeholder="+64 9 123 4567"
                 />
               </div>
             </div>
 
             {/* License Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 License Number
               </label>
               <input
@@ -409,13 +451,13 @@ export default function CompanySettingsPage() {
                 value={formData.license_number}
                 onChange={handleInputChange}
                 placeholder="e.g., LA123456"
-                className={`${getFormFieldStyle()} bg-white`}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
               />
             </div>
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 Address
               </label>
               <div className="space-y-3">
@@ -425,7 +467,7 @@ export default function CompanySettingsPage() {
                   value={formData.address.street}
                   onChange={handleInputChange}
                   placeholder="Street Address"
-                  className={`${getFormFieldStyle()} bg-white`}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                 />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <input
@@ -434,7 +476,7 @@ export default function CompanySettingsPage() {
                     value={formData.address.city}
                     onChange={handleInputChange}
                     placeholder="City"
-                    className={`${getFormFieldStyle()} bg-white`}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                   />
                   <input
                     type="text"
@@ -442,7 +484,7 @@ export default function CompanySettingsPage() {
                     value={formData.address.region}
                     onChange={handleInputChange}
                     placeholder="Region/State"
-                    className={`${getFormFieldStyle()} bg-white`}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                   />
                   <input
                     type="text"
@@ -450,7 +492,7 @@ export default function CompanySettingsPage() {
                     value={formData.address.postalCode}
                     onChange={handleInputChange}
                     placeholder="Postal Code"
-                    className={`${getFormFieldStyle()} bg-white`}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -458,43 +500,43 @@ export default function CompanySettingsPage() {
 
             {/* Monthly Deliveries Estimate */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-3">
                 Estimated Monthly Deliveries
               </label>
               <select
                 name="estimated_monthly_deliveries"
                 value={formData.estimated_monthly_deliveries}
                 onChange={handleInputChange}
-                className={`${getFormFieldStyle()} bg-white`}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
               >
-                <option value={25}>1-25 deliveries</option>
-                <option value={75}>26-75 deliveries</option>
-                <option value={150}>76-150 deliveries</option>
-                <option value={300}>151-300 deliveries</option>
-                <option value={500}>300+ deliveries</option>
+                <option value={25} className="bg-slate-800 text-white">1-25 deliveries</option>
+                <option value={75} className="bg-slate-800 text-white">26-75 deliveries</option>
+                <option value={150} className="bg-slate-800 text-white">76-150 deliveries</option>
+                <option value={300} className="bg-slate-800 text-white">151-300 deliveries</option>
+                <option value={500} className="bg-slate-800 text-white">300+ deliveries</option>
               </select>
             </div>
 
             {/* Subscription Info (Read-only) */}
             {userClient && (
-              <div className="bg-gray-50 p-4 rounded-xl border">
-                <h3 className="font-medium text-gray-900 mb-2">Subscription Information</h3>
+              <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4">
+                <h3 className="font-medium text-white mb-2">Subscription Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Status:</span>
-                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    <span className="text-white/70">Status:</span>
+                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
                       (userClient as any).subscription_status === 'active' 
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-500/30 text-green-200 border border-green-400/30'
                         : (userClient as any).subscription_status === 'trial'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30'
+                        : 'bg-white/20 text-white/80 border border-white/30'
                     }`}>
                       {(userClient as any).subscription_status || 'Unknown'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Tier:</span>
-                    <span className="ml-2 font-medium text-gray-900 capitalize">
+                    <span className="text-white/70">Tier:</span>
+                    <span className="ml-2 font-medium text-white capitalize">
                       {(userClient as any).subscription_tier || 'Standard'}
                     </span>
                   </div>

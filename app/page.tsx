@@ -39,66 +39,40 @@ export default function HomePage() {
     }
   }
 
-  const handleDemoSignIn = async () => {
-    console.log('🎯 Demo button clicked!')
-    setError('')
-    setIsLoading(true)
-
-    try {
-      console.log('🚀 Demo mode - bypassing authentication')
-      console.log('🔄 Redirecting to /upload/console...')
-      window.location.href = '/upload/console'
-      
-    } catch (error) {
-      console.error('Demo sign-in failed:', error)
-      setError('Demo mode failed to load')
-      setIsLoading(false)
-    }
-  }
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Safari 12 Compatible Background - Pure CSS */}
+      {/* Cafe Window Background from Supabase */}
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 25%, #3730a3 50%, #2563eb 75%, #1e293b 100%)',
+          backgroundImage: `
+            linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg")
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed'
         }}
       />
       
-      {/* Pattern overlay for visual interest */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
-          opacity: 0.3
-        }}
-      />
-      
       {/* Text readability overlay */}
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
 
-      {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center h-24">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12">
-                <img 
-                  src="/JiGR_Logo-full_figma_circle.png" 
-                  alt="JiGR Logo" 
-                  className="w-12 h-12 object-contain"
-                />
-              </div>
-              <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
-            </div>
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+        
+        {/* JiGR Logo above login container */}
+        <div className="mb-8">
+          <div className="w-144 h-36">
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
+              alt="JiGR Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
-      </header>
-      
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
         {/* Glass Morphism Card */}
         <div 
           className="rounded-3xl p-8 max-w-md w-full mx-auto"
@@ -188,14 +162,6 @@ export default function HomePage() {
               )}
             </button>
 
-            {/* Demo Button */}
-            <button
-              type="button"
-              onClick={handleDemoSignIn}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-            >
-              🚀 Demo Access
-            </button>
             
           </form>
 
@@ -222,7 +188,7 @@ export default function HomePage() {
           {/* Version */}
           <div className="text-center mt-6 pt-4 border-t border-white/10">
             <p className="text-xs font-medium text-white/90">
-              v1.8.22.007
+              v1.9.8.12
             </p>
           </div>
         </div>
