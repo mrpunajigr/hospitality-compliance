@@ -7,11 +7,8 @@ import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import AppleSidebar from '../components/AppleSidebar'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import BackgroundSelector from '../components/BackgroundSelector'
-import { PlatformProvider } from '@/lib/platform-context'
-
-interface UploadLayoutProps {
-  children: React.ReactNode
-}
+// import { PlatformProvider } from '@/lib/platform-context' // Temporarily disabled for quick deployment
+interface UploadLayoutProps {children: React.ReactNode}
 
 export default function UploadLayout({ children }: UploadLayoutProps) {
   const router = useRouter()
@@ -81,7 +78,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   }
 
   return (
-    <PlatformProvider>
+    // <PlatformProvider> // Temporarily disabled for quick deployment
       <div className="min-h-screen relative ContentArea">
       {/* Safari 12 Compatible Background */}
       <div 
@@ -139,6 +136,6 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         {children}
       </div>
       </div>
-    </PlatformProvider>
+    // </PlatformProvider> // Temporarily disabled for quick deployment  
   )
 }
