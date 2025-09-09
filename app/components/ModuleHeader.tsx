@@ -34,6 +34,7 @@ export function ModuleHeader({
               width={96} 
               height={96}
               className="object-contain"
+              unoptimized={module.key === 'admin'}
               onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
               onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
             />
