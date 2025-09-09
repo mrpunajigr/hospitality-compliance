@@ -380,7 +380,7 @@ export default function UploadActionPage() {
         <div className="grid grid-cols-4 gap-6 items-center">
           <div className="flex items-center space-x-4 col-span-2">
             <Image 
-              src={getModuleAsset('icons/JiGRupload', { width: 96, height: 96 })} 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRuploadWhite.png" 
               alt="Upload Module" 
               width={96} 
               height={96}
