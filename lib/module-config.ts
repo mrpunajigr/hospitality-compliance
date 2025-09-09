@@ -72,7 +72,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'admin',
     title: 'ADMIN',
     description: 'Configuring your operation',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleAdmin.png', 
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleAdmin.png?v=2', 
     pages: [
       { key: 'console', label: 'Console', href: '/admin/console' },
       { key: 'configure', label: 'Configure', href: '/admin/configure' },
