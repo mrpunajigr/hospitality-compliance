@@ -7,8 +7,8 @@ import SimpleResultsCard from '../../components/results/SimpleResultsCard'
 import { supabase } from '@/lib/supabase'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
-import { getModuleAsset } from '@/lib/image-storage'
-import Image from 'next/image'
+import { getModuleConfig } from '@/lib/module-config'
+import { ModuleHeader } from '@/app/components/ModuleHeader'
 
 export default function UploadConsolePage() {
   const [loading, setLoading] = useState(true)
@@ -327,54 +327,20 @@ export default function UploadConsolePage() {
     )
   }
 
+  const moduleConfig = getModuleConfig('upload')
+  
+  if (!moduleConfig) {
+    return <div>Module configuration not found</div>
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* Console Header */}
-      <div className="mb-16">
-        <div className="grid grid-cols-4 gap-6 items-center">
-          <div className="flex items-center space-x-4 col-span-2">
-            <Image 
-              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRuploadWhite.png" 
-              alt="Upload Module" 
-              width={96} 
-              height={96}
-              className="object-contain"
-            />
-            <div>
-              <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
-                UPLOAD
-              </h1>
-              <p className="text-white/80 drop-shadow-md italic text-xs">
-                Document upload, processing, and compliance management
-              </p>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-xs">
-              <a 
-                href="/upload/console" 
-                className="flex-1 text-center px-2 py-1.5 font-semibold text-black bg-white rounded-full transition-all duration-300 text-xs TouchTarget"
-              >
-                Console
-              </a>
-              <a 
-                href="/upload/capture" 
-                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
-              >
-                Capture
-              </a>
-              <a 
-                href="/upload/reports" 
-                className="flex-1 text-center px-2 py-1.5 font-medium text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all duration-300 text-xs TouchTarget"
-              >
-                Reports
-              </a>
-            </div>
-          </div>
-          <div></div>
-        </div>
-      </div>
+      {/* Standardized Module Header */}
+      <ModuleHeader 
+        module={moduleConfig}
+        currentPage="console"
+      />
 
       {/* Upload Statistics Cards - 3 Column Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
