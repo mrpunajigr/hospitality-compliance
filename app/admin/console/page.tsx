@@ -9,12 +9,23 @@ import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import ImageUploader from '@/app/components/ImageUploader'
 
 export default function AdminConsolePage() {
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  const handleLogoUploadSuccess = (logoUrl: string) => {
+    setCompanyLogoUrl(logoUrl)
+    console.log('Company logo uploaded successfully:', logoUrl)
+    
+    // Notify the layout about the logo update
+    localStorage.setItem('companyLogoUrl', logoUrl)
+    window.dispatchEvent(new CustomEvent('companyLogoUpdated', { detail: { logoUrl } }))
+  }
 
   const handleDemoSignIn = async () => {
     try {
@@ -172,16 +183,20 @@ export default function AdminConsolePage() {
             
             {/* Business Info */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🏢</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Business Info</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"
+                    alt="Business Info"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Business Info</h3>
-                <p className={`${getTextStyle('bodySmall')} mt-2`}>
+                <p className="text-gray-700 text-sm mb-4">
                   Demo Restaurant Ltd
                 </p>
               </div>
-              <div className={`${getTextStyle('body')} space-y-1`}>
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Type:</strong> Restaurant</p>
                 <p><strong>License:</strong> AL123456</p>
                 <p><strong>Phone:</strong> +64 9 123 4567</p>
@@ -190,16 +205,20 @@ export default function AdminConsolePage() {
 
             {/* Subscription */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">💎</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Subscription</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRsubscription.png"
+                    alt="Subscription"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Subscription</h3>
-                <p className={`${getTextStyle('bodySmall')} mt-2`}>
+                <p className="text-gray-700 text-sm mb-4">
                   Professional Plan
                 </p>
               </div>
-              <div className={`${getTextStyle('body')} space-y-1`}>
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Status:</strong> Active</p>
                 <p><strong>Usage:</strong> 127/2000</p>
                 <p><strong>Billing:</strong> $99/month</p>
@@ -208,16 +227,20 @@ export default function AdminConsolePage() {
 
             {/* Team */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">👥</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Team</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRteam.png"
+                    alt="Team"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                <p className={`${getTextStyle('bodySmall')} mt-2`}>
+                <p className="text-gray-700 text-sm mb-4">
                   4 Active Users
                 </p>
               </div>
-              <div className={`${getTextStyle('body')} space-y-1`}>
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Admins:</strong> 2</p>
                 <p><strong>Staff:</strong> 2</p>
                 <p><strong>Pending:</strong> 0</p>
@@ -228,12 +251,28 @@ export default function AdminConsolePage() {
 
           {/* Business Information Form */}
           <div className={getCardStyle('primary')}>
-            <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Information</h2>
+            <h2 className="text-black text-xl font-semibold mb-6">Business Information</h2>
             
-            <form className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex gap-6 mb-6">
+              {/* Left Side - Logo Uploader */}
+              <div className="flex-shrink-0">
+                <ImageUploader
+                  currentImageUrl={companyLogoUrl}
+                  onUploadSuccess={handleLogoUploadSuccess}
+                  onUploadError={(error) => console.error('Logo upload failed:', error)}
+                  uploadEndpoint="/api/upload-client-logo"
+                  uploadData={{ clientId: userClient?.id || '', userId: user?.id || '' }}
+                  shape="square"
+                  size="medium"
+                  title="Company Logo"
+                  description="Upload logo"
+                />
+              </div>
+              
+              {/* Right Side - Business Name & Contact Email */}
+              <div className="flex-1 space-y-4">
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Business Name</label>
+                  <label className="block text-black text-sm font-medium mb-2">Business Name</label>
                   <input
                     type="text"
                     defaultValue="Demo Restaurant Ltd"
@@ -242,7 +281,29 @@ export default function AdminConsolePage() {
                 </div>
                 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Business Type</label>
+                  <label className="block text-black text-sm font-medium mb-2">Owner&apos;s Name</label>
+                  <input
+                    type="text"
+                    defaultValue="John Smith"
+                    className={getFormFieldStyle()}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-black text-sm font-medium mb-2">Contact Email</label>
+                  <input
+                    type="email"
+                    defaultValue="admin@demorestaurant.co.nz"
+                    className={getFormFieldStyle()}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <form className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-black text-sm font-medium mb-2">Business Type</label>
                   <select className={getFormFieldStyle()}>
                     <option value="restaurant">Restaurant</option>
                     <option value="cafe">Café</option>
@@ -250,20 +311,9 @@ export default function AdminConsolePage() {
                     <option value="catering">Catering</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Contact Email</label>
-                  <input
-                    type="email"
-                    defaultValue="admin@demorestaurant.co.nz"
-                    className={getFormFieldStyle()}
-                  />
-                </div>
                 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Phone Number</label>
+                  <label className="block text-black text-sm font-medium mb-2">Phone Number</label>
                   <input
                     type="tel"
                     defaultValue="+64 9 123 4567"
@@ -273,7 +323,7 @@ export default function AdminConsolePage() {
               </div>
 
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Address</label>
+                <label className="block text-black text-sm font-medium mb-2">Address</label>
                 <textarea
                   rows={3}
                   defaultValue="123 Queen Street, Auckland CBD, Auckland 1010"
@@ -282,7 +332,7 @@ export default function AdminConsolePage() {
               </div>
 
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Alcohol License Number</label>
+                <label className="block text-black text-sm font-medium mb-2">Alcohol License Number</label>
                 <input
                   type="text"
                   defaultValue="AL123456789"

@@ -136,8 +136,16 @@ export default function AppleSidebar({
         {/* Header */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-center">
-            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
-              <span className="text-white font-bold text-2xl">C</span>
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
+              {logoUrl ? (
+                <img 
+                  src={logoUrl} 
+                  alt="Company Logo" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-white font-bold text-2xl">C</span>
+              )}
             </div>
           </div>
         </div>
@@ -287,7 +295,7 @@ export default function AppleSidebar({
                         />
                       </div>
                       <button 
-                        onClick={() => window.location.href = '/admin'}
+                        onClick={() => window.location.href = '/admin/console'}
                         className="flex justify-center items-center p-1 hover:bg-white/10 rounded-lg transition-all duration-200"
                         title="Admin Module - User management and system settings"
                       >
@@ -349,7 +357,7 @@ export default function AppleSidebar({
             <div className="pb-4">
               <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
                 <button 
-                  onClick={() => window.location.href = '/admin/company'}
+                  onClick={() => window.location.href = '/admin/console'}
                   className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
                   title="Admin - Company management and settings"
                 >
@@ -363,11 +371,9 @@ export default function AppleSidebar({
                 {/* User Avatar */}
                 <div className="flex justify-center items-center py-2">
                   <div 
-                    className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 ${
-                      isCollapsed ? 'cursor-pointer hover:bg-white/30 transition-all duration-200' : ''
-                    }`}
-                    onClick={isCollapsed ? () => setIsCollapsed(false) : undefined}
-                    title={isCollapsed ? 'Expand Sidebar' : 'User Profile'}
+                    className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
+                    onClick={() => window.location.href = '/admin/profile'}
+                    title="User Profile - Edit your profile information"
                   >
                     <span className="text-white font-bold text-lg">
                       {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}

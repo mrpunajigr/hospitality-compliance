@@ -16,6 +16,7 @@ export default function AdminLayout({
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -34,6 +35,10 @@ export default function AdminLayout({
         const clientInfo = await getUserClient(user.id)
         if (clientInfo) {
           setUserClient(clientInfo)
+          // Set company logo URL if available
+          if (clientInfo.logo_url) {
+            setCompanyLogoUrl(clientInfo.logo_url)
+          }
         }
       } catch (error) {
         console.error('Error loading client info in admin layout:', error)
@@ -41,6 +46,26 @@ export default function AdminLayout({
     }
     
     loadUserData()
+  }, [])
+
+  // Listen for company logo updates
+  useEffect(() => {
+    const handleLogoUpdate = (event: any) => {
+      const { logoUrl } = event.detail
+      setCompanyLogoUrl(logoUrl)
+    }
+
+    window.addEventListener('companyLogoUpdated', handleLogoUpdate)
+    
+    // Check localStorage for existing logo URL on mount
+    const savedLogoUrl = localStorage.getItem('companyLogoUrl')
+    if (savedLogoUrl) {
+      setCompanyLogoUrl(savedLogoUrl)
+    }
+
+    return () => {
+      window.removeEventListener('companyLogoUpdated', handleLogoUpdate)
+    }
   }, [])
 
   const handleSignOut = async () => {
@@ -68,7 +93,7 @@ export default function AdminLayout({
         user={user}
         userClient={userClient}
         onSignOut={handleSignOut}
-        logoUrl="/JiGR_Logo-full_figma_circle.png"
+        logoUrl={companyLogoUrl || "/JiGR_Logo-full_figma_circle.png"}
         activeSection="admin"
       />
 
