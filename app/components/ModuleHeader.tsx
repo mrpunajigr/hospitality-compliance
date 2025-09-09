@@ -27,15 +27,27 @@ export function ModuleHeader({
       <div className="grid grid-cols-4 gap-6 items-center">
         {/* Module Icon and Title - Left Side (2 columns) */}
         <div className="flex items-center space-x-4 col-span-2">
-          <Image 
-            src={module.iconUrl} 
-            alt={`${module.title} Module`} 
-            width={96} 
-            height={96}
-            className="object-contain"
-            onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
-            onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
-          />
+          {module.key === 'admin' ? (
+            <img 
+              src={module.iconUrl} 
+              alt={`${module.title} Module`} 
+              width={96} 
+              height={96}
+              className="object-contain"
+              onLoad={() => console.log(`✅ ${module.title} logo loaded (img):`, module.iconUrl)}
+              onError={(e) => console.error(`❌ ${module.title} logo failed (img):`, module.iconUrl, e)}
+            />
+          ) : (
+            <Image 
+              src={module.iconUrl} 
+              alt={`${module.title} Module`} 
+              width={96} 
+              height={96}
+              className="object-contain"
+              onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
+              onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
+            />
+          )}
           <div>
             <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
               {module.title}
