@@ -8,6 +8,8 @@ import ImageUploader from '@/app/components/ImageUploader'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+import { ModuleHeader } from '@/app/components/ModuleHeader'
+import { getModuleConfig } from '@/lib/module-config'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -15,6 +17,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [hasAccess, setHasAccess] = useState<boolean>(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -46,11 +49,24 @@ export default function ProfilePage() {
       } else {
         setUser(user)
         
-        // Get user's company information
+        // Get user's company information and check access permissions
         try {
           const clientInfo = await getUserClient(user.id)
           if (clientInfo) {
             setUserClient(clientInfo)
+            
+            // Check if user has permission to access profile management
+            // Allow: Administrators, Owners, or the profile owner themselves
+            const hasProfileAccess = 
+              clientInfo.role === 'Administrator' || 
+              clientInfo.role === 'Owner' ||
+              user.id === user.id // Profile owner (they can always edit their own profile)
+            
+            setHasAccess(hasProfileAccess)
+            
+            if (!hasProfileAccess) {
+              console.warn('Access denied: User does not have permission to access profile management')
+            }
           }
         } catch (error) {
           console.error('Error loading client info:', error)
@@ -148,10 +164,39 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className={getCardStyle('primary')}>
+        <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-8 shadow-lg">
           <div className="text-center">
-            <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-white font-medium">Loading Profile...</p>
+            <div className="animate-spin h-8 w-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-black font-medium">Loading Profile...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Access Control Check
+  if (!hasAccess && userClient) {
+    return (
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+        <ModuleHeader 
+          module={getModuleConfig('admin')!}
+          currentPage=""
+        />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-8 shadow-lg max-w-md w-full">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🚫</span>
+              </div>
+              <h1 className="text-xl font-semibold text-black mb-2">Access Denied</h1>
+              <p className="text-gray-700 mb-4">
+                You don&apos;t have permission to access profile management. 
+                Only Administrators, Owners, or the profile owner can edit profile information.
+              </p>
+              <p className="text-sm text-gray-600">
+                Current Role: {userClient.role}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -188,29 +233,32 @@ export default function ProfilePage() {
     )
   }
 
-  return (
-    <div className="min-h-screen">
-        {/* Header */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
-                Profile Settings
-              </h1>
-              <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
-                Manage your personal account information
-              </p>
-              {userClient && (
-                <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
-                  {userClient.name} • {userClient.role}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+  const moduleConfig = getModuleConfig('admin')
+  
+  if (!moduleConfig) {
+    return <div>Module configuration not found</div>
+  }
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+      
+      {/* Standardized Module Header */}
+      <ModuleHeader 
+        module={moduleConfig}
+        currentPage=""
+      />
+
+      {/* User Info Display */}
+      {userClient && (
+        <div className="mb-4 text-center">
+          <p className="text-gray-700 text-sm">
+            {userClient.name} • {userClient.role}
+          </p>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="space-y-8">
           
           <div className="flex gap-6">
             
@@ -218,7 +266,7 @@ export default function ProfilePage() {
             <div className="flex-1">
               
               {/* Profile Overview */}
-              <div className={`${getCardStyle('form')} mb-6`}>
+              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
                 <div className="flex items-start space-x-6 mb-6">
                   {/* Avatar Upload */}
                   <div className="flex-shrink-0">
@@ -239,66 +287,66 @@ export default function ProfilePage() {
                   
                   {/* User Info */}
                   <div className="flex-1 pt-4">
-                    <h2 className="text-2xl font-semibold text-gray-900">{profile?.full_name || 'Demo User'}</h2>
-                    <p className="text-gray-700">{profile?.email || 'demo@example.com'}</p>
-                    <p className="text-sm text-gray-600 mt-1">Administrator • Demo Restaurant Ltd</p>
+                    <h2 className="text-2xl font-semibold text-black">{profile?.full_name || 'Demo User'}</h2>
+                    <p className="text-gray-800">{profile?.email || 'demo@example.com'}</p>
+                    <p className="text-sm text-gray-700 mt-1">Administrator • Demo Restaurant Ltd</p>
                   </div>
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">47</div>
-                    <div className="text-sm text-gray-600">Documents Uploaded</div>
+                    <div className="text-2xl font-bold text-black">47</div>
+                    <div className="text-sm text-gray-700">Documents Uploaded</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">12</div>
-                    <div className="text-sm text-gray-600">Days Active</div>
+                    <div className="text-2xl font-bold text-black">12</div>
+                    <div className="text-sm text-gray-700">Days Active</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">98%</div>
-                    <div className="text-sm text-gray-600">Compliance Rate</div>
+                    <div className="text-2xl font-bold text-black">98%</div>
+                    <div className="text-sm text-gray-700">Compliance Rate</div>
                   </div>
                 </div>
               </div>
 
               {/* Personal Information */}
-              <div className={`${getCardStyle('form')} mb-6`}>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
+                <h2 className="text-xl font-semibold text-black mb-6">Personal Information</h2>
                 
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-black mb-2">Full Name</label>
                       <input
                         type="text"
                         defaultValue={profile?.full_name || 'Demo User'}
-                        className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Email Address</label>
+                      <label className="block text-sm font-medium text-black mb-2">Email Address</label>
                       <input
                         type="email"
                         defaultValue={profile?.email || 'demo@example.com'}
-                        className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Phone Number</label>
+                      <label className="block text-sm font-medium text-black mb-2">Phone Number</label>
                       <input
                         type="tel"
                         defaultValue={profile?.phone || '+64 21 123 4567'}
-                        className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Timezone</label>
+                      <label className="block text-sm font-medium text-black mb-2">Timezone</label>
                       <select className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="Pacific/Auckland">New Zealand (NZST)</option>
                         <option value="Australia/Sydney">Australia (AEST)</option>
@@ -310,7 +358,7 @@ export default function ProfilePage() {
                   <div className="flex justify-end space-x-4">
                     <button
                       type="button"
-                      className="bg-white/20 hover:bg-white/30 text-gray-900 font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-white/30 backdrop-blur-sm"
+                      className="bg-white/40 hover:bg-white/60 text-black font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-gray-300/40 backdrop-blur-sm"
                     >
                       Cancel
                     </button>
@@ -325,35 +373,35 @@ export default function ProfilePage() {
               </div>
 
               {/* Password & Security */}
-              <div className={`${getCardStyle('form')} mb-6`}>
+              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Password & Security</h2>
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">Current Password</label>
+                    <label className="block text-sm font-medium text-black mb-2">Current Password</label>
                     <input
                       type="password"
                       placeholder="Enter current password"
-                      className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">New Password</label>
+                      <label className="block text-sm font-medium text-black mb-2">New Password</label>
                       <input
                         type="password"
                         placeholder="Enter new password"
-                        className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-800 mb-2">Confirm Password</label>
+                      <label className="block text-sm font-medium text-black mb-2">Confirm Password</label>
                       <input
                         type="password"
                         placeholder="Confirm new password"
-                        className="w-full px-4 py-3 bg-white/30 border border-white/30 rounded-xl text-gray-900 placeholder-gray-600 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
