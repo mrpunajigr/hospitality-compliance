@@ -71,12 +71,12 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
   admin: {
     key: 'admin',
     title: 'ADMIN',
-    description: 'User management and system settings',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRadmin2.png', 
+    description: 'Configuring your operation',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/logos/JiGRModuleAdmin.png', 
     pages: [
-      { key: 'profile', label: 'Profile', href: '/admin/profile' },
-      { key: 'company', label: 'Company', href: '/admin/company' },
-      { key: 'settings', label: 'Settings', href: '/admin/company-settings' }
+      { key: 'console', label: 'Console', href: '/admin/console' },
+      { key: 'configure', label: 'Configure', href: '/admin/configure' },
+      { key: 'team', label: 'Team', href: '/admin/team' }
     ],
     isActive: true
   },
