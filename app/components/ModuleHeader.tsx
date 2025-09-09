@@ -38,11 +38,6 @@ export function ModuleHeader({
               onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
               onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
             />
-            {module.key === 'admin' && (
-              <div className="absolute top-0 left-0 bg-red-500 text-white text-xs p-1">
-                ADMIN TEST
-              </div>
-            )}
           </div>
           <div>
             <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
