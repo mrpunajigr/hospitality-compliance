@@ -292,4 +292,4 @@ For enterprise support, custom development, or consulting services, contact us a
 
 **Built with ❤️ for New Zealand hospitality businesses**
 
-*Ensuring food safety compliance with modern technology while supporting the people who feed our communities.*
+*Ensuring food safety compliance with modern technology while supporting the people who feed our communities.*# Deployment trigger Tue Sep  9 19:09:12 NZST 2025
