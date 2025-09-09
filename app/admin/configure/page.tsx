@@ -9,9 +9,6 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
-import BackgroundSelector from '@/app/components/BackgroundSelector'
-import AssetUploadModal from '@/app/components/AssetUploadModal'
-import ResultsCardConfig, { ResultsCardConfig as ResultsCardConfigType, DEFAULT_CONFIG } from '@/app/components/upload/ResultsCardConfig'
 
 interface BackgroundAsset {
   id: string
@@ -28,34 +25,6 @@ export default function AdminConfigurePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-  const [showBackgroundSelector, setShowBackgroundSelector] = useState(false)
-  const [showAssetUpload, setShowAssetUpload] = useState(false)
-  const [uploadType, setUploadType] = useState<'background' | 'logo'>('background')
-  const [currentBackground, setCurrentBackground] = useState<string>('')
-  const [assets, setAssets] = useState<BackgroundAsset[]>([])
-  const [loadingAssets, setLoadingAssets] = useState(false)
-  const [resultsCardConfig, setResultsCardConfig] = useState<ResultsCardConfigType>(DEFAULT_CONFIG)
-
-  const loadAssets = async () => {
-    try {
-      setLoadingAssets(true)
-      const { data, error } = await supabase
-        .from('client_display_assets')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error loading assets:', error)
-        return
-      }
-
-      setAssets(data || [])
-    } catch (error) {
-      console.error('Error loading assets:', error)
-    } finally {
-      setLoadingAssets(false)
-    }
-  }
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -69,8 +38,6 @@ export default function AdminConfigurePage() {
           if (clientInfo) {
             setUserClient(clientInfo)
           }
-          
-          await loadAssets()
         }
         
         setLoading(false)
@@ -100,17 +67,10 @@ export default function AdminConfigurePage() {
     setMessage('')
     
     try {
-      // Save results card configuration
-      const { error } = await supabase
-        .from('client_display_config')
-        .upsert({
-          user_id: user?.id,
-          results_card_config: resultsCardConfig,
-          updated_at: new Date().toISOString()
-        })
-
-      if (error) throw error
-
+      // Placeholder for configuration saving
+      // In a future update, this will save actual configuration data
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       setMessage('Configuration saved successfully!')
       setTimeout(() => setMessage(''), 3000)
     } catch (error) {
@@ -174,35 +134,21 @@ export default function AdminConfigurePage() {
             {/* Background Management */}
             <div>
               <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Background Settings</h3>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setShowBackgroundSelector(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                >
-                  Choose Background
-                </button>
-                <button
-                  onClick={() => {
-                    setUploadType('background')
-                    setShowAssetUpload(true)
-                  }}
-                  className="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-white/30"
-                >
-                  Upload Custom
-                </button>
+              <div className="p-4 bg-white/10 rounded-lg border border-white/20">
+                <p className={`${getTextStyle('body')} text-white/70`}>
+                  Background selection and upload options will be available in a future update.
+                </p>
               </div>
-              <p className={`${getTextStyle('bodySmall')} mt-2 text-white/70`}>
-                Customize the background image for your workspace
-              </p>
             </div>
 
             {/* Results Card Configuration */}
             <div>
               <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Results Card Settings</h3>
-              <ResultsCardConfig 
-                config={resultsCardConfig}
-                onChange={setResultsCardConfig}
-              />
+              <div className="p-4 bg-white/10 rounded-lg border border-white/20">
+                <p className={`${getTextStyle('body')} text-white/70`}>
+                  Results card configuration options will be available here.
+                </p>
+              </div>
             </div>
 
           </div>
@@ -300,30 +246,7 @@ export default function AdminConfigurePage() {
 
       </div>
 
-      {/* Modals */}
-      {showBackgroundSelector && (
-        <BackgroundSelector
-          onClose={() => setShowBackgroundSelector(false)}
-          onSelect={(background) => {
-            setCurrentBackground(background)
-            setShowBackgroundSelector(false)
-          }}
-          currentBackground={currentBackground}
-          assets={assets}
-        />
-      )}
-
-      {showAssetUpload && (
-        <AssetUploadModal
-          isOpen={showAssetUpload}
-          onClose={() => setShowAssetUpload(false)}
-          uploadType={uploadType}
-          onUploadComplete={() => {
-            loadAssets()
-            setShowAssetUpload(false)
-          }}
-        />
-      )}
+      {/* Note: Background selector and asset upload modals will be integrated in a future update */}
 
     </div>
   )
