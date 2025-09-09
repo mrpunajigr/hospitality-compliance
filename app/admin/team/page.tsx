@@ -25,12 +25,6 @@ export default function AdminTeamPage() {
   ])
   const router = useRouter()
 
-  const moduleConfig = getModuleConfig('admin')
-  
-  if (!moduleConfig) {
-    return <div>Module configuration not found</div>
-  }
-
   const handleDemoSignIn = async () => {
     const demoUser = {
       id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
@@ -99,6 +93,12 @@ export default function AdminTeamPage() {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const moduleConfig = getModuleConfig('admin')
+  
+  if (!moduleConfig) {
+    return <div>Module configuration not found</div>
+  }
 
   if (loading) {
     return (

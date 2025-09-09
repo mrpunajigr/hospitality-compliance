@@ -21,4 +21,3 @@
 # File upload optimization (Netlify allows larger files than Vercel)
 [build.processing]
   skip_processing = false
-EOF < /dev/null
