@@ -18,6 +18,7 @@ export interface ModuleConfig {
   iconUrl: string
   pages: ModulePage[]
   isActive: boolean
+  theme?: 'light' | 'dark' // light = light text for dark backgrounds, dark = dark text for light backgrounds
 }
 
 // Standard 3-page structure for each module
@@ -47,7 +48,8 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     description: 'Document upload, processing, and compliance management',
     iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleUpload.png',
     pages: createModulePages('upload'),
-    isActive: true
+    isActive: true,
+    theme: 'light' // Light text for dark background
   },
   
   stock: {
@@ -78,7 +80,8 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       { key: 'configure', label: 'Configure', href: '/admin/configure' },
       { key: 'team', label: 'Team', href: '/admin/team' }
     ],
-    isActive: true
+    isActive: true,
+    theme: 'dark' // Dark text for light background
   },
   
   diary: {

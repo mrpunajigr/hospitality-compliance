@@ -1,15 +1,16 @@
 /**
- * Standardized Module Header Component
+ * Smart ModuleHeader Router Component
  * 
- * Provides consistent header design across all hospitality compliance modules
- * with module icon, title, description, and 3-page navigation pills.
+ * Routes to the appropriate header variant based on module theme:
+ * - Light backgrounds (Admin) → ModuleHeaderDark (dark text)
+ * - Dark backgrounds (Upload) → ModuleHeaderLight (light text)
  */
 
 'use client'
 
-import Image from 'next/image'
-import { getTextStyle } from '@/lib/design-system'
 import { ModuleConfig } from '@/lib/module-config'
+import { ModuleHeaderDark } from './ModuleHeaderDark'
+import { ModuleHeaderLight } from './ModuleHeaderLight'
 
 interface ModuleHeaderProps {
   module: ModuleConfig
@@ -22,61 +23,24 @@ export function ModuleHeader({
   currentPage, 
   className = '' 
 }: ModuleHeaderProps) {
+  // Route to appropriate variant based on module theme
+  if (module.theme === 'dark') {
+    // Dark theme = dark text for light backgrounds
+    return (
+      <ModuleHeaderDark 
+        module={module}
+        currentPage={currentPage}
+        className={className}
+      />
+    )
+  }
+  
+  // Default to light theme = light text for dark backgrounds
   return (
-    <div className={`mb-16 ${className}`}>
-      <div className="grid grid-cols-4 gap-6 items-center">
-        {/* Module Icon and Title - Left Side (2 columns) */}
-        <div className="flex items-center space-x-4 col-span-2">
-          <div className="relative">
-            <Image 
-              src={module.iconUrl} 
-              alt={`${module.title} Module`} 
-              width={96} 
-              height={96}
-              className="object-contain"
-              unoptimized={module.key === 'admin'}
-              onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
-              onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
-            />
-          </div>
-          <div>
-            <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
-              {module.title}
-            </h1>
-            <p className="text-white/80 drop-shadow-md italic text-xs">
-              {module.description}
-            </p>
-          </div>
-        </div>
-        
-        {/* Navigation Pills - Center (1 column) */}
-        <div className="flex justify-center">
-          <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-xs">
-            {module.pages.map((page) => {
-              const isActive = page.key === currentPage
-              
-              return (
-                <a 
-                  key={page.key}
-                  href={page.href} 
-                  className={`
-                    flex-1 text-center px-2 py-1.5 font-semibold rounded-full transition-all duration-300 text-xs TouchTarget
-                    ${isActive 
-                      ? 'text-black bg-white' 
-                      : 'text-white/90 hover:text-white hover:bg-white/20 font-medium'
-                    }
-                  `}
-                >
-                  {page.label}
-                </a>
-              )
-            })}
-          </div>
-        </div>
-        
-        {/* Empty space - Right Side (1 column) */}
-        <div></div>
-      </div>
-    </div>
+    <ModuleHeaderLight 
+      module={module}
+      currentPage={currentPage}
+      className={className}
+    />
   )
 }
