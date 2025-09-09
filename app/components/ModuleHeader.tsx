@@ -33,6 +33,8 @@ export function ModuleHeader({
             width={96} 
             height={96}
             className="object-contain"
+            onLoad={() => console.log(`✅ ${module.title} logo loaded:`, module.iconUrl)}
+            onError={(e) => console.error(`❌ ${module.title} logo failed:`, module.iconUrl, e)}
           />
           <div>
             <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
