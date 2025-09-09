@@ -33,8 +33,6 @@ export function ModuleHeader({
             width={96} 
             height={96}
             className="object-contain"
-            unoptimized={module.key === 'admin'}
-            onError={(e) => console.error('Image failed to load:', module.iconUrl, e)}
           />
           <div>
             <h1 className={`${getTextStyle('pageTitle')} text-white drop-shadow-lg text-4xl font-bold`}>
