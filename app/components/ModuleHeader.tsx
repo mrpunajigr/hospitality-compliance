@@ -33,7 +33,8 @@ export function ModuleHeader({
               alt={`${module.title} Module`} 
               width={96} 
               height={96}
-              className="object-contain"
+              className="object-contain border-4 border-red-500 bg-white"
+              style={{ minWidth: '96px', minHeight: '96px', visibility: 'visible', display: 'block' }}
               onLoad={() => console.log(`✅ ${module.title} logo loaded (img):`, module.iconUrl)}
               onError={(e) => console.error(`❌ ${module.title} logo failed (img):`, module.iconUrl, e)}
             />
