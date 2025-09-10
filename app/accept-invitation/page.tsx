@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
@@ -23,7 +23,7 @@ interface InvitationDetails {
   message?: string
 }
 
-export default function AcceptInvitationPage() {
+function AcceptInvitationContent() {
   const [invitation, setInvitation] = useState<InvitationDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [accepting, setAccepting] = useState(false)
@@ -498,5 +498,30 @@ export default function AcceptInvitationPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading fallback component
+function AcceptInvitationLoading() {
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold text-white mb-2">Loading Invitation</h1>
+          <p className="text-white/70">Please wait...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main export with Suspense boundary
+export default function AcceptInvitationPage() {
+  return (
+    <Suspense fallback={<AcceptInvitationLoading />}>
+      <AcceptInvitationContent />
+    </Suspense>
   )
 }
