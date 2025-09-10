@@ -208,11 +208,11 @@ export async function POST(request: NextRequest) {
     try {
       const { data: organization } = await supabase
         .from('clients')
-        .select('name, business_name')
+        .select('name')
         .eq('id', clientId)
         .single()
 
-      const organizationName = organization?.business_name || organization?.name || 'Unknown Organization'
+      const organizationName = organization?.name || 'Unknown Organization'
       
       const emailData: InvitationEmailData = {
         inviteeEmail: email,

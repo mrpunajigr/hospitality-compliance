@@ -384,8 +384,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         *,
         clients!inner (
           id,
-          name,
-          business_name
+          name
         )
       `)
       .eq('user_id', userId)
@@ -402,7 +401,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
 
     return {
       id: clientData.id,
-      name: clientData.clients.business_name || clientData.clients.name,
+      name: clientData.clients.name,
       role: clientData.role as UserRole,
       clientId: clientData.client_id,
       permissions,

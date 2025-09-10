@@ -64,8 +64,7 @@ function AcceptInvitationContent() {
             status,
             clients!inner (
               id,
-              name,
-              business_name
+              name
             ),
             profiles!invited_by (
               full_name
@@ -121,7 +120,7 @@ function AcceptInvitationContent() {
           firstName: invitationData.first_name,
           lastName: invitationData.last_name,
           role: invitationData.role,
-          organizationName: invitationData.clients.business_name || invitationData.clients.name,
+          organizationName: invitationData.clients.name,
           inviterName: invitationData.profiles?.full_name || 'Team Admin',
           expiresAt: invitationData.expires_at,
           message: invitationData.invitation_message
