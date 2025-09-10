@@ -104,10 +104,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user from session using request cookies
+    // Try different cookie formats that Supabase might use
     const authHeader = request.headers.get('authorization')
-    const accessToken = request.cookies.get('sb-access-token')?.value || 
-                       request.cookies.get('supabase-auth-token')?.value ||
-                       authHeader?.replace('Bearer ', '')
+    let accessToken = authHeader?.replace('Bearer ', '')
+    
+    if (!accessToken) {
+      // Check various cookie names Supabase might use
+      const cookies = request.headers.get('cookie') || ''
+      const cookieMatch = cookies.match(/sb-[^=]+-auth-token=([^;]+)/) ||
+                         cookies.match(/supabase\.auth\.token=([^;]+)/) ||
+                         cookies.match(/sb-access-token=([^;]+)/)
+      
+      if (cookieMatch) {
+        try {
+          // Parse the cookie value which might be URL encoded JSON
+          const cookieValue = decodeURIComponent(cookieMatch[1])
+          const authData = JSON.parse(cookieValue)
+          accessToken = authData.access_token || authData.accessToken
+        } catch (e) {
+          // If parsing fails, try using the raw cookie value
+          accessToken = cookieMatch[1]
+        }
+      }
+    }
 
     if (!accessToken) {
       return NextResponse.json(
