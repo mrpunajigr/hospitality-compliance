@@ -108,9 +108,9 @@ export async function POST(request: NextRequest) {
     }
 
     // TEMPORARY: Skip authentication for testing - will fix after confirming API works
-    // For demo mode, create a mock user to test the invitation flow
+    // Use the real dev@jigr.app user ID that has OWNER permissions in production
     const user = {
-      id: 'demo-user-id',
+      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', // dev@jigr.app user ID from database
       email: 'dev@jigr.app'
     }
 
