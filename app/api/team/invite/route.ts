@@ -5,8 +5,10 @@ import type { InvitationEmailData } from '@/lib/email-service'
 
 // Team Member Invitation API
 export async function POST(request: NextRequest) {
+  console.log('🔵 Invitation API called')
   try {
     const body = await request.json()
+    console.log('🔵 Request body:', body)
     const { 
       email, 
       firstName, 
@@ -18,14 +20,17 @@ export async function POST(request: NextRequest) {
       message,
       clientId 
     } = body
+    console.log('🔵 Extracted data:', { email, firstName, lastName, role, clientId })
 
     // Validate required fields
     if (!email || !firstName || !lastName || !role || !clientId) {
+      console.log('❌ Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields: email, firstName, lastName, role, clientId' },
         { status: 400 }
       )
     }
+    console.log('✅ Required fields validated')
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -181,12 +186,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (inviteError) {
-      console.error('Error creating invitation:', inviteError)
+      console.error('❌ Error creating invitation:', inviteError)
       return NextResponse.json(
         { error: 'Failed to create invitation' },
         { status: 500 }
       )
     }
+    console.log('✅ Invitation created successfully:', invitation)
 
     // Log audit trail
     await supabase.from('audit_logs').insert({
@@ -231,6 +237,7 @@ export async function POST(request: NextRequest) {
       // Continue - the invitation was created successfully
     }
 
+    console.log('🎉 About to return success response')
     return NextResponse.json({
       success: true,
       message: 'Invitation sent successfully',
