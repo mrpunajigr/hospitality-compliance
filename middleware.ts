@@ -86,16 +86,20 @@ const ADMIN_IP_ALLOWLIST = [
 ]
 
 function isAdminIPAllowed(request: NextRequest): boolean {
-  if (process.env.NODE_ENV !== 'production') {
-    return true // Allow all IPs in development
-  }
+  // For now, allow all IPs - we'll rely on RBAC authentication instead of IP filtering
+  return true
   
-  const forwarded = request.headers.get('x-forwarded-for')
-  const ip = forwarded ? forwarded.split(',')[0].trim() : 
-             request.headers.get('x-real-ip') || 
-             'unknown'
-  
-  return ADMIN_IP_ALLOWLIST.includes(ip)
+  // Original IP filtering logic (disabled for production RBAC deployment)
+  // if (process.env.NODE_ENV !== 'production') {
+  //   return true // Allow all IPs in development
+  // }
+  // 
+  // const forwarded = request.headers.get('x-forwarded-for')
+  // const ip = forwarded ? forwarded.split(',')[0].trim() : 
+  //            request.headers.get('x-real-ip') || 
+  //            'unknown'
+  // 
+  // return ADMIN_IP_ALLOWLIST.includes(ip)
 }
 
 // Main middleware function
