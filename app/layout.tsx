@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google'
 import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import './globals.css'
+import '../styles/ipad-responsive.css'
 
 const inter = Inter({ subsets: ['latin'] })
 

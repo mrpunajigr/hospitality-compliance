@@ -1,6 +1,6 @@
 'use client'
 
-// Admin Team - User management and team settings
+// Admin Team - Enhanced user management with RBAC invitation system
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -10,6 +10,34 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import RoleBasedSidebar from '@/app/components/RoleBasedSidebar'
+import UserInvitationModal from '@/app/components/team/UserInvitationModal'
+import type { InvitationFormData, UserRole } from '@/app/components/team/UserInvitationModal'
+import { Users, UserPlus, Settings, MoreVertical, Clock, Mail, Crown, Shield, Wrench, UserIcon } from 'lucide-react'
+
+interface TeamMember {
+  id: string
+  email: string
+  fullName: string
+  role: UserRole
+  status: 'active' | 'inactive' | 'pending'
+  lastLogin?: string
+  invitedAt?: string
+  department?: string
+  jobTitle?: string
+  phone?: string
+}
+
+interface PendingInvitation {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  role: UserRole
+  createdAt: string
+  expiresAt: string
+  inviterName: string
+}
 
 export default function AdminTeamPage() {
   const [user, setUser] = useState<any>(null)
@@ -17,13 +45,133 @@ export default function AdminTeamPage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-  const [teamMembers] = useState([
-    { id: '1', name: 'Admin User', email: 'admin@demo.com', role: 'Administrator', status: 'Active', lastLogin: '2 hours ago' },
-    { id: '2', name: 'Kitchen Manager', email: 'kitchen@demo.com', role: 'Manager', status: 'Active', lastLogin: '1 day ago' },
-    { id: '3', name: 'Front Staff', email: 'front@demo.com', role: 'Staff', status: 'Active', lastLogin: '3 days ago' },
-    { id: '4', name: 'Delivery Staff', email: 'delivery@demo.com', role: 'Staff', status: 'Inactive', lastLogin: '1 week ago' }
-  ])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
+
+  // =====================================================
+  // DATA LOADING FUNCTIONS
+  // =====================================================
+
+  const loadTeamData = async (clientId: string) => {
+    try {
+      setRefreshing(true)
+
+      // Load team members
+      const { data: membersData, error: membersError } = await supabase
+        .from('client_users')
+        .select(`
+          *,
+          profiles!inner (
+            id,
+            email,
+            full_name,
+            phone
+          )
+        `)
+        .eq('client_id', clientId)
+        .order('role', { ascending: false })
+
+      if (membersError) {
+        console.error('Error loading team members:', membersError)
+      } else {
+        const members: TeamMember[] = membersData.map((member: any) => ({
+          id: member.user_id,
+          email: member.profiles.email,
+          fullName: member.profiles.full_name || 'Unknown User',
+          role: member.role as UserRole,
+          status: member.status,
+          lastLogin: member.last_active_at,
+          invitedAt: member.invited_at,
+          department: member.department,
+          jobTitle: member.job_title,
+          phone: member.profiles.phone
+        }))
+        setTeamMembers(members)
+      }
+
+      // Load pending invitations
+      const { data: invitationsData, error: invitationsError } = await supabase
+        .from('invitations')
+        .select(`
+          id,
+          email,
+          first_name,
+          last_name,
+          role,
+          created_at,
+          expires_at,
+          status,
+          profiles!invited_by (
+            full_name
+          )
+        `)
+        .eq('client_id', clientId)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+
+      if (invitationsError) {
+        console.error('Error loading invitations:', invitationsError)
+      } else {
+        const invitations: PendingInvitation[] = invitationsData.map((invite: any) => ({
+          id: invite.id,
+          email: invite.email,
+          firstName: invite.first_name,
+          lastName: invite.last_name,
+          role: invite.role as UserRole,
+          createdAt: invite.created_at,
+          expiresAt: invite.expires_at,
+          inviterName: invite.profiles?.full_name || 'Team Admin'
+        }))
+        setPendingInvitations(invitations)
+      }
+
+    } catch (error) {
+      console.error('Error loading team data:', error)
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const handleInviteUser = async (invitationData: InvitationFormData) => {
+    try {
+      if (!userClient?.clientId) {
+        throw new Error('Client ID not found')
+      }
+
+      const response = await fetch('/api/team/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...invitationData,
+          clientId: userClient.clientId
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send invitation')
+      }
+
+      // Refresh team data to show new invitation (skip in demo mode)
+      if (userClient.clientId !== '1') {
+        await loadTeamData(userClient.clientId)
+      }
+
+      return { success: true }
+    } catch (error) {
+      console.error('Error sending invitation:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to send invitation' 
+      }
+    }
+  }
 
   const handleDemoSignIn = async () => {
     const demoUser = {
@@ -43,13 +191,52 @@ export default function AdminTeamPage() {
       full_name: 'Demo User',
       avatar_url: null,
       email: demoUser.email,
-      role: 'Administrator',
+      role: 'OWNER',
       department: 'Management',
       phone: '+64 21 123 456',
       created_at: new Date().toISOString()
     })
+
+    // Load demo team data
+    setTeamMembers([
+      { 
+        id: '1', 
+        email: 'admin@demo.com', 
+        fullName: 'Demo User',
+        role: 'OWNER', 
+        status: 'active', 
+        lastLogin: new Date().toISOString(),
+        department: 'Management'
+      },
+      { 
+        id: '2', 
+        email: 'kitchen@demo.com', 
+        fullName: 'Kitchen Manager',
+        role: 'MANAGER', 
+        status: 'active', 
+        lastLogin: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        department: 'Kitchen'
+      },
+      { 
+        id: '3', 
+        email: 'front@demo.com', 
+        fullName: 'Front Staff',
+        role: 'STAFF', 
+        status: 'active', 
+        lastLogin: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        department: 'Front of House'
+      }
+    ])
     
     setLoading(false)
+    
+    // Set user client for demo
+    setUserClient({
+      id: '1',
+      clientId: '1',
+      name: 'Demo Restaurant',
+      role: 'OWNER'
+    })
   }
 
   useEffect(() => {
@@ -144,7 +331,18 @@ export default function AdminTeamPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="min-h-screen">
+      {/* Role-Based Sidebar */}
+      <RoleBasedSidebar
+        user={user}
+        userClient={userClient}
+        userRole={profile?.role as UserRole || 'OWNER'}
+        logoUrl={undefined}
+        activeSection="admin"
+      />
+
+      {/* Main Content */}
+      <div className="ml-[150px] max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 pt-8 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -156,7 +354,7 @@ export default function AdminTeamPage() {
       {userClient && (
         <div className="mb-4 text-center">
           <p className="text-blue-300 text-sm">
-            {userClient.name} • {userClient.role}
+            {userClient?.name || 'Demo Restaurant'} • {userClient?.role || 'OWNER'}
           </p>
         </div>
       )}
@@ -171,40 +369,64 @@ export default function AdminTeamPage() {
             
             {/* Total Team Members */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">👥</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Total Members</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRteam.png"
+                    alt="Team Members"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Total Members</h3>
-                <p className={`${getTextStyle('bodyLarge')} mt-2 font-bold`}>
-                  {teamMembers.length}
+                <p className="text-gray-700 text-sm mb-4">
+                  {teamMembers.length} Users
                 </p>
+              </div>
+              <div className="text-gray-800 space-y-1 text-sm">
+                <p><strong>Active:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
+                <p><strong>Inactive:</strong> {teamMembers.filter(member => member.status === 'inactive').length}</p>
               </div>
             </div>
 
             {/* Active Users */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">✅</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Active Users</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRStats.png"
+                    alt="Active Users"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Active</h3>
-                <p className={`${getTextStyle('bodyLarge')} mt-2 font-bold text-green-400`}>
-                  {teamMembers.filter(member => member.status === 'Active').length}
+                <p className="text-gray-700 text-sm mb-4">
+                  {teamMembers.filter(member => member.status === 'active').length} Online
                 </p>
+              </div>
+              <div className="text-gray-800 space-y-1 text-sm">
+                <p><strong>Last Hour:</strong> 2</p>
+                <p><strong>Today:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
               </div>
             </div>
 
             {/* Roles */}
             <div className={getCardStyle('primary')}>
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🛡️</span>
+              <div className="mb-4">
+                <h3 className="text-black text-lg font-semibold mb-3">Roles</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRadmin.png"
+                    alt="Administrator Roles"
+                    className="w-16 h-16 object-contain"
+                  />
                 </div>
-                <h3 className={getTextStyle('cardTitle')}>Administrators</h3>
-                <p className={`${getTextStyle('bodyLarge')} mt-2 font-bold text-purple-400`}>
-                  {teamMembers.filter(member => member.role === 'Administrator').length}
+                <p className="text-gray-700 text-sm mb-4">
+                  {teamMembers.filter(member => member.role === 'OWNER').length} Owners
                 </p>
+              </div>
+              <div className="text-gray-800 space-y-1 text-sm">
+                <p><strong>Managers:</strong> {teamMembers.filter(member => member.role === 'MANAGER').length}</p>
+                <p><strong>Staff:</strong> {teamMembers.filter(member => member.role === 'STAFF').length}</p>
               </div>
             </div>
 
@@ -214,7 +436,10 @@ export default function AdminTeamPage() {
           <div className={getCardStyle('primary')}>
             <div className="flex justify-between items-center mb-6">
               <h2 className={`${getTextStyle('sectionTitle')}`}>Team Members</h2>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">
+              <button 
+                onClick={() => setShowInviteModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+              >
                 Invite Member
               </button>
             </div>
@@ -225,11 +450,11 @@ export default function AdminTeamPage() {
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                       <span className="text-sm font-semibold">
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                        {member.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
                       </span>
                     </div>
                     <div>
-                      <h3 className={`${getTextStyle('cardTitle')} text-base`}>{member.name}</h3>
+                      <h3 className={`${getTextStyle('cardTitle')} text-base`}>{member.fullName}</h3>
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>{member.email}</p>
                     </div>
                   </div>
@@ -239,7 +464,7 @@ export default function AdminTeamPage() {
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>Last: {member.lastLogin}</p>
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      member.status === 'Active' 
+                      member.status === 'active' 
                         ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
                         : 'bg-red-500/20 text-red-300 border border-red-500/30'
                     }`}>
@@ -257,7 +482,7 @@ export default function AdminTeamPage() {
         </div>
 
         {/* Right Column - User Profile */}
-        <div className="w-80">
+        <div className="w-64">
           
           {/* Current User Profile */}
           <div className={getCardStyle('primary')}>
@@ -308,9 +533,10 @@ export default function AdminTeamPage() {
               <div>
                 <label className={`block ${getTextStyle('label')} mb-2`}>Role</label>
                 <select className={getFormFieldStyle()}>
-                  <option value="Administrator">Administrator</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Staff">Staff</option>
+                  <option value="OWNER">Owner</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="SUPERVISOR">Supervisor</option>
+                  <option value="STAFF">Staff</option>
                 </select>
               </div>
               
@@ -367,6 +593,18 @@ export default function AdminTeamPage() {
 
         </div>
 
+      </div>
+
+      {/* User Invitation Modal */}
+      {userClient && (
+        <UserInvitationModal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          onInvite={handleInviteUser}
+          userRole={profile?.role || 'OWNER'}
+          organizationName={userClient?.name || 'Demo Restaurant'}
+        />
+      )}
       </div>
     </div>
   )

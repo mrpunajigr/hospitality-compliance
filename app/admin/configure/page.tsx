@@ -122,8 +122,12 @@ export default function AdminConfigurePage() {
         </div>
       )}
 
-      {/* Main Configuration Content */}
-      <div className="space-y-8">
+      {/* Main Content */}
+      <div className="flex gap-6">
+        
+        {/* Left Column - Main Content */}
+        <div className="flex-1">
+          <div className="space-y-8">
         
         {/* Display Configuration */}
         <div className={getCardStyle('primary')}>
@@ -242,6 +246,14 @@ export default function AdminConfigurePage() {
           >
             {saving ? 'Saving...' : 'Save Configuration'}
           </button>
+        </div>
+
+          </div>
+        </div>
+
+        {/* Right Column - Empty Sidebar */}
+        <div className="w-64">
+          {/* Empty sidebar to maintain layout consistency */}
         </div>
 
       </div>

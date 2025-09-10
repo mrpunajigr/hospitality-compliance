@@ -1,0 +1,62 @@
+name: Build Test & Quality Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ develop, feature/*, hotfix/*, bugfix/* ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: TypeScript build test
+      run: npm run build
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    
+    - name: Check for large files
+      run: |
+        echo "Checking for files larger than 5MB..."
+        find . -type f -size +5M -not -path "./node_modules/*" -not -path "./.git/*" | head -10
+        large_files=$(find . -type f -size +5M -not -path "./node_modules/*" -not -path "./.git/*" | wc -l)
+        if [ $large_files -gt 0 ]; then
+          echo "❌ Found $large_files large files"
+          exit 1
+        fi
+        echo "✅ No large files found"
+    
+    - name: Check for secrets
+      run: |
+        echo "Checking for potential secrets..."
+        if grep -r -i "service_role\|credentials\|private_key" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.yml"; then
+          echo "❌ Potential secrets found"
+          exit 1
+        fi
+        echo "✅ No secrets detected"
+    
+    - name: Lint check
+      run: npm run lint --if-present
+    
+    - name: Build size check
+      run: |
+        echo "Checking build size..."
+        du -sh .next/ || echo "No .next directory (expected for build test)"

@@ -106,16 +106,19 @@ If archived documentation becomes relevant again:
 
 ## 📊 Archive Statistics
 
-**Total Archived Files**: 16 documentation files  
+**Total Archived Files**: 32+ documentation files  
 **Oldest Archive**: August 16, 2025  
-**Most Recent Archive**: August 16, 2025  
-**Archive Categories**: 4 (phase-documentation, implementation-summaries, templates, debug-guides)
+**Most Recent Archive**: September 10, 2025  
+**Archive Categories**: 6 (phase-documentation, implementation-summaries, templates, debug-guides, admin-development, prompts)
 
 ### Archive Breakdown:
 - **Phase Documentation**: 5 files (phases 1-2, auth planning, customer onboarding)
 - **Implementation Summaries**: 3 files (AI extraction, production transition, phase 1)
 - **Templates**: 5 files (prompts, style guides, development templates)
-- **Debug Guides**: 3 files (resolved debugging documentation)
+- **Debug Guides**: 15+ files (resolved debugging documentation)
+- **Admin Module Development**: 4 files (2025-09-10 admin console, logo upload, crisis assessment)
+- **Development Prompts**: 7 files (testing, debugging, protocol prompts)
+- **Session Documentation**: 4 files (testing results, session backups, onboarding strategy)
 
 ---
 

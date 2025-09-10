@@ -359,49 +359,9 @@ export default function AdminConsolePage() {
 
         </div>
 
-        {/* Right Column - Quick Actions Sidebar */}
+        {/* Right Column - Empty Sidebar */}
         <div className="w-64">
-          <div className={`${getCardStyle('sidebar')} sticky top-8`}>
-            <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Quick Actions</h2>
-            
-            <div>
-              <Link href="/admin/configure" className="block mb-4">
-                <div className={getCardStyle('secondary')}>
-                  <div>
-                    <h3 className={getTextStyle('cardTitle')}>Configure</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>Compliance rules & preferences</p>
-                  </div>
-                </div>
-              </Link>
-              
-              <Link href="/admin/team" className="block mb-4">
-                <div className={getCardStyle('secondary')}>
-                  <div>
-                    <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>Manage users & permissions</p>
-                  </div>
-                </div>
-              </Link>
-              
-              <Link href="/admin/company/billing" className="block mb-4">
-                <div className={getCardStyle('secondary')}>
-                  <div>
-                    <h3 className={getTextStyle('cardTitle')}>Billing</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>Subscription & payment</p>
-                  </div>
-                </div>
-              </Link>
-              
-              <Link href="/upload/reports" className="block">
-                <div className={getCardStyle('secondary')}>
-                  <div>
-                    <h3 className={getTextStyle('cardTitle')}>Reports</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>Export compliance data</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </div>
+          {/* Empty sidebar to maintain layout consistency */}
         </div>
 
       </div>

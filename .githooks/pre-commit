@@ -1,0 +1,79 @@
+#!/bin/bash
+# Pre-commit hook for JiGR Hospitality Compliance Platform
+# Prevents common issues that cause deployment failures
+
+echo "🔍 Running pre-commit checks..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Track if any checks fail
+CHECKS_FAILED=0
+
+# 1. Check for large files (>5MB)
+echo "📏 Checking for large files..."
+large_files=$(find . -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.pdf" -o -name "*.zip" | xargs ls -la 2>/dev/null | awk '$5 > 5242880')
+if [ ! -z "$large_files" ]; then
+    echo -e "${RED}❌ Large files detected (>5MB):${NC}"
+    echo "$large_files"
+    echo -e "${YELLOW}💡 Consider using Git LFS for large files${NC}"
+    CHECKS_FAILED=1
+fi
+
+# 2. Check for secrets/credentials
+echo "🔐 Checking for secrets..."
+if git diff --cached --name-only | xargs grep -l "service_role\|credentials\|private_key\|secret" 2>/dev/null; then
+    echo -e "${RED}❌ Potential secrets detected in staged files${NC}"
+    echo -e "${YELLOW}💡 Remove secrets or use environment variables${NC}"
+    CHECKS_FAILED=1
+fi
+
+# 3. Check for TypeScript build
+echo "🔨 Testing TypeScript build..."
+if ! npm run build >/dev/null 2>&1; then
+    echo -e "${RED}❌ TypeScript build failed${NC}"
+    echo -e "${YELLOW}💡 Fix TypeScript errors before committing${NC}"
+    CHECKS_FAILED=1
+fi
+
+# 4. Check for missing imports
+echo "🔗 Checking for missing imports..."
+missing_imports=$(grep -r "from '@/" app/ lib/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules" | while read line; do
+    import_path=$(echo "$line" | sed -n "s/.*from ['\"]@\/\([^'\"]*\)['\"].*/\1/p")
+    if [ ! -z "$import_path" ]; then
+        full_path="./$import_path.ts"
+        full_path_tsx="./$import_path.tsx"
+        if [ ! -f "$full_path" ] && [ ! -f "$full_path_tsx" ] && [ ! -d "./$import_path" ]; then
+            echo "Missing: $import_path (from $line)"
+        fi
+    fi
+done)
+
+if [ ! -z "$missing_imports" ]; then
+    echo -e "${RED}❌ Missing imports detected:${NC}"
+    echo "$missing_imports"
+    CHECKS_FAILED=1
+fi
+
+# 5. Check for development assets in staged files
+echo "📁 Checking for development assets..."
+dev_assets=$(git diff --cached --name-only | grep -E ":assets/|DevScreenshots|BackupComponents|ConversationBackups")
+if [ ! -z "$dev_assets" ]; then
+    echo -e "${RED}❌ Development assets in commit:${NC}"
+    echo "$dev_assets"
+    echo -e "${YELLOW}💡 These should be archived to Supabase, not committed${NC}"
+    CHECKS_FAILED=1
+fi
+
+# Final result
+if [ $CHECKS_FAILED -eq 1 ]; then
+    echo -e "\n${RED}❌ Pre-commit checks failed. Commit aborted.${NC}"
+    echo -e "${YELLOW}💡 Fix the issues above and try again${NC}"
+    exit 1
+else
+    echo -e "\n${GREEN}✅ All pre-commit checks passed!${NC}"
+    exit 0
+fi

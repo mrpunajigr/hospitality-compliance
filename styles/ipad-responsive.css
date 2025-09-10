@@ -1,0 +1,528 @@
+/* iPad Air Responsive Design Enhancements */
+/* Optimized for 1024x768 viewport with Safari 12+ compatibility */
+
+/* =============================================================================
+   VIEWPORT AND DEVICE DETECTION
+   ============================================================================= */
+
+/* iPad Air specific viewport handling */
+@media screen and (device-width: 768px) and (device-height: 1024px),
+       screen and (device-width: 1024px) and (device-height: 768px) {
+  
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform-origin: left top;
+  }
+  
+  /* Optimize for Safari 12 rendering */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Allow text selection where needed */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+}
+
+/* =============================================================================
+   TOUCH TARGET OPTIMIZATION
+   ============================================================================= */
+
+/* Base touch targets - Apple HIG 44px minimum */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* Enhanced touch targets for critical actions */
+.touch-target-large {
+  min-height: 48px;
+  min-width: 120px;
+  touch-action: manipulation;
+}
+
+/* Touch feedback animations */
+.touch-feedback {
+  transition: all 150ms ease-out;
+}
+
+.touch-feedback:active {
+  transform: scale(0.95);
+  filter: brightness(1.1);
+}
+
+/* Prevent double-tap zoom on buttons */
+button, [role="button"], .clickable {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+/* =============================================================================
+   RESPONSIVE LAYOUT FOR IPAD AIR
+   ============================================================================= */
+
+/* Portrait mode (768x1024) */
+@media (max-width: 768px) and (orientation: portrait) {
+  .ipad-portrait-stack {
+    flex-direction: column;
+  }
+  
+  .ipad-portrait-full {
+    width: 100%;
+    margin: 0;
+  }
+  
+  /* Sidebar adjustments for portrait */
+  .sidebar-responsive {
+    width: 160px;
+  }
+  
+  /* Content area adjustments */
+  .content-responsive {
+    margin-left: 160px;
+    padding: 16px;
+  }
+  
+  /* Modal adjustments for portrait */
+  .modal-responsive {
+    max-width: 90vw;
+    max-height: 80vh;
+    margin: 5vh auto;
+  }
+}
+
+/* Landscape mode (1024x768) */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+  .ipad-landscape-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+  }
+  
+  /* Sidebar can be wider in landscape */
+  .sidebar-responsive {
+    width: 200px;
+  }
+  
+  .content-responsive {
+    margin-left: 200px;
+    padding: 20px;
+  }
+  
+  /* Two-column layouts work better in landscape */
+  .ipad-landscape-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  /* Modal can be larger in landscape */
+  .modal-responsive {
+    max-width: 70vw;
+    max-height: 70vh;
+  }
+}
+
+/* =============================================================================
+   TYPOGRAPHY AND SPACING FOR TOUCH
+   ============================================================================= */
+
+/* Touch-friendly typography */
+.touch-typography {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+.touch-typography-large {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Touch-friendly spacing */
+.touch-spacing-xs { margin: 4px; }
+.touch-spacing-sm { margin: 8px; }
+.touch-spacing-md { margin: 16px; }
+.touch-spacing-lg { margin: 24px; }
+
+.touch-padding-xs { padding: 4px; }
+.touch-padding-sm { padding: 8px; }
+.touch-padding-md { padding: 16px; }
+.touch-padding-lg { padding: 24px; }
+
+/* =============================================================================
+   FORM ENHANCEMENTS FOR TOUCH
+   ============================================================================= */
+
+/* Touch-optimized form elements */
+.touch-input {
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #e1e5e9;
+  transition: all 200ms ease;
+  touch-action: manipulation;
+}
+
+.touch-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.touch-input:invalid {
+  border-color: #ef4444;
+}
+
+/* Touch-optimized select elements */
+.touch-select {
+  min-height: 48px;
+  padding: 12px 40px 12px 16px;
+  font-size: 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* Touch-optimized checkboxes and radio buttons */
+.touch-checkbox,
+.touch-radio {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+}
+
+/* Touch-optimized labels */
+.touch-label {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* =============================================================================
+   BUTTON ENHANCEMENTS FOR TOUCH
+   ============================================================================= */
+
+/* Primary button styles */
+.touch-button-primary {
+  min-height: 48px;
+  min-width: 120px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 200ms ease;
+}
+
+.touch-button-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.touch-button-primary:active {
+  transform: scale(0.95);
+}
+
+.touch-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary button styles */
+.touch-button-secondary {
+  min-height: 48px;
+  min-width: 120px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 2px solid #e1e5e9;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 200ms ease;
+}
+
+.touch-button-secondary:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.touch-button-secondary:active {
+  transform: scale(0.95);
+}
+
+/* Icon buttons */
+.touch-button-icon {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 200ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-button-icon:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.touch-button-icon:active {
+  transform: scale(0.9);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* =============================================================================
+   CARD AND LIST ENHANCEMENTS
+   ============================================================================= */
+
+/* Touch-friendly cards */
+.touch-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e1e5e9;
+  background: white;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 200ms ease;
+}
+
+.touch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+.touch-card:active {
+  transform: scale(0.98);
+}
+
+/* Touch-friendly list items */
+.touch-list-item {
+  min-height: 48px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+}
+
+.touch-list-item:hover {
+  background: #f9fafb;
+}
+
+.touch-list-item:active {
+  background: #f3f4f6;
+}
+
+.touch-list-item:last-child {
+  border-bottom: none;
+}
+
+/* =============================================================================
+   MODAL AND OVERLAY ENHANCEMENTS
+   ============================================================================= */
+
+/* Touch-optimized modal backdrop */
+.touch-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  touch-action: none;
+}
+
+/* Touch-optimized modal container */
+.touch-modal {
+  position: relative;
+  max-width: 90vw;
+  max-height: 80vh;
+  margin: 5vh auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+/* Swipe indicator for modals */
+.touch-modal-handle {
+  width: 48px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  margin: 12px auto 8px;
+  cursor: grab;
+}
+
+.touch-modal-handle:active {
+  cursor: grabbing;
+}
+
+/* =============================================================================
+   SCROLLING AND OVERFLOW ENHANCEMENTS
+   ============================================================================= */
+
+/* Smooth scrolling for touch */
+.touch-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for better touch interaction */
+.touch-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.touch-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.touch-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.touch-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* =============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================= */
+
+/* Focus indicators optimized for touch and keyboard */
+.touch-focus:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .touch-button-primary {
+    border: 2px solid currentColor;
+  }
+  
+  .touch-input {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* =============================================================================
+   PERFORMANCE OPTIMIZATIONS FOR SAFARI 12
+   ============================================================================= */
+
+/* Hardware acceleration for smooth animations */
+.touch-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimize repaints */
+.touch-container {
+  contain: layout style paint;
+}
+
+/* Memory-conscious image loading */
+.touch-image {
+  object-fit: cover;
+  object-position: center;
+  loading: lazy;
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+/* Show/hide based on device orientation */
+.portrait-only {
+  display: block;
+}
+
+.landscape-only {
+  display: none;
+}
+
+@media (orientation: landscape) {
+  .portrait-only {
+    display: none;
+  }
+  
+  .landscape-only {
+    display: block;
+  }
+}
+
+/* Touch-specific utilities */
+.no-touch-callout {
+  -webkit-touch-callout: none;
+}
+
+.no-user-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+.touch-pan-y {
+  touch-action: pan-y;
+}
+
+.touch-pinch-zoom {
+  touch-action: pinch-zoom;
+}

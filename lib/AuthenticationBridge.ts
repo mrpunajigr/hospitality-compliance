@@ -1,21 +1,30 @@
 /**
- * Authentication Bridge - JiGR Suite
- * Backwards compatibility layer for existing auth imports while using new module system
+ * Authentication Bridge - JiGR Suite Enhanced RBAC
+ * Integration layer between legacy auth system and new RBAC core
  * 
- * SAFETY: This creates backwards compatible layer - ZERO RISK to existing code
+ * SAFETY: Maintains backwards compatibility while adding enhanced RBAC features
  */
 
 // =============================================================================
-// BACKWARDS COMPATIBILITY BRIDGE
+// RBAC INTEGRATION BRIDGE
 // =============================================================================
 
 /**
- * Bridge function to maintain backwards compatibility
- * Routes existing function calls through the new Authentication Core module
+ * Bridge function to route through RBAC core first, then legacy fallback
  */
 async function getAuthenticationCapability() {
   try {
-    // Try to use the new module system first
+    // Try to use the new RBAC core first
+    const rbacCore = await import('./rbac-core')
+    if (rbacCore) {
+      return rbacCore
+    }
+  } catch (error) {
+    console.warn('⚠️ RBAC Core not available, trying module system:', error)
+  }
+
+  try {
+    // Try to use the new module system
     const { getAuthenticationCore } = await import('./core/Authentication')
     const authCore = getAuthenticationCore()
     
@@ -30,7 +39,7 @@ async function getAuthenticationCapability() {
   try {
     return await import('./auth-utils-legacy')
   } catch (error) {
-    console.error('❌ Both modular and legacy auth systems unavailable:', error)
+    console.error('❌ All auth systems unavailable:', error)
     throw error
   }
 }
@@ -111,14 +120,19 @@ export async function getUserClient(userId: string): Promise<any> {
 }
 
 /**
- * User client type definition - maintained for compatibility
+ * User client type definition - enhanced for RBAC
  */
 export interface UserClient {
   id: string
   name: string
   role: string
+  clientId?: string
   email?: string
-  permissions?: string[]
+  permissions?: string[] | any
+  status?: 'active' | 'inactive' | 'pending'
+  lastActiveAt?: string
+  department?: string
+  jobTitle?: string
   createdAt?: string
   metadata?: Record<string, any>
 }
@@ -168,14 +182,15 @@ export async function updateUserClient(clientId: string, updates: Partial<UserCl
 }
 
 /**
- * Get user permissions - bridged function
+ * Get user permissions - enhanced RBAC function
  */
-export async function getUserPermissions(userId: string): Promise<string[]> {
+export async function getUserPermissions(userId: string, clientId?: string): Promise<any> {
   try {
     const authCapability = await getAuthenticationCapability()
     
-    if (authCapability.getUserPermissions) {
-      return await authCapability.getUserPermissions(userId)
+    // Try RBAC core first
+    if (authCapability.getUserPermissions && clientId) {
+      return await authCapability.getUserPermissions(userId, clientId)
     }
     
     // Fallback to extracting from user client
@@ -189,12 +204,29 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
 }
 
 /**
- * Check user permission - bridged function
+ * Check user permission - enhanced RBAC function
  */
-export async function hasPermission(userId: string, permission: string): Promise<boolean> {
+export async function hasPermission(userId: string, clientId: string, permission: string): Promise<boolean> {
   try {
-    const permissions = await getUserPermissions(userId)
-    return permissions.includes(permission) || permissions.includes('*')
+    const authCapability = await getAuthenticationCapability()
+    
+    // Try RBAC core first
+    if (authCapability.hasPermission && clientId) {
+      return await authCapability.hasPermission(userId, clientId, permission)
+    }
+    
+    // Fallback to legacy permission check
+    const permissions = await getUserPermissions(userId, clientId)
+    if (Array.isArray(permissions)) {
+      return permissions.includes(permission) || permissions.includes('*')
+    }
+    
+    // If permissions is an object (new RBAC format)
+    if (typeof permissions === 'object' && permissions !== null) {
+      return permissions[permission] === true
+    }
+    
+    return false
   } catch (error) {
     console.error('❌ Error checking permission:', error)
     return false
@@ -282,9 +314,19 @@ export async function getCurrentUser(): Promise<any> {
 // =============================================================================
 
 /**
- * Get team management capability - bridged function
+ * Get team management capability - enhanced RBAC function
  */
 async function getTeamManagementCapability() {
+  try {
+    // Try RBAC core first
+    const rbacCore = await import('./rbac-core')
+    if (rbacCore) {
+      return rbacCore
+    }
+  } catch (error) {
+    console.warn('⚠️ RBAC Core not available for team management:', error)
+  }
+
   try {
     const { getAuthenticationCore } = await import('./core/Authentication')
     const authCore = getAuthenticationCore()

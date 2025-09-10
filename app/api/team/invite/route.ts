@@ -1,208 +1,246 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types/database'
+import { supabase } from '@/lib/supabase'
+import { emailService } from '@/lib/email-service'
+import type { InvitationEmailData } from '@/lib/email-service'
 
-// Create Supabase client with service role key for admin operations
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key',
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// =====================================================
-// TEAM INVITATION API
-// =====================================================
-
+// Team Member Invitation API
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, role, clientId, message } = body
+    const { 
+      email, 
+      firstName, 
+      lastName, 
+      role, 
+      phone, 
+      department, 
+      jobTitle, 
+      message,
+      clientId 
+    } = body
 
     // Validate required fields
-    if (!email || !role || !clientId) {
+    if (!email || !firstName || !lastName || !role || !clientId) {
       return NextResponse.json(
-        { error: 'Missing required fields: email, role, clientId' },
+        { error: 'Missing required fields: email, firstName, lastName, role, clientId' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
         { status: 400 }
       )
     }
 
     // Validate role
-    const validRoles = ['staff', 'manager', 'admin', 'owner']
+    const validRoles = ['STAFF', 'SUPERVISOR', 'MANAGER', 'OWNER']
     if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { error: 'Invalid role. Must be one of: staff, manager, admin, owner' },
+        { error: 'Invalid role. Must be STAFF, SUPERVISOR, MANAGER, or OWNER' },
         { status: 400 }
       )
     }
 
-    // Get the current user from the Authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'No authorization header' },
-        { status: 401 }
-      )
-    }
-
-    // Verify the user has permission to invite users for this client
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
-    
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid authentication token' },
-        { status: 401 }
-      )
-    }
-
-    // Check if user has permission to invite users for this client
-    const { data: clientUser, error: clientUserError } = await supabase
-      .from('client_users')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('client_id', clientId)
-      .eq('status', 'active')
-      .single()
-
-    if (clientUserError || !clientUser) {
-      return NextResponse.json(
-        { error: 'You do not have access to this client' },
-        { status: 403 }
-      )
-    }
-
-    // Check if user has admin or owner role
-    if (!['admin', 'owner'].includes(clientUser.role)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to invite users' },
-        { status: 403 }
-      )
-    }
-
-    // Check if user already exists in the system
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('id, email')
-      .eq('email', email)
-      .single()
-
-    if (existingProfile) {
-      // Check if user is already a member of this client
-      const { data: existingClientUser } = await supabase
-        .from('client_users')
-        .select('id, status')
-        .eq('user_id', existingProfile.id)
-        .eq('client_id', clientId)
-        .single()
-
-      if (existingClientUser) {
-        return NextResponse.json(
-          { error: 'User is already a member of this organization' },
-          { status: 400 }
-        )
+    // Check for demo mode (clientId = '1' means demo)
+    if (clientId === '1') {
+      const invitationId = `demo-${Date.now()}`
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      const invitationToken = `demo-token-${Date.now()}`
+      
+      // Send demo email
+      try {
+        const emailData: InvitationEmailData = {
+          inviteeEmail: email,
+          inviteeName: `${firstName} ${lastName}`,
+          inviterName: 'Demo User',
+          organizationName: 'Demo Restaurant',
+          role: role as any,
+          invitationToken,
+          expiresAt,
+          personalMessage: message,
+          acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept-invitation?token=${invitationToken}`
+        }
+        
+        const emailResult = await emailService.sendInvitation(emailData)
+        
+        return NextResponse.json({
+          success: true,
+          invitation: {
+            id: invitationId,
+            email,
+            firstName,
+            lastName,
+            role,
+            status: 'pending',
+            expiresAt,
+            message: 'Demo invitation created and email sent successfully',
+            emailSent: emailResult.success,
+            emailError: emailResult.error
+          }
+        })
+      } catch (error) {
+        console.error('Error sending demo email:', error)
+        return NextResponse.json({
+          success: true,
+          invitation: {
+            id: invitationId,
+            email,
+            firstName,
+            lastName,
+            role,
+            status: 'pending',
+            expiresAt,
+            message: 'Demo invitation created but email failed',
+            emailSent: false,
+            emailError: error instanceof Error ? error.message : 'Unknown error'
+          }
+        })
       }
     }
 
-    // Check if there's already a pending invitation
+    // Get current user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized - please sign in' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user has permission to invite users
+    const { data: userRole, error: roleError } = await supabase
+      .rpc('user_client_role', {
+        user_uuid: user.id,
+        target_client_id: clientId
+      })
+
+    if (roleError || !userRole || !['OWNER', 'MANAGER'].includes(userRole)) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions to invite users' },
+        { status: 403 }
+      )
+    }
+
+    // Check if MANAGER trying to invite OWNER or MANAGER
+    if (userRole === 'MANAGER' && ['OWNER', 'MANAGER'].includes(role)) {
+      return NextResponse.json(
+        { error: 'Managers can only invite STAFF and SUPERVISOR users' },
+        { status: 403 }
+      )
+    }
+
+    // Check if user is already invited or a member
+    const { data: existingUser } = await supabase
+      .from('client_users')
+      .select('profiles!inner(email)')
+      .eq('client_id', clientId)
+      .eq('profiles.email', email.toLowerCase())
+      .single()
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'User is already a member of this organization' },
+        { status: 400 }
+      )
+    }
+
     const { data: existingInvitation } = await supabase
       .from('invitations')
-      .select('id, status')
-      .eq('email', email)
+      .select('id')
       .eq('client_id', clientId)
+      .eq('email', email.toLowerCase())
       .eq('status', 'pending')
       .single()
 
     if (existingInvitation) {
       return NextResponse.json(
-        { error: 'There is already a pending invitation for this email' },
+        { error: 'User already has a pending invitation' },
         { status: 400 }
       )
     }
 
-    // Get client information for the invitation
-    const { data: client, error: clientError } = await supabase
-      .from('clients')
-      .select('name, business_email')
-      .eq('id', clientId)
-      .single()
-
-    if (clientError || !client) {
-      return NextResponse.json(
-        { error: 'Client not found' },
-        { status: 404 }
-      )
-    }
-
-    // Create the invitation
-    const { data: invitation, error: invitationError } = await supabase
+    // Create invitation
+    const { data: invitation, error: inviteError } = await supabase
       .from('invitations')
       .insert({
-        email,
         client_id: clientId,
+        email: email.toLowerCase().trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         role,
+        phone: phone?.trim(),
+        department: department?.trim(),
+        job_title: jobTitle?.trim(),
+        invitation_message: message?.trim(),
         invited_by: user.id,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-        status: 'pending'
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
       })
-      .select()
+      .select('id, token')
       .single()
 
-    if (invitationError) {
-      console.error('Error creating invitation:', invitationError)
+    if (inviteError) {
+      console.error('Error creating invitation:', inviteError)
       return NextResponse.json(
         { error: 'Failed to create invitation' },
         { status: 500 }
       )
     }
 
-    // Send invitation email (in a real app, you'd use a service like Resend or SendGrid)
-    // For now, we'll just log the invitation details
-    console.log('Invitation created:', {
-      email,
-      clientName: client.name,
-      role,
-      invitationToken: invitation.token,
-      invitedBy: user.email,
-      expiresAt: invitation.expires_at
+    // Log audit trail
+    await supabase.from('audit_logs').insert({
+      client_id: clientId,
+      user_id: user.id,
+      action: 'user_invited',
+      resource_type: 'invitation',
+      resource_id: invitation.id,
+      details: {
+        invitedEmail: email,
+        assignedRole: role,
+        inviterRole: userRole
+      }
     })
 
-    // Create audit log entry
-    await supabase
-      .from('audit_logs')
-      .insert({
-        client_id: clientId,
-        user_id: user.id,
-        action: 'invite_user',
-        resource_type: 'invitation',
-        resource_id: invitation.id,
-        details: {
-          invited_email: email,
-          role: role,
-          invitation_token: invitation.token
-        }
-      })
+    // Send invitation email using email service
+    try {
+      const { data: organization } = await supabase
+        .from('clients')
+        .select('name, business_name')
+        .eq('id', clientId)
+        .single()
 
-    // Return success response
+      const organizationName = organization?.business_name || organization?.name || 'Unknown Organization'
+      
+      const emailData: InvitationEmailData = {
+        inviteeEmail: email,
+        inviteeName: `${firstName} ${lastName}`,
+        inviterName: 'System Administrator', // TODO: Get actual inviter name
+        organizationName,
+        role: role as any,
+        invitationToken: invitation.token,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        personalMessage: message,
+        acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept-invitation?token=${invitation.token}`
+      }
+      
+      const emailResult = await emailService.sendInvitation(emailData)
+      console.log('📧 Email result:', emailResult)
+    } catch (emailError) {
+      console.warn('⚠️ Failed to send invitation email:', emailError)
+      // Continue - the invitation was created successfully
+    }
+
     return NextResponse.json({
       success: true,
-      invitation: {
-        id: invitation.id,
-        email: invitation.email,
-        role: invitation.role,
-        status: invitation.status,
-        expires_at: invitation.expires_at,
-        created_at: invitation.created_at
-      },
-      invitationUrl: `${request.nextUrl.origin}/accept-invitation?token=${invitation.token}`
+      message: 'Invitation sent successfully',
+      invitationId: invitation.id
     })
 
   } catch (error) {
-    console.error('Team invitation error:', error)
+    console.error('❌ Error in team invitation API:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -210,7 +248,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Get pending invitations for a client
+// Get pending invitations
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -223,62 +261,55 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get the current user
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader) {
+    // Get current user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'No authorization header' },
+        { error: 'Unauthorized - please sign in' },
         { status: 401 }
       )
     }
 
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
-    
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid authentication token' },
-        { status: 401 }
-      )
-    }
+    // Check if user has permission to view invitations
+    const { data: userRole, error: roleError } = await supabase
+      .rpc('user_client_role', {
+        user_uuid: user.id,
+        target_client_id: clientId
+      })
 
-    // Check if user has access to this client
-    const { data: clientUser, error: clientUserError } = await supabase
-      .from('client_users')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('client_id', clientId)
-      .eq('status', 'active')
-      .single()
-
-    if (clientUserError || !clientUser) {
+    if (roleError || !userRole || !['OWNER', 'MANAGER'].includes(userRole)) {
       return NextResponse.json(
-        { error: 'You do not have access to this client' },
+        { error: 'Insufficient permissions to view invitations' },
         { status: 403 }
       )
     }
 
     // Get pending invitations
-    const { data: invitations, error: invitationsError } = await supabase
+    const { data: invitations, error } = await supabase
       .from('invitations')
       .select(`
         id,
         email,
+        first_name,
+        last_name,
         role,
-        status,
-        expires_at,
+        phone,
+        department,
+        job_title,
         created_at,
-        invited_by,
-        profiles!invitations_invited_by_fkey (
+        expires_at,
+        status,
+        profiles!invited_by (
           full_name,
           email
         )
       `)
       .eq('client_id', clientId)
+      .in('status', ['pending'])
       .order('created_at', { ascending: false })
 
-    if (invitationsError) {
-      console.error('Error fetching invitations:', invitationsError)
+    if (error) {
+      console.error('Error fetching invitations:', error)
       return NextResponse.json(
         { error: 'Failed to fetch invitations' },
         { status: 500 }
@@ -286,11 +317,12 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
+      success: true,
       invitations: invitations || []
     })
 
   } catch (error) {
-    console.error('Get invitations error:', error)
+    console.error('❌ Error fetching invitations:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -298,95 +330,92 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Cancel/delete an invitation
+// Cancel invitation
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const invitationId = searchParams.get('invitationId')
+    const clientId = searchParams.get('clientId')
 
-    if (!invitationId) {
+    if (!invitationId || !clientId) {
       return NextResponse.json(
-        { error: 'Missing invitationId parameter' },
+        { error: 'Missing invitationId or clientId parameter' },
         { status: 400 }
       )
     }
 
-    // Get the current user
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader) {
+    // Get current user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'No authorization header' },
+        { error: 'Unauthorized - please sign in' },
         { status: 401 }
       )
     }
 
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
-    
-    if (userError || !user) {
+    // Check if user has permission to cancel invitations
+    const { data: userRole, error: roleError } = await supabase
+      .rpc('user_client_role', {
+        user_uuid: user.id,
+        target_client_id: clientId
+      })
+
+    if (roleError || !userRole || !['OWNER', 'MANAGER'].includes(userRole)) {
       return NextResponse.json(
-        { error: 'Invalid authentication token' },
-        { status: 401 }
+        { error: 'Insufficient permissions to cancel invitations' },
+        { status: 403 }
       )
     }
 
-    // Get the invitation details
-    const { data: invitation, error: invitationError } = await supabase
+    // Get invitation details for audit log
+    const { data: invitation, error: getError } = await supabase
       .from('invitations')
-      .select('client_id, email, status')
+      .select('email, role, status')
       .eq('id', invitationId)
+      .eq('client_id', clientId)
       .single()
 
-    if (invitationError || !invitation) {
+    if (getError || !invitation) {
       return NextResponse.json(
         { error: 'Invitation not found' },
         { status: 404 }
       )
     }
 
-    // Check if user has permission to cancel this invitation
-    const { data: clientUser, error: clientUserError } = await supabase
-      .from('client_users')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('client_id', invitation.client_id)
-      .eq('status', 'active')
-      .single()
-
-    if (clientUserError || !clientUser || !['admin', 'owner'].includes(clientUser.role)) {
+    if (invitation.status !== 'pending') {
       return NextResponse.json(
-        { error: 'You do not have permission to cancel this invitation' },
-        { status: 403 }
+        { error: 'Can only cancel pending invitations' },
+        { status: 400 }
       )
     }
 
-    // Update invitation status to cancelled
-    const { error: updateError } = await supabase
+    // Cancel the invitation
+    const { error: cancelError } = await supabase
       .from('invitations')
       .update({ status: 'cancelled' })
       .eq('id', invitationId)
+      .eq('client_id', clientId)
 
-    if (updateError) {
-      console.error('Error cancelling invitation:', updateError)
+    if (cancelError) {
+      console.error('Error cancelling invitation:', cancelError)
       return NextResponse.json(
         { error: 'Failed to cancel invitation' },
         { status: 500 }
       )
     }
 
-    // Create audit log entry
-    await supabase
-      .from('audit_logs')
-      .insert({
-        client_id: invitation.client_id,
-        user_id: user.id,
-        action: 'cancel_invitation',
-        resource_type: 'invitation',
-        resource_id: invitationId,
-        details: {
-          cancelled_email: invitation.email
-        }
-      })
+    // Log audit trail
+    await supabase.from('audit_logs').insert({
+      client_id: clientId,
+      user_id: user.id,
+      action: 'invitation_cancelled',
+      resource_type: 'invitation',
+      resource_id: invitationId,
+      details: {
+        invitedEmail: invitation.email,
+        assignedRole: invitation.role
+      }
+    })
 
     return NextResponse.json({
       success: true,
@@ -394,10 +423,11 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Cancel invitation error:', error)
+    console.error('❌ Error cancelling invitation:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

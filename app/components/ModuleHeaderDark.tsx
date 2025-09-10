@@ -38,7 +38,7 @@ export function ModuleHeaderDark({
             />
           </div>
           <div>
-            <h1 className={`${getTextStyle('pageTitle')} text-gray-900 drop-shadow-md text-4xl font-bold`}>
+            <h1 className="text-black drop-shadow-md text-4xl font-bold">
               {module.title}
             </h1>
             <p className="text-gray-700/90 drop-shadow-sm italic text-xs">
