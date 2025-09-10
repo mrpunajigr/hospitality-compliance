@@ -448,8 +448,8 @@ export default function UserInvitationModal({
               <h4 className="text-white font-semibold text-base mb-3">What happens next?</h4>
               <ul className="text-slate-200 text-sm space-y-2">
                 <li>• An invitation email will be sent to {formData.email}</li>
-                <li>• They'll have 7 days to accept the invitation</li>
-                <li>• Once accepted, they'll join your organization as {selectedRole?.label}</li>
+                <li>• They&apos;ll have 7 days to accept the invitation</li>
+                <li>• Once accepted, they&apos;ll join your organization as {selectedRole?.label}</li>
                 <li>• You can manage their permissions anytime</li>
               </ul>
             </div>
