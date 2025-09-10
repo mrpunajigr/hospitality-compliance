@@ -137,7 +137,10 @@ export default function AdminTeamPage() {
 
   const handleInviteUser = async (invitationData: InvitationFormData) => {
     try {
-      if (!userClient?.clientId) {
+      // Use demo client ID for now if userClient is not available
+      const clientId = userClient?.clientId || '1'
+      
+      if (!clientId) {
         throw new Error('Client ID not found')
       }
 
@@ -148,7 +151,7 @@ export default function AdminTeamPage() {
         },
         body: JSON.stringify({
           ...invitationData,
-          clientId: userClient.clientId
+          clientId: clientId
         })
       })
 
@@ -159,8 +162,8 @@ export default function AdminTeamPage() {
       }
 
       // Refresh team data to show new invitation (skip in demo mode)
-      if (userClient.clientId !== '1') {
-        await loadTeamData(userClient.clientId)
+      if (clientId !== '1') {
+        await loadTeamData(clientId)
       }
 
       return { success: true }
@@ -596,7 +599,7 @@ export default function AdminTeamPage() {
       </div>
 
       {/* User Invitation Modal */}
-      {userClient && (
+      {user && (
         <UserInvitationModal
           isOpen={showInviteModal}
           onClose={() => setShowInviteModal(false)}
