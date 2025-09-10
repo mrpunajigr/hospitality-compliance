@@ -96,7 +96,7 @@ export default function UserInvitationModal({
   
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [step, setStep] = useState<'basic' | 'details' | 'confirm'>('basic')
+  const [step, setStep] = useState<'basic' | 'details' | 'confirm' | 'success'>('basic')
 
   const availableRoles = getAvailableRoles(userRole)
 
@@ -144,15 +144,8 @@ export default function UserInvitationModal({
       const result = await onInvite(formData)
       
       if (result.success) {
-        // Reset form and close modal
-        setFormData({
-          email: '',
-          firstName: '',
-          lastName: '',
-          role: 'STAFF'
-        })
-        setStep('basic')
-        onClose()
+        // Show success screen
+        setStep('success')
       } else {
         setError(result.error || 'Failed to send invitation')
       }
@@ -217,10 +210,11 @@ export default function UserInvitationModal({
         {/* Progress Indicator */}
         <div className="flex items-center space-x-2 mb-6">
           <div className={`w-8 h-1 rounded-full ${step === 'basic' ? 'bg-blue-600' : 'bg-blue-600'}`} />
-          <div className={`w-8 h-1 rounded-full ${['details', 'confirm'].includes(step) ? 'bg-blue-600' : 'bg-white/20'}`} />
-          <div className={`w-8 h-1 rounded-full ${step === 'confirm' ? 'bg-blue-600' : 'bg-white/20'}`} />
+          <div className={`w-8 h-1 rounded-full ${['details', 'confirm', 'success'].includes(step) ? 'bg-blue-600' : 'bg-white/20'}`} />
+          <div className={`w-8 h-1 rounded-full ${['confirm', 'success'].includes(step) ? 'bg-blue-600' : 'bg-white/20'}`} />
+          <div className={`w-8 h-1 rounded-full ${step === 'success' ? 'bg-green-600' : 'bg-white/20'}`} />
           <span className={`ml-3 ${getTextStyle('bodySmall')} text-white/70`}>
-            Step {step === 'basic' ? '1' : step === 'details' ? '2' : '3'} of 3
+            {step === 'success' ? '✓ Sent!' : `Step ${step === 'basic' ? '1' : step === 'details' ? '2' : '3'} of 3`}
           </span>
         </div>
 
@@ -456,34 +450,108 @@ export default function UserInvitationModal({
           </div>
         )}
 
+        {step === 'success' && (
+          <div className="text-center space-y-6">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className={`${getTextStyle('sectionTitle')} mb-3 text-green-400`}>Invitation Sent Successfully!</h3>
+              <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
+                {formData.firstName} {formData.lastName} has been invited to join {organizationName} as {selectedRole?.label}.
+              </p>
+            </div>
+
+            <div className="bg-slate-800 rounded-xl border border-green-500/30 p-6 text-left">
+              <h4 className="text-white font-semibold text-base mb-3 flex items-center">
+                <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                What happens next:
+              </h4>
+              <ul className="text-slate-200 text-sm space-y-2">
+                <li>• Invitation email sent to {formData.email}</li>
+                <li>• They have 7 days to accept the invitation</li>
+                <li>• Once accepted, they&apos;ll appear in your team list</li>
+                <li>• You&apos;ll receive a notification when they join</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex space-x-3 mt-8 pt-6 border-t border-white/10">
-          {step !== 'basic' && (
-            <button
-              onClick={handleBack}
-              disabled={isSubmitting}
-              className="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50"
-            >
-              Back
-            </button>
+          {step === 'success' ? (
+            <>
+              <button
+                onClick={() => {
+                  // Reset form and close modal
+                  setFormData({
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    role: 'STAFF'
+                  })
+                  setStep('basic')
+                  setError('')
+                  onClose()
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Done
+              </button>
+              <button
+                onClick={() => {
+                  // Reset form for another invitation
+                  setFormData({
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    role: 'STAFF'
+                  })
+                  setStep('basic')
+                  setError('')
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200"
+              >
+                Invite Another
+              </button>
+            </>
+          ) : (
+            <>
+              {step !== 'basic' && (
+                <button
+                  onClick={handleBack}
+                  disabled={isSubmitting}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50"
+                >
+                  Back
+                </button>
+              )}
+              
+              <button
+                onClick={step === 'confirm' ? handleSubmit : handleNext}
+                disabled={isSubmitting}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Sending...
+                  </div>
+                ) : step === 'confirm' ? (
+                  'Send Invitation'
+                ) : (
+                  'Next'
+                )}
+              </button>
+            </>
           )}
-          
-          <button
-            onClick={step === 'confirm' ? handleSubmit : handleNext}
-            disabled={isSubmitting}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                Sending...
-              </div>
-            ) : step === 'confirm' ? (
-              'Send Invitation'
-            ) : (
-              'Next'
-            )}
-          </button>
         </div>
       </div>
     </div>
