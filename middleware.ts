@@ -206,7 +206,7 @@ export async function middleware(request: NextRequest) {
       const authHeader = request.headers.get('authorization')
       const hasValidAuth = authHeader && authHeader.startsWith('Bearer ')
       
-      if (!hasValidAuth && !pathname.startsWith('/api/auth')) {
+      if (!hasValidAuth && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/team')) {
         const csrfToken = request.headers.get('x-csrf-token')
         const sessionCSRF = request.cookies.get('csrf-token')?.value
         
