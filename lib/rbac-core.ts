@@ -389,7 +389,8 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       `)
       .eq('user_id', userId)
       .eq('status', 'active')
-      .single()
+      .limit(1)
+      .maybeSingle()
 
     if (error || !clientData) {
       console.error('Error getting user client:', error)
