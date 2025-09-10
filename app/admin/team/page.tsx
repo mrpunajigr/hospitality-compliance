@@ -230,6 +230,20 @@ export default function AdminTeamPage() {
         department: 'Front of House'
       }
     ])
+
+    // Set demo pending invitations
+    setPendingInvitations([
+      {
+        id: 'demo-pending-1',
+        email: 'steve@newrestaurant.com',
+        firstName: 'Steve',
+        lastName: 'Laird',
+        role: 'MANAGER',
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days left
+        inviterName: 'Demo User'
+      }
+    ])
     
     setLoading(false)
     
@@ -382,12 +396,12 @@ export default function AdminTeamPage() {
                   />
                 </div>
                 <p className="text-gray-700 text-sm mb-4">
-                  {teamMembers.length} Users
+                  {teamMembers.length + pendingInvitations.length} Total
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Active:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
-                <p><strong>Inactive:</strong> {teamMembers.filter(member => member.status === 'inactive').length}</p>
+                <p><strong>Pending:</strong> {pendingInvitations.length}</p>
               </div>
             </div>
 
@@ -448,8 +462,9 @@ export default function AdminTeamPage() {
             </div>
             
             <div className="space-y-4">
+              {/* Active Team Members */}
               {teamMembers.map((member) => (
-                <div key={member.id} className={`${getCardStyle('secondary')} flex items-center justify-between`}>
+                <div key={`member-${member.id}`} className={`${getCardStyle('secondary')} flex items-center justify-between`}>
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                       <span className="text-sm font-semibold">
@@ -459,11 +474,11 @@ export default function AdminTeamPage() {
                     <div>
                       <h3 className={`${getTextStyle('cardTitle')} text-base`}>{member.fullName}</h3>
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>{member.email}</p>
+                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>{member.role}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-right">
                     <div>
-                      <p className={`${getTextStyle('body')} font-medium`}>{member.role}</p>
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>Last: {member.lastLogin}</p>
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -479,6 +494,51 @@ export default function AdminTeamPage() {
                   </div>
                 </div>
               ))}
+
+              {/* Pending Invitations */}
+              {pendingInvitations.map((invitation) => (
+                <div key={`invitation-${invitation.id}`} className={`${getCardStyle('secondary')} flex items-center justify-between border-l-4 border-l-orange-500/50`}>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center border-2 border-orange-500/30">
+                      <span className="text-sm font-semibold text-orange-300">
+                        {invitation.firstName?.charAt(0)}{invitation.lastName?.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className={`${getTextStyle('cardTitle')} text-base`}>{invitation.firstName} {invitation.lastName}</h3>
+                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>{invitation.email}</p>
+                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>{invitation.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4 text-right">
+                    <div>
+                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>
+                        Invited: {new Date(invitation.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>
+                        Expires: {new Date(invitation.expiresAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                      pending
+                    </div>
+                    <button className="text-white/60 hover:text-white" title="Cancel invitation">
+                      <span className="text-lg">❌</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Empty State */}
+              {teamMembers.length === 0 && pendingInvitations.length === 0 && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">👥</span>
+                  </div>
+                  <p className={`${getTextStyle('body')} text-white/70 mb-2`}>No team members yet</p>
+                  <p className={`${getTextStyle('bodySmall')} text-white/50`}>Start by inviting your first team member</p>
+                </div>
+              )}
             </div>
           </div>
 
