@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { emailService } from '@/lib/email-service'
 import type { InvitationEmailData } from '@/lib/email-service'
@@ -102,8 +103,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get current user from session
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Get current user from session using request cookies
+    const authHeader = request.headers.get('authorization')
+    const accessToken = request.cookies.get('sb-access-token')?.value || 
+                       request.cookies.get('supabase-auth-token')?.value ||
+                       authHeader?.replace('Bearer ', '')
+
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: 'Unauthorized - no access token found' },
+        { status: 401 }
+      )
+    }
+
+    // Create Supabase client with access token
+    const supabaseWithAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      }
+    )
+    
+    const { data: { user }, error: authError } = await supabaseWithAuth.auth.getUser()
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized - please sign in' },
