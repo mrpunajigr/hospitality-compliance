@@ -5,6 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
+  NEXT_PRIVATE_STANDALONE = "true"
 
 # Next.js specific settings for Netlify
 [[plugins]]
