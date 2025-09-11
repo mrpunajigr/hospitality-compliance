@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getServerUser, validateUserPermissions } from '@/lib/server-auth'
 import { supabase } from '@/lib/supabase'
 import { emailService } from '@/lib/email-service'
 import type { InvitationEmailData } from '@/lib/email-service'
@@ -108,19 +108,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // TEMPORARY: Skip authentication for testing - will fix after confirming API works
-    // Use the real dev@jigr.app user ID that has OWNER permissions in production
-    const user = {
-      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', // dev@jigr.app user ID from database
-      email: 'dev@jigr.app'
+    // Get authenticated user from request
+    const user = await getServerUser(request)
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized - please sign in' },
+        { status: 401 }
+      )
     }
+    console.log('✅ User authenticated:', user.email)
 
-    // TEMPORARY: Skip permission check for testing
-    console.log('🔵 Skipping permission check for testing')
-    const userRole = 'OWNER' // Mock OWNER role for testing
+    // Check if user has permission to invite users
+    const hasPermission = await validateUserPermissions(user.id, ['OWNER', 'MANAGER'])
+    if (!hasPermission) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions to invite users' },
+        { status: 403 }
+      )
+    }
+    console.log('✅ User permissions validated')
 
-    // TEMPORARY: Skip role hierarchy check for testing
-    console.log('🔵 Skipping role hierarchy check - userRole:', userRole, 'inviteRole:', role)
+    // TEMPORARY: Skip role hierarchy check for testing  
+    console.log('🔵 Skipping role hierarchy check - inviteRole:', role)
     // Check if MANAGER trying to invite OWNER or MANAGER - DISABLED FOR TESTING
 
     // Check if user is already invited or a member
