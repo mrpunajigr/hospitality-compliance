@@ -10,6 +10,11 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Function configuration for API routes
+[functions]
+  external_node_modules = ["@supabase/supabase-js"]
+  node_bundler = "esbuild"
+
 # Headers for better performance
 [[headers]]
   for = "/*"
@@ -17,6 +22,14 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# API route headers
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, x-csrf-token"
 
 # File upload optimization (Netlify allows larger files than Vercel)
 [build.processing]
