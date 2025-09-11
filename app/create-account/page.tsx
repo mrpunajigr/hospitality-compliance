@@ -87,7 +87,9 @@ export default function CreateAccountPage() {
           formDataForAction.append('fullName', formData.fullName)
 
           // Call server action directly
+          console.log('🚀 About to call server action with data:', Object.fromEntries(formDataForAction))
           const result = await createCompanyAction(formDataForAction)
+          console.log('📋 Server action result:', result)
           
           if (result && !result.success) {
             console.error('Company creation failed:', result)
@@ -100,8 +102,12 @@ export default function CreateAccountPage() {
           // Success - redirect to dashboard (server action already handles this, but fallback)
           router.push('/app/dashboard')
         } catch (companyError) {
-          console.error('Company creation error:', companyError)
-          setError('Account created but company setup failed. Please contact support.')
+          console.error('🚨 DETAILED Company creation error:', companyError)
+          console.error('🚨 Error type:', typeof companyError)
+          console.error('🚨 Error message:', companyError instanceof Error ? companyError.message : String(companyError))
+          console.error('🚨 Error stack:', companyError instanceof Error ? companyError.stack : 'No stack trace')
+          
+          setError(`Account created but company setup failed: ${companyError instanceof Error ? companyError.message : String(companyError)}`)
           setIsLoading(false)
         }
       }
