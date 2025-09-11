@@ -170,18 +170,8 @@ export async function POST(request: NextRequest) {
     console.log('✅ Invitation created successfully:', invitation)
 
     // Log audit trail
-    // TEMP: await supabase.from('audit_logs').insert({
-      client_id: clientId,
-      user_id: user.id,
-      action: 'user_invited',
-      resource_type: 'invitation',
-      resource_id: invitation.id,
-      details: {
-        invitedEmail: email,
-        assignedRole: role,
-        inviterRole: userRole
-      }
-    })
+    // TEMP: Skip audit logging for testing
+    console.log('🔵 Would log audit trail:', { clientId, userId: user.id, email, role })
 
     // Send invitation email using email service
     try {
@@ -385,17 +375,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Log audit trail
-    // TEMP: await supabase.from('audit_logs').insert({
-      client_id: clientId,
-      user_id: user.id,
-      action: 'invitation_cancelled',
-      resource_type: 'invitation',
-      resource_id: invitationId,
-      details: {
-        invitedEmail: invitation.email,
-        assignedRole: invitation.role
-      }
-    })
+    // TEMP: Skip audit logging for cancellation
+    console.log('🔵 Would log cancellation audit:', { invitationId })
 
     return NextResponse.json({
       success: true,
