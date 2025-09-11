@@ -106,6 +106,11 @@ function isAdminIPAllowed(request: NextRequest): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // Debug log for create-company requests
+  if (pathname === '/api/create-company') {
+    console.log('🚨 MIDDLEWARE: create-company request detected')
+  }
+  
   // Skip middleware for excluded routes
   if (EXCLUDED_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next()
@@ -200,8 +205,8 @@ export async function middleware(request: NextRequest) {
       }
     }
     
-    // CSRF protection for state-changing operations
-    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+    // CSRF protection for state-changing operations  
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method) && pathname !== '/api/create-company') {
       // Skip CSRF for API routes that use Bearer tokens
       const authHeader = request.headers.get('authorization')
       const hasValidAuth = authHeader && authHeader.startsWith('Bearer ')
