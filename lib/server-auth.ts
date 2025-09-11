@@ -67,6 +67,8 @@ async function getServerUserFromRequest(request: NextRequest) {
     
     if (!accessToken) {
       console.warn('No access token found in request cookies')
+      console.log('🔍 Full cookie string:', cookieStore)
+      console.log('🔍 All parsed cookies:', Object.fromEntries(cookies))
       return null
     }
     
