@@ -168,13 +168,14 @@ export async function POST(request: NextRequest) {
         invited_by: user.id,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
       })
-      .select('id, token')
+      .select('id')
       .single()
 
     if (inviteError) {
       console.error('❌ Error creating invitation:', inviteError)
+      console.error('❌ Full error details:', JSON.stringify(inviteError, null, 2))
       return NextResponse.json(
-        { error: 'Failed to create invitation' },
+        { error: 'Failed to create invitation: ' + (inviteError.message || inviteError.details || 'Unknown error') },
         { status: 500 }
       )
     }
