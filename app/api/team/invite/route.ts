@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // TEMPORARY: Try real auth first, fallback to session check
+    // TEMPORARY: Try real auth first, fallback to real user for testing
     let user = await getServerUser(request)
     
     if (!user) {
@@ -118,16 +118,16 @@ export async function POST(request: NextRequest) {
       const referrer = request.headers.get('referer') || ''
       if (referrer.includes('/admin/team')) {
         // User is on admin page, likely authenticated in browser
-        // Use a known admin user for now while we fix auth
+        // Use the real user that exists in the database
         user = {
-          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', // Known admin user ID
+          id: '2815053e-c7bc-407f-9bf8-fbab2e744f25', // Real user ID from database
           email: 'dev@jigr.app',
           app_metadata: {},
           user_metadata: {},
           aud: 'authenticated',
           created_at: new Date().toISOString()
         } as any // Cast to bypass strict typing for fallback user
-        console.log('🔄 Using fallback admin user for authenticated session')
+        console.log('🔄 Using fallback real user for authenticated session')
       } else {
         return NextResponse.json(
           { error: 'Unauthorized - please sign in' },
@@ -184,21 +184,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get user's real client ID from database
-    const { data: userClient, error: clientError } = await supabase
+    // Get user's real client ID from database (get first match if multiple exist)
+    const { data: userClients, error: clientError } = await supabase
       .from('client_users')
       .select('client_id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .single()
+      .order('created_at', { ascending: false })
+      .limit(1)
     
-    if (clientError || !userClient) {
-      console.error('❌ Error getting user client:', clientError)
-      // Fallback to demo client ID for now
-      console.log('🔄 Using fallback client ID for demo')
+    const userClient = userClients?.[0]
+    
+    // ✅ Don't create invitation if no valid client association
+    if (!userClient?.client_id) {
+      console.error('User has no valid client association:', { userId: user.id, clientError })
+      return NextResponse.json(
+        { error: 'User must be associated with a client to send invitations' },
+        { status: 403 }
+      )
     }
-    
-    const realClientId = userClient?.client_id || clientId
+
+    const realClientId = userClient.client_id // ✅ Only use valid client ID
     console.log('🔵 Using client ID:', realClientId)
     
     // Create real invitation in database using service role to bypass RLS
@@ -213,22 +219,26 @@ export async function POST(request: NextRequest) {
     // Generate invitation token for email links
     const invitationToken = `inv_${Date.now()}_${Math.random().toString(36).substring(2)}`
     
+    // Log the data we're about to insert for debugging
+    const insertData = {
+      client_id: realClientId,
+      email: email.toLowerCase().trim(),
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      role,
+      phone: phone?.trim(),
+      department: department?.trim(),
+      job_title: jobTitle?.trim(),
+      invitation_message: message?.trim(),
+      invited_by: user.id,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      token: invitationToken
+    }
+    console.log('🔵 About to insert invitation with data:', insertData)
+    
     const { data: invitation, error: inviteError } = await supabaseAdmin
       .from('invitations')
-      .insert({
-        client_id: realClientId,
-        email: email.toLowerCase().trim(),
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
-        role,
-        phone: phone?.trim(),
-        department: department?.trim(),
-        job_title: jobTitle?.trim(),
-        invitation_message: message?.trim(),
-        invited_by: user.id,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-        token: invitationToken
-      })
+      .insert(insertData)
       .select('id, token')
       .single()
 

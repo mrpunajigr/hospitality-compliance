@@ -2,6 +2,11 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 // Create Supabase client with service role key for admin operations
+console.log('🔑 Environment check:', {
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING',
+  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING'
+})
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
@@ -9,7 +14,10 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
+    console.log('🚀 Create company API called')
     const body = await request.json()
+    console.log('📋 Request body:', body)
+    
     const { 
       businessName, 
       businessType, 
@@ -20,9 +28,32 @@ export async function POST(request: Request) {
     } = body
 
     if (!businessName || !businessType || !userId || !email) {
+      console.log('❌ Missing required fields:', { businessName, businessType, userId, email })
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      )
+    }
+    
+    console.log('✅ All required fields present')
+    
+    // Test Supabase connection
+    console.log('🧪 Testing Supabase connection...')
+    try {
+      const { data, error } = await supabaseAdmin.from('clients').select('count').limit(1)
+      if (error) {
+        console.error('❌ Supabase connection test failed:', error)
+        return NextResponse.json(
+          { error: 'Database connection failed', details: error.message },
+          { status: 500 }
+        )
+      }
+      console.log('✅ Supabase connection successful')
+    } catch (connError) {
+      console.error('❌ Supabase connection exception:', connError)
+      return NextResponse.json(
+        { error: 'Database connection exception', details: (connError as Error).message },
+        { status: 500 }
       )
     }
 
@@ -73,18 +104,22 @@ export async function POST(request: Request) {
     }
 
     // 2. Create the company/client record
+    console.log('🏢 Creating client record...')
+    const clientInsertData = {
+      name: businessName,
+      business_type: businessType,
+      business_email: email,
+      phone: phone,
+      subscription_status: 'trial',
+      subscription_tier: 'basic',
+      onboarding_status: 'started',
+      estimated_monthly_deliveries: 50 // Default estimate
+    }
+    console.log('🔵 Client insert data:', clientInsertData)
+    
     const { data: clientData, error: clientError } = await supabaseAdmin
       .from('clients')
-      .insert({
-        name: businessName,
-        business_type: businessType,
-        business_email: email,
-        phone: phone,
-        subscription_status: 'trial',
-        subscription_tier: 'basic',
-        onboarding_status: 'started',
-        estimated_monthly_deliveries: 50 // Default estimate
-      })
+      .insert(clientInsertData)
       .select()
       .single()
 
@@ -103,15 +138,19 @@ export async function POST(request: Request) {
     }
 
     // 3. Link the user to the company as owner
+    console.log('🔗 Creating client_users link...')
+    const linkData = {
+      user_id: userId,
+      client_id: clientData.id,
+      role: 'OWNER',
+      status: 'active',
+      joined_at: new Date().toISOString()
+    }
+    console.log('🔵 Link data:', linkData)
+    
     const { error: linkError } = await supabaseAdmin
       .from('client_users')
-      .insert({
-        user_id: userId,
-        client_id: clientData.id,
-        role: 'owner',
-        status: 'active',
-        joined_at: new Date().toISOString()
-      })
+      .insert(linkData)
 
     if (linkError) {
       console.error('Error linking user to client:', linkError)
