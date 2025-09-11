@@ -184,20 +184,38 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TEMPORARY: For testing, let's just create a simple response without database insert
-    console.log('🔵 Skipping database insert for now - creating mock invitation response')
+    // Create real invitation in database using service role to bypass RLS
+    console.log('🔵 Creating real invitation in database')
     
-    const invitation = {
-      id: `demo-${Date.now()}`,
-      token: `demo-token-${Date.now()}`, // Add missing token for email
-      email,
-      firstName,  
-      lastName,
-      role,
-      status: 'pending',
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      message: 'Demo invitation created and email sent successfully',
-      emailSent: true
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    
+    const { data: invitation, error: inviteError } = await supabaseAdmin
+      .from('invitations')
+      .insert({
+        client_id: clientId,
+        email: email.toLowerCase().trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        role,
+        phone: phone?.trim(),
+        invitation_message: message?.trim(),
+        invited_by: user.id,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+      })
+      .select('id')
+      .single()
+
+    if (inviteError) {
+      console.error('❌ Error creating invitation:', inviteError)
+      console.error('❌ Full error details:', JSON.stringify(inviteError, null, 2))
+      return NextResponse.json(
+        { error: 'Failed to create invitation: ' + (inviteError.message || inviteError.details || 'Unknown error') },
+        { status: 500 }
+      )
     }
     console.log('✅ Invitation created successfully:', invitation)
 
