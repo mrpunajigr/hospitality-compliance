@@ -206,7 +206,14 @@ export async function middleware(request: NextRequest) {
       const authHeader = request.headers.get('authorization')
       const hasValidAuth = authHeader && authHeader.startsWith('Bearer ')
       
-      if (!hasValidAuth && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/team') && !pathname.startsWith('/api/create-company')) {
+      // Skip CSRF for public endpoints that don't require authentication
+      const isPublicEndpoint = pathname.startsWith('/api/auth') || 
+                              pathname.startsWith('/api/team') || 
+                              pathname === '/api/create-company'
+      
+      console.log(`🔐 CSRF check: ${pathname}, isPublic: ${isPublicEndpoint}, hasAuth: ${hasValidAuth}`)
+      
+      if (!hasValidAuth && !isPublicEndpoint) {
         const csrfToken = request.headers.get('x-csrf-token')
         const sessionCSRF = request.cookies.get('csrf-token')?.value
         
