@@ -193,6 +193,9 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
     
+    // Generate invitation token for email links
+    const invitationToken = `inv_${Date.now()}_${Math.random().toString(36).substring(2)}`
+    
     const { data: invitation, error: inviteError } = await supabaseAdmin
       .from('invitations')
       .insert({
@@ -204,9 +207,10 @@ export async function POST(request: NextRequest) {
         phone: phone?.trim(),
         invitation_message: message?.trim(),
         invited_by: user.id,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        token: invitationToken
       })
-      .select('id')
+      .select('id, token')
       .single()
 
     if (inviteError) {
