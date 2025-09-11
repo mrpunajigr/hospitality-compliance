@@ -135,6 +135,15 @@ export async function POST(request: NextRequest) {
         )
       }
     }
+    
+    // At this point user is guaranteed to exist due to fallback logic above
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication failed' },
+        { status: 401 }
+      )
+    }
+    
     console.log('✅ User authenticated:', user.email)
 
     // Check if user has permission to invite users
