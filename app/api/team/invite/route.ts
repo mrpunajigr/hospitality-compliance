@@ -121,8 +121,12 @@ export async function POST(request: NextRequest) {
         // Use a known admin user for now while we fix auth
         user = {
           id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', // Known admin user ID
-          email: 'dev@jigr.app'
-        }
+          email: 'dev@jigr.app',
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        } as any // Cast to bypass strict typing for fallback user
         console.log('🔄 Using fallback admin user for authenticated session')
       } else {
         return NextResponse.json(
