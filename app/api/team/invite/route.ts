@@ -158,6 +158,7 @@ export async function POST(request: NextRequest) {
     
     const invitation = {
       id: `demo-${Date.now()}`,
+      token: `demo-token-${Date.now()}`, // Add missing token for email
       email,
       firstName,  
       lastName,
