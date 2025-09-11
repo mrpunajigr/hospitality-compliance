@@ -222,6 +222,8 @@ export async function POST(request: NextRequest) {
         last_name: lastName.trim(),
         role,
         phone: phone?.trim(),
+        department: department?.trim(),
+        job_title: jobTitle?.trim(),
         invitation_message: message?.trim(),
         invited_by: user.id,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
