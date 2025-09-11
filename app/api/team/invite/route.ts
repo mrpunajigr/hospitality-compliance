@@ -184,6 +184,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get user's real client ID from database
+    const { data: userClient, error: clientError } = await supabase
+      .from('client_users')
+      .select('client_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+    
+    if (clientError || !userClient) {
+      console.error('❌ Error getting user client:', clientError)
+      // Fallback to demo client ID for now
+      console.log('🔄 Using fallback client ID for demo')
+    }
+    
+    const realClientId = userClient?.client_id || clientId
+    console.log('🔵 Using client ID:', realClientId)
+    
     // Create real invitation in database using service role to bypass RLS
     console.log('🔵 Creating real invitation in database')
     
@@ -199,7 +216,7 @@ export async function POST(request: NextRequest) {
     const { data: invitation, error: inviteError } = await supabaseAdmin
       .from('invitations')
       .insert({
-        client_id: clientId,
+        client_id: realClientId,
         email: email.toLowerCase().trim(),
         first_name: firstName.trim(),
         last_name: lastName.trim(),
