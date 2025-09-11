@@ -162,7 +162,6 @@ export async function POST(request: NextRequest) {
         last_name: lastName.trim(),
         role,
         phone: phone?.trim(),
-        department: department?.trim(),
         job_title: jobTitle?.trim(),
         invitation_message: message?.trim(),
         invited_by: user.id,
