@@ -31,23 +31,36 @@ async function getServerUserFromRequest(request: NextRequest) {
       }
     })
     
-    // Look for Supabase auth cookies
+    // Look for Supabase auth cookies - try multiple patterns
     let accessToken = null
     let refreshToken = null
     
+    console.log('🔍 Available cookies:', Array.from(cookies.keys()))
+    
     // Try different cookie patterns Supabase might use
     for (const [name, value] of cookies) {
-      if (name.includes('auth-token')) {
+      console.log('🔍 Checking cookie:', name)
+      
+      // Pattern 1: sb-{project-ref}-auth-token
+      if (name.startsWith('sb-') && name.includes('auth-token')) {
         try {
           const authData = JSON.parse(value)
           accessToken = authData.access_token
           refreshToken = authData.refresh_token
+          console.log('✅ Found auth token in', name)
           break
         } catch (e) {
-          // Try as raw token
-          if (name.includes('access')) {
-            accessToken = value
-          }
+          console.log('❌ Failed to parse auth data from', name)
+        }
+      }
+      
+      // Pattern 2: Direct access token cookies
+      if (name.includes('access') || name.includes('token')) {
+        console.log('🔍 Potential token cookie:', name, value.substring(0, 20) + '...')
+        if (value.length > 50) { // JWT tokens are longer
+          accessToken = value
+          console.log('✅ Using direct token from', name)
+          break
         }
       }
     }
