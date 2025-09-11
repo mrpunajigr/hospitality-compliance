@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { createCompanyAction } from '@/app/actions/CreateCompanyAction'
 
 export default function CreateAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -73,35 +74,31 @@ export default function CreateAccountPage() {
       }
 
       if (data.user) {
-        // Create company for the new user
+        // Create company for the new user using server action
+        console.log('🚀 User created, now creating company via server action')
         try {
-          const companyResponse = await fetch('/api/create-company', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              businessName: formData.businessName,
-              businessType: formData.businessType,
-              phone: formData.phone,
-              userId: data.user.id,
-              email: formData.email,
-              fullName: formData.fullName
-            })
-          })
+          // Prepare form data for server action
+          const formDataForAction = new FormData()
+          formDataForAction.append('businessName', formData.businessName)
+          formDataForAction.append('businessType', formData.businessType)
+          formDataForAction.append('phone', formData.phone)
+          formDataForAction.append('userId', data.user.id)
+          formDataForAction.append('email', formData.email)
+          formDataForAction.append('fullName', formData.fullName)
 
-          const result = await companyResponse.json()
+          // Call server action directly
+          const result = await createCompanyAction(formDataForAction)
           
-          if (!companyResponse.ok) {
+          if (result && !result.success) {
             console.error('Company creation failed:', result)
             setError(`Account created but company setup failed: ${result.error}`)
             setIsLoading(false)
             return
           }
 
-          console.log('✅ Account and company created successfully')
-          // Success - redirect to company settings for guided onboarding
-          router.push('/admin/company-settings?onboarding=true&company=created')
+          console.log('✅ Account and company created successfully via server action')
+          // Success - redirect to dashboard (server action already handles this, but fallback)
+          router.push('/app/dashboard')
         } catch (companyError) {
           console.error('Company creation error:', companyError)
           setError('Account created but company setup failed. Please contact support.')
