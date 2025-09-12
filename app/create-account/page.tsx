@@ -88,6 +88,9 @@ export default function CreateAccountPage() {
 
           // Call server action directly
           console.log('🚀 About to call server action with data:', Object.fromEntries(formDataForAction))
+          console.log('🔧 Server action function type:', typeof createCompanyAction)
+          console.log('🔧 Server action function:', createCompanyAction)
+          
           const result = await createCompanyAction(formDataForAction)
           console.log('📋 Server action result:', result)
           
