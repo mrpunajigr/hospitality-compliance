@@ -10,7 +10,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { createCompanyAction } from '@/app/actions/CreateCompanyAction'
 
 export default function CreateAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -74,36 +73,41 @@ export default function CreateAccountPage() {
       }
 
       if (data.user) {
-        // Create company for the new user using server action
-        console.log('🚀 User created, now creating company via server action')
+        // Create company for the new user using API route
+        console.log('🚀 User created, now creating company via API route')
         try {
-          // Prepare form data for server action
-          const formDataForAction = new FormData()
-          formDataForAction.append('businessName', formData.businessName)
-          formDataForAction.append('businessType', formData.businessType)
-          formDataForAction.append('phone', formData.phone)
-          formDataForAction.append('userId', data.user.id)
-          formDataForAction.append('email', formData.email)
-          formDataForAction.append('fullName', formData.fullName)
-
-          // Call server action directly - bypass form submission
-          console.log('🚀 About to call server action with data:', Object.fromEntries(formDataForAction))
-          console.log('🔧 Server action function type:', typeof createCompanyAction)
-          console.log('🔧 Server action function:', createCompanyAction)
-          
-          // Call server action directly
-          const result = await createCompanyAction(formDataForAction)
-          console.log('📋 Server action result:', result)
-          
-          if (result && !result.success) {
-            console.error('Company creation failed:', result)
-            setError(`Account created but company setup failed: ${result.error}`)
-            setIsLoading(false)
-            return
+          const companyData = {
+            businessName: formData.businessName,
+            businessType: formData.businessType,
+            phone: formData.phone,
+            userId: data.user.id,
+            email: formData.email,
+            fullName: formData.fullName
           }
 
-          console.log('✅ Account and company created successfully via server action')
-          // Success - redirect to dashboard (server action already handles this, but fallback)
+          console.log('🚀 About to call API with data:', companyData)
+          
+          const response = await fetch('/api/create-company', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(companyData)
+          })
+
+          console.log('📋 API Response status:', response.status)
+          
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ API Error response:', errorText)
+            throw new Error(`Company creation failed: ${response.status} ${errorText}`)
+          }
+
+          const result = await response.json()
+          console.log('✅ API Success result:', result)
+
+          console.log('✅ Account and company created successfully via API')
+          // Success - redirect to dashboard
           router.push('/app/dashboard')
         } catch (companyError) {
           console.error('🚨 DETAILED Company creation error:', companyError)
