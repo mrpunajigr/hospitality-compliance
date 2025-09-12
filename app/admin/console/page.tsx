@@ -74,22 +74,33 @@ export default function AdminConsolePage() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('🔍 Admin Console: Starting auth check...')
       const { data: { user } } = await supabase.auth.getUser()
       
+      console.log('🔍 Admin Console: User data:', user ? { id: user.id, email: user.email } : 'No user')
+      
       if (!user) {
+        console.log('❌ Admin Console: No user found, falling back to demo mode')
         // Auto sign-in as demo user for development
         await handleDemoSignIn()
       } else {
+        console.log('✅ Admin Console: Real user found, loading client info...')
         setUser(user)
         
         // Get user's company information
         try {
+          console.log('🔍 Admin Console: Calling getUserClient for user ID:', user.id)
           const clientInfo = await getUserClient(user.id)
+          console.log('🔍 Admin Console: Client info result:', clientInfo)
+          
           if (clientInfo) {
+            console.log('✅ Admin Console: Client info loaded successfully:', clientInfo.name)
             setUserClient(clientInfo)
+          } else {
+            console.log('❌ Admin Console: No client info found for user')
           }
         } catch (error) {
-          console.error('Error loading client info:', error)
+          console.error('❌ Admin Console: Error loading client info:', error)
         }
         
         setLoading(false)
