@@ -148,9 +148,10 @@ export async function POST(request: Request) {
     }
     console.log('🔵 Link data:', linkData)
     
-    const { error: linkError } = await supabaseAdmin
+    const { data: linkResult, error: linkError } = await supabaseAdmin
       .from('client_users')
       .insert(linkData)
+      .select()
 
     if (linkError) {
       console.error('Error linking user to client:', linkError)
@@ -165,6 +166,8 @@ export async function POST(request: Request) {
         { status: 500 }
       )
     }
+
+    console.log('✅ User successfully linked to client:', linkResult)
 
     // 4. Create default compliance settings for the company
     const { error: settingsError } = await supabaseAdmin
