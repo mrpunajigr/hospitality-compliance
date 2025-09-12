@@ -147,6 +147,7 @@ export async function POST(request: Request) {
       joined_at: new Date().toISOString()
     }
     console.log('🔵 Link data:', linkData)
+    console.log('🔍 EXACT USER ID BEING STORED:', userId, 'Length:', userId.length)
     
     const { data: linkResult, error: linkError } = await supabaseAdmin
       .from('client_users')
