@@ -108,7 +108,7 @@ export default function CreateAccountPage() {
 
           console.log('✅ Account and company created successfully via API')
           // Success - redirect to dashboard
-          router.push('/app/dashboard')
+          router.push('/console/dashboard')
         } catch (companyError) {
           console.error('🚨 DETAILED Company creation error:', companyError)
           console.error('🚨 Error type:', typeof companyError)
