@@ -143,8 +143,12 @@ export async function createCompanyAction(formData: FormData) {
 
     console.log('✅ SERVER ACTION: Company creation completed successfully')
 
-    // Redirect to dashboard
-    redirect('/app/dashboard')
+    // Return success instead of redirect (called from client component)
+    return {
+      success: true,
+      message: 'Company created successfully',
+      timestamp: new Date().toISOString()
+    }
 
   } catch (error) {
     console.error('💥 SERVER ACTION: Fatal error', error)

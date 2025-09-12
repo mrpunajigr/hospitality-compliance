@@ -86,11 +86,12 @@ export default function CreateAccountPage() {
           formDataForAction.append('email', formData.email)
           formDataForAction.append('fullName', formData.fullName)
 
-          // Call server action directly
+          // Call server action directly - bypass form submission
           console.log('🚀 About to call server action with data:', Object.fromEntries(formDataForAction))
           console.log('🔧 Server action function type:', typeof createCompanyAction)
           console.log('🔧 Server action function:', createCompanyAction)
           
+          // Call server action directly
           const result = await createCompanyAction(formDataForAction)
           console.log('📋 Server action result:', result)
           
