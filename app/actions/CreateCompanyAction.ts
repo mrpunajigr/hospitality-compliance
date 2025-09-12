@@ -11,6 +11,12 @@ const supabaseAdmin = createClient(
 export async function createCompanyAction(formData: FormData) {
   console.log('🚀 SERVER ACTION: Starting company creation')
   
+  // Debug environment variables
+  console.log('🔑 SERVER ACTION: Environment check', {
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING',
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING'
+  })
+  
   try {
     // Extract form data
     const businessName = formData.get('businessName') as string
