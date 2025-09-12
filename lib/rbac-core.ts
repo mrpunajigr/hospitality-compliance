@@ -378,6 +378,8 @@ export function canRoleManageRole(managerRole: UserRole, targetRole: UserRole): 
  */
 export async function getUserClient(userId: string): Promise<UserClient | null> {
   try {
+    console.log('🔍 getUserClient: Searching for user ID:', userId)
+    
     const { data: clientData, error } = await supabase
       .from('client_users')
       .select(`
@@ -392,10 +394,14 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       .limit(1)
       .maybeSingle()
 
+    console.log('🔍 getUserClient: Query result:', { clientData, error })
+
     if (error || !clientData) {
-      console.error('Error getting user client:', error)
+      console.error('❌ getUserClient: Error or no data found:', error)
       return null
     }
+
+    console.log('✅ getUserClient: Found client data, getting permissions...')
 
     const permissions = await getUserPermissions(userId, clientData.client_id)
     if (!permissions) return null
