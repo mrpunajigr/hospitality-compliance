@@ -206,7 +206,9 @@ export async function middleware(request: NextRequest) {
     }
     
     // CSRF protection for state-changing operations  
-    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method) && pathname !== '/api/create-company') {
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method) && 
+        pathname !== '/api/create-company' && 
+        pathname !== '/api/upload-client-logo') {
       // Skip CSRF for API routes that use Bearer tokens
       const authHeader = request.headers.get('authorization')
       const hasValidAuth = authHeader && authHeader.startsWith('Bearer ')
@@ -214,7 +216,8 @@ export async function middleware(request: NextRequest) {
       // Skip CSRF for public endpoints that don't require authentication
       const isPublicEndpoint = pathname.startsWith('/api/auth') || 
                               pathname.startsWith('/api/team') || 
-                              pathname === '/api/create-company'
+                              pathname === '/api/create-company' ||
+                              pathname === '/api/upload-client-logo'
       
       console.log(`🔐 CSRF check: ${pathname}, isPublic: ${isPublicEndpoint}, hasAuth: ${hasValidAuth}`)
       
