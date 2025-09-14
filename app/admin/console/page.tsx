@@ -204,7 +204,7 @@ export default function AdminConsolePage() {
                   />
                 </div>
                 <p className="text-gray-700 text-sm mb-4">
-                  Demo Restaurant Ltd
+                  {userClient?.name || 'Loading...'}
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
@@ -286,8 +286,10 @@ export default function AdminConsolePage() {
                   <label className="block text-black text-sm font-medium mb-2">Business Name</label>
                   <input
                     type="text"
-                    defaultValue="Demo Restaurant Ltd"
+                    value={userClient?.name || ''}
+                    placeholder="Business name loading..."
                     className={getFormFieldStyle()}
+                    readOnly
                   />
                 </div>
                 
@@ -304,8 +306,10 @@ export default function AdminConsolePage() {
                   <label className="block text-black text-sm font-medium mb-2">Contact Email</label>
                   <input
                     type="email"
-                    defaultValue="admin@demorestaurant.co.nz"
+                    value={user?.email || ''}
+                    placeholder="Email loading..."
                     className={getFormFieldStyle()}
+                    readOnly
                   />
                 </div>
               </div>
