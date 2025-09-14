@@ -20,13 +20,22 @@ function getSupabaseAdmin() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 Logo upload started...')
     const formData = await request.formData()
     const file = formData.get('file') as File
     const clientId = formData.get('clientId') as string
     const userId = formData.get('userId') as string
 
+    console.log('🔍 Upload data:', { 
+      fileName: file?.name, 
+      fileSize: file?.size, 
+      clientId, 
+      userId 
+    })
+
     // Validate required fields
     if (!file || !clientId || !userId) {
+      console.log('❌ Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields: file, clientId, or userId' },
         { status: 400 }
@@ -63,6 +72,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
 
     // Upload to Supabase storage
+    console.log('🔍 Uploading to Supabase storage bucket: client-logos')
     const { data: uploadResult, error: uploadError } = await supabaseAdmin.storage
       .from('client-logos')
       .upload(fileName, buffer, {
@@ -72,12 +82,19 @@ export async function POST(request: NextRequest) {
       })
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
+      console.error('❌ Storage upload error:', uploadError)
+      console.error('❌ Upload error details:', {
+        message: uploadError.message,
+        bucket: 'client-logos',
+        fileName
+      })
       return NextResponse.json(
-        { error: 'Failed to upload logo' },
+        { error: 'Failed to upload logo', details: uploadError.message },
         { status: 500 }
       )
     }
+
+    console.log('✅ Upload successful:', uploadResult)
 
     // Get public URL
     const { data: { publicUrl } } = supabaseAdmin.storage
