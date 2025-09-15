@@ -144,10 +144,14 @@ export default function AdminTeamPage() {
         throw new Error('Client ID not found')
       }
 
+      // Get the current session token for API authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const response = await fetch('/api/team/invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
         },
         body: JSON.stringify({
           ...invitationData,

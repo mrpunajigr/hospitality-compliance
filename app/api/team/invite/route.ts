@@ -108,43 +108,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // TEMPORARY: Try real auth first, fallback to real user for testing
-    let user = await getServerUser(request)
+    // Get authenticated user
+    const user = await getServerUser(request)
     
     if (!user) {
-      console.log('🔍 Real auth failed, checking for admin session...')
-      // Check if this is coming from an authenticated admin session
-      // by checking referrer and basic validation
-      const referrer = request.headers.get('referer') || ''
-      if (referrer.includes('/admin/team')) {
-        // User is on admin page, likely authenticated in browser
-        // Use the real user that exists in the database
-        user = {
-          id: '2815053e-c7bc-407f-9bf8-fbab2e744f25', // Real user ID from database
-          email: 'dev@jigr.app',
-          app_metadata: {},
-          user_metadata: {},
-          aud: 'authenticated',
-          created_at: new Date().toISOString()
-        } as any // Cast to bypass strict typing for fallback user
-        console.log('🔄 Using fallback real user for authenticated session')
-      } else {
-        return NextResponse.json(
-          { error: 'Unauthorized - please sign in' },
-          { status: 401 }
-        )
-      }
-    }
-    
-    // At this point user is guaranteed to exist due to fallback logic above
-    if (!user) {
+      console.log('❌ No authenticated user found')
       return NextResponse.json(
-        { error: 'Authentication failed' },
+        { error: 'Unauthorized - please sign in' },
         { status: 401 }
       )
     }
     
-    console.log('✅ User authenticated:', user.email)
+    console.log('✅ User authenticated:', user.email, 'ID:', user.id)
 
     // TEMPORARY: Skip permission validation for testing - since fallback user is admin
     console.log('🔵 Skipping permission validation - using fallback admin user')
@@ -185,19 +160,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's real client ID from database (get first match if multiple exist)
+    console.log('🔍 Looking up client_users for user ID:', user.id)
     const { data: userClients, error: clientError } = await supabase
       .from('client_users')
-      .select('client_id')
+      .select('client_id, client_users.*, clients!inner(name)')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1)
     
+    console.log('🔍 Client lookup result:', { userClients, clientError })
     const userClient = userClients?.[0]
     
     // ✅ Don't create invitation if no valid client association
     if (!userClient?.client_id) {
-      console.error('User has no valid client association:', { userId: user.id, clientError })
+      console.error('❌ User has no valid client association:', { 
+        userId: user.id, 
+        userEmail: user.email,
+        clientError, 
+        userClients 
+      })
       return NextResponse.json(
         { error: 'User must be associated with a client to send invitations' },
         { status: 403 }
