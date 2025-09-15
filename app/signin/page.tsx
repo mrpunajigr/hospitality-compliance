@@ -82,7 +82,7 @@ export default function SignInPage() {
         // Use setTimeout to ensure state is updated before redirect
         setTimeout(() => {
           const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
-          const destination = redirectTo || '/console/dashboard'
+          const destination = redirectTo || '/operations/dashboard'
           console.log('🔄 Redirecting to:', destination)
           window.location.replace(destination)
         }, 100)
@@ -112,8 +112,8 @@ export default function SignInPage() {
       console.log('Current URL:', window.location.href)
       
       // Direct redirect to upload console - it has its own demo auth
-      console.log('🔄 Redirecting to /console/upload...')
-      window.location.href = '/console/upload'
+      console.log('🔄 Redirecting to /operations/upload...')
+      window.location.href = '/operations/upload'
       
     } catch (error) {
       console.error('Demo sign-in failed:', error)

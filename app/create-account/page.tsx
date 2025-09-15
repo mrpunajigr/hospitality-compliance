@@ -4,12 +4,41 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 
 // Hospitality Compliance SaaS - Create Account Page
-// Glass morphism design matching the landing page
+// Matching the clean styling of the Sign In page
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+
+// Development-only Platform Selector Component
+interface PlatformSelectorProps {
+  onPlatformChange: (platform: 'web' | 'ios') => void
+  currentPlatform: 'web' | 'ios'
+}
+
+const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelectorProps) => {
+  // Only show in development environment
+  if (process.env.NODE_ENV === 'production') return null
+  
+  return (
+    <details className="text-center mt-4 pt-4 border-t border-white/10">
+      <summary className="text-xs text-white/50 cursor-pointer hover:text-white/70 transition-colors">
+        🧪 Development Tools
+      </summary>
+      <div className="mt-2">
+        <select 
+          value={currentPlatform} 
+          onChange={(e) => onPlatformChange(e.target.value as 'web' | 'ios')}
+          className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="web">🌐 Web App Version</option>
+          <option value="ios">📱 iPad Optimized Version</option>
+        </select>
+      </div>
+    </details>
+  )
+}
 
 export default function CreateAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -23,6 +52,7 @@ export default function CreateAccountPage() {
     confirmPassword: ''
   })
   const [error, setError] = useState('')
+  const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -126,48 +156,40 @@ export default function CreateAccountPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Same Background as Landing Page */}
+    <div className={`min-h-screen relative overflow-hidden Platform${platformMode.charAt(0).toUpperCase()}${platformMode.slice(1)}`}>
+      {/* Cafe Window Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3')`,
-          filter: 'brightness(0.6)'
+          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
+          filter: 'brightness(0.4)'
         }}
       />
       
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/40" />
 
-      {/* Simple Header */}
-      <header className="absolute top-0 left-0 right-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center h-24">
-            {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12">
-                <img 
-                  src="/JiGR_Logo-full_figma_circle.png" 
-                  alt="JiGR Logo" 
-                  className="w-12 h-12 object-contain"
-                />
-              </div>
-              <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
-            </div>
+      {/* Main Content - Matching Landing Page layout */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+        
+        {/* JiGR Logo above form container - Matching Landing Page */}
+        <div className="mb-8">
+          <div className="w-144 h-36">
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
+              alt="JGR Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
-      </header>
-      
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
-        {/* Glass Morphism Card */}
-        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
+        {/* Glass Morphism Card - Matching Sign In styling */}
+        <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
+            <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
               Create Account
             </h1>
-            <p className={`${getTextStyle('bodySmall')} font-light`}>
+            <p className="text-white/70 text-sm font-light">
               Start your compliance journey today
             </p>
           </div>
@@ -183,7 +205,7 @@ export default function CreateAccountPage() {
                 value={formData.businessName}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -194,7 +216,7 @@ export default function CreateAccountPage() {
                 value={formData.businessType}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               >
                 <option value="restaurant" className="text-gray-800">Restaurant</option>
                 <option value="cafe" className="text-gray-800">Café</option>
@@ -213,7 +235,7 @@ export default function CreateAccountPage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -226,7 +248,7 @@ export default function CreateAccountPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -238,7 +260,7 @@ export default function CreateAccountPage() {
                 placeholder="Phone Number"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -251,7 +273,7 @@ export default function CreateAccountPage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -264,7 +286,7 @@ export default function CreateAccountPage() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className={getFormFieldStyle()}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -279,7 +301,7 @@ export default function CreateAccountPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none mt-6"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -294,7 +316,7 @@ export default function CreateAccountPage() {
 
           {/* Sign In Link */}
           <div className="text-center mt-6">
-            <p className={`${getTextStyle('body')} ${DesignTokens.colors.text.onGlassSecondary}`}>
+            <p className="text-white/70 text-sm">
               Already have an account?{' '}
               <Link 
                 href="/signin" 
@@ -304,10 +326,16 @@ export default function CreateAccountPage() {
               </Link>
             </p>
           </div>
+
+          {/* Development Platform Selector */}
+          <PlatformSelector 
+            currentPlatform={platformMode}
+            onPlatformChange={setPlatformMode}
+          />
           
           {/* Version */}
-          <div className="text-center mt-6 pt-4 border-t border-white/10">
-            <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>
+          <div className="text-center mt-4 pt-4 border-t border-white/10">
+            <p className="text-white/50 text-xs">
               {getVersionDisplay('prod')}
             </p>
           </div>

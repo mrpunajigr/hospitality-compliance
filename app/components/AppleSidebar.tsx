@@ -11,7 +11,7 @@ interface SidebarNavItem {
   href: string
   icon: string
   section: 'quickActions' | 'modules' | 'settings'
-  context?: 'admin' | 'console' | 'both' | 'upload'
+  context?: 'admin' | 'console' | 'both' | 'upload' | 'operations'
   subItems?: SidebarSubItem[]
 }
 
@@ -47,10 +47,10 @@ const sidebarNavigation: SidebarNavItem[] = [
     ]
   },
   
-  // Legacy Quick Actions (for backward compatibility)
-  { name: 'Dashboard', href: '/console/dashboard', icon: '/icons/JiGRdiaryWhite.png', section: 'quickActions', context: 'console' },
-  { name: 'Upload', href: '/console/upload', icon: '/icons/JiGRuploadWhite.png', section: 'quickActions', context: 'console' },
-  { name: 'Reports', href: '/console/reports', icon: '/icons/JiGRcamera.png', section: 'quickActions', context: 'console' },
+  // Operations Quick Actions (updated from legacy console routes)
+  { name: 'Dashboard', href: '/operations/dashboard', icon: '/icons/JiGRdiaryWhite.png', section: 'quickActions', context: 'operations' },
+  { name: 'Upload', href: '/operations/upload', icon: '/icons/JiGRuploadWhite.png', section: 'quickActions', context: 'operations' },
+  { name: 'Reports', href: '/operations/reports', icon: '/icons/JiGRcamera.png', section: 'quickActions', context: 'operations' },
   { name: 'Company', href: '/admin/company', icon: '/icons/JiGRadmin.png', section: 'quickActions', context: 'admin' },
   
   // Future Modules

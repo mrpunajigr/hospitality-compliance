@@ -10,7 +10,7 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
-import RoleBasedSidebar from '@/app/components/RoleBasedSidebar'
+// Removed RoleBasedSidebar - using AppleSidebar from layout instead
 import UserInvitationModal from '@/app/components/team/UserInvitationModal'
 import type { InvitationFormData, UserRole } from '@/app/components/team/UserInvitationModal'
 import { Users, UserPlus, Settings, MoreVertical, Clock, Mail, Crown, Shield, Wrench, UserIcon } from 'lucide-react'
@@ -258,17 +258,33 @@ export default function AdminTeamPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('🔍 Admin Team: Starting auth check...')
       const { data: { user } } = await supabase.auth.getUser()
       
+      console.log('🔍 Admin Team: User data:', user ? { id: user.id, email: user.email } : 'No user')
+      
       if (!user) {
+        console.log('❌ Admin Team: No user found, falling back to demo mode')
         await handleDemoSignIn()
       } else {
+        console.log('✅ Admin Team: Real user found, loading client info...')
         setUser(user)
         
         try {
+          console.log('🔍 Admin Team: Calling getUserClient for user ID:', user.id)
           const clientInfo = await getUserClient(user.id)
+          console.log('🔍 Admin Team: Client info result:', clientInfo)
+          
           if (clientInfo) {
+            console.log('✅ Admin Team: Client info loaded successfully:', clientInfo.name)
             setUserClient(clientInfo)
+            
+            // CRITICAL: Load real team data for this client
+            console.log('🔍 Admin Team: Loading team data for client ID:', clientInfo.clientId)
+            await loadTeamData(clientInfo.clientId)
+            console.log('✅ Admin Team: Team data loading completed')
+          } else {
+            console.log('❌ Admin Team: No client info found for user')
           }
           
           const { data: profileData } = await supabase
@@ -282,7 +298,7 @@ export default function AdminTeamPage() {
             setAvatarUrl(profileData.avatar_url)
           }
         } catch (error) {
-          console.error('Error loading profile:', error)
+          console.error('❌ Admin Team: Error loading client info or team data:', error)
         }
         
         setLoading(false)
@@ -349,17 +365,8 @@ export default function AdminTeamPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Role-Based Sidebar */}
-      <RoleBasedSidebar
-        user={user}
-        userClient={userClient}
-        userRole={profile?.role as UserRole || 'OWNER'}
-        logoUrl={undefined}
-        activeSection="admin"
-      />
-
-      {/* Main Content */}
-      <div className="ml-[150px] max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 pt-8 pb-8">
+      {/* Main Content - Sidebar handled by admin layout */}
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 pt-8 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -371,7 +378,7 @@ export default function AdminTeamPage() {
       {userClient && (
         <div className="mb-4 text-center">
           <p className="text-blue-300 text-sm">
-            {userClient?.name || 'Demo Restaurant'} • {userClient?.role || 'OWNER'}
+            {userClient?.name || 'Loading...'} • {userClient?.role || 'OWNER'}
           </p>
         </div>
       )}
@@ -665,7 +672,7 @@ export default function AdminTeamPage() {
           onClose={() => setShowInviteModal(false)}
           onInvite={handleInviteUser}
           userRole={profile?.role || 'OWNER'}
-          organizationName={userClient?.name || 'Demo Restaurant'}
+          organizationName={userClient?.name || 'Loading...'}
         />
       )}
       </div>

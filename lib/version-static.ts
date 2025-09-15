@@ -4,11 +4,11 @@
 export const STATIC_VERSION = {
   major: 1,
   month: 9,
-  day: 12,
-  build: 25,
+  day: 14,
+  build: 3,
   alpha: '',
-  buildDate: '2025-09-12',
-  timestamp: 1757672436016
+  buildDate: '2025-09-14',
+  timestamp: 1757834574412
 }
 
 export const getStaticVersion = () => {

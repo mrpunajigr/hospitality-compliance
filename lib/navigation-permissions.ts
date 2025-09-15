@@ -8,7 +8,7 @@ export interface NavigationItem {
   href: string
   icon: string
   section: 'quickActions' | 'modules' | 'settings'
-  context?: 'admin' | 'console' | 'both' | 'upload'
+  context?: 'admin' | 'console' | 'both' | 'upload' | 'operations'
   requiredPermissions: UserRole[]
   description?: string
   subItems?: NavigationSubItem[]
@@ -190,13 +190,13 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     ]
   },
 
-  // Console Dashboard - Supervisor+ access
+  // Operations Dashboard - Supervisor+ access
   {
     name: 'Dashboard',
-    href: '/console/dashboard',
+    href: '/operations/dashboard',
     icon: '/icons/JiGRdiaryWhite.png',
     section: 'quickActions',
-    context: 'console',
+    context: 'operations',
     requiredPermissions: ['SUPERVISOR', 'MANAGER', 'OWNER'],
     description: 'Main dashboard overview'
   },
