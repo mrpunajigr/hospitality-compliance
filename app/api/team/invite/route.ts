@@ -119,7 +119,11 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('✅ User authenticated:', user.email, 'ID:', user.id)
+    console.log('✅ API User authenticated:', {
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at
+    })
 
     // TEMPORARY: Skip permission validation for testing - since fallback user is admin
     console.log('🔵 Skipping permission validation - using fallback admin user')
@@ -160,7 +164,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's real client ID from database (get first match if multiple exist)
-    console.log('🔍 Looking up client_users for user ID:', user.id)
+    console.log('🔍 Looking up client_users for API user ID:', user.id)
+    console.log('🔍 Expected user ID from frontend:', 'ee920a94-5ef3-4307-a04f-669e9ef2ab93')
+    console.log('🔍 Do they match?', user.id === 'ee920a94-5ef3-4307-a04f-669e9ef2ab93')
+    
     const { data: userClients, error: clientError } = await supabase
       .from('client_users')
       .select('client_id, client_users.*, clients!inner(name)')
@@ -169,7 +176,26 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(1)
     
-    console.log('🔍 Client lookup result:', { userClients, clientError })
+    console.log('🔍 Client lookup result:', { 
+      userClients, 
+      clientError,
+      searchedFor: user.id,
+      foundRecords: userClients?.length || 0
+    })
+    
+    // Also check if the expected user ID has client association
+    console.log('🔍 Double-checking: Looking up expected frontend user...')
+    const { data: expectedUserClients } = await supabase
+      .from('client_users')
+      .select('client_id, client_users.*, clients!inner(name)')
+      .eq('user_id', 'ee920a94-5ef3-4307-a04f-669e9ef2ab93')
+      .eq('status', 'active')
+    
+    console.log('🔍 Expected user client lookup:', {
+      expectedUserClients,
+      foundRecords: expectedUserClients?.length || 0
+    })
+    
     const userClient = userClients?.[0]
     
     // ✅ Don't create invitation if no valid client association

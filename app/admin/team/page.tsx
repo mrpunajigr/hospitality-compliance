@@ -147,6 +147,13 @@ export default function AdminTeamPage() {
       // Get the current session token for API authentication
       const { data: { session } } = await supabase.auth.getSession()
       
+      console.log('🔍 Frontend session details:', {
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        hasAccessToken: !!session?.access_token,
+        tokenPreview: session?.access_token?.substring(0, 20) + '...'
+      })
+      
       const response = await fetch('/api/team/invite', {
         method: 'POST',
         headers: {
