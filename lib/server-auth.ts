@@ -19,56 +19,63 @@ export async function getServerUser(request: NextRequest) {
  */
 async function getServerUserFromRequest(request: NextRequest) {
   try {
-    // Get cookies from request headers
-    const cookieStore = request.headers.get('cookie') || ''
-    
-    // Parse cookies manually since we're in an API route
-    const cookies = new Map()
-    cookieStore.split(';').forEach(cookie => {
-      const [name, value] = cookie.trim().split('=')
-      if (name && value) {
-        cookies.set(name, decodeURIComponent(value))
-      }
-    })
-    
-    // Look for Supabase auth cookies - try multiple patterns
     let accessToken = null
-    let refreshToken = null
     
-    console.log('🔍 Available cookies:', Array.from(cookies.keys()))
+    // FIRST: Try Authorization header (modern approach)
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      accessToken = authHeader.replace('Bearer ', '')
+      console.log('✅ Found access token in Authorization header')
+    }
     
-    // Try different cookie patterns Supabase might use
-    for (const [name, value] of cookies) {
-      console.log('🔍 Checking cookie:', name)
+    // FALLBACK: Try cookies if no header token
+    if (!accessToken) {
+      console.log('🔍 No Authorization header, checking cookies...')
       
-      // Pattern 1: sb-{project-ref}-auth-token
-      if (name.startsWith('sb-') && name.includes('auth-token')) {
-        try {
-          const authData = JSON.parse(value)
-          accessToken = authData.access_token
-          refreshToken = authData.refresh_token
-          console.log('✅ Found auth token in', name)
-          break
-        } catch (e) {
-          console.log('❌ Failed to parse auth data from', name)
+      // Get cookies from request headers
+      const cookieStore = request.headers.get('cookie') || ''
+      
+      // Parse cookies manually since we're in an API route
+      const cookies = new Map()
+      cookieStore.split(';').forEach(cookie => {
+        const [name, value] = cookie.trim().split('=')
+        if (name && value) {
+          cookies.set(name, decodeURIComponent(value))
         }
-      }
+      })
       
-      // Pattern 2: Direct access token cookies
-      if (name.includes('access') || name.includes('token')) {
-        console.log('🔍 Potential token cookie:', name, value.substring(0, 20) + '...')
-        if (value.length > 50) { // JWT tokens are longer
-          accessToken = value
-          console.log('✅ Using direct token from', name)
-          break
+      console.log('🔍 Available cookies:', Array.from(cookies.keys()))
+      
+      // Try different cookie patterns Supabase might use
+      for (const [name, value] of cookies) {
+        console.log('🔍 Checking cookie:', name)
+        
+        // Pattern 1: sb-{project-ref}-auth-token
+        if (name.startsWith('sb-') && name.includes('auth-token')) {
+          try {
+            const authData = JSON.parse(value)
+            accessToken = authData.access_token
+            console.log('✅ Found auth token in cookie', name)
+            break
+          } catch (e) {
+            console.log('❌ Failed to parse auth data from', name)
+          }
+        }
+        
+        // Pattern 2: Direct access token cookies
+        if (name.includes('access') || name.includes('token')) {
+          console.log('🔍 Potential token cookie:', name, value.substring(0, 20) + '...')
+          if (value.length > 50) { // JWT tokens are longer
+            accessToken = value
+            console.log('✅ Using direct token from cookie', name)
+            break
+          }
         }
       }
     }
     
     if (!accessToken) {
-      console.warn('No access token found in request cookies')
-      console.log('🔍 Full cookie string:', cookieStore)
-      console.log('🔍 All parsed cookies:', Object.fromEntries(cookies))
+      console.warn('❌ No access token found in Authorization header OR cookies')
       return null
     }
     
