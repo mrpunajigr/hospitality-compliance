@@ -37,11 +37,11 @@ export interface EmailSendResult {
 
 // Default email configuration
 const DEFAULT_CONFIG: EmailConfig = {
-  provider: process.env.EMAIL_PROVIDER as 'sendgrid' | 'aws-ses' | 'resend' || 'demo',
-  apiKey: process.env.EMAIL_API_KEY,
-  fromEmail: process.env.EMAIL_FROM_ADDRESS || 'noreply@hospitality-compliance.com',
+  provider: (process.env.EMAIL_PROVIDER as 'sendgrid' | 'aws-ses' | 'resend') || 'demo',
+  apiKey: process.env.EMAIL_API_KEY || process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY,
+  fromEmail: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
   fromName: process.env.EMAIL_FROM_NAME || 'JiGR Hospitality Compliance',
-  replyTo: process.env.EMAIL_REPLY_TO
+  replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app'
 }
 
 // Role display helpers
@@ -369,6 +369,13 @@ export class EmailService {
 
   constructor(config: Partial<EmailConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
+    
+    console.log('📧 EmailService initializing with config:', {
+      provider: this.config.provider,
+      hasApiKey: !!this.config.apiKey,
+      fromEmail: this.config.fromEmail,
+      apiKeySource: process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : process.env.EMAIL_API_KEY ? 'EMAIL_API_KEY' : 'none'
+    })
     
     switch (this.config.provider) {
       case 'sendgrid':
