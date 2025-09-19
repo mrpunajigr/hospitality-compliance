@@ -284,12 +284,12 @@ export async function POST(request: NextRequest) {
     // Send invitation email using email service
     try {
       console.log('📧 Starting email sending process...')
-      console.log('📧 Client ID for organization lookup:', clientId)
+      console.log('📧 Real Client ID for organization lookup:', realClientId)
       
       const { data: organization } = await supabase
         .from('clients')
         .select('name')
-        .eq('id', clientId)
+        .eq('id', realClientId)
         .single()
 
       const organizationName = organization?.name || 'Unknown Organization'
