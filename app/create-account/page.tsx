@@ -52,6 +52,7 @@ export default function CreateAccountPage() {
     confirmPassword: ''
   })
   const [error, setError] = useState('')
+  const [errorType, setErrorType] = useState<string | null>(null)
   const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
   const router = useRouter()
 
@@ -66,6 +67,7 @@ export default function CreateAccountPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setErrorType(null)
     setIsLoading(true)
 
     // Basic validation
@@ -128,9 +130,32 @@ export default function CreateAccountPage() {
           console.log('📋 API Response status:', response.status)
           
           if (!response.ok) {
-            const errorText = await response.text()
-            console.error('❌ API Error response:', errorText)
-            throw new Error(`Company creation failed: ${response.status} ${errorText}`)
+            const errorData = await response.json().catch(() => null)
+            console.error('❌ API Error response:', errorData)
+            
+            if (errorData) {
+              // Handle structured error responses from duplicate prevention
+              if (errorData.errorCode === 'DUPLICATE_BUSINESS_NAME') {
+                const suggestions = errorData.suggestions ? 
+                  `\n\nSuggested alternatives:\n• ${errorData.suggestions.join('\n• ')}` : ''
+                setError(`${errorData.message}${suggestions}`)
+                setErrorType('DUPLICATE_BUSINESS_NAME')
+                setIsLoading(false)
+                return
+              } else if (errorData.errorCode === 'ACCOUNT_EXISTS') {
+                setError(errorData.message)
+                setErrorType('ACCOUNT_EXISTS')
+                setIsLoading(false)
+                return
+              } else {
+                setError(errorData.message || errorData.error)
+                setErrorType('GENERAL_ERROR')
+                setIsLoading(false)
+                return
+              }
+            } else {
+              throw new Error(`Company creation failed: ${response.status}`)
+            }
           }
 
           const result = await response.json()
@@ -293,7 +318,17 @@ export default function CreateAccountPage() {
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
-                <p className="text-red-200 text-sm text-center">{error}</p>
+                <p className="text-red-200 text-sm text-center whitespace-pre-line">{error}</p>
+                {errorType === 'ACCOUNT_EXISTS' && (
+                  <div className="mt-3 text-center">
+                    <Link 
+                      href="/signin"
+                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                    >
+                      Sign In Instead
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 
