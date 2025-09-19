@@ -282,8 +282,8 @@ class ResendService {
         from: `${this.config.fromName} <${this.config.fromEmail}>`,
         to: [to],
         subject: template.subject,
-        html: template.html,
-        reply_to: this.config.replyTo
+        html: template.htmlContent,
+        replyTo: this.config.replyTo
       })
 
       if (response.error) {
@@ -357,49 +357,6 @@ class SendGridService {
       return {
         success: false,
         error: `SendGrid request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      }
-    }
-  }
-}
-
-class ResendService {
-  constructor(private apiKey: string, private config: EmailConfig) {}
-
-  async send(to: string, template: EmailTemplate): Promise<EmailSendResult> {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `${this.config.fromName} <${this.config.fromEmail}>`,
-          to: [to],
-          reply_to: this.config.replyTo,
-          subject: template.subject,
-          html: template.htmlContent,
-          text: template.textContent
-        })
-      })
-
-      const result = await response.json()
-
-      if (response.ok) {
-        return {
-          success: true,
-          messageId: result.id
-        }
-      } else {
-        return {
-          success: false,
-          error: `Resend error: ${result.message || 'Unknown error'}`
-        }
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: `Resend request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       }
     }
   }
