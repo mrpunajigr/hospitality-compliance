@@ -281,6 +281,14 @@ export async function POST(request: NextRequest) {
     // TEMP: Skip audit logging for testing
     console.log('🔵 Would log audit trail:', { clientId, userId: user.id, email, role })
 
+    console.log('🔵 CHECKPOINT: About to start email sending process')
+    console.log('🔵 CHECKPOINT: Variables available:', { 
+      realClientId, 
+      hasEmailService: !!emailService,
+      userEmail: user.email,
+      invitationEmail: email 
+    })
+
     // Send invitation email using email service
     try {
       console.log('📧 Starting email sending process...')
@@ -327,6 +335,9 @@ export async function POST(request: NextRequest) {
       console.error('❌ Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace')
       // Continue - the invitation was created successfully
     }
+
+    console.log('🔵 CHECKPOINT: Email section completed (success or error)')
+    console.log('🔵 CHECKPOINT: About to return success response')
 
     console.log('🎉 About to return success response')
     return NextResponse.json({
