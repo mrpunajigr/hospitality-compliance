@@ -103,7 +103,74 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Create the company/client record
+    // 2. Check for duplicate business names
+    console.log('🔍 Checking for duplicate business names...')
+    const businessNameTrimmed = businessName.trim()
+    
+    const { data: existingClients, error: duplicateCheckError } = await supabaseAdmin
+      .from('clients')
+      .select('id, name, business_email')
+      .ilike('name', businessNameTrimmed)
+      .limit(5) // Check first 5 matches for analysis
+    
+    if (duplicateCheckError) {
+      console.error('Error checking for duplicate business names:', duplicateCheckError)
+      return NextResponse.json(
+        { error: 'Failed to validate business name', details: duplicateCheckError.message },
+        { status: 500 }
+      )
+    }
+    
+    // Analyze duplicate matches
+    if (existingClients && existingClients.length > 0) {
+      console.log('🔍 Found existing businesses with similar names:', existingClients.length)
+      
+      // Check for exact name match (case-insensitive)
+      const exactMatch = existingClients.find(client => 
+        client.name.toLowerCase() === businessNameTrimmed.toLowerCase()
+      )
+      
+      if (exactMatch) {
+        console.warn('❌ Exact business name match found:', exactMatch.name)
+        
+        // Check if same email trying to register same business
+        if (exactMatch.business_email === email) {
+          return NextResponse.json(
+            { 
+              error: 'Account already exists',
+              errorCode: 'ACCOUNT_EXISTS',
+              message: 'An account for this business already exists with your email address. Please sign in instead.',
+              canRetry: false,
+              action: 'signin'
+            },
+            { status: 409 }
+          )
+        } else {
+          // Different email, business name taken
+          return NextResponse.json(
+            { 
+              error: 'Business name already registered',
+              errorCode: 'DUPLICATE_BUSINESS_NAME',
+              message: 'This business name is already registered by another user. Please choose a different name.',
+              canRetry: true,
+              suggestions: [
+                `${businessNameTrimmed} Ltd`,
+                `${businessNameTrimmed} 2025`,
+                `${businessNameTrimmed} NZ`
+              ]
+            },
+            { status: 409 }
+          )
+        }
+      }
+      
+      // If we get here, there are similar names but no exact match
+      console.log('✅ No exact match found, proceeding with business creation')
+    } else {
+      console.log('✅ No similar business names found')
+    }
+
+    // 3. Create the company/client record
     console.log('🏢 Creating client record...')
     const clientInsertData = {
       name: businessName,
@@ -137,7 +204,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // 3. Link the user to the company as owner
+    // 4. Link the user to the company as owner
     console.log('🔗 Creating client_users link...')
     const linkData = {
       user_id: userId,
