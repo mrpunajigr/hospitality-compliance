@@ -283,6 +283,9 @@ export async function POST(request: NextRequest) {
 
     // Send invitation email using email service
     try {
+      console.log('📧 Starting email sending process...')
+      console.log('📧 Client ID for organization lookup:', clientId)
+      
       const { data: organization } = await supabase
         .from('clients')
         .select('name')
@@ -290,6 +293,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       const organizationName = organization?.name || 'Unknown Organization'
+      console.log('🏢 Organization found:', organizationName)
       
       const emailData: InvitationEmailData = {
         inviteeEmail: email,
@@ -303,10 +307,24 @@ export async function POST(request: NextRequest) {
         acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept-invitation?token=${invitation.token}`
       }
       
+      console.log('📧 Email data prepared:', {
+        ...emailData,
+        invitationToken: '***HIDDEN***' // Don't log the actual token
+      })
+      
+      console.log('📧 About to call emailService.sendInvitation...')
       const emailResult = await emailService.sendInvitation(emailData)
       console.log('📧 Email result:', emailResult)
+      
+      if (!emailResult.success) {
+        console.error('❌ Email sending failed:', emailResult.error)
+      } else {
+        console.log('✅ Email sent successfully!')
+      }
     } catch (emailError) {
-      console.warn('⚠️ Failed to send invitation email:', emailError)
+      console.error('❌ Email sending exception:', emailError)
+      console.error('❌ Error details:', emailError instanceof Error ? emailError.message : String(emailError))
+      console.error('❌ Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace')
       // Continue - the invitation was created successfully
     }
 
