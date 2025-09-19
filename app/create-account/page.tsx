@@ -174,7 +174,15 @@ export default function CreateAccountPage() {
           
           // Check if it's a duplicate business name error (common case)
           if (errorMessage.includes('Business name already registered') || errorMessage.includes('DUPLICATE_BUSINESS_NAME')) {
-            setError('This business name is already taken. Please choose a different name.')
+            // Extract contact email if present in the error message
+            const contactEmailMatch = errorMessage.match(/contact ([^\s]+@[^\s]+)/);
+            const contactEmail = contactEmailMatch ? contactEmailMatch[1] : null;
+            
+            if (contactEmail) {
+              setError(`This business name is already taken. Please choose a different name, or contact ${contactEmail} for access to the existing account.`)
+            } else {
+              setError('This business name is already taken. Please choose a different name.')
+            }
             setErrorType('DUPLICATE_BUSINESS_NAME')
           } else if (errorMessage.includes('Account already exists') || errorMessage.includes('ACCOUNT_EXISTS')) {
             setError('An account with this business name already exists. Please sign in instead.')

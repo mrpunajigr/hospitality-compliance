@@ -151,8 +151,9 @@ export async function POST(request: Request) {
             { 
               error: 'Business name already registered',
               errorCode: 'DUPLICATE_BUSINESS_NAME',
-              message: 'This business name is already registered by another user. Please choose a different name.',
+              message: `This business name is already registered by another user. Please choose a different name, or contact ${exactMatch.business_email} for access to the existing account.`,
               canRetry: true,
+              contactEmail: exactMatch.business_email,
               suggestions: [
                 `${businessNameTrimmed} Ltd`,
                 `${businessNameTrimmed} 2025`,
