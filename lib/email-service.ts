@@ -270,6 +270,45 @@ class DemoEmailService {
   }
 }
 
+class ResendService {
+  constructor(private apiKey: string, private config: EmailConfig) {}
+
+  async send(to: string, template: EmailTemplate): Promise<EmailSendResult> {
+    try {
+      const { Resend } = await import('resend')
+      const resend = new Resend(this.apiKey)
+
+      const response = await resend.emails.send({
+        from: `${this.config.fromName} <${this.config.fromEmail}>`,
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+        reply_to: this.config.replyTo
+      })
+
+      if (response.error) {
+        console.error('❌ Resend API Error:', response.error)
+        return {
+          success: false,
+          error: response.error.message || 'Resend API error'
+        }
+      }
+
+      console.log('✅ Resend Email sent successfully:', response.data?.id)
+      return {
+        success: true,
+        messageId: response.data?.id
+      }
+    } catch (error) {
+      console.error('❌ Resend Service Error:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown Resend error'
+      }
+    }
+  }
+}
+
 class SendGridService {
   constructor(private apiKey: string, private config: EmailConfig) {}
 
