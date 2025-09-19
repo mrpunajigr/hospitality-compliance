@@ -387,8 +387,95 @@ export class EmailService {
   }
 
   async sendInvitation(data: InvitationEmailData): Promise<EmailSendResult> {
-    const template = generateInvitationTemplate(data)
-    return this.service.send(data.inviteeEmail, template)
+    try {
+      console.log('📧 EmailService.sendInvitation called with:', {
+        recipientEmail: data.inviteeEmail,
+        organizationName: data.organizationName,
+        role: data.role
+      })
+
+      // Create email template for invitation
+      const template: EmailTemplate = {
+        subject: `Invitation to join ${data.organizationName}`,
+        htmlContent: this.generateInvitationHTML(data),
+        textContent: this.generateInvitationText(data)
+      }
+
+      console.log('📧 Sending invitation email via service...')
+      const result = await this.service.send(data.inviteeEmail, template)
+      console.log('📧 Invitation email result:', result)
+      
+      return result
+    } catch (error) {
+      console.error('❌ Error in sendInvitation:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error in sendInvitation'
+      }
+    }
+  }
+
+  // Generate HTML content for invitation email
+  private generateInvitationHTML(data: InvitationEmailData): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Invitation to ${data.organizationName}</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #2563eb;">You're invited to join ${data.organizationName}</h2>
+          
+          <p>Hi ${data.inviteeName},</p>
+          
+          <p>${data.inviterName} has invited you to join <strong>${data.organizationName}</strong> as a <strong>${data.role}</strong>.</p>
+          
+          ${data.personalMessage ? `<p><em>"${data.personalMessage}"</em></p>` : ''}
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${data.acceptUrl}" 
+               style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              Accept Invitation
+            </a>
+          </div>
+          
+          <p style="font-size: 14px; color: #666;">
+            This invitation will expire on ${new Date(data.expiresAt).toLocaleDateString()}.
+            If you have any questions, please contact ${data.inviterName}.
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #999;">
+            JiGR Hospitality Compliance System
+          </p>
+        </div>
+      </body>
+      </html>
+    `
+  }
+
+  // Generate plain text content for invitation email
+  private generateInvitationText(data: InvitationEmailData): string {
+    return `
+You're invited to join ${data.organizationName}
+
+Hi ${data.inviteeName},
+
+${data.inviterName} has invited you to join ${data.organizationName} as a ${data.role}.
+
+${data.personalMessage ? `"${data.personalMessage}"` : ''}
+
+To accept this invitation, please visit: ${data.acceptUrl}
+
+This invitation will expire on ${new Date(data.expiresAt).toLocaleDateString()}.
+
+If you have any questions, please contact ${data.inviterName}.
+
+---
+JiGR Hospitality Compliance System
+    `.trim()
   }
 
   async sendWelcome(userEmail: string, userName: string, organizationName: string): Promise<EmailSendResult> {
