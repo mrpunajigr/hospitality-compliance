@@ -137,7 +137,7 @@ export default function CreateAccountPage() {
               // Handle structured error responses from duplicate prevention
               if (errorData.errorCode === 'DUPLICATE_BUSINESS_NAME') {
                 const suggestions = errorData.suggestions ? 
-                  `\n\nSuggested alternatives:\n• ${errorData.suggestions.join('\n• ')}` : ''
+                  `\n\nSuggestions:\n• ${errorData.suggestions.join('\n• ')}` : ''
                 setError(`${errorData.message}${suggestions}`)
                 setErrorType('DUPLICATE_BUSINESS_NAME')
                 setIsLoading(false)
@@ -148,7 +148,9 @@ export default function CreateAccountPage() {
                 setIsLoading(false)
                 return
               } else {
-                setError(errorData.message || errorData.error)
+                // Extract just the user-friendly message, not technical details
+                const cleanMessage = errorData.message || errorData.error || 'Account creation failed. Please try again.'
+                setError(cleanMessage)
                 setErrorType('GENERAL_ERROR')
                 setIsLoading(false)
                 return
@@ -165,12 +167,24 @@ export default function CreateAccountPage() {
           // Success - redirect to admin console (main company dashboard)
           router.push('/admin/console')
         } catch (companyError) {
-          console.error('🚨 DETAILED Company creation error:', companyError)
-          console.error('🚨 Error type:', typeof companyError)
-          console.error('🚨 Error message:', companyError instanceof Error ? companyError.message : String(companyError))
-          console.error('🚨 Error stack:', companyError instanceof Error ? companyError.stack : 'No stack trace')
+          console.error('🚨 Company creation error:', companyError)
           
-          setError(`Account created but company setup failed: ${companyError instanceof Error ? companyError.message : String(companyError)}`)
+          // Extract user-friendly error message
+          const errorMessage = companyError instanceof Error ? companyError.message : String(companyError)
+          
+          // Check if it's a duplicate business name error (common case)
+          if (errorMessage.includes('Business name already registered') || errorMessage.includes('DUPLICATE_BUSINESS_NAME')) {
+            setError('This business name is already taken. Please choose a different name.')
+            setErrorType('DUPLICATE_BUSINESS_NAME')
+          } else if (errorMessage.includes('Account already exists') || errorMessage.includes('ACCOUNT_EXISTS')) {
+            setError('An account with this business name already exists. Please sign in instead.')
+            setErrorType('ACCOUNT_EXISTS')
+          } else {
+            // Generic user-friendly message for other errors
+            setError('Unable to complete account setup. Please try again or contact support.')
+            setErrorType('GENERAL_ERROR')
+          }
+          
           setIsLoading(false)
         }
       }
