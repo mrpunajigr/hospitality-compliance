@@ -144,21 +144,43 @@ export default function AdminTeamPage() {
         throw new Error('Client ID not found')
       }
 
-      // Get the current session token for API authentication
+      // Ensure we have a fresh, valid session token
+      console.log('🔍 Refreshing session before API call...')
+      
+      // First, try to refresh the session to ensure token is current
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+      
+      if (refreshError) {
+        console.warn('⚠️ Session refresh failed, using existing session:', refreshError)
+      }
+      
+      // Use refreshed session if available, otherwise fall back to current session
       const { data: { session } } = await supabase.auth.getSession()
+      const finalSession = refreshedSession || session
       
       console.log('🔍 Frontend session details:', {
-        userId: session?.user?.id,
-        userEmail: session?.user?.email,
-        hasAccessToken: !!session?.access_token,
-        tokenPreview: session?.access_token?.substring(0, 20) + '...'
+        userId: finalSession?.user?.id,
+        userEmail: finalSession?.user?.email,
+        hasAccessToken: !!finalSession?.access_token,
+        tokenPreview: finalSession?.access_token?.substring(0, 20) + '...',
+        wasRefreshed: !!refreshedSession
       })
+      
+      // Verify the session user matches the frontend user we expect
+      const expectedUserId = user?.id || userClient?.id
+      if (finalSession?.user?.id !== expectedUserId) {
+        console.error('❌ Session user mismatch!', {
+          frontendUser: expectedUserId,
+          sessionUser: finalSession?.user?.id
+        })
+        throw new Error('Session authentication mismatch. Please refresh the page and try again.')
+      }
       
       const response = await fetch('/api/team/invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`,
+          'Authorization': `Bearer ${finalSession?.access_token || ''}`,
         },
         body: JSON.stringify({
           ...invitationData,
