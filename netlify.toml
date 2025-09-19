@@ -33,3 +33,7 @@
 # File upload optimization (Netlify allows larger files than Vercel)
 [build.processing]
   skip_processing = false
+
+# Skip secrets scanning for configuration values that are not actually secrets
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "EMAIL_PROVIDER,EMAIL_FROM_NAME,EMAIL_FROM_ADDRESS"
