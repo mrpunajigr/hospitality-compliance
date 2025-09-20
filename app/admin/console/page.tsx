@@ -198,7 +198,7 @@ export default function AdminConsolePage() {
                 <h3 className="text-black text-lg font-semibold mb-3">Business Info</h3>
                 <div className="flex justify-center mb-4">
                   <img 
-                    src={companyLogoUrl || "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"}
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"
                     alt="Business Info"
                     className="w-16 h-16 object-contain"
                   />
