@@ -208,9 +208,9 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Type:</strong> Restaurant</p>
-                <p><strong>License:</strong> AL123456</p>
-                <p><strong>Phone:</strong> +64 9 123 4567</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
+                <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
               </div>
             </div>
 

@@ -66,6 +66,10 @@ export interface UserClient {
   lastActiveAt?: string
   department?: string
   jobTitle?: string
+  // Client/Company details
+  owner_name?: string
+  business_type?: string
+  phone?: string
 }
 
 export interface TeamMember {
@@ -386,7 +390,10 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         *,
         clients!inner (
           id,
-          name
+          name,
+          owner_name,
+          business_type,
+          phone
         )
       `)
       .eq('user_id', userId)
@@ -415,7 +422,11 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       status: clientData.status,
       lastActiveAt: clientData.last_active_at,
       department: clientData.department,
-      jobTitle: clientData.job_title
+      jobTitle: clientData.job_title,
+      // Client/Company details
+      owner_name: clientData.clients.owner_name,
+      business_type: clientData.clients.business_type,
+      phone: clientData.clients.phone
     }
   } catch (error) {
     console.error('Error in getUserClient:', error)

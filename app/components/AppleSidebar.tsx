@@ -136,15 +136,11 @@ export default function AppleSidebar({
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-center">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
-              {logoUrl ? (
-                <img 
-                  src={logoUrl} 
-                  alt="Company Logo" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-white font-bold text-2xl">C</span>
-              )}
+              <img 
+                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png"
+                alt="JiGR Logo" 
+                className="w-full h-full object-contain p-2"
+              />
             </div>
           </div>
         </div>

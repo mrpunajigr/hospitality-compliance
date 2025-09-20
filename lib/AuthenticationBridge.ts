@@ -135,6 +135,10 @@ export interface UserClient {
   jobTitle?: string
   createdAt?: string
   metadata?: Record<string, any>
+  // Client/Company details
+  owner_name?: string
+  business_type?: string
+  phone?: string
 }
 
 /**
