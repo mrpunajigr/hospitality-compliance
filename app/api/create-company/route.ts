@@ -92,17 +92,45 @@ export async function POST(request: Request) {
       
       if (profileError) {
         console.error('Error creating profile:', profileError)
+        
+        // Handle specific case where position column doesn't exist
+        if (profileError.message?.includes('position') || profileError.code === '42703') {
+          console.log('⚠️ position column missing, retrying without it...')
+          // Retry without position field
+          const { error: retryProfileError } = await supabaseAdmin
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: email,
+              full_name: fullName,
+              phone: phone,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            
+          if (!retryProfileError) {
+            console.log('✅ Profile created successfully without position field')
+          } else {
+            console.error('Error creating profile even without position:', retryProfileError)
+            return NextResponse.json(
+              { error: 'Failed to create user profile', details: retryProfileError.message },
+              { status: 500 }
+            )
+          }
+        }
         // If foreign key constraint fails, it means user doesn't exist in auth.users
-        if (profileError.code === '23503') {
+        else if (profileError.code === '23503') {
           return NextResponse.json(
             { error: 'User account not found. Please ensure user is properly registered.' },
             { status: 400 }
           )
         }
-        return NextResponse.json(
-          { error: 'Failed to create user profile', details: profileError.message },
-          { status: 500 }
-        )
+        else {
+          return NextResponse.json(
+            { error: 'Failed to create user profile', details: profileError.message },
+            { status: 500 }
+          )
+        }
       }
     }
 
@@ -207,6 +235,56 @@ export async function POST(request: Request) {
         details: clientError.details,
         hint: clientError.hint
       })
+      
+      // Handle specific case where owner_name column doesn't exist
+      if (clientError.message?.includes('owner_name') || clientError.code === '42703') {
+        console.log('⚠️ owner_name column missing, retrying without it...')
+        // Retry without owner_name field
+        const retryData = { ...clientInsertData }
+        delete retryData.owner_name
+        
+        const { data: retryClientData, error: retryError } = await supabaseAdmin
+          .from('clients')
+          .insert(retryData)
+          .select()
+          .single()
+          
+        if (!retryError) {
+          console.log('✅ Client created successfully without owner_name field')
+          // Continue with the rest of the function using retryClientData
+          const clientData = retryClientData
+          
+          // Jump to user linking step
+          console.log('🔗 Creating client_users link...')
+          const linkData = {
+            user_id: userId,
+            client_id: clientData.id,
+            role: 'OWNER',
+            status: 'active',
+            joined_at: new Date().toISOString()
+          }
+          
+          const { data: linkResult, error: linkError } = await supabaseAdmin
+            .from('client_users')
+            .insert(linkData)
+            .select()
+
+          if (linkError) {
+            console.error('Error linking user to client:', linkError)
+            return NextResponse.json(
+              { error: 'Failed to link user to company', details: linkError.message },
+              { status: 500 }
+            )
+          }
+
+          return NextResponse.json({
+            success: true,
+            client: clientData,
+            note: 'Created successfully (owner_name field not available in database)'
+          })
+        }
+      }
+      
       return NextResponse.json(
         { error: 'Failed to create company', details: clientError.message },
         { status: 500 }
