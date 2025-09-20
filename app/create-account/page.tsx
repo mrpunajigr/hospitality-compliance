@@ -46,6 +46,8 @@ export default function CreateAccountPage() {
     businessName: '',
     email: '',
     fullName: '',
+    position: '',
+    ownerName: '',
     phone: '',
     businessType: 'restaurant',
     password: '',
@@ -58,10 +60,19 @@ export default function CreateAccountPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: value
+      }
+      
+      // Auto-populate owner name if position indicates ownership
+      if (name === 'position' && value.toLowerCase().includes('owner')) {
+        updated.ownerName = prev.fullName
+      }
+      
+      return updated
+    })
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -91,6 +102,7 @@ export default function CreateAccountPage() {
         options: {
           data: {
             full_name: formData.fullName,
+            position: formData.position,
             business_name: formData.businessName,
             phone: formData.phone,
             business_type: formData.businessType
@@ -114,7 +126,9 @@ export default function CreateAccountPage() {
             phone: formData.phone,
             userId: data.user.id,
             email: formData.email,
-            fullName: formData.fullName
+            fullName: formData.fullName,
+            position: formData.position,
+            ownerName: formData.ownerName
           }
 
           console.log('🚀 About to call API with data:', companyData)
@@ -286,6 +300,30 @@ export default function CreateAccountPage() {
               />
             </div>
 
+            {/* Position in Company */}
+            <div>
+              <input
+                type="text"
+                name="position"
+                placeholder="Your Position in the Company (e.g., Manager, Owner, Head Chef)"
+                value={formData.position}
+                onChange={handleInputChange}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+
+            {/* Owner's Name */}
+            <div>
+              <input
+                type="text"
+                name="ownerName"
+                placeholder="Business Owner's Full Name"
+                value={formData.ownerName}
+                onChange={handleInputChange}
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+
             {/* Email */}
             <div>
               <input
@@ -353,6 +391,27 @@ export default function CreateAccountPage() {
                 )}
               </div>
             )}
+
+            {/* Trial Plan Notice */}
+            <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">✓</span>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-blue-200 font-medium text-sm mb-1">Trial Plan Included</h4>
+                  <p className="text-blue-100 text-xs leading-relaxed">
+                    By creating this account, your company/cafe is automatically enrolled in our <strong>Free Trial Plan</strong>. 
+                    Enjoy full access to document processing, compliance tracking, and analytics for 30 days.
+                  </p>
+                  <p className="text-blue-200 text-xs mt-2 font-medium">
+                    No credit card required • Upgrade anytime
+                  </p>
+                </div>
+              </div>
+            </div>
 
             {/* Submit Button */}
             <button

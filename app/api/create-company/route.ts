@@ -24,7 +24,9 @@ export async function POST(request: Request) {
       phone, 
       userId,
       email,
-      fullName
+      fullName,
+      position,
+      ownerName
     } = body
 
     if (!businessName || !businessType || !userId || !email) {
@@ -82,6 +84,7 @@ export async function POST(request: Request) {
           id: userId,
           email: email,
           full_name: fullName,
+          position: position,
           phone: phone,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -173,7 +176,7 @@ export async function POST(request: Request) {
 
     // 3. Create the company/client record
     console.log('🏢 Creating client record...')
-    const clientInsertData = {
+    const clientInsertData: any = {
       name: businessName,
       business_type: businessType,
       business_email: email,
@@ -182,6 +185,11 @@ export async function POST(request: Request) {
       subscription_tier: 'basic',
       onboarding_status: 'started',
       estimated_monthly_deliveries: 50 // Default estimate
+    }
+    
+    // Add owner_name if provided (gracefully handle if column doesn't exist)
+    if (ownerName || fullName) {
+      clientInsertData.owner_name = ownerName || fullName
     }
     console.log('🔵 Client insert data:', clientInsertData)
     
