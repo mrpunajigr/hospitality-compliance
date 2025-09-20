@@ -1,3 +1,3 @@
-window.APP_VERSION = "v1.9.20.004";
-window.BUILD_TIME = "2025-09-20T01:55:46.050Z";
+window.APP_VERSION = "v1.9.20.006";
+window.BUILD_TIME = "2025-09-20T02:24:59.172Z";
 window.BUILD_ENV = "development";
