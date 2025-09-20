@@ -48,7 +48,6 @@ const sidebarNavigation: SidebarNavItem[] = [
   },
   
   // Operations Quick Actions (updated from legacy console routes)
-  { name: 'Dashboard', href: '/operations/dashboard', icon: '/icons/JiGRdiaryWhite.png', section: 'quickActions', context: 'operations' },
   { name: 'Upload', href: '/operations/upload', icon: '/icons/JiGRuploadWhite.png', section: 'quickActions', context: 'operations' },
   { name: 'Reports', href: '/operations/reports', icon: '/icons/JiGRcamera.png', section: 'quickActions', context: 'operations' },
   { name: 'Company', href: '/admin/company', icon: '/icons/JiGRadmin.png', section: 'quickActions', context: 'admin' },

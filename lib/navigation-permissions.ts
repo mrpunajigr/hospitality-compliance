@@ -190,16 +190,6 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     ]
   },
 
-  // Operations Dashboard - Supervisor+ access
-  {
-    name: 'Dashboard',
-    href: '/operations/dashboard',
-    icon: '/icons/JiGRdiaryWhite.png',
-    section: 'quickActions',
-    context: 'operations',
-    requiredPermissions: ['SUPERVISOR', 'MANAGER', 'OWNER'],
-    description: 'Main dashboard overview'
-  },
 
   // Future Modules - Based on role permissions
   {
