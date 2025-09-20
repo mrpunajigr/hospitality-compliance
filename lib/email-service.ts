@@ -174,14 +174,14 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
         <div class="content">
             <p>Hello <strong>${data.inviteeName}</strong>,</p>
             
-            <p>${data.inviterName} has invited you to join <strong>${data.organizationName}</strong> as a <span class="role-badge">${roleDisplay}</span>${(data.department || data.jobTitle) ? ' in the' : ''}</p>
+            <p>${data.inviterName} has invited you to join <strong>${data.organizationName}</strong>${(data.department || data.jobTitle) ? ' as:' : ` as a <span class="role-badge">${roleDisplay}</span>`}</p>
             
             ${(data.department || data.jobTitle) ? `
-            <div class="position-info" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0;">
-                <h3 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 16px;">Position Details</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-                    ${data.department ? `<div style="background: rgba(59, 130, 246, 0.2); color: #1e40af; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">${data.department} Department</div>` : ''}
-                    ${data.jobTitle ? `<div style="background: rgba(16, 185, 129, 0.2); color: #047857; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">${data.jobTitle}</div>` : ''}
+            <div class="position-info" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center;">
+                    ${data.jobTitle ? `<div style="background: rgba(16, 185, 129, 0.2); color: #047857; padding: 12px 20px; border-radius: 25px; font-weight: 700; font-size: 16px;">${data.jobTitle}</div>` : ''}
+                    ${data.department && data.jobTitle ? '<div style="color: #64748b; font-size: 18px; font-weight: bold;">•</div>' : ''}
+                    ${data.department ? `<div style="background: rgba(59, 130, 246, 0.2); color: #1e40af; padding: 12px 20px; border-radius: 25px; font-weight: 700; font-size: 16px;">${data.department} Department</div>` : ''}
                 </div>
             </div>
             ` : ''}
@@ -240,16 +240,17 @@ You're invited to join ${data.organizationName}!
 
 Hello ${data.inviteeName},
 
-${data.inviterName} has invited you to join ${data.organizationName} as a ${roleDisplay} on JiGR Hospitality Compliance.
+${data.inviterName} has invited you to join ${data.organizationName}${(data.department || data.jobTitle) ? ' as:' : ` as a ${roleDisplay}`} on JiGR Hospitality Compliance.
+
+${(data.department || data.jobTitle) ? `Position: ${data.jobTitle ? data.jobTitle : ''}${data.department && data.jobTitle ? ' • ' : ''}${data.department ? `${data.department} Department` : ''}
 
 Your Role: ${roleDisplay}
 ${roleDescription}
 
-${(data.department || data.jobTitle) ? `Position Details:
-${data.department ? `Department: ${data.department}` : ''}
-${data.jobTitle ? `Job Title: ${data.jobTitle}` : ''}
+` : `Your Role: ${roleDisplay}
+${roleDescription}
 
-` : ''}${data.personalMessage ? `Personal Message: "${data.personalMessage}"
+`}${data.personalMessage ? `Personal Message: "${data.personalMessage}"
 
 ` : ''}Accept your invitation: ${data.acceptUrl}
 

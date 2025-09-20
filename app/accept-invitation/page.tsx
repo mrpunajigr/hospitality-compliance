@@ -21,6 +21,7 @@ interface InvitationDetails {
   inviterName: string
   expiresAt: string
   message?: string
+  clientId: string
 }
 
 function AcceptInvitationContent() {
@@ -123,7 +124,8 @@ function AcceptInvitationContent() {
           organizationName: invitationData.clients.name,
           inviterName: invitationData.profiles?.full_name || 'Team Admin',
           expiresAt: invitationData.expires_at,
-          message: invitationData.invitation_message
+          message: invitationData.invitation_message,
+          clientId: invitationData.clients.id
         })
         setStep('create-account')
         setLoading(false)
@@ -166,7 +168,8 @@ function AcceptInvitationContent() {
         })
 
       if (acceptError) {
-        throw new Error('Failed to accept invitation')
+        console.error('❌ Error creating client_users record:', acceptError)
+        throw new Error(`Failed to accept invitation: ${acceptError.message || acceptError.details || 'Unknown error'}`)
       }
 
       // Update invitation status
@@ -231,6 +234,10 @@ function AcceptInvitationContent() {
     setAccepting(true)
 
     try {
+      console.log('🔵 Starting account creation process...')
+      console.log('🔵 Email:', invitation!.email)
+      console.log('🔵 Client ID:', invitation!.clientId)
+      
       // Create user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: invitation!.email,
@@ -244,21 +251,35 @@ function AcceptInvitationContent() {
       })
 
       if (authError) {
+        console.error('❌ Auth signup error:', authError)
         throw new Error(authError.message)
       }
 
       if (!authData.user) {
+        console.error('❌ No user returned from signup')
         throw new Error('Failed to create account')
       }
 
-      // Wait for auth session to be established
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('✅ User account created successfully:', authData.user.id)
 
+      // Wait for auth session to be established
+      console.log('🔵 Waiting for session to establish...')
+      await new Promise(resolve => setTimeout(resolve, 2000)) // Increased wait time
+
+      // Verify session is established
+      const { data: { user: sessionUser }, error: sessionError } = await supabase.auth.getUser()
+      if (sessionError || !sessionUser) {
+        console.error('❌ Session verification failed:', sessionError)
+        throw new Error('Session establishment failed. Please try signing in manually.')
+      }
+
+      console.log('✅ Session verified, accepting invitation...')
+      
       // Accept the invitation
-      await acceptInvitation(invitation!.id, '')
+      await acceptInvitation(invitation!.id, invitation!.clientId)
 
     } catch (error) {
-      console.error('Error creating account:', error)
+      console.error('❌ Error creating account:', error)
       setError(error instanceof Error ? error.message : 'Failed to create account')
       setAccepting(false)
     }
