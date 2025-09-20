@@ -1,0 +1,64 @@
+# .coderabbit.yml - JiGR Hospitality Compliance Platform
+reviews:
+  auto_review: true
+  request_changes: false
+  comment_on_pr: true
+  max_files_to_review: 50
+  
+languages:
+  - typescript
+  - javascript
+  - css
+  - json
+  - markdown
+  - sql
+
+# JiGR Platform Specific Rules
+custom_rules:
+  # iPad Air (2013) Compatibility
+  - name: "ipad_air_compatibility"
+    pattern: "(?:optional chaining|nullish coalescing|BigInt|Promise\\.allSettled|String\\.prototype\\.matchAll)"
+    severity: "high"
+    message: "⚠️ Feature not supported in Safari 12 (iPad Air 2013). Use polyfill or alternative."
+    
+  # ES2020+ Features Detection
+  - name: "modern_js_features"
+    pattern: "(?:\?\?|\?\.|#private|import\\.meta)"
+    severity: "high"
+    message: "🚫 ES2020+ feature detected. iPad Air (2013) requires ES5/ES6 only."
+    
+  # Compliance Data Security
+  - name: "compliance_data_exposure"
+    pattern: "(?:console\\.log|console\\.warn|console\\.error).*(?:temperature|supplier|delivery|invoice|compliance)"
+    severity: "critical"
+    message: "🔒 Compliance data in console logs. Remove before production."
+    
+  # Multi-tenant Security
+  - name: "rls_policy_bypass"
+    pattern: "(?:supabase\\.auth\\.admin|service_role|bypassRLS)"
+    severity: "critical"
+    message: "🛡️ Potential RLS bypass detected. Ensure proper tenant isolation."
+    
+  # PascalCase Naming Convention
+  - name: "naming_convention_files"
+    pattern: "^[a-z][a-zA-Z0-9]*[-_][a-zA-Z0-9]"
+    severity: "medium"
+    message: "📝 Use PascalCase naming: ThisIsAnExample.tsx (JiGR ecosystem standard)"
+    
+  # Performance - iPad Air Memory
+  - name: "memory_intensive_operations"
+    pattern: "(?:new Array\\(\\d{4,}\\)|Buffer\\.alloc\\(\\d{6,}\\)|\\.repeat\\(\\d{3,}\\))"
+    severity: "medium"
+    message: "📱 Memory-intensive operation. Consider iPad Air (1GB RAM) limitations."
+    
+  # Document AI Security
+  - name: "google_credentials_exposure"
+    pattern: "(?:google.*credential|document.*ai.*key|gcp.*secret)"
+    severity: "critical"
+    message: "🔑 Google Cloud credentials detected. Use environment variables only."
+    
+  # Stripe Security
+  - name: "stripe_key_exposure"
+    pattern: "(?:sk_live|pk_live|sk_test|pk_test)_[a-zA-Z0-9]+"
+    severity: "critical"
+    message: "💳 Stripe API key detected. Use environment variables only
