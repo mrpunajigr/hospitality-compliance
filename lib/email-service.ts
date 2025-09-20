@@ -23,6 +23,8 @@ export interface InvitationEmailData {
   inviterName: string
   organizationName: string
   role: UserRole
+  department?: string
+  jobTitle?: string
   invitationToken: string
   expiresAt: string
   personalMessage?: string
@@ -172,7 +174,17 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
         <div class="content">
             <p>Hello <strong>${data.inviteeName}</strong>,</p>
             
-            <p>${data.inviterName} has invited you to join <strong>${data.organizationName}</strong> as a <span class="role-badge">${roleDisplay}</span></p>
+            <p>${data.inviterName} has invited you to join <strong>${data.organizationName}</strong> as a <span class="role-badge">${roleDisplay}</span>${(data.department || data.jobTitle) ? ' in the' : ''}</p>
+            
+            ${(data.department || data.jobTitle) ? `
+            <div class="position-info" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 16px;">Position Details</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                    ${data.department ? `<div style="background: rgba(59, 130, 246, 0.2); color: #1e40af; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">${data.department} Department</div>` : ''}
+                    ${data.jobTitle ? `<div style="background: rgba(16, 185, 129, 0.2); color: #047857; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">${data.jobTitle}</div>` : ''}
+                </div>
+            </div>
+            ` : ''}
             
             ${data.personalMessage ? `
             <div class="details">
@@ -233,9 +245,13 @@ ${data.inviterName} has invited you to join ${data.organizationName} as a ${role
 Your Role: ${roleDisplay}
 ${roleDescription}
 
-${data.personalMessage ? `Personal Message: "${data.personalMessage}"` : ''}
+${(data.department || data.jobTitle) ? `Position Details:
+${data.department ? `Department: ${data.department}` : ''}
+${data.jobTitle ? `Job Title: ${data.jobTitle}` : ''}
 
-Accept your invitation: ${data.acceptUrl}
+` : ''}${data.personalMessage ? `Personal Message: "${data.personalMessage}"
+
+` : ''}Accept your invitation: ${data.acceptUrl}
 
 ⏰ This invitation expires on ${new Date(data.expiresAt).toLocaleDateString('en-NZ')}
 

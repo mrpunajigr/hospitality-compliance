@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
           inviterName: 'Demo User',
           organizationName: 'Demo Restaurant',
           role: role as any,
+          department,
+          jobTitle,
           invitationToken,
           expiresAt,
           personalMessage: message,
@@ -309,6 +311,8 @@ export async function POST(request: NextRequest) {
         inviterName: 'System Administrator', // TODO: Get actual inviter name
         organizationName,
         role: role as any,
+        department,
+        jobTitle,
         invitationToken: invitation.token,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         personalMessage: message,

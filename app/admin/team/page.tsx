@@ -37,6 +37,8 @@ interface PendingInvitation {
   createdAt: string
   expiresAt: string
   inviterName: string
+  department?: string
+  jobTitle?: string
 }
 
 export default function AdminTeamPage() {
@@ -101,6 +103,8 @@ export default function AdminTeamPage() {
           first_name,
           last_name,
           role,
+          department,
+          job_title,
           created_at,
           expires_at,
           status,
@@ -121,6 +125,8 @@ export default function AdminTeamPage() {
           firstName: invite.first_name,
           lastName: invite.last_name,
           role: invite.role as UserRole,
+          department: invite.department,
+          jobTitle: invite.job_title,
           createdAt: invite.created_at,
           expiresAt: invite.expires_at,
           inviterName: invite.profiles?.full_name || 'Team Admin'
@@ -242,7 +248,8 @@ export default function AdminTeamPage() {
         role: 'OWNER', 
         status: 'active', 
         lastLogin: new Date().toISOString(),
-        department: 'Management'
+        department: 'Management',
+        jobTitle: 'Restaurant Owner'
       },
       { 
         id: '2', 
@@ -251,7 +258,8 @@ export default function AdminTeamPage() {
         role: 'MANAGER', 
         status: 'active', 
         lastLogin: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        department: 'Kitchen'
+        department: 'Kitchen',
+        jobTitle: 'Head Chef'
       },
       { 
         id: '3', 
@@ -260,7 +268,8 @@ export default function AdminTeamPage() {
         role: 'STAFF', 
         status: 'active', 
         lastLogin: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        department: 'Front of House'
+        department: 'Front of House',
+        jobTitle: 'Server'
       }
     ])
 
@@ -272,6 +281,8 @@ export default function AdminTeamPage() {
         firstName: 'Steve',
         lastName: 'Laird',
         role: 'MANAGER',
+        department: 'Kitchen',
+        jobTitle: 'Sous Chef',
         createdAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days left
         inviterName: 'Demo User'
@@ -514,7 +525,20 @@ export default function AdminTeamPage() {
                     <div>
                       <h3 className={`${getTextStyle('cardTitle')} text-base`}>{member.fullName}</h3>
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>{member.email}</p>
-                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>{member.role}</p>
+                      <div className="flex items-center space-x-2">
+                        {member.department && (
+                          <span className={`${getTextStyle('bodySmall')} text-blue-300`}>{member.department}</span>
+                        )}
+                        {member.department && member.jobTitle && (
+                          <span className="text-white/40">•</span>
+                        )}
+                        {member.jobTitle && (
+                          <span className={`${getTextStyle('bodySmall')} text-green-300`}>{member.jobTitle}</span>
+                        )}
+                        {!member.department && !member.jobTitle && (
+                          <span className={`${getTextStyle('bodySmall')} text-white/60`}>{member.role}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-right">
@@ -547,7 +571,20 @@ export default function AdminTeamPage() {
                     <div>
                       <h3 className={`${getTextStyle('cardTitle')} text-base`}>{invitation.firstName} {invitation.lastName}</h3>
                       <p className={`${getTextStyle('bodySmall')} text-white/70`}>{invitation.email}</p>
-                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>{invitation.role}</p>
+                      <div className="flex items-center space-x-2">
+                        {invitation.department && (
+                          <span className={`${getTextStyle('bodySmall')} text-blue-300`}>{invitation.department}</span>
+                        )}
+                        {invitation.department && invitation.jobTitle && (
+                          <span className="text-white/40">•</span>
+                        )}
+                        {invitation.jobTitle && (
+                          <span className={`${getTextStyle('bodySmall')} text-green-300`}>{invitation.jobTitle}</span>
+                        )}
+                        {!invitation.department && !invitation.jobTitle && (
+                          <span className={`${getTextStyle('bodySmall')} text-white/60`}>{invitation.role}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-right">
