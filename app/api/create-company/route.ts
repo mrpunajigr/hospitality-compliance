@@ -220,6 +220,7 @@ export async function POST(request: Request) {
       clientInsertData.owner_name = ownerName || fullName
     }
     console.log('🔵 Client insert data:', clientInsertData)
+    console.log('🔵 About to insert client with fields:', Object.keys(clientInsertData))
     
     const { data: clientData, error: clientError } = await supabaseAdmin
       .from('clients')
@@ -281,6 +282,47 @@ export async function POST(request: Request) {
             success: true,
             client: clientData,
             note: 'Created successfully (owner_name field not available in database)'
+          })
+        } else {
+          console.error('❌ Retry also failed:', retryError)
+        }
+      }
+      
+      // Final fallback - create absolute minimal company record
+      console.log('⚠️ Attempting final fallback with minimal company data...')
+      const minimalData = {
+        name: businessName,
+        business_email: email,
+        subscription_status: 'trial'
+      }
+      
+      const { data: minimalClient, error: minimalError } = await supabaseAdmin
+        .from('clients')
+        .insert(minimalData)
+        .select()
+        .single()
+        
+      if (!minimalError && minimalClient) {
+        console.log('✅ Minimal client created successfully')
+        
+        // Link user to minimal client
+        const linkData = {
+          user_id: userId,
+          client_id: minimalClient.id,
+          role: 'OWNER',
+          status: 'active',
+          joined_at: new Date().toISOString()
+        }
+        
+        const { error: linkError } = await supabaseAdmin
+          .from('client_users')
+          .insert(linkData)
+
+        if (!linkError) {
+          return NextResponse.json({
+            success: true,
+            client: minimalClient,
+            note: 'Created with minimal data due to schema limitations'
           })
         }
       }
