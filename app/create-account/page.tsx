@@ -176,11 +176,11 @@ export default function CreateAccountPage() {
 
           // Auto-login the user (they're already logged in from signUp)
           console.log('✅ User auto-logged in, redirecting to profile completion...')
-          router.push('/profile/complete')
+          router.push('/onboarding/complete')
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)
-          setError('Unable to complete account setup. Please try again.')
+          setError(`Unable to complete account setup: ${companyError.message || 'Unknown error'}. Please try again.`)
           setIsLoading(false)
         }
       }

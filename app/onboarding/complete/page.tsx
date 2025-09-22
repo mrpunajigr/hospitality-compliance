@@ -173,7 +173,7 @@ export default function ProfileCompletePage() {
       console.log('✅ Profile completion successful')
       
       // Redirect to admin console for company setup
-      router.push('/admin/console?onboarding=profile-complete')
+      router.push('/admin/console?onboarding=complete')
       
     } catch (error) {
       console.error('Profile completion error:', error)

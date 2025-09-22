@@ -176,7 +176,7 @@ export function getOnboardingResumeUrl(progress: OnboardingProgress | null): str
     case 'signup':
       return '/create-account'
     case 'profile':
-      return '/profile/complete'
+      return '/onboarding/complete'
     case 'company':
       return '/admin/console?onboarding=company-setup'
     case 'complete':
