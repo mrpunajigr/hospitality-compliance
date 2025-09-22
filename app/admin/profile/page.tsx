@@ -244,21 +244,36 @@ function ProfilePageContent() {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* Onboarding Header */}
+      {/* Standardized Module Header */}
+      <ModuleHeader 
+        module={moduleConfig}
+        currentPage=""
+      />
+
+      {/* User Info Display */}
+      {userClient && (
+        <div className="mb-4 text-center">
+          <p className="text-gray-700 text-sm">
+            {userClient.name} • {userClient.role}
+          </p>
+        </div>
+      )}
+
+      {/* Onboarding Welcome Section */}
       {isOnboarding && (
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4">
             <span className="text-2xl">👋</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome to JiGR, {user?.user_metadata?.full_name?.split(' ')[0] || 'there'}! 👋
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-6">
             Let&apos;s personalize your compliance experience!
           </p>
           
           {/* Progress Indicator */}
-          <div className="flex items-center justify-center mt-6 space-x-4">
+          <div className="flex items-center justify-center space-x-4">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-bold">✓</span>
@@ -280,21 +295,6 @@ function ProfilePageContent() {
               <span className="ml-2 text-sm text-gray-500 font-medium">Company Setup</span>
             </div>
           </div>
-        </div>
-      )}
-      
-      {/* Standardized Module Header */}
-      <ModuleHeader 
-        module={moduleConfig}
-        currentPage=""
-      />
-
-      {/* User Info Display */}
-      {userClient && (
-        <div className="mb-4 text-center">
-          <p className="text-gray-700 text-sm">
-            {userClient.name} • {userClient.role}
-          </p>
         </div>
       )}
 

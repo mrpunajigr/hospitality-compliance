@@ -86,11 +86,12 @@ export default function CreateAccountPage() {
       const tempPassword = generateSecurePassword(12)
       console.log('🔑 Generated secure password')
 
-      // Create user with Supabase Auth
+      // Create user with Supabase Auth (skip email confirmation)
       const { data, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: tempPassword,
         options: {
+          emailRedirectTo: undefined, // Disable email confirmation
           data: {
             full_name: formData.fullName,
             company_name: formData.companyName
