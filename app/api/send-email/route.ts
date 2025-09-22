@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         email: emailData.to,
         companyName: emailData.data.companyName,
         userFullName: emailData.data.userFullName,
-        tempPassword: emailData.data.tempPassword,
+        tempCode: emailData.data.tempCode,
         loginUrl: emailData.data.loginUrl
       })
       
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         email: emailData.to,
         companyName: emailData.data.companyName,
         userFullName: emailData.data.userFullName,
-        tempPassword: emailData.data.tempPassword,
+        tempCode: emailData.data.tempCode,
         loginUrl: emailData.data.loginUrl
       })
     }
