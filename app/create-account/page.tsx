@@ -1,14 +1,12 @@
 'use client'
 
 import { getVersionDisplay } from '@/lib/version'
-import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
-
-// Hospitality Compliance SaaS - Create Account Page
-// Matching the clean styling of the Sign In page
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { generateSecurePassword } from '@/lib/password-utils'
+import { sendWelcomeEmail } from '@/lib/email/welcome-email'
+import { updateOnboardingProgress } from '@/lib/onboarding-progress'
 import Link from 'next/link'
 
 // Development-only Platform Selector Component
@@ -43,36 +41,21 @@ const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelecto
 export default function CreateAccountPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    businessName: '',
-    email: '',
+    companyName: '',
     fullName: '',
-    position: '',
-    ownerName: '',
-    phone: '',
-    businessType: 'restaurant',
-    password: '',
-    confirmPassword: ''
+    email: ''
   })
   const [error, setError] = useState('')
   const [errorType, setErrorType] = useState<string | null>(null)
   const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
   const router = useRouter()
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData(prev => {
-      const updated = {
-        ...prev,
-        [name]: value
-      }
-      
-      // Auto-populate owner name if position indicates ownership
-      if (name === 'position' && value.toLowerCase().includes('owner')) {
-        updated.ownerName = prev.fullName
-      }
-      
-      return updated
-    })
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -81,58 +64,64 @@ export default function CreateAccountPage() {
     setErrorType(null)
     setIsLoading(true)
 
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+    // Validate required fields
+    if (!formData.companyName || !formData.fullName || !formData.email) {
+      setError('All fields are required')
       setIsLoading(false)
       return
     }
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long')
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address')
       setIsLoading(false)
       return
     }
 
     try {
+      console.log('🚀 Starting optimized signup flow...')
+      
+      // Generate secure password
+      const tempPassword = generateSecurePassword(12)
+      console.log('🔑 Generated secure password')
+
       // Create user with Supabase Auth
       const { data, error: authError } = await supabase.auth.signUp({
         email: formData.email,
-        password: formData.password,
+        password: tempPassword,
         options: {
           data: {
             full_name: formData.fullName,
-            position: formData.position,
-            business_name: formData.businessName,
-            phone: formData.phone,
-            business_type: formData.businessType
+            company_name: formData.companyName
           }
         }
       })
 
       if (authError) {
+        console.error('❌ Supabase auth error:', authError)
         setError(authError.message)
         setIsLoading(false)
         return
       }
 
       if (data.user) {
-        // Create company for the new user using API route
-        console.log('🚀 User created, now creating company via API route')
+        console.log('✅ User created successfully')
+        
+        // Create company via enhanced API
         try {
           const companyData = {
-            businessName: formData.businessName,
-            businessType: formData.businessType,
-            phone: formData.phone,
+            businessName: formData.companyName,
+            businessType: 'restaurant', // Default, will be set in profile completion
+            phone: '', // Will be collected in profile completion
             userId: data.user.id,
             email: formData.email,
             fullName: formData.fullName,
-            position: formData.position,
-            ownerName: formData.ownerName
+            position: 'Owner', // Default for first user
+            ownerName: formData.fullName
           }
 
-          console.log('🚀 About to call API with data:', companyData)
-          
+          console.log('🏢 Creating company via API...')
           const response = await fetch('/api/create-company', {
             method: 'POST',
             headers: {
@@ -141,76 +130,62 @@ export default function CreateAccountPage() {
             body: JSON.stringify(companyData)
           })
 
-          console.log('📋 API Response status:', response.status)
-          
           if (!response.ok) {
             const errorData = await response.json().catch(() => null)
-            console.error('❌ API Error response:', errorData)
+            console.error('❌ Company creation failed:', errorData)
             
-            if (errorData) {
-              // Handle structured error responses from duplicate prevention
-              if (errorData.errorCode === 'DUPLICATE_BUSINESS_NAME') {
-                const suggestions = errorData.suggestions ? 
-                  `\n\nSuggestions:\n• ${errorData.suggestions.join('\n• ')}` : ''
-                setError(`${errorData.message}${suggestions}`)
-                setErrorType('DUPLICATE_BUSINESS_NAME')
-                setIsLoading(false)
-                return
-              } else if (errorData.errorCode === 'ACCOUNT_EXISTS') {
-                setError(errorData.message)
-                setErrorType('ACCOUNT_EXISTS')
-                setIsLoading(false)
-                return
-              } else {
-                // Extract just the user-friendly message, not technical details
-                const cleanMessage = errorData.message || errorData.error || 'Account creation failed. Please try again.'
-                setError(cleanMessage)
-                setErrorType('GENERAL_ERROR')
-                setIsLoading(false)
-                return
-              }
+            if (errorData?.errorCode === 'DUPLICATE_BUSINESS_NAME') {
+              setError(`This business name is already registered. Please choose a different name.`)
+              setErrorType('DUPLICATE_BUSINESS_NAME')
+              setIsLoading(false)
+              return
+            } else if (errorData?.errorCode === 'ACCOUNT_EXISTS') {
+              setError('An account with this business name already exists. Please sign in instead.')
+              setErrorType('ACCOUNT_EXISTS')
+              setIsLoading(false)
+              return
             } else {
               throw new Error(`Company creation failed: ${response.status}`)
             }
           }
 
           const result = await response.json()
-          console.log('✅ API Success result:', result)
+          console.log('✅ Company created successfully')
 
-          console.log('✅ Account and company created successfully via API')
-          // Success - redirect to admin console (main company dashboard)
-          router.push('/admin/console')
-        } catch (companyError) {
-          console.error('🚨 Company creation error:', companyError)
-          
-          // Extract user-friendly error message
-          const errorMessage = companyError instanceof Error ? companyError.message : String(companyError)
-          
-          // Check if it's a duplicate business name error (common case)
-          if (errorMessage.includes('Business name already registered') || errorMessage.includes('DUPLICATE_BUSINESS_NAME')) {
-            // Extract contact email if present in the error message
-            const contactEmailMatch = errorMessage.match(/contact ([^\s]+@[^\s]+)/);
-            const contactEmail = contactEmailMatch ? contactEmailMatch[1] : null;
-            
-            if (contactEmail) {
-              setError(`This business name is already taken. Please choose a different name, or contact ${contactEmail} for access to the existing account.`)
-            } else {
-              setError('This business name is already taken. Please choose a different name.')
-            }
-            setErrorType('DUPLICATE_BUSINESS_NAME')
-          } else if (errorMessage.includes('Account already exists') || errorMessage.includes('ACCOUNT_EXISTS')) {
-            setError('An account with this business name already exists. Please sign in instead.')
-            setErrorType('ACCOUNT_EXISTS')
-          } else {
-            // Generic user-friendly message for other errors
-            setError('Unable to complete account setup. Please try again or contact support.')
-            setErrorType('GENERAL_ERROR')
+          // Send welcome email (non-blocking)
+          try {
+            console.log('📧 Sending welcome email...')
+            await sendWelcomeEmail({
+              email: formData.email,
+              companyName: formData.companyName,
+              userFullName: formData.fullName,
+              tempCode: tempPassword
+            })
+            console.log('✅ Welcome email sent')
+          } catch (emailError) {
+            console.warn('⚠️ Welcome email failed, but continuing signup:', emailError)
+            // Don't fail signup if email fails
           }
+
+          // Track onboarding progress
+          await updateOnboardingProgress(data.user.id, 'signup', {
+            companyName: formData.companyName,
+            fullName: formData.fullName,
+            email: formData.email
+          })
+
+          // Auto-login the user (they're already logged in from signUp)
+          console.log('✅ User auto-logged in, redirecting to profile completion...')
+          router.push('/profile/complete')
           
+        } catch (companyError) {
+          console.error('❌ Company creation error:', companyError)
+          setError('Unable to complete account setup. Please try again.')
           setIsLoading(false)
         }
       }
     } catch (err) {
+      console.error('❌ Signup error:', err)
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
     }
@@ -230,61 +205,46 @@ export default function CreateAccountPage() {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Main Content - Matching Landing Page layout */}
+      {/* Main Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
         
-        {/* JiGR Logo above form container - Matching Landing Page */}
+        {/* JiGR Logo */}
         <div className="mb-8">
           <div className="w-144 h-36">
             <img 
               src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
-              alt="JGR Logo" 
+              alt="JiGR Logo" 
               className="w-full h-full object-contain"
             />
           </div>
         </div>
-        {/* Glass Morphism Card - Matching Sign In styling */}
+
+        {/* Glass Morphism Card */}
         <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
-              Create Account
+              Start Your Free Compliance Trial
             </h1>
             <p className="text-white/70 text-sm font-light">
-              Start your compliance journey today
+              No credit card required • Ready in 60 seconds
             </p>
           </div>
 
-          {/* Sign Up Form */}
-          <form onSubmit={handleSignUp} className="space-y-4">
-            {/* Business Name */}
+          {/* Simplified Sign Up Form */}
+          <form onSubmit={handleSignUp} className="space-y-6">
+            {/* Company Name */}
             <div>
               <input
                 type="text"
-                name="businessName"
-                placeholder="Business Name"
-                value={formData.businessName}
+                name="companyName"
+                placeholder="Your Business Name"
+                value={formData.companyName}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                autoComplete="organization"
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
               />
-            </div>
-
-            {/* Business Type */}
-            <div>
-              <select
-                name="businessType"
-                value={formData.businessType}
-                onChange={handleInputChange}
-                required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              >
-                <option value="restaurant" className="text-gray-800">Restaurant</option>
-                <option value="cafe" className="text-gray-800">Café</option>
-                <option value="hotel" className="text-gray-800">Hotel</option>
-                <option value="catering" className="text-gray-800">Catering</option>
-                <option value="other" className="text-gray-800">Other</option>
-              </select>
             </div>
 
             {/* Full Name */}
@@ -296,31 +256,8 @@ export default function CreateAccountPage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            {/* Position in Company */}
-            <div>
-              <input
-                type="text"
-                name="position"
-                placeholder="Your Position in the Company (e.g., Manager, Owner, Head Chef)"
-                value={formData.position}
-                onChange={handleInputChange}
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            {/* Owner's Name */}
-            <div>
-              <input
-                type="text"
-                name="ownerName"
-                placeholder="Business Owner's Full Name"
-                value={formData.ownerName}
-                onChange={handleInputChange}
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                autoComplete="name"
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
               />
             </div>
 
@@ -329,56 +266,19 @@ export default function CreateAccountPage() {
               <input
                 type="email"
                 name="email"
-                placeholder="Business Email"
+                placeholder="Your Email Address"
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Password (8+ characters)"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                autoComplete="email"
+                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
               />
             </div>
 
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
-                <p className="text-red-200 text-sm text-center whitespace-pre-line">{error}</p>
+                <p className="text-red-200 text-sm text-center">{error}</p>
                 {errorType === 'ACCOUNT_EXISTS' && (
                   <div className="mt-3 text-center">
                     <Link 
@@ -392,7 +292,7 @@ export default function CreateAccountPage() {
               </div>
             )}
 
-            {/* Trial Plan Notice */}
+            {/* What You Get */}
             <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
@@ -401,14 +301,13 @@ export default function CreateAccountPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-blue-200 font-medium text-sm mb-1">Trial Plan Included</h4>
-                  <p className="text-blue-100 text-xs leading-relaxed">
-                    By creating this account, your company/cafe is automatically enrolled in our <strong>Free Trial Plan</strong>. 
-                    Enjoy full access to document processing, compliance tracking, and analytics for 30 days.
-                  </p>
-                  <p className="text-blue-200 text-xs mt-2 font-medium">
-                    No credit card required • Upgrade anytime
-                  </p>
+                  <h4 className="text-blue-200 font-medium text-sm mb-1">What you get:</h4>
+                  <ul className="text-blue-100 text-xs space-y-1">
+                    <li>• Instant access to your dashboard</li>
+                    <li>• 30-day free trial with full features</li>
+                    <li>• Compliance tracking & alerts</li>
+                    <li>• Login details sent to your email</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -417,15 +316,15 @@ export default function CreateAccountPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none mt-6"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none text-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                  Creating Account...
+                  Creating Your Account...
                 </div>
               ) : (
-                'Create Account'
+                '🚀 Create Free Account'
               )}
             </button>
           </form>

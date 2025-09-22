@@ -391,7 +391,6 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         clients!inner (
           id,
           name,
-          owner_name,
           business_type,
           phone
         )
@@ -424,7 +423,6 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       department: clientData.department,
       jobTitle: clientData.job_title,
       // Client/Company details
-      owner_name: clientData.clients.owner_name,
       business_type: clientData.clients.business_type,
       phone: clientData.clients.phone
     }
