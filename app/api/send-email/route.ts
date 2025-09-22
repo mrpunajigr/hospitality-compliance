@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     text = `Welcome to JiGR! Your account is ready. Access code: ${emailData.data?.tempCode || 'N/A'}`
 
     const emailPayload = {
-      from: 'Acme <onboarding@resend.dev>',
+      from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
       to: emailData.to,
       subject: emailData.subject,
       html: html,
