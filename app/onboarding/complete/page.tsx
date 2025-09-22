@@ -212,7 +212,7 @@ export default function ProfileCompletePage() {
             Welcome to JiGR, {user.user_metadata?.full_name?.split(' ')[0] || 'there'}! 👋
           </h1>
           <p className="text-gray-600">
-            Let&apos;s personalize your compliance experience
+            Let&apos;s personalize your compliance experience!
           </p>
         </div>
 

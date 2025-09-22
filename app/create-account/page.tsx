@@ -180,7 +180,8 @@ export default function CreateAccountPage() {
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)
-          setError(`Unable to complete account setup: ${companyError.message || 'Unknown error'}. Please try again.`)
+          const errorMessage = companyError instanceof Error ? companyError.message : 'Unknown error'
+          setError(`Unable to complete account setup: ${errorMessage}. Please try again.`)
           setIsLoading(false)
         }
       }
