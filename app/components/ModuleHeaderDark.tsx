@@ -22,6 +22,14 @@ export function ModuleHeaderDark({
   currentPage, 
   className = '' 
 }: ModuleHeaderDarkProps) {
+  console.log('🔍 ModuleHeaderDark rendering:', {
+    moduleKey: module.key,
+    moduleTitle: module.title,
+    currentPage,
+    pagesCount: module.pages?.length,
+    pages: module.pages
+  })
+  
   return (
     <div className={`mb-16 ${className}`}>
       <div className="grid grid-cols-4 gap-6 items-center">

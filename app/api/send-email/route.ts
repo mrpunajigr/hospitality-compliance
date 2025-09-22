@@ -198,25 +198,31 @@ export async function POST(request: NextRequest) {
     let html = ''
     let text = ''
 
-    if (emailData.template === 'welcome' && emailData.data) {
-      html = generateWelcomeEmailHTML({
-        email: emailData.to,
-        companyName: emailData.data.companyName,
-        userFullName: emailData.data.userFullName,
-        tempCode: emailData.data.tempCode,
-        loginUrl: emailData.data.loginUrl
-      })
-      text = generateWelcomeEmailText({
-        email: emailData.to,
-        companyName: emailData.data.companyName,
-        userFullName: emailData.data.userFullName,
-        tempCode: emailData.data.tempCode,
-        loginUrl: emailData.data.loginUrl
-      })
-    } else {
-      html = '<p>Default email content</p>'
-      text = 'Default email content'
+    // Simplify for debugging - just send basic welcome email
+    html = `
+      <h2>Welcome to JiGR!</h2>
+      <p>Hello ${emailData.data?.userFullName || 'there'},</p>
+      <p>Your account has been created successfully for ${emailData.data?.companyName || 'your company'}.</p>
+      <p>Your temporary access code: <strong>${emailData.data?.tempCode || 'N/A'}</strong></p>
+      <p>Login at: <a href="${emailData.data?.loginUrl || 'https://jigr.app/signin'}">JiGR Platform</a></p>
+    `
+    text = `Welcome to JiGR! Your account is ready. Access code: ${emailData.data?.tempCode || 'N/A'}`
+
+    const emailPayload = {
+      from: 'Acme <onboarding@resend.dev>',
+      to: emailData.to,
+      subject: emailData.subject,
+      html: html,
+      text: text
     }
+    
+    console.log('📧 Sending to Resend API:', {
+      from: emailPayload.from,
+      to: emailPayload.to,
+      subject: emailPayload.subject,
+      hasApiKey: !!resendApiKey,
+      apiKeyPrefix: resendApiKey?.substring(0, 8)
+    })
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -224,13 +230,7 @@ export async function POST(request: NextRequest) {
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
-        to: emailData.to,
-        subject: emailData.subject,
-        html: html,
-        text: text
-      })
+      body: JSON.stringify(emailPayload)
     })
 
     if (!response.ok) {
