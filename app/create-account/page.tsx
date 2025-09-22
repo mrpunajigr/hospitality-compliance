@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { generateSecurePassword } from '@/lib/password-utils'
+import { sendWelcomeEmail } from '@/lib/email/welcome-email'
 import { updateOnboardingProgress } from '@/lib/onboarding-progress'
 import Link from 'next/link'
 
@@ -151,8 +152,20 @@ export default function CreateAccountPage() {
           const result = await response.json()
           console.log('✅ Company created successfully')
 
-          // Supabase will automatically send email confirmation
-          console.log('📧 Supabase will handle email confirmation automatically')
+          // Send welcome email (non-blocking)
+          try {
+            console.log('📧 Sending welcome email...')
+            await sendWelcomeEmail({
+              email: formData.email,
+              companyName: formData.companyName,
+              userFullName: formData.fullName,
+              tempCode: tempPassword
+            })
+            console.log('✅ Welcome email sent')
+          } catch (emailError) {
+            console.warn('⚠️ Welcome email failed, but continuing signup:', emailError)
+            // Don't fail signup if email fails
+          }
 
           // Track onboarding progress
           await updateOnboardingProgress(data.user.id, 'signup', {
@@ -163,7 +176,7 @@ export default function CreateAccountPage() {
 
           // Auto-login the user (they're already logged in from signUp)
           console.log('✅ User auto-logged in, redirecting to profile completion...')
-          router.push('/onboarding/complete')
+          router.push('/admin/profile?onboarding=true')
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)

@@ -1,8 +1,8 @@
 'use client'
 
 // User Profile Page - Personal account settings
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import ImageUploader from '@/app/components/ImageUploader'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
@@ -11,7 +11,7 @@ import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/l
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { getModuleConfig } from '@/lib/module-config'
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
@@ -19,6 +19,8 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [hasAccess, setHasAccess] = useState<boolean>(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isOnboarding = searchParams.get('onboarding') === 'true'
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -241,6 +243,45 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+      
+      {/* Onboarding Header */}
+      {isOnboarding && (
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4">
+            <span className="text-2xl">👋</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome to JiGR, {user?.user_metadata?.full_name?.split(' ')[0] || 'there'}! 👋
+          </h1>
+          <p className="text-gray-600">
+            Let&apos;s personalize your compliance experience!
+          </p>
+          
+          {/* Progress Indicator */}
+          <div className="flex items-center justify-center mt-6 space-x-4">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">✓</span>
+              </div>
+              <span className="ml-2 text-sm text-green-600 font-medium">Account Created</span>
+            </div>
+            <div className="w-12 h-0.5 bg-blue-500"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">2</span>
+              </div>
+              <span className="ml-2 text-sm text-blue-600 font-medium">Your Profile</span>
+            </div>
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 text-sm font-bold">3</span>
+              </div>
+              <span className="ml-2 text-sm text-gray-500 font-medium">Company Setup</span>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -499,5 +540,13 @@ export default function ProfilePage() {
 
         </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProfilePageContent />
+    </Suspense>
   )
 }
