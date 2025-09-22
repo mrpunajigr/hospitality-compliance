@@ -78,48 +78,26 @@ export async function POST(request: Request) {
     if (!existingProfile) {
       console.log('Creating missing profile for authenticated user:', userId)
       // Only create profile if user exists in auth.users (enforced by foreign key)
+      // Use minimal fields that are guaranteed to exist
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .insert({
           id: userId,
           email: email,
-          full_name: fullName,
-          position: position,
-          phone: phone,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          full_name: fullName
         })
       
       if (profileError) {
-        console.error('Error creating profile:', profileError)
+        console.error('❌ Error creating profile:', profileError)
+        console.error('❌ Profile error details:', {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint
+        })
         
-        // Handle specific case where position column doesn't exist
-        if (profileError.message?.includes('position') || profileError.code === '42703') {
-          console.log('⚠️ position column missing, retrying without it...')
-          // Retry without position field
-          const { error: retryProfileError } = await supabaseAdmin
-            .from('profiles')
-            .insert({
-              id: userId,
-              email: email,
-              full_name: fullName,
-              phone: phone,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            
-          if (!retryProfileError) {
-            console.log('✅ Profile created successfully without position field')
-          } else {
-            console.error('Error creating profile even without position:', retryProfileError)
-            return NextResponse.json(
-              { error: 'Failed to create user profile', details: retryProfileError.message },
-              { status: 500 }
-            )
-          }
-        }
         // If foreign key constraint fails, it means user doesn't exist in auth.users
-        else if (profileError.code === '23503') {
+        if (profileError.code === '23503') {
           return NextResponse.json(
             { error: 'User account not found. Please ensure user is properly registered.' },
             { status: 400 }
