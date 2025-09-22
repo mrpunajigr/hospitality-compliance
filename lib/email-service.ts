@@ -4,7 +4,7 @@
 import { UserRole } from './navigation-permissions'
 
 export interface EmailConfig {
-  provider: 'sendgrid' | 'aws-ses' | 'resend' | 'demo'
+  provider: 'sendgrid' | 'demo'
   apiKey?: string
   fromEmail: string
   fromName: string
@@ -39,8 +39,8 @@ export interface EmailSendResult {
 
 // Default email configuration
 const DEFAULT_CONFIG: EmailConfig = {
-  provider: (process.env.EMAIL_PROVIDER as 'sendgrid' | 'aws-ses' | 'resend') || 'demo',
-  apiKey: process.env.EMAIL_API_KEY || process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY,
+  provider: (process.env.EMAIL_PROVIDER as 'sendgrid' | 'demo') || 'demo',
+  apiKey: process.env.EMAIL_API_KEY || process.env.SENDGRID_API_KEY,
   fromEmail: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
   fromName: process.env.EMAIL_FROM_NAME || 'JiGR Hospitality Compliance',
   replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app'
@@ -287,44 +287,6 @@ class DemoEmailService {
   }
 }
 
-class ResendService {
-  constructor(private apiKey: string, private config: EmailConfig) {}
-
-  async send(to: string, template: EmailTemplate): Promise<EmailSendResult> {
-    try {
-      const { Resend } = await import('resend')
-      const resend = new Resend(this.apiKey)
-
-      const response = await resend.emails.send({
-        from: `${this.config.fromName} <${this.config.fromEmail}>`,
-        to: [to],
-        subject: template.subject,
-        html: template.htmlContent,
-        replyTo: this.config.replyTo
-      })
-
-      if (response.error) {
-        console.error('❌ Resend API Error:', response.error)
-        return {
-          success: false,
-          error: response.error.message || 'Resend API error'
-        }
-      }
-
-      console.log('✅ Resend Email sent successfully:', response.data?.id)
-      return {
-        success: true,
-        messageId: response.data?.id
-      }
-    } catch (error) {
-      console.error('❌ Resend Service Error:', error)
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown Resend error'
-      }
-    }
-  }
-}
 
 class SendGridService {
   constructor(private apiKey: string, private config: EmailConfig) {}
@@ -381,7 +343,7 @@ class SendGridService {
 
 // Main email service
 export class EmailService {
-  private service: DemoEmailService | SendGridService | ResendService
+  private service: DemoEmailService | SendGridService
   private config: EmailConfig
 
   constructor(config: Partial<EmailConfig> = {}) {
@@ -391,17 +353,13 @@ export class EmailService {
       provider: this.config.provider,
       hasApiKey: !!this.config.apiKey,
       fromEmail: this.config.fromEmail,
-      apiKeySource: process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : process.env.EMAIL_API_KEY ? 'EMAIL_API_KEY' : 'none'
+      apiKeySource: process.env.EMAIL_API_KEY ? 'EMAIL_API_KEY' : 'none'
     })
     
     switch (this.config.provider) {
       case 'sendgrid':
         if (!this.config.apiKey) throw new Error('SendGrid API key required')
         this.service = new SendGridService(this.config.apiKey, this.config)
-        break
-      case 'resend':
-        if (!this.config.apiKey) throw new Error('Resend API key required')
-        this.service = new ResendService(this.config.apiKey, this.config)
         break
       case 'demo':
       default:
