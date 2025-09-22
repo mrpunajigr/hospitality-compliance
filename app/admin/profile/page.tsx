@@ -247,7 +247,7 @@ function ProfilePageContent() {
       {/* Standardized Module Header */}
       <ModuleHeader 
         module={moduleConfig}
-        currentPage=""
+        currentPage="profile"
       />
 
       {/* User Info Display */}

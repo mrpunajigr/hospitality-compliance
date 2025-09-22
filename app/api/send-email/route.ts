@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
+        from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
         to: emailData.to,
         subject: emailData.subject,
         html: html,
