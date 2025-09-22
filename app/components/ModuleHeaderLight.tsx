@@ -11,16 +11,22 @@ import Image from 'next/image'
 import { getTextStyle } from '@/lib/design-system'
 import { ModuleConfig } from '@/lib/module-config'
 
+interface OnboardingData {
+  userFirstName: string
+}
+
 interface ModuleHeaderLightProps {
   module: ModuleConfig
   currentPage: string
   className?: string
+  onboardingData?: OnboardingData
 }
 
 export function ModuleHeaderLight({ 
   module, 
   currentPage, 
-  className = '' 
+  className = '',
+  onboardingData 
 }: ModuleHeaderLightProps) {
   return (
     <div className={`mb-16 ${className}`}>

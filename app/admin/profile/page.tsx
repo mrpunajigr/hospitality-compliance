@@ -244,10 +244,13 @@ function ProfilePageContent() {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* Standardized Module Header */}
+      {/* Standardized Module Header with Onboarding */}
       <ModuleHeader 
         module={moduleConfig}
         currentPage="profile"
+        onboardingData={isOnboarding ? {
+          userFirstName: user?.user_metadata?.full_name?.split(' ')[0] || 'there'
+        } : undefined}
       />
 
       {/* User Info Display */}
@@ -256,45 +259,6 @@ function ProfilePageContent() {
           <p className="text-gray-700 text-sm">
             {userClient.name} • {userClient.role}
           </p>
-        </div>
-      )}
-
-      {/* Onboarding Welcome Section */}
-      {isOnboarding && (
-        <div className="text-center mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl p-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4">
-            <span className="text-2xl">👋</span>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to JiGR, {user?.user_metadata?.full_name?.split(' ')[0] || 'there'}! 👋
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Let&apos;s personalize your compliance experience!
-          </p>
-          
-          {/* Progress Indicator */}
-          <div className="flex items-center justify-center space-x-4">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">✓</span>
-              </div>
-              <span className="ml-2 text-sm text-green-600 font-medium">Account Created</span>
-            </div>
-            <div className="w-12 h-0.5 bg-blue-500"></div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">2</span>
-              </div>
-              <span className="ml-2 text-sm text-blue-600 font-medium">Your Profile</span>
-            </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 text-sm font-bold">3</span>
-              </div>
-              <span className="ml-2 text-sm text-gray-500 font-medium">Company Setup</span>
-            </div>
-          </div>
         </div>
       )}
 

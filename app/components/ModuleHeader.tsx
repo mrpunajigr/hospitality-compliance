@@ -12,16 +12,22 @@ import { ModuleConfig } from '@/lib/module-config'
 import { ModuleHeaderDark } from './ModuleHeaderDark'
 import { ModuleHeaderLight } from './ModuleHeaderLight'
 
+interface OnboardingData {
+  userFirstName: string
+}
+
 interface ModuleHeaderProps {
   module: ModuleConfig
   currentPage: string
   className?: string
+  onboardingData?: OnboardingData
 }
 
 export function ModuleHeader({ 
   module, 
   currentPage, 
-  className = '' 
+  className = '',
+  onboardingData 
 }: ModuleHeaderProps) {
   // Route to appropriate variant based on module theme
   if (module.theme === 'dark') {
@@ -31,6 +37,7 @@ export function ModuleHeader({
         module={module}
         currentPage={currentPage}
         className={className}
+        onboardingData={onboardingData}
       />
     )
   }
@@ -41,6 +48,7 @@ export function ModuleHeader({
       module={module}
       currentPage={currentPage}
       className={className}
+      onboardingData={onboardingData}
     />
   )
 }
