@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { generateSecurePassword } from '@/lib/password-utils'
 import { sendWelcomeEmail } from '@/lib/email/welcome-email'
 import { updateOnboardingProgress } from '@/lib/onboarding-progress'
+import EmailDebugDashboard from '@/app/components/EmailDebugDashboard'
 import Link from 'next/link'
 
 // Development-only Platform Selector Component
@@ -48,6 +49,7 @@ export default function CreateAccountPage() {
   const [error, setError] = useState('')
   const [errorType, setErrorType] = useState<string | null>(null)
   const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
+  const [emailStatus, setEmailStatus] = useState<'pending' | 'sent' | 'failed' | 'skipped'>('pending')
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,16 +157,26 @@ export default function CreateAccountPage() {
 
           // Send welcome email (non-blocking)
           try {
-            console.log('📧 Sending welcome email...')
-            await sendWelcomeEmail({
+            console.log('🔧 Starting welcome email process...')
+            setEmailStatus('pending')
+            
+            const emailResult = await sendWelcomeEmail({
               email: formData.email,
               companyName: formData.companyName,
               userFullName: formData.fullName,
               tempCode: tempPassword
             })
-            console.log('✅ Welcome email sent')
+            
+            if (emailResult?.success !== false) {
+              setEmailStatus('sent')
+              console.log('✅ Email sending completed')
+            } else {
+              setEmailStatus('failed')
+              console.log('⚠️ Email sending failed but continuing signup')
+            }
           } catch (emailError) {
-            console.warn('⚠️ Welcome email failed, but continuing signup:', emailError)
+            console.error('❌ Email error caught:', emailError)
+            setEmailStatus('failed')
             // Don't fail signup if email fails
           }
 
@@ -358,6 +370,9 @@ export default function CreateAccountPage() {
           </div>
         </div>
       </div>
+      
+      {/* Email Debug Dashboard (Development Only) */}
+      <EmailDebugDashboard />
     </div>
   )
 }

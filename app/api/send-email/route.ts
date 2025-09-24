@@ -183,9 +183,35 @@ https://jigr.co.nz | support@jigr.co.nz
   `.trim()
 }
 
+// Add fallback email configuration
+const getEmailFromAddress = () => {
+  // Primary: Use configured address
+  if (process.env.EMAIL_FROM_ADDRESS) {
+    return process.env.EMAIL_FROM_ADDRESS
+  }
+  
+  // Fallback: Use Resend test domain
+  console.warn('⚠️ EMAIL_FROM_ADDRESS not set, using Resend test domain')
+  return 'onboarding@resend.dev'
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Log all environment info for debugging
+    console.log('📧 Email API called with environment:', {
+      nodeEnv: process.env.NODE_ENV,
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      fromAddress: getEmailFromAddress(),
+      timestamp: new Date().toISOString()
+    })
+
     const emailData: EmailRequest = await request.json()
+    console.log('📧 Email request body:', emailData)
+    
+    // Validate required fields
+    if (!emailData.to || !emailData.subject) {
+      throw new Error('Missing required fields: to, subject')
+    }
     
     const resendApiKey = process.env.RESEND_API_KEY
     if (!resendApiKey) {
@@ -209,7 +235,7 @@ export async function POST(request: NextRequest) {
     text = `Welcome to JiGR! Your account is ready. Access code: ${emailData.data?.tempCode || 'N/A'}`
 
     const emailPayload = {
-      from: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
+      from: getEmailFromAddress(),
       to: emailData.to,
       subject: emailData.subject,
       html: html,
@@ -247,10 +273,16 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
-    console.error('❌ Send email error:', error)
-    return NextResponse.json(
-      { error: 'Failed to send email' },
-      { status: 500 }
-    )
+    console.error('❌ Email API Error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    })
+
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send email',
+      timestamp: new Date().toISOString()
+    }, { status: 500 })
   }
 }
