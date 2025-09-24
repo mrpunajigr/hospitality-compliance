@@ -187,11 +187,25 @@ export default function CreateAccountPage() {
             email: formData.email
           })
 
+          // TEST: Try direct email sending to debug
+          try {
+            console.log('🧪 Testing direct email as backup...')
+            const directEmailTest = await fetch('/api/test-direct-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ testEmail: formData.email })
+            })
+            const directResult = await directEmailTest.json()
+            console.log('🧪 Direct email test result:', directResult)
+          } catch (directError) {
+            console.log('🧪 Direct email test failed:', directError)
+          }
+
           // Wait a moment for email to process, then redirect
           console.log('✅ Signup complete, redirecting to onboarding...')
           setTimeout(() => {
             router.push('/admin/profile?onboarding=true')
-          }, 1000) // Give email 1 second to process
+          }, 2000) // Give email 2 seconds to process
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)
