@@ -12,7 +12,7 @@
 
 # Function configuration for API routes
 [functions]
-  external_node_modules = ["@supabase/supabase-js"]
+  external_node_modules = ["@supabase/supabase-js", "resend"]
   node_bundler = "esbuild"
 
 # Headers for better performance
@@ -31,7 +31,22 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization, x-csrf-token"
 
-# File upload optimization (Netlify allows larger files than Vercel)
+# File upload optimization (Netlify allows larger files than Vercel)  
 [build.processing]
   skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+# CRITICAL: Disable automatic form detection that causes CSRF issues
+[build.processing.html.form_detection]
+  enabled = false
 
