@@ -1,5 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// CRITICAL: Add security headers to prevent CSRF issues
+const securityHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Content-Type': 'application/json'
+}
+
+// CRITICAL: Handle OPTIONS requests for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { testEmail } = await request.json()
@@ -52,7 +74,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: `Resend API error: ${response.status}`,
         details: errorText
-      }, { status: response.status })
+      }, { status: response.status, headers: securityHeaders })
     }
 
     const result = await response.json()
@@ -64,7 +86,7 @@ export async function POST(request: NextRequest) {
       emailId: result.id,
       fromAddress: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
       timestamp: new Date().toISOString()
-    })
+    }, { status: 200, headers: securityHeaders })
     
   } catch (error) {
     console.error('❌ Direct email test failed:', error)
@@ -73,7 +95,7 @@ export async function POST(request: NextRequest) {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       details: error
-    }, { status: 500 })
+    }, { status: 500, headers: securityHeaders })
   }
 }
 

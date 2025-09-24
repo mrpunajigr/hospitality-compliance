@@ -1,5 +1,27 @@
 import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+
+// CRITICAL: Add security headers to prevent CSRF issues
+const securityHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Content-Type': 'application/json'
+}
+
+// CRITICAL: Handle OPTIONS requests for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
 
 // Create Supabase client with service role key for admin operations
 console.log('🔑 Environment check:', {
@@ -33,7 +55,7 @@ export async function POST(request: Request) {
       console.log('❌ Missing required fields:', { businessName, businessType, userId, email })
       return NextResponse.json(
         { error: 'Missing required fields' },
-        { status: 400 }
+        { status: 400, headers: securityHeaders }
       )
     }
     
@@ -47,7 +69,7 @@ export async function POST(request: Request) {
         console.error('❌ Supabase connection test failed:', error)
         return NextResponse.json(
           { error: 'Database connection failed', details: error.message },
-          { status: 500 }
+          { status: 500, headers: securityHeaders }
         )
       }
       console.log('✅ Supabase connection successful')
@@ -55,7 +77,7 @@ export async function POST(request: Request) {
       console.error('❌ Supabase connection exception:', connError)
       return NextResponse.json(
         { error: 'Database connection exception', details: (connError as Error).message },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
 
@@ -71,7 +93,7 @@ export async function POST(request: Request) {
       console.error('Error checking profile:', profileCheckError)
       return NextResponse.json(
         { error: 'Failed to verify user profile', details: profileCheckError.message },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
 
@@ -100,13 +122,13 @@ export async function POST(request: Request) {
         if (profileError.code === '23503') {
           return NextResponse.json(
             { error: 'User account not found. Please ensure user is properly registered.' },
-            { status: 400 }
+            { status: 400, headers: securityHeaders }
           )
         }
         else {
           return NextResponse.json(
             { error: 'Failed to create user profile', details: profileError.message },
-            { status: 500 }
+            { status: 500, headers: securityHeaders }
           )
         }
       }
@@ -126,7 +148,7 @@ export async function POST(request: Request) {
       console.error('Error checking for duplicate business names:', duplicateCheckError)
       return NextResponse.json(
         { error: 'Failed to validate business name', details: duplicateCheckError.message },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
     
@@ -152,7 +174,7 @@ export async function POST(request: Request) {
               canRetry: false,
               action: 'signin'
             },
-            { status: 409 }
+            { status: 409, headers: securityHeaders }
           )
         } else {
           // Different email, business name taken
@@ -169,7 +191,7 @@ export async function POST(request: Request) {
                 `${businessNameTrimmed} NZ`
               ]
             },
-            { status: 409 }
+            { status: 409, headers: securityHeaders }
           )
         }
       }
@@ -252,7 +274,7 @@ export async function POST(request: Request) {
             console.error('Error linking user to client:', linkError)
             return NextResponse.json(
               { error: 'Failed to link user to company', details: linkError.message },
-              { status: 500 }
+              { status: 500, headers: securityHeaders }
             )
           }
 
@@ -260,7 +282,7 @@ export async function POST(request: Request) {
             success: true,
             client: clientData,
             note: 'Created successfully (owner_name field not available in database)'
-          })
+          }, { headers: securityHeaders })
         } else {
           console.error('❌ Retry also failed:', retryError)
         }
@@ -301,13 +323,13 @@ export async function POST(request: Request) {
             success: true,
             client: minimalClient,
             note: 'Created with minimal data due to schema limitations'
-          })
+          }, { headers: securityHeaders })
         }
       }
       
       return NextResponse.json(
         { error: 'Failed to create company', details: clientError.message },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
 
@@ -338,7 +360,7 @@ export async function POST(request: Request) {
       })
       return NextResponse.json(
         { error: 'Failed to link user to company', details: linkError.message },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
 
@@ -376,7 +398,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       client: clientData
-    })
+    }, { headers: securityHeaders })
 
   } catch (error) {
     console.error('Company creation error:', error)
@@ -388,7 +410,7 @@ export async function POST(request: Request) {
     })
     return NextResponse.json(
       { error: 'Internal server error', details: err?.message },
-      { status: 500 }
+      { status: 500, headers: securityHeaders }
     )
   }
 }

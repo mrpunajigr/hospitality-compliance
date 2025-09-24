@@ -1,5 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// CRITICAL: Add security headers to prevent CSRF issues
+const securityHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Content-Type': 'application/json'
+}
+
+// CRITICAL: Handle OPTIONS requests for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
+
 interface EmailRequest {
   to: string
   subject: string
@@ -218,7 +240,7 @@ export async function POST(request: NextRequest) {
     if (!resendApiKey) {
       return NextResponse.json(
         { error: 'RESEND_API_KEY not configured' },
-        { status: 500 }
+        { status: 500, headers: securityHeaders }
       )
     }
 
@@ -265,14 +287,14 @@ export async function POST(request: NextRequest) {
       console.error('❌ Resend API error:', errorText)
       return NextResponse.json(
         { error: `Resend API error: ${errorText}` },
-        { status: response.status }
+        { status: response.status, headers: securityHeaders }
       )
     }
 
     const result = await response.json()
     console.log('✅ Email sent via Resend:', result)
     
-    return NextResponse.json({ success: true, data: result })
+    return NextResponse.json({ success: true, data: result }, { headers: securityHeaders })
   } catch (error) {
     console.error('❌ Email API Error:', {
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -284,6 +306,6 @@ export async function POST(request: NextRequest) {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to send email',
       timestamp: new Date().toISOString()
-    }, { status: 500 })
+    }, { status: 500, headers: securityHeaders })
   }
 }

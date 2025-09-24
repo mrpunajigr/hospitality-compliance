@@ -144,3 +144,13 @@ This is the JiGR Hospitality Compliance platform - a multi-tenant SaaS system fo
 - Test on iPad Air viewport (768x1024)
 - Implement comprehensive audit logging
 - Ensure multi-tenant data isolation
+
+## Email Configuration Memories
+
+- **Email Service Direct Sending Test**: 
+  - POST to endpoint with `{"testEmail": "your@email.com"}` to test direct email sending
+  - Current Configuration:
+    - API Key Present: Yes (preview: `re_XESGX...`)
+    - Sender Address: `dev@jigr.app`
+    - Environment: Production
+    - Configuration Timestamp: 2025-09-24T03:13:28.226Z
