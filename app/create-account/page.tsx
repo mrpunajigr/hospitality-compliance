@@ -187,9 +187,11 @@ export default function CreateAccountPage() {
             email: formData.email
           })
 
-          // Auto-login the user (they're already logged in from signUp)
-          console.log('✅ User auto-logged in, redirecting to profile completion...')
-          router.push('/admin/profile?onboarding=true')
+          // Wait a moment for email to process, then redirect
+          console.log('✅ Signup complete, redirecting to onboarding...')
+          setTimeout(() => {
+            router.push('/admin/profile?onboarding=true')
+          }, 1000) // Give email 1 second to process
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)
