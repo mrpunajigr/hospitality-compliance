@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   // Image optimization
   images: {
@@ -11,11 +12,7 @@ const nextConfig = {
       },
     ],
   },
-};
-
-module.exports = nextConfig;
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+  
   // Netlify-specific configurations
   trailingSlash: false,
   output: 'standalone',
