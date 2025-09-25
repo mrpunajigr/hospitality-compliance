@@ -205,17 +205,12 @@ https://jigr.co.nz | support@jigr.co.nz
   `.trim()
 }
 
-// Add fallback email configuration
+// Email configuration
 const getEmailFromAddress = () => {
-  // TEMPORARY FIX: Use Resend test domain to bypass CSRF issue
-  console.warn('🔧 Using Resend test domain to bypass CSRF Token Mismatch')
-  return 'onboarding@resend.dev'
-  
-  // Original logic (commented out for debugging)
-  // if (process.env.EMAIL_FROM_ADDRESS) {
-  //   return process.env.EMAIL_FROM_ADDRESS
-  // }
-  // return 'onboarding@resend.dev'
+  if (process.env.EMAIL_FROM_ADDRESS) {
+    return process.env.EMAIL_FROM_ADDRESS
+  }
+  return 'onboarding@resend.dev' // Fallback for development
 }
 
 export async function POST(request: NextRequest) {
