@@ -44,10 +44,8 @@ const nextConfig = {
     ];
   },
   
-  // Disable built-in security features that might conflict
-  experimental: {
-    serverComponentsExternalPackages: ['resend'],
-  },
+  // External packages configuration (moved from experimental)
+  serverExternalPackages: ['resend'],
 }
 
 module.exports = nextConfig
