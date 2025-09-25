@@ -414,3 +414,14 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export async function GET() {
+  return NextResponse.json({
+    message: 'POST to this endpoint with company data to create a new company',
+    endpoint: '/api/create-company',
+    method: 'POST',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    supabaseConnected: !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+  }, { headers: securityHeaders })
+}

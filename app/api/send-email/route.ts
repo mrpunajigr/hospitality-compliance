@@ -309,3 +309,17 @@ export async function POST(request: NextRequest) {
     }, { status: 500, headers: securityHeaders })
   }
 }
+
+export async function GET() {
+  return NextResponse.json({
+    message: 'POST to this endpoint with email data to send welcome emails',
+    currentConfig: {
+      hasApiKey: !!process.env.RESEND_API_KEY,
+      apiKeyPreview: process.env.RESEND_API_KEY ? 
+        `${process.env.RESEND_API_KEY.substring(0, 8)}...` : 'Not set',
+      fromAddress: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    }
+  }, { headers: securityHeaders })
+}
