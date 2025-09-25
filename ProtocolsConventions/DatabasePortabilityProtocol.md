@@ -363,5 +363,208 @@ describe('Database Migration Tests', () => {
 - [ ] Train team on new provider management
 - [ ] Establish backup and disaster recovery procedures
 
+## 🏗️ REAL-WORLD IMPLEMENTATION EXAMPLES
+
+### **CURRENT JIGR SCHEMA (Production-Ready)**
+
+Based on our actual implementation with multi-tenant RBAC system:
+
+```sql
+-- CLIENTS TABLE (Multi-tenant organizations)
+CREATE TABLE clients (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name varchar(255) NOT NULL,
+  business_name varchar(255),
+  owner_name varchar(255),
+  owner_position varchar(100),
+  phone varchar(20),
+  address text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- CLIENT_USERS TABLE (User-Organization relationships with RBAC)
+CREATE TABLE client_users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  client_id uuid REFERENCES clients(id) ON DELETE CASCADE,
+  role varchar(20) NOT NULL DEFAULT 'STAFF',
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT valid_roles CHECK (role IN ('OWNER', 'MANAGER', 'SUPERVISOR', 'STAFF')),
+  UNIQUE(user_id, client_id)
+);
+
+-- INVITATIONS TABLE (Token-based user invitation system)  
+CREATE TABLE invitations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id uuid REFERENCES clients(id) ON DELETE CASCADE,
+  email varchar(255) NOT NULL,
+  role varchar(20) NOT NULL DEFAULT 'STAFF',
+  token varchar(32) NOT NULL UNIQUE,
+  invited_by uuid REFERENCES auth.users(id),
+  expires_at timestamp with time zone NOT NULL,
+  accepted_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT valid_invitation_roles CHECK (role IN ('MANAGER', 'SUPERVISOR', 'STAFF'))
+);
+
+-- ONBOARDING_PROGRESS TABLE (User onboarding workflow tracking)
+CREATE TABLE onboarding_progress (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  client_id uuid REFERENCES clients(id) ON DELETE CASCADE,
+  step varchar(50) NOT NULL,
+  completed boolean DEFAULT false,
+  completed_at timestamp with time zone,
+  data jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  UNIQUE(user_id, client_id, step)
+);
+```
+
+### **PRODUCTION RLS POLICIES**
+
+Our actual multi-tenant security implementation:
+
+```sql
+-- CLIENT ISOLATION POLICY
+CREATE POLICY "Client data isolation" ON clients
+FOR ALL USING (
+  auth.uid() IN (
+    SELECT user_id FROM client_users 
+    WHERE client_id = clients.id
+  )
+);
+
+-- USER-CLIENT RELATIONSHIP POLICY
+CREATE POLICY "User can see own client relationships" ON client_users
+FOR ALL USING (
+  auth.uid() = user_id OR
+  auth.uid() IN (
+    SELECT cu.user_id FROM client_users cu 
+    WHERE cu.client_id = client_users.client_id 
+    AND cu.role IN ('OWNER', 'MANAGER')
+  )
+);
+
+-- INVITATION MANAGEMENT POLICY
+CREATE POLICY "Managers can manage invitations" ON invitations
+FOR ALL USING (
+  auth.uid() IN (
+    SELECT cu.user_id FROM client_users cu 
+    WHERE cu.client_id = invitations.client_id 
+    AND cu.role IN ('OWNER', 'MANAGER')
+  )
+);
+```
+
+### **MIGRATION CONSIDERATIONS FOR RBAC SYSTEMS**
+
+**Challenge**: RLS policies don't exist in MySQL/SQL Server/Oracle
+**Solution**: Application-level security middleware
+
+```typescript
+// Application-level tenant isolation (replaces RLS)
+class TenantSecurityMiddleware {
+  async enforceClientAccess(userId: string, clientId: string): Promise<boolean> {
+    const membership = await this.db.query(`
+      SELECT role FROM client_users 
+      WHERE user_id = ? AND client_id = ?
+    `, [userId, clientId]);
+    
+    return membership.length > 0;
+  }
+  
+  async enforceRoleAccess(userId: string, clientId: string, requiredRole: string[]): Promise<boolean> {
+    const membership = await this.db.query(`
+      SELECT role FROM client_users 
+      WHERE user_id = ? AND client_id = ? 
+      AND role IN (${requiredRole.map(() => '?').join(',')})
+    `, [userId, clientId, ...requiredRole]);
+    
+    return membership.length > 0;
+  }
+}
+
+// Usage in API routes
+app.use('/api/clients/:clientId', async (req, res, next) => {
+  const hasAccess = await tenantSecurity.enforceClientAccess(
+    req.user.id, 
+    req.params.clientId
+  );
+  
+  if (!hasAccess) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  next();
+});
+```
+
+### **AUTHENTICATION PROVIDER ABSTRACTION**
+
+**Current**: Supabase Auth
+**Migration Strategy**: Provider abstraction layer
+
+```typescript
+interface AuthProvider {
+  signUp(email: string, password: string): Promise<User>;
+  signIn(email: string, password: string): Promise<Session>;
+  signOut(): Promise<void>;
+  getCurrentUser(): Promise<User | null>;
+  sendPasswordReset(email: string): Promise<void>;
+}
+
+class SupabaseAuthProvider implements AuthProvider {
+  // Current implementation
+}
+
+class Auth0Provider implements AuthProvider {
+  // Auth0 implementation
+}
+
+class FirebaseAuthProvider implements AuthProvider {
+  // Firebase implementation
+}
+
+// Provider factory
+function createAuthProvider(config: AuthConfig): AuthProvider {
+  switch (config.provider) {
+    case 'supabase': return new SupabaseAuthProvider(config);
+    case 'auth0': return new Auth0Provider(config);
+    case 'firebase': return new FirebaseAuthProvider(config);
+    default: throw new Error(`Unknown auth provider: ${config.provider}`);
+  }
+}
+```
+
+### **EDGE FUNCTION ALTERNATIVES**
+
+**Current**: Supabase Edge Functions
+**Migration Options**:
+
+```typescript
+// 1. Netlify Functions
+export const handler = async (event, context) => {
+  // OCR processing logic
+};
+
+// 2. Vercel Functions  
+export default async function handler(req, res) {
+  // OCR processing logic
+}
+
+// 3. AWS Lambda
+exports.handler = async (event) => {
+  // OCR processing logic
+};
+
+// 4. Standard API Routes (Next.js/Express)
+app.post('/api/process-document', async (req, res) => {
+  // OCR processing logic
+});
+```
+
 ---
-**This database portability documentation ensures the JiGR platform remains vendor-independent and enterprise-ready for any future database requirements.**
+**This database portability documentation ensures the JiGR platform remains vendor-independent and enterprise-ready for any future database requirements. Updated with real-world RBAC implementation examples from production system.**
