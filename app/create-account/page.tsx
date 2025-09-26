@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { generateSecurePassword } from '@/lib/password-utils'
-import { sendWelcomeEmail } from '@/lib/email/welcome-email'
 import { updateOnboardingProgress } from '@/lib/onboarding-progress'
 import EmailDebugDashboard from '@/app/components/EmailDebugDashboard'
 import Link from 'next/link'
@@ -49,7 +48,6 @@ export default function CreateAccountPage() {
   const [error, setError] = useState('')
   const [errorType, setErrorType] = useState<string | null>(null)
   const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
-  const [emailStatus, setEmailStatus] = useState<'pending' | 'sent' | 'failed' | 'skipped'>('pending')
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,30 +153,6 @@ export default function CreateAccountPage() {
           const result = await response.json()
           console.log('✅ Company created successfully')
 
-          // Send welcome email (non-blocking)
-          try {
-            console.log('🔧 Starting welcome email process...')
-            setEmailStatus('pending')
-            
-            const emailResult = await sendWelcomeEmail({
-              email: formData.email,
-              companyName: formData.companyName,
-              userFullName: formData.fullName,
-              tempCode: tempPassword
-            })
-            
-            if (emailResult?.success !== false) {
-              setEmailStatus('sent')
-              console.log('✅ Email sending completed')
-            } else {
-              setEmailStatus('failed')
-              console.log('⚠️ Email sending failed but continuing signup')
-            }
-          } catch (emailError) {
-            console.error('❌ Email error caught:', emailError)
-            setEmailStatus('failed')
-            // Don't fail signup if email fails
-          }
 
           // Track onboarding progress
           await updateOnboardingProgress(data.user.id, 'signup', {
@@ -187,19 +161,6 @@ export default function CreateAccountPage() {
             email: formData.email
           })
 
-          // TEST: Try direct email sending to debug
-          try {
-            console.log('🧪 Testing direct email as backup...')
-            const directEmailTest = await fetch('/api/test-direct-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ testEmail: formData.email })
-            })
-            const directResult = await directEmailTest.json()
-            console.log('🧪 Direct email test result:', directResult)
-          } catch (directError) {
-            console.log('🧪 Direct email test failed:', directError)
-          }
 
           // Wait a moment for email to process, then redirect to success page
           console.log('✅ Signup complete, redirecting to success page...')
