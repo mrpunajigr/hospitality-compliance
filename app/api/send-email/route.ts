@@ -33,8 +33,8 @@ interface WelcomeEmailData {
   email: string
   companyName: string
   userFullName: string
-  tempCode: string
-  loginUrl: string
+  verificationToken: string
+  verificationUrl: string
 }
 
 function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
@@ -126,7 +126,7 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
     <div class="header">
       <div class="logo">JiGR</div>
       <h1>Welcome to JiGR!</h1>
-      <p>Your hospitality compliance journey starts here</p>
+      <p>Verify your email to start your compliance journey</p>
     </div>
     
     <div class="content">
@@ -135,28 +135,36 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
       <p>Welcome to <strong>${data.companyName}</strong> on the JiGR Hospitality Compliance platform!</p>
       
       <div class="welcome-card">
-        <h3>🎉 Your account is ready!</h3>
-        <p>We've created your secure account and you can start managing compliance immediately.</p>
+        <h3>🎉 Your account is almost ready!</h3>
+        <p>Just one more step - verify your email address to unlock your complete compliance dashboard.</p>
       </div>
       
       <div class="login-details">
-        <h4>🔐 Your Login Details</h4>
+        <h4>📧 Verify Your Email Address</h4>
         <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Temporary Access Code:</strong> <code style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${data.tempCode}</code></p>
-        <p><small>⚠️ Please change this code after your first login for security</small></p>
+        <p>To complete your account setup and access your dashboard, please verify your email address by clicking the button below.</p>
+        <p><small>⏰ This verification link will expire in 24 hours for security</small></p>
       </div>
       
       <div style="text-align: center;">
-        <a href="${data.loginUrl}" class="cta-button">Access Your Dashboard</a>
+        <a href="${data.verificationUrl}" class="cta-button">Verify Email & Complete Setup</a>
       </div>
       
-      <h3>🚀 What's Next?</h3>
+      <h3>🚀 After Verification, You Can:</h3>
       <ul>
-        <li>Complete your profile setup</li>
+        <li>Complete your profile and preferences</li>
+        <li>Set up your company information</li>
         <li>Upload your first delivery documents</li>
-        <li>Set up compliance alerts</li>
+        <li>Configure compliance alerts</li>
         <li>Invite your team members</li>
       </ul>
+      
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 20px 0;">
+        <p style="margin: 0; color: #92400e; font-size: 14px;">
+          <strong>Can't click the button?</strong> Copy and paste this link into your browser:<br>
+          <code style="word-break: break-all; font-size: 12px;">${data.verificationUrl}</code>
+        </p>
+      </div>
       
       <p>If you have any questions or need assistance, our support team is here to help!</p>
     </div>
@@ -231,6 +239,17 @@ export async function POST(request: NextRequest) {
       throw new Error('Missing required fields: to, subject')
     }
     
+    // LOCAL TESTING MODE - Skip actual email sending in development
+    if (process.env.NODE_ENV === 'development' && process.env.SKIP_EMAILS === 'true') {
+      console.log('🧪 DEVELOPMENT MODE: Skipping actual email send')
+      return NextResponse.json({ 
+        success: true, 
+        development: true,
+        message: 'Email skipped in development mode',
+        data: { id: 'dev-' + Date.now() }
+      }, { headers: securityHeaders })
+    }
+    
     const resendApiKey = process.env.RESEND_API_KEY
     if (!resendApiKey) {
       return NextResponse.json(
@@ -242,15 +261,29 @@ export async function POST(request: NextRequest) {
     let html = ''
     let text = ''
 
-    // Simplify for debugging - just send basic welcome email
-    html = `
-      <h2>Welcome to JiGR!</h2>
-      <p>Hello ${emailData.data?.userFullName || 'there'},</p>
-      <p>Your account has been created successfully for ${emailData.data?.companyName || 'your company'}.</p>
-      <p>Your temporary access code: <strong>${emailData.data?.tempCode || 'N/A'}</strong></p>
-      <p>Login at: <a href="${emailData.data?.loginUrl || 'https://jigr.app/signin'}">JiGR Platform</a></p>
-    `
-    text = `Welcome to JiGR! Your account is ready. Access code: ${emailData.data?.tempCode || 'N/A'}`
+    // Generate verification email using new template
+    if (emailData.data?.verificationToken && emailData.data?.verificationUrl) {
+      // Use the new verification email template
+      const verificationData: WelcomeEmailData = {
+        email: emailData.to,
+        companyName: emailData.data.companyName || 'your company',
+        userFullName: emailData.data.userFullName || 'there',
+        verificationToken: emailData.data.verificationToken,
+        verificationUrl: emailData.data.verificationUrl
+      }
+      
+      html = generateWelcomeEmailHTML(verificationData)
+      text = generateWelcomeEmailText(verificationData)
+    } else {
+      // Fallback for testing or legacy use
+      html = `
+        <h2>Welcome to JiGR!</h2>
+        <p>Hello ${emailData.data?.userFullName || 'there'},</p>
+        <p>Your account has been created successfully for ${emailData.data?.companyName || 'your company'}.</p>
+        <p>Please check for a verification email to complete your setup.</p>
+      `
+      text = `Welcome to JiGR! Please check for a verification email to complete your setup.`
+    }
 
     const emailPayload = {
       from: getEmailFromAddress(),

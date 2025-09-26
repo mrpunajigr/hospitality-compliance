@@ -395,9 +395,65 @@ export async function POST(request: Request) {
       // This is not critical - continue without failing
     }
 
+    // 5. Generate verification token and send verification email
+    console.log('📧 Generating verification token and sending email...')
+    
+    try {
+      // Generate cryptographically secure verification token
+      const verificationToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+      
+      // Store verification token in database
+      const { error: tokenError } = await supabaseAdmin
+        .from('email_verification_tokens')
+        .insert({
+          user_id: userId,
+          token: verificationToken,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+        })
+
+      if (tokenError) {
+        console.error('Error creating verification token:', tokenError)
+        // Continue without failing - user can request resend later
+      } else {
+        // Send verification email
+        const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/admin/profile?verify=${verificationToken}&onboarding=true`
+        
+        const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/api/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: email,
+            subject: 'Welcome to JiGR - Verify Your Email',
+            data: {
+              verificationToken,
+              verificationUrl,
+              userFullName: fullName || 'there',
+              companyName: businessName
+            }
+          })
+        })
+
+        if (emailResponse.ok) {
+          console.log('✅ Verification email sent successfully')
+        } else {
+          console.error('❌ Failed to send verification email:', await emailResponse.text())
+          // Continue without failing - user can request resend later
+        }
+      }
+    } catch (emailError) {
+      console.error('Error during email verification process:', emailError)
+      // Continue without failing - company creation was successful
+    }
+
     return NextResponse.json({
       success: true,
-      client: clientData
+      client: clientData,
+      message: 'Company created successfully. Please check your email to verify your account and complete onboarding.',
+      verificationEmailSent: true
     }, { headers: securityHeaders })
 
   } catch (error) {
