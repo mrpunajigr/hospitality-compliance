@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'RESEND_API_KEY not configured'
-      }, { status: 500 })
+      }, { status: 500, headers: securityHeaders })
     }
 
     // Direct Resend API call (bypassing our email service)
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
         <p><strong>From:</strong> ${process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev'}</p>
         <p><strong>Time:</strong> ${new Date().toISOString()}</p>
         <p><strong>Test Type:</strong> Direct Resend API call (bypass internal API)</p>
+        <p><strong>Netlify Plan:</strong> Upgraded ✅</p>
       `,
       text: `Direct Email Test Successful! From: ${process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev'} at ${new Date().toISOString()}`
     }
@@ -85,7 +86,8 @@ export async function POST(request: NextRequest) {
       message: 'Direct email sent successfully!',
       emailId: result.id,
       fromAddress: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      netlifyPlan: 'upgraded'
     }, { status: 200, headers: securityHeaders })
     
   } catch (error) {
@@ -108,7 +110,8 @@ export async function GET() {
         `${process.env.RESEND_API_KEY.substring(0, 8)}...` : 'Not set',
       fromAddress: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
       environment: process.env.NODE_ENV,
+      netlifyPlan: 'upgraded',
       timestamp: new Date().toISOString()
     }
-  })
+  }, { headers: securityHeaders })
 }

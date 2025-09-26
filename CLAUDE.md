@@ -12,13 +12,16 @@
 3. Provide clear file paths and implementation instructions
 4. Reference the `.md` files in terminal responses
 
+**CRITICAL ADDITION**: **ALL curl commands, URLs, and testing links must also be written to `.md` files** as they truncate in the terminal and become unusable.
+
 **Example Structure**:
 ```
 implementation-files/
 ├── rbac-migration.md          # Database migration code
 ├── user-invitation-api.md     # API endpoint implementation  
 ├── invitation-modal.md        # React component code
-└── acceptance-page.md         # Full page implementation
+├── acceptance-page.md         # Full page implementation
+└── testing-guide.md           # All testing commands, URLs, and links
 ```
 
 This ensures complete, accurate code delivery and prevents implementation errors due to truncated instructions.

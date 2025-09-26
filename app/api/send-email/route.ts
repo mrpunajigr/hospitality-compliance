@@ -188,15 +188,12 @@ Hello ${data.userFullName},
 
 Welcome to ${data.companyName} on the JiGR Hospitality Compliance platform!
 
-Your account is ready and you can start managing compliance immediately.
+VERIFY YOUR EMAIL:
+Please verify your email address to complete your account setup and access your dashboard.
 
-LOGIN DETAILS:
-Email: ${data.email}
-Temporary Access Code: ${data.tempCode}
+Click here to verify: ${data.verificationUrl}
 
-⚠️ Please change this code after your first login for security.
-
-Access your dashboard: ${data.loginUrl}
+⚠️ This verification link expires in 24 hours.
 
 What's Next:
 • Complete your profile setup
