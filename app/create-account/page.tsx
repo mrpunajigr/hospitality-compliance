@@ -201,10 +201,12 @@ export default function CreateAccountPage() {
             console.log('🧪 Direct email test failed:', directError)
           }
 
-          // Wait a moment for email to process, then redirect
-          console.log('✅ Signup complete, redirecting to onboarding...')
+          // Wait a moment for email to process, then redirect to success page
+          console.log('✅ Signup complete, redirecting to success page...')
           setTimeout(() => {
-            router.push('/admin/profile?onboarding=true')
+            const encodedEmail = encodeURIComponent(formData.email)
+            const encodedCompany = encodeURIComponent(formData.companyName)
+            router.push(`/account-created?email=${encodedEmail}&company=${encodedCompany}`)
           }, 2000) // Give email 2 seconds to process
           
         } catch (companyError) {
