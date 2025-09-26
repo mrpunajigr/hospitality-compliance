@@ -162,13 +162,17 @@ export default function CreateAccountPage() {
           })
 
 
+          // TEMP: Log API response for debugging
+          console.log('✅ Signup complete, API response:', result)
+          console.log('📧 Verification email sent status:', result.verificationEmailSent)
+          
           // Wait a moment for email to process, then redirect to success page
           console.log('✅ Signup complete, redirecting to success page...')
           setTimeout(() => {
             const encodedEmail = encodeURIComponent(formData.email)
             const encodedCompany = encodeURIComponent(formData.companyName)
             router.push(`/account-created?email=${encodedEmail}&company=${encodedCompany}`)
-          }, 2000) // Give email 2 seconds to process
+          }, 10000) // Give 10 seconds to check network tab
           
         } catch (companyError) {
           console.error('❌ Company creation error:', companyError)
