@@ -51,6 +51,9 @@ export async function POST(request: Request) {
       ownerName
     } = body
 
+    // Initialize email verification status at function level
+    let emailSentSuccessfully = false
+
     if (!businessName || !businessType || !userId || !email) {
       console.log('❌ Missing required fields:', { businessName, businessType, userId, email })
       return NextResponse.json(
@@ -252,6 +255,73 @@ export async function POST(request: Request) {
           
         if (!retryError) {
           console.log('✅ Client created successfully without owner_name field')
+          
+          // Generate verification token and send verification email immediately after client creation
+          console.log('📧 Generating verification token and sending email...')
+          
+          try {
+            // Generate cryptographically secure verification token
+            const verificationToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+              .map(b => b.toString(16).padStart(2, '0'))
+              .join('')
+            
+            console.log('🔑 Generated verification token')
+            
+            // Store verification token in database
+            const { error: tokenError } = await supabaseAdmin
+              .from('email_verification_tokens')
+              .insert({
+                user_id: userId,
+                token: verificationToken,
+                expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+              })
+
+            if (tokenError) {
+              console.error('❌ Error creating verification token:', tokenError)
+              console.error('Token error details:', tokenError.message, tokenError.details)
+              // Continue without failing - user can request resend later
+            } else {
+              console.log('✅ Verification token stored in database')
+              
+              // Send verification email
+              const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/admin/profile?verify=${verificationToken}&onboarding=true`
+              console.log('📧 Attempting to send verification email to:', email)
+              
+              const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/api/send-email`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  to: email,
+                  subject: 'Welcome to JiGR - Verify Your Email',
+                  data: {
+                    verificationToken,
+                    verificationUrl,
+                    userFullName: fullName || 'there',
+                    companyName: businessName
+                  }
+                })
+              })
+
+              if (emailResponse.ok) {
+                const emailResult = await emailResponse.json()
+                console.log('✅ Verification email sent successfully:', emailResult)
+                emailSentSuccessfully = true
+              } else {
+                const errorText = await emailResponse.text()
+                console.error('❌ Failed to send verification email. Status:', emailResponse.status)
+                console.error('❌ Email API response:', errorText)
+                // Continue without failing - user can request resend later
+              }
+            }
+          } catch (emailError) {
+            console.error('❌ Error during email verification process:', emailError)
+            const errorMessage = emailError instanceof Error ? emailError.message : String(emailError)
+            console.error('Email error details:', errorMessage)
+            // Continue without failing - company creation was successful
+          }
+          
           // Continue with the rest of the function using retryClientData
           const clientData = retryClientData
           
@@ -322,7 +392,11 @@ export async function POST(request: Request) {
           return NextResponse.json({
             success: true,
             client: minimalClient,
-            note: 'Created with minimal data due to schema limitations'
+            note: 'Created with minimal data due to schema limitations',
+            message: emailSentSuccessfully 
+              ? 'Company created successfully. Please check your email to verify your account and complete onboarding.'
+              : 'Company created successfully. Verification email failed to send - please use the resend option.',
+            verificationEmailSent: emailSentSuccessfully
           }, { headers: securityHeaders })
         }
       }
@@ -395,73 +469,6 @@ export async function POST(request: Request) {
       // This is not critical - continue without failing
     }
 
-    // 5. Generate verification token and send verification email
-    console.log('📧 Generating verification token and sending email...')
-    
-    let emailSentSuccessfully = false
-    
-    try {
-      // Generate cryptographically secure verification token
-      const verificationToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-      
-      console.log('🔑 Generated verification token')
-      
-      // Store verification token in database
-      const { error: tokenError } = await supabaseAdmin
-        .from('email_verification_tokens')
-        .insert({
-          user_id: userId,
-          token: verificationToken,
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-        })
-
-      if (tokenError) {
-        console.error('❌ Error creating verification token:', tokenError)
-        console.error('Token error details:', tokenError.message, tokenError.details)
-        // Continue without failing - user can request resend later
-      } else {
-        console.log('✅ Verification token stored in database')
-        
-        // Send verification email
-        const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/admin/profile?verify=${verificationToken}&onboarding=true`
-        console.log('📧 Attempting to send verification email to:', email)
-        
-        const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/api/send-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            to: email,
-            subject: 'Welcome to JiGR - Verify Your Email',
-            data: {
-              verificationToken,
-              verificationUrl,
-              userFullName: fullName || 'there',
-              companyName: businessName
-            }
-          })
-        })
-
-        if (emailResponse.ok) {
-          const emailResult = await emailResponse.json()
-          console.log('✅ Verification email sent successfully:', emailResult)
-          emailSentSuccessfully = true
-        } else {
-          const errorText = await emailResponse.text()
-          console.error('❌ Failed to send verification email. Status:', emailResponse.status)
-          console.error('❌ Email API response:', errorText)
-          // Continue without failing - user can request resend later
-        }
-      }
-    } catch (emailError) {
-      console.error('❌ Error during email verification process:', emailError)
-      const errorMessage = emailError instanceof Error ? emailError.message : String(emailError)
-      console.error('Email error details:', errorMessage)
-      // Continue without failing - company creation was successful
-    }
 
     return NextResponse.json({
       success: true,
