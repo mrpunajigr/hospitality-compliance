@@ -61,12 +61,12 @@ function AccountCreatedContent() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Chef Workspace Background */}
+      {/* Cafe Window Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/chef-workspace.jpg')`,
-          filter: 'brightness(0.6)'
+          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
+          filter: 'brightness(0.4)'
         }}
       />
       
@@ -79,14 +79,13 @@ function AccountCreatedContent() {
           <div className="flex items-center justify-center h-24">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12">
+              <div className="w-144 h-36">
                 <img 
-                  src="/JiGR_Logo-full_figma_circle.png" 
+                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
                   alt="JiGR Logo" 
-                  className="w-12 h-12 object-contain"
+                  className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
             </div>
           </div>
         </div>
@@ -253,8 +252,8 @@ export default function AccountCreatedPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url('/chef-workspace.jpg')`,
-            filter: 'brightness(0.6)'
+            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
+            filter: 'brightness(0.4)'
           }}
         />
         <div className="absolute inset-0 bg-black/15" />
