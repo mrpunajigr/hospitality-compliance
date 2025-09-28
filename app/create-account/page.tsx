@@ -1,6 +1,7 @@
 'use client'
 
 import { getVersionDisplay } from '@/lib/version'
+import { getCardStyle } from '@/lib/design-system'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -217,7 +218,7 @@ export default function CreateAccountPage() {
         </div>
 
         {/* Glass Morphism Card */}
-        <div className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
+        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
