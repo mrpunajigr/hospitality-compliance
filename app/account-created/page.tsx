@@ -46,12 +46,12 @@ function AccountCreatedContent() {
       const data = await response.json()
       
       if (response.ok) {
-        setResendMessage('✅ Verification email sent successfully! Please check your inbox.')
+        setResendMessage('Verification email sent successfully! Please check your inbox.')
       } else {
-        setResendMessage(`❌ ${data.message || 'Failed to resend email. Please try again.'}`)
+        setResendMessage(`${data.message || 'Failed to resend email. Please try again.'}`)
       }
     } catch (error) {
-      setResendMessage('❌ Network error. Please check your connection and try again.')
+      setResendMessage('Network error. Please check your connection and try again.')
     } finally {
       setIsResending(false)
     }
@@ -93,7 +93,7 @@ function AccountCreatedContent() {
       
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 pt-40">
         {/* Success Card */}
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           <div className={`${getCardStyle('primary')} p-8`}>
             
             {/* Success Icon */}
@@ -187,7 +187,7 @@ function AccountCreatedContent() {
 
                 {resendMessage && (
                   <div className="mt-4 p-3 rounded-lg text-sm">
-                    <p className={resendMessage.startsWith('✅') ? 'text-green-200 bg-green-500/20 border border-green-400/30' : 'text-red-200 bg-red-500/20 border border-red-400/30'}
+                    <p className={resendMessage.startsWith('Verification email sent successfully') ? 'text-green-200 bg-green-500/20 border border-green-400/30' : 'text-red-200 bg-red-500/20 border border-red-400/30'}
                        style={{ padding: '12px', borderRadius: '8px' }}>
                       {resendMessage}
                     </p>
