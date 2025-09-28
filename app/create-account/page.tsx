@@ -22,7 +22,7 @@ const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelecto
   return (
     <details className="text-center mt-4 pt-4 border-t border-white/10">
       <summary className="text-xs text-white/50 cursor-pointer hover:text-white/70 transition-colors">
-        🧪 Development Tools
+Development Tools
       </summary>
       <div className="mt-2">
         <select 
@@ -30,8 +30,8 @@ const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelecto
           onChange={(e) => onPlatformChange(e.target.value as 'web' | 'ios')}
           className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
-          <option value="web">🌐 Web App Version</option>
-          <option value="ios">📱 iPad Optimized Version</option>
+          <option value="web">Web App Version</option>
+          <option value="ios">iPad Optimized Version</option>
         </select>
       </div>
     </details>
@@ -200,7 +200,7 @@ export default function CreateAccountPage() {
       />
       
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/15" />
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
@@ -217,14 +217,14 @@ export default function CreateAccountPage() {
         </div>
 
         {/* Glass Morphism Card */}
-        <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
+        <div className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full mx-auto shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
               Start Your Free Compliance Trial
             </h1>
             <p className="text-white/70 text-sm font-light">
-              No credit card required • Ready in 60 seconds
+              No credit card required - Ready in 60 seconds
             </p>
           </div>
 
@@ -300,10 +300,10 @@ export default function CreateAccountPage() {
                 <div>
                   <h4 className="text-blue-200 font-medium text-sm mb-1">What you get:</h4>
                   <ul className="text-blue-100 text-xs space-y-1">
-                    <li>• Instant access to your dashboard</li>
-                    <li>• 30-day free trial with full features</li>
-                    <li>• Compliance tracking & alerts</li>
-                    <li>• Email confirmation & login details</li>
+                    <li>Instant access to your dashboard</li>
+                    <li>30-day free trial with full features</li>
+                    <li>Compliance tracking & alerts</li>
+                    <li>Email confirmation & login details</li>
                   </ul>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function CreateAccountPage() {
                   Creating Your Account...
                 </div>
               ) : (
-                '🚀 Create Free Account'
+                'Create Free Account'
               )}
             </button>
           </form>
