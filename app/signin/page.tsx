@@ -135,7 +135,7 @@ export default function SignInPage() {
       />
       
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/15" />
 
       {/* Simple Header */}
       <header className="absolute top-0 left-0 right-0 z-20">
@@ -163,7 +163,7 @@ export default function SignInPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className={`${getTextStyle('pageTitle')} mb-2 tracking-tight`}>
-              Welcome Back
+              Welcome
             </h1>
             <p className={`${getTextStyle('bodySmall')} font-light`}>
               Sign in to your compliance dashboard
