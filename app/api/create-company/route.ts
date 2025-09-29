@@ -284,7 +284,7 @@ export async function POST(request: Request) {
               console.log('✅ Verification token stored in database')
               
               // Send verification email
-              const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/admin/profile?verify=${verificationToken}&onboarding=true`
+              const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/update-profile?verify=${verificationToken}&onboarding=true`
               console.log('📧 Attempting to send verification email to:', email)
               
               const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/api/send-email`, {

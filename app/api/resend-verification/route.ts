@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send verification email
-    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/admin/profile?verify=${verificationToken}&onboarding=true`
+    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/update-profile?verify=${verificationToken}&onboarding=true`
     
     console.log('📧 Sending verification email to:', email)
 

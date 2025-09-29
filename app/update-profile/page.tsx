@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useRef, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
@@ -47,7 +47,7 @@ const ProgressIndicator = () => (
   </div>
 )
 
-export default function UpdateProfilePage() {
+function UpdateProfileContent() {
   const [formData, setFormData] = useState({
     preferredName: '',
     mobileNumber: '',
@@ -57,8 +57,49 @@ export default function UpdateProfilePage() {
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Handle email verification if verify token is present
+  useEffect(() => {
+    const verifyToken = searchParams.get('verify')
+    const isOnboarding = searchParams.get('onboarding')
+    
+    if (verifyToken && isOnboarding) {
+      handleEmailVerification(verifyToken)
+    }
+  }, [searchParams])
+
+  const handleEmailVerification = async (token: string) => {
+    setIsVerifying(true)
+    try {
+      const response = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+
+      if (response.ok) {
+        setVerificationStatus('success')
+        // Remove verify params from URL
+        const newUrl = new URL(window.location.href)
+        newUrl.searchParams.delete('verify')
+        newUrl.searchParams.delete('onboarding')
+        window.history.replaceState({}, '', newUrl.pathname)
+      } else {
+        setVerificationStatus('error')
+        setError('Email verification failed. Please try again.')
+      }
+    } catch (error) {
+      setVerificationStatus('error')
+      setError('Verification failed. Please check your connection.')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -140,6 +181,23 @@ export default function UpdateProfilePage() {
             
             {/* Progress Indicator at top of card */}
             <ProgressIndicator />
+            
+            {/* Email Verification Status */}
+            {isVerifying && (
+              <div className="text-center mb-6">
+                <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
+                  <p className="text-blue-200 text-sm">Verifying your email...</p>
+                </div>
+              </div>
+            )}
+            
+            {verificationStatus === 'success' && !isVerifying && (
+              <div className="text-center mb-6">
+                <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-4">
+                  <p className="text-green-200 text-sm">✅ Email verified successfully!</p>
+                </div>
+              </div>
+            )}
             
             {/* Profile Image Upload - replaces success icon */}
             <div className="text-center mb-6">
@@ -269,5 +327,32 @@ export default function UpdateProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function UpdateProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
+            filter: 'brightness(0.4)'
+          }}
+        />
+        <div className="absolute inset-0 bg-black/15" />
+        <div className={`${getCardStyle('primary')} p-8 relative z-10`}>
+          <div className="animate-pulse">
+            <div className="w-20 h-20 bg-white/20 rounded-full mx-auto mb-4"></div>
+            <div className="h-8 bg-white/20 rounded mb-4"></div>
+            <div className="h-4 bg-white/20 rounded mb-2"></div>
+            <div className="h-4 bg-white/20 rounded"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <UpdateProfileContent />
+    </Suspense>
   )
 }
