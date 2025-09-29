@@ -88,7 +88,7 @@ function AccountCreatedContent() {
         
         {/* JiGR Logo */}
         <div className="mb-8">
-          <div className="w-48 h-16">
+          <div className="w-144 h-36">
             <img 
               src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
               alt="JiGR Logo" 
