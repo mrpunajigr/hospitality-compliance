@@ -28,6 +28,16 @@ function AccountCreatedContent() {
     return providers[domain.toLowerCase()] || null
   }
 
+  const handleCheckEmail = () => {
+    // Open default mail client
+    window.location.href = 'mailto:';
+    
+    // Fallback: Try to open webmail based on domain if available
+    if (emailProviderLink) {
+      window.open(emailProviderLink, '_blank');
+    }
+  };
+
   const handleResendEmail = async () => {
     if (!email) return
     
@@ -46,12 +56,12 @@ function AccountCreatedContent() {
       const data = await response.json()
       
       if (response.ok) {
-        setResendMessage('Verification email sent successfully! Please check your inbox.')
+        setResendMessage('Email sent!')
       } else {
-        setResendMessage(`${data.message || 'Failed to resend email. Please try again.'}`)
+        setResendMessage('Couldn\'t send email. Try again.')
       }
     } catch (error) {
-      setResendMessage('Network error. Please check your connection and try again.')
+      setResendMessage('Couldn\'t send email. Try again.')
     } finally {
       setIsResending(false)
     }
@@ -106,128 +116,47 @@ function AccountCreatedContent() {
                 </div>
               </div>
               <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
-                Account Created Successfully!
+                Almost done!
               </h1>
-              <p className="text-white/70">
-                Welcome to JiGR Hospitality Compliance, <strong>{company}</strong>!
+              <p className="text-white/80 mb-4">
+                Click the link we sent to:
+              </p>
+              <p className="font-mono text-blue-200 bg-white/10 px-3 py-2 rounded-lg text-sm mb-6">
+                {email}
               </p>
             </div>
 
-            {/* Verification Instructions */}
-            <div className="bg-white/10 border border-white/20 rounded-2xl p-6 mb-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4 flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    Please Verify Your Email
-                  </h3>
-                  <p className="text-white/80 mb-3">
-                    We&apos;ve sent a verification email to:
-                  </p>
-                  <p className="font-mono text-blue-200 bg-white/10 px-3 py-2 rounded-lg text-sm mb-3">
-                    {email}
-                  </p>
-                  <p className="text-white/70 text-sm">
-                    Click the verification link in your email to complete your account setup and access your dashboard.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Primary Action Button */}
+            <button 
+              onClick={handleCheckEmail}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center group mb-4"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Check Email
+            </button>
 
-            {/* Email Provider Quick Link */}
-            {emailProviderLink && (
-              <div className="mb-6">
-                <a 
-                  href={emailProviderLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center group"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Check Your Email
-                  <svg className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              </div>
-            )}
-
-            {/* Resend Email Section */}
-            <div className="border-t border-white/20 pt-6">
-              <div className="text-center mb-4">
-                <p className="text-white/70 text-sm mb-3">
-                  Didn&apos;t receive the email? Check your spam folder or request a new one.
-                </p>
-                
-                <button
-                  onClick={handleResendEmail}
-                  disabled={isResending}
-                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-white/20"
-                >
-                  {isResending ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    'Resend Verification Email'
-                  )}
-                </button>
-
-                {resendMessage && (
-                  <div className="mt-4 p-3 rounded-lg text-sm">
-                    <p className={resendMessage.startsWith('Verification email sent successfully') ? 'text-green-200 bg-green-500/20 border border-green-400/30' : 'text-red-200 bg-red-500/20 border border-red-400/30'}
-                       style={{ padding: '12px', borderRadius: '8px' }}>
-                      {resendMessage}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Important Notes */}
-            <div className="bg-amber-500/20 border border-amber-400/30 rounded-xl p-4 mt-6">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-amber-300" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-amber-200">
-                    <strong>Important:</strong> The verification link expires in 24 hours. 
-                    Make sure to verify your email soon to access all features.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Alternative Access */}
-            <div className="text-center mt-6 pt-6 border-t border-white/20">
-              <p className="text-white/70 text-sm mb-3">
-                Already verified? Continue to your dashboard:
-              </p>
-              <Link 
-                href="/admin/profile?onboarding=true"
-                className="inline-flex items-center text-blue-300 hover:text-blue-200 font-medium text-sm transition-colors duration-200"
+            {/* Simple Resend Option */}
+            <div className="text-center">
+              <span className="text-white/70 text-sm">No email? </span>
+              <button
+                onClick={handleResendEmail}
+                disabled={isResending}
+                className="text-blue-300 hover:text-blue-200 text-sm font-medium underline disabled:opacity-50"
               >
-                Go to Profile Setup
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
+                {isResending ? 'Sending...' : 'Send again'}
+              </button>
+              
+              {resendMessage && (
+                <div className="mt-2">
+                  <p className={resendMessage.includes('Email sent') ? 'text-green-200 text-sm' : 'text-red-200 text-sm'}>
+                    {resendMessage}
+                  </p>
+                </div>
+              )}
             </div>
+
           </div>
 
           {/* Footer */}
