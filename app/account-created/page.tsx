@@ -83,25 +83,19 @@ function AccountCreatedContent() {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/15" />
 
-      {/* Simple Header */}
-      <header className="absolute top-0 left-0 right-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center h-24">
-            {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <div className="w-144 h-36">
-                <img 
-                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
-                  alt="JiGR Logo" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+        
+        {/* JiGR Logo */}
+        <div className="mb-8">
+          <div className="w-36 h-9">
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" 
+              alt="JiGR Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
-      </header>
-      
-      <div className="relative flex flex-col items-center justify-center min-h-screen p-6 pt-40">
         {/* Success Card */}
         <div className="w-full max-w-lg">
           <div className={`${getCardStyle('primary')} p-8`}>
@@ -156,17 +150,21 @@ function AccountCreatedContent() {
                 </div>
               )}
             </div>
+            
+            {/* Assistance Message */}
+            <div className="text-center mt-6 pt-4 border-t border-white/10">
+              <p className="text-white/40 text-xs mb-2">
+                Need help? Contact our support team
+              </p>
+            </div>
+            
+            {/* Version */}
+            <div className="text-center">
+              <p className="text-xs font-medium text-white/90">
+                {getVersionDisplay()}
+              </p>
+            </div>
 
-          </div>
-
-          {/* Footer */}
-          <div className="text-center mt-8">
-            <p className="text-white/50 text-xs">
-              JiGR Hospitality Compliance • {getVersionDisplay()}
-            </p>
-            <p className="text-white/40 text-xs mt-1">
-              Need help? Contact our support team
-            </p>
           </div>
         </div>
       </div>
