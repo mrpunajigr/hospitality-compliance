@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
@@ -54,18 +54,39 @@ export default function CompanySetupPage() {
     ownersName: '',
     businessType: '',
     address: '',
-    phoneNumber: '',
-    notificationPreferences: {
-      emailAlerts: true,
-      complianceReminders: true,
-      weeklyReports: false
-    }
+    phoneNumber: ''
   })
   const [companyLogo, setCompanyLogo] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [companyName, setCompanyName] = useState('Business Information')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  // Fetch company name from database
+  useEffect(() => {
+    const fetchCompanyName = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: company } = await supabase
+            .from('companies')
+            .select('name')
+            .eq('id', user.user_metadata?.company_id)
+            .single()
+          
+          if (company?.name) {
+            setCompanyName(company.name)
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch company name:', error)
+        // Keep default title
+      }
+    }
+    
+    fetchCompanyName()
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -75,16 +96,6 @@ export default function CompanySetupPage() {
     }))
   }
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      notificationPreferences: {
-        ...prev.notificationPreferences,
-        [name]: checked
-      }
-    }))
-  }
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -120,7 +131,7 @@ export default function CompanySetupPage() {
     }
   }
 
-  // Auth module form field styling (exact same as create-account)
+  // Auth module form field styling (exact same as create-account and update-profile)
   const fieldStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
 
   return (
@@ -186,7 +197,7 @@ export default function CompanySetupPage() {
                 Click to upload your company logo (optional)
               </p>
               <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
-                Business Information
+                {companyName}
               </h1>
               <p className="text-white/70 text-sm">
                 Customize your compliance experience
@@ -215,7 +226,8 @@ export default function CompanySetupPage() {
                   value={formData.businessType}
                   onChange={handleInputChange}
                   required
-                  className={fieldStyle}
+                  className={`${fieldStyle} appearance-none`}
+                  style={{ fontSize: '18px' }}
                 >
                   <option value="">Select Business Type</option>
                   <option value="restaurant">Restaurant</option>
@@ -255,44 +267,6 @@ export default function CompanySetupPage() {
                 />
               </div>
 
-              {/* Notification Preferences */}
-              <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
-                <h3 className="text-white font-medium mb-3">Notification Preferences</h3>
-                <div className="space-y-3">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="emailAlerts"
-                      checked={formData.notificationPreferences.emailAlerts}
-                      onChange={handleCheckboxChange}
-                      className="mr-3 w-4 h-4 text-blue-600 bg-white/90 border-white/30 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-white text-sm">Email alerts for compliance issues</span>
-                  </label>
-                  
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="complianceReminders"
-                      checked={formData.notificationPreferences.complianceReminders}
-                      onChange={handleCheckboxChange}
-                      className="mr-3 w-4 h-4 text-blue-600 bg-white/90 border-white/30 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-white text-sm">Daily compliance reminders</span>
-                  </label>
-                  
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="weeklyReports"
-                      checked={formData.notificationPreferences.weeklyReports}
-                      onChange={handleCheckboxChange}
-                      className="mr-3 w-4 h-4 text-blue-600 bg-white/90 border-white/30 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-white text-sm">Weekly compliance reports</span>
-                  </label>
-                </div>
-              </div>
 
               {/* Error Message */}
               {error && (
