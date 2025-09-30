@@ -223,6 +223,9 @@ function UpdateProfileContent() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
+              <p className="text-white/50 text-xs mb-4">
+                Click to upload your profile photo (optional)
+              </p>
               <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
                 Complete Your Profile
               </h1>

@@ -51,8 +51,10 @@ const ProgressIndicator = () => (
 
 export default function CompanySetupPage() {
   const [formData, setFormData] = useState({
-    companySize: '',
-    businessHours: '',
+    ownersName: '',
+    businessType: '',
+    address: '',
+    phoneNumber: '',
     notificationPreferences: {
       emailAlerts: true,
       complianceReminders: true,
@@ -156,19 +158,19 @@ export default function CompanySetupPage() {
             {/* Progress Indicator at top of card */}
             <ProgressIndicator />
             
-            {/* Company Logo Upload - business/building icon */}
+            {/* Company Logo Upload - same component as update-profile */}
             <div className="text-center mb-6">
               <div className="relative w-20 h-20 mx-auto mb-4">
                 {companyLogo ? (
                   <img 
                     src={companyLogo} 
                     alt="Company Logo" 
-                    className="w-20 h-20 rounded-xl object-cover border-4 border-blue-300"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-blue-300"
                   />
                 ) : (
-                  <div className="w-20 h-20 bg-blue-500/20 rounded-xl flex items-center justify-center border-2 border-dashed border-blue-300 hover:border-blue-200 transition-colors cursor-pointer">
+                  <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center border-2 border-dashed border-blue-300 hover:border-blue-200 transition-colors cursor-pointer">
                     <svg className="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
                 )}
@@ -180,8 +182,11 @@ export default function CompanySetupPage() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
+              <p className="text-white/50 text-xs mb-4">
+                Click to upload your company logo (optional)
+              </p>
               <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
-                Company Information
+                Business Information
               </h1>
               <p className="text-white/70 text-sm">
                 Customize your compliance experience
@@ -190,39 +195,64 @@ export default function CompanySetupPage() {
 
             {/* Company Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Company Size */}
+              {/* Owners Name */}
+              <div>
+                <input
+                  type="text"
+                  name="ownersName"
+                  placeholder="Owner's Name"
+                  value={formData.ownersName}
+                  onChange={handleInputChange}
+                  required
+                  className={fieldStyle}
+                />
+              </div>
+
+              {/* Business Type */}
               <div>
                 <select
-                  name="companySize"
-                  value={formData.companySize}
+                  name="businessType"
+                  value={formData.businessType}
                   onChange={handleInputChange}
                   required
                   className={fieldStyle}
                 >
-                  <option value="">Select Company Size</option>
-                  <option value="1-10">1-10 employees</option>
-                  <option value="11-50">11-50 employees</option>
-                  <option value="51-200">51-200 employees</option>
-                  <option value="200+">200+ employees</option>
+                  <option value="">Select Business Type</option>
+                  <option value="restaurant">Restaurant</option>
+                  <option value="cafe">Cafe</option>
+                  <option value="bar">Bar/Pub</option>
+                  <option value="hotel">Hotel</option>
+                  <option value="catering">Catering</option>
+                  <option value="food-truck">Food Truck</option>
+                  <option value="takeaway">Takeaway</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
-              {/* Business Hours */}
+              {/* Address */}
               <div>
-                <select
-                  name="businessHours"
-                  value={formData.businessHours}
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Business Address"
+                  value={formData.address}
                   onChange={handleInputChange}
                   required
                   className={fieldStyle}
-                >
-                  <option value="">Select Business Hours</option>
-                  <option value="breakfast-lunch">Breakfast & Lunch (6AM-3PM)</option>
-                  <option value="lunch-dinner">Lunch & Dinner (11AM-10PM)</option>
-                  <option value="all-day">All Day (6AM-11PM)</option>
-                  <option value="24-hour">24 Hour Service</option>
-                  <option value="custom">Custom Hours</option>
-                </select>
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="Business Phone Number"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  required
+                  className={fieldStyle}
+                />
               </div>
 
               {/* Notification Preferences */}

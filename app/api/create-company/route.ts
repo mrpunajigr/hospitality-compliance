@@ -24,10 +24,6 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 // Create Supabase client with service role key for admin operations
-console.log('🔑 Environment check:', {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING',
-  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING'
-})
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -38,7 +34,6 @@ export async function POST(request: Request) {
   try {
     console.log('🚀 Create company API called')
     const body = await request.json()
-    console.log('📋 Request body:', body)
     
     const { 
       businessName, 
@@ -55,27 +50,23 @@ export async function POST(request: Request) {
     let emailSentSuccessfully = false
 
     if (!businessName || !businessType || !userId || !email) {
-      console.log('❌ Missing required fields:', { businessName, businessType, userId, email })
+      console.log('❌ Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400, headers: securityHeaders }
       )
     }
     
-    console.log('✅ All required fields present')
-    
     // Test Supabase connection
-    console.log('🧪 Testing Supabase connection...')
     try {
       const { data, error } = await supabaseAdmin.from('clients').select('count').limit(1)
       if (error) {
-        console.error('❌ Supabase connection test failed:', error)
+        console.error('❌ Supabase connection failed:', error.message)
         return NextResponse.json(
           { error: 'Database connection failed', details: error.message },
           { status: 500, headers: securityHeaders }
         )
       }
-      console.log('✅ Supabase connection successful')
     } catch (connError) {
       console.error('❌ Supabase connection exception:', connError)
       return NextResponse.json(
@@ -101,7 +92,7 @@ export async function POST(request: Request) {
     }
 
     if (!existingProfile) {
-      console.log('Creating missing profile for authenticated user:', userId)
+      console.log('Creating missing profile for authenticated user')
       // Only create profile if user exists in auth.users (enforced by foreign key)
       // Use minimal fields that are guaranteed to exist
       const { error: profileError } = await supabaseAdmin
@@ -222,8 +213,6 @@ export async function POST(request: Request) {
     if (ownerName || fullName) {
       clientInsertData.owner_name = ownerName || fullName
     }
-    console.log('🔵 Client insert data:', clientInsertData)
-    console.log('🔵 About to insert client with fields:', Object.keys(clientInsertData))
     
     const { data: clientData, error: clientError } = await supabaseAdmin
       .from('clients')
@@ -416,8 +405,6 @@ export async function POST(request: Request) {
       status: 'active',
       joined_at: new Date().toISOString()
     }
-    console.log('🔵 Link data:', linkData)
-    console.log('🔍 EXACT USER ID BEING STORED:', userId, 'Length:', userId.length)
     
     const { data: linkResult, error: linkError } = await supabaseAdmin
       .from('client_users')
