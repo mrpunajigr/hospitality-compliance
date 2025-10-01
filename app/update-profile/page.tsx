@@ -67,9 +67,9 @@ function UpdateProfileContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Get current user on component mount
+  // Get current user and profile data on component mount
   useEffect(() => {
-    const getCurrentUser = async () => {
+    const getCurrentUserAndProfile = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error) {
@@ -78,17 +78,49 @@ function UpdateProfileContent() {
         } else if (user) {
           setCurrentUser(user)
           console.log('Current user loaded:', user.id)
+          
+          // Load existing profile data from profiles table
+          try {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single()
+              
+            if (profileError) {
+              console.error('Error loading profile:', profileError)
+              // Don't fail - user might not have profile yet
+            } else if (profileData) {
+              console.log('Profile data loaded:', profileData)
+              
+              // Pre-populate form with existing profile data
+              setFormData(prev => ({
+                ...prev,
+                preferredName: profileData.preferred_name || profileData.full_name || '',
+                mobileNumber: profileData.phone || '',
+                jobTitle: profileData.job_title || '',
+                department: ''  // No department field in profiles table yet
+              }))
+              
+              if (profileData.avatar_url) {
+                setProfileImage(profileData.avatar_url)
+              }
+            }
+          } catch (profileError) {
+            console.error('Error in profile loading:', profileError)
+            // Don't fail - just log the error
+          }
         } else {
           console.warn('No authenticated user found')
           setError('Please sign in to continue.')
         }
       } catch (error) {
-        console.error('Error in getCurrentUser:', error)
+        console.error('Error in getCurrentUserAndProfile:', error)
         setError('Authentication error. Please try again.')
       }
     }
 
-    getCurrentUser()
+    getCurrentUserAndProfile()
   }, [])
 
   // Password validation function
