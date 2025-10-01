@@ -70,8 +70,16 @@ export async function POST(req: NextRequest) {
 
     if (passwordError) {
       console.error('❌ Error setting password:', passwordError)
+      console.error('❌ Full password error:', JSON.stringify(passwordError, null, 2))
+      console.error('❌ User ID being used:', user.id)
       return NextResponse.json(
-        { error: 'Failed to set password', details: passwordError.message },
+        { 
+          error: 'Failed to set password', 
+          details: passwordError.message,
+          userId: user.id,
+          errorCode: passwordError.code || 'unknown',
+          fullError: passwordError
+        },
         { status: 500, headers: securityHeaders }
       )
     }
@@ -112,8 +120,16 @@ export async function POST(req: NextRequest) {
 
       if (basicProfileError) {
         console.error('❌ Error creating basic profile:', basicProfileError)
+        console.error('❌ Full profile error:', JSON.stringify(basicProfileError, null, 2))
+        console.error('❌ User ID for profile:', user.id)
         return NextResponse.json(
-          { error: 'Failed to create user profile', details: basicProfileError.message },
+          { 
+            error: 'Failed to create user profile', 
+            details: basicProfileError.message,
+            userId: user.id,
+            errorCode: basicProfileError.code || 'unknown',
+            fullError: basicProfileError
+          },
           { status: 500, headers: securityHeaders }
         )
       } else {
