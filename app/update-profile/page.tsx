@@ -62,9 +62,34 @@ function UpdateProfileContent() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending')
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' })
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Get current user on component mount
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) {
+          console.error('Error getting user:', error)
+          setError('Authentication error. Please sign in again.')
+        } else if (user) {
+          setCurrentUser(user)
+          console.log('Current user loaded:', user.id)
+        } else {
+          console.warn('No authenticated user found')
+          setError('Please sign in to continue.')
+        }
+      } catch (error) {
+        console.error('Error in getCurrentUser:', error)
+        setError('Authentication error. Please try again.')
+      }
+    }
+
+    getCurrentUser()
+  }, [])
 
   // Password validation function
   const validatePassword = (password: string) => {
@@ -185,6 +210,13 @@ function UpdateProfileContent() {
         return
       }
 
+      // Check if user is authenticated
+      if (!currentUser) {
+        setError('Authentication required. Please sign in again.')
+        setIsSubmitting(false)
+        return
+      }
+
       // Set password first
       const passwordResponse = await fetch('/api/set-password', {
         method: 'POST',
@@ -192,6 +224,7 @@ function UpdateProfileContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          userId: currentUser.id,
           password: formData.password,
           profileData: {
             preferredName: formData.preferredName,
