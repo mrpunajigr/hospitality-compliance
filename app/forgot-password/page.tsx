@@ -147,7 +147,7 @@ export default function ForgotPasswordPage() {
                 </h1>
                 
                 <p className="text-white/70 text-sm mb-6">
-                  We've sent a password reset link to <strong className="text-white">{email}</strong>
+                  We&apos;ve sent a password reset link to <strong className="text-white">{email}</strong>
                 </p>
                 
                 <p className="text-white/60 text-xs mb-6">
