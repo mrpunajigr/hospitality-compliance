@@ -139,6 +139,7 @@ export interface UserClient {
   owner_name?: string
   business_type?: string
   phone?: string
+  logo_url?: string
 }
 
 /**

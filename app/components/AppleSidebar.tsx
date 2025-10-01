@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DesignTokens, getTextStyle } from '@/lib/design-system'
 import { getMappedIcon, getUIIcon } from '@/lib/image-storage'
+import { supabase } from '@/lib/supabase'
 
 interface SidebarNavItem {
   name: string
@@ -75,6 +76,42 @@ export default function AppleSidebar({
   const [isMobile, setIsMobile] = useState(false)
   const [isPortrait, setIsPortrait] = useState(true)
   const [isIPad, setIsIPad] = useState(false)
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+
+  // Fetch user avatar
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (user?.id) {
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', user.id)
+            .single()
+          
+          if (profileData?.avatar_url) {
+            setUserAvatar(profileData.avatar_url)
+          }
+        } catch (error) {
+          console.log('Could not fetch user avatar:', error)
+        }
+      }
+    }
+    
+    fetchUserAvatar()
+
+    // Listen for avatar updates
+    const handleAvatarUpdate = (event: any) => {
+      const { avatarUrl } = event.detail
+      setUserAvatar(avatarUrl)
+    }
+
+    window.addEventListener('userAvatarUpdated', handleAvatarUpdate)
+    
+    return () => {
+      window.removeEventListener('userAvatarUpdated', handleAvatarUpdate)
+    }
+  }, [user?.id])
 
   useEffect(() => {
     const checkDeviceAndOrientation = () => {
@@ -137,8 +174,8 @@ export default function AppleSidebar({
           <div className="flex items-center justify-center">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
               <img 
-                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png"
-                alt="JiGR Logo" 
+                src={logoUrl || "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png"}
+                alt="Company Logo" 
                 className="w-full h-full object-contain p-2"
               />
             </div>
@@ -153,55 +190,32 @@ export default function AppleSidebar({
           {/* TOP THIRD: QUICK ACTIONS */}
           <div className="flex-1 flex flex-col justify-center py-2">
             <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
-              {/* Camera Icon - Top */}
-              <button 
-                onClick={() => {
-                  window.location.href = '/upload/capture'
-                  // Trigger camera capture after navigation
-                  setTimeout(() => {
-                    const cameraButton = document.querySelector('[data-camera-trigger]') as HTMLButtonElement
-                    if (cameraButton) cameraButton.click()
-                  }, 500)
-                }}
-                className={`flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full TouchTarget ${
-                  isIPad ? 'min-h-[44px] px-2' : ''
-                }`}
-                title="Quick Camera - Capture documents instantly"
-              >
-                <img 
-                  src={getMappedIcon('JiGRcamera', isCollapsed ? 48 : 64)} 
-                  alt="Camera" 
-                  className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
-                />
-                {!isCollapsed && (
-                  <span className="hidden sm:block md:block ml-2 text-white text-sm font-medium">Camera</span>
-                )}
-              </button>
-              
-              {/* Sign Out Icon - Bottom */}
-              <button 
-                onClick={() => {
-                  if (onSignOut) {
-                    onSignOut()
-                  } else {
-                    // Fallback signout
-                    window.location.href = '/signin'
-                  }
-                }}
-                className={`flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full TouchTarget ${
-                  isIPad ? 'min-h-[44px] px-2' : ''
-                }`}
-                title="Sign Out - End your session safely"
-              >
-                <img 
-                  src={getMappedIcon('JiGRsignout', isCollapsed ? 40 : 48)} 
-                  alt="Sign Out" 
-                  className={isCollapsed ? 'w-10 h-10 object-contain' : 'w-12 h-12 object-contain'}
-                />
-                {!isCollapsed && (
-                  <span className="hidden sm:block md:block ml-2 text-white text-sm font-medium">Sign Out</span>
-                )}
-              </button>
+              {/* Camera Icon - Centered */}
+              <div className="flex justify-center">
+                <button 
+                  onClick={() => {
+                    window.location.href = '/upload/capture'
+                    // Trigger camera capture after navigation
+                    setTimeout(() => {
+                      const cameraButton = document.querySelector('[data-camera-trigger]') as HTMLButtonElement
+                      if (cameraButton) cameraButton.click()
+                    }, 500)
+                  }}
+                  className={`flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 TouchTarget ${
+                    isIPad ? 'min-h-[44px] px-2' : ''
+                  }`}
+                  title="Quick Camera - Capture documents instantly"
+                >
+                  <img 
+                    src={getMappedIcon('JiGRcamera', isCollapsed ? 48 : 64)} 
+                    alt="Camera" 
+                    className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
+                  />
+                  {!isCollapsed && (
+                    <span className="hidden sm:block md:block ml-2 text-white text-sm font-medium">Camera</span>
+                  )}
+                </button>
+              </div>
             </nav>
           </div>
 
@@ -370,9 +384,17 @@ export default function AppleSidebar({
                     onClick={() => window.location.href = '/admin/profile'}
                     title="User Profile - Edit your profile information"
                   >
-                    <span className="text-white font-bold text-lg">
-                      {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                    </span>
+                    {userAvatar ? (
+                      <img 
+                        src={userAvatar} 
+                        alt="User Avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white font-bold text-lg">
+                        {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                      </span>
+                    )}
                   </div>
                 </div>
               </nav>

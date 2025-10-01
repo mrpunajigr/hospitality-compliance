@@ -78,8 +78,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     pages: [
       { key: 'console', label: 'Console', href: '/admin/console' },
       { key: 'configure', label: 'Configure', href: '/admin/configure' },
-      { key: 'team', label: 'Team', href: '/admin/team' },
-      { key: 'profile', label: 'Profile', href: '/admin/profile' }
+      { key: 'team', label: 'Team', href: '/admin/team' }
     ],
     isActive: true,
     theme: 'dark' // Dark text for light background
