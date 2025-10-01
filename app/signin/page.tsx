@@ -3,8 +3,8 @@
 // Hospitality Compliance SaaS - Sign In Page
 // Glass morphism design matching the landing and signup pages
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import Link from 'next/link'
@@ -39,15 +39,25 @@ const PlatformSelector = ({ onPlatformChange, currentPlatform }: PlatformSelecto
   )
 }
 
-export default function SignInPage() {
+function SignInContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [platformMode, setPlatformMode] = useState<'web' | 'ios'>('web')
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Check for success messages from password reset
+  useEffect(() => {
+    const message = searchParams.get('message')
+    if (message === 'password-reset-success') {
+      setSuccessMessage('Password reset successfully! You can now sign in with your new password.')
+    }
+  }, [searchParams])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -82,7 +92,7 @@ export default function SignInPage() {
         // Use setTimeout to ensure state is updated before redirect
         setTimeout(() => {
           const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
-          const destination = redirectTo || '/upload/console'
+          const destination = redirectTo || '/admin/console'
           console.log('🔄 Redirecting to:', destination)
           window.location.replace(destination)
         }, 100)
@@ -198,6 +208,13 @@ export default function SignInPage() {
               />
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+              <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-3">
+                <p className="text-green-200 text-sm text-center">{successMessage}</p>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
@@ -259,5 +276,17 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 }

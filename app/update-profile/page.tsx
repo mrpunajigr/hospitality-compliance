@@ -52,16 +52,50 @@ function UpdateProfileContent() {
     preferredName: '',
     mobileNumber: '',
     jobTitle: '',
-    department: ''
+    department: '',
+    password: '',
+    confirmPassword: ''
   })
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending')
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Password validation function
+  const validatePassword = (password: string) => {
+    let score = 0
+    let feedback = ''
+
+    if (password.length === 0) {
+      return { score: 0, feedback: '' }
+    }
+
+    if (password.length < 8) {
+      feedback = 'Password must be at least 8 characters'
+      return { score: 1, feedback }
+    }
+
+    if (password.length >= 8) score += 1
+    if (/[A-Z]/.test(password)) score += 1
+    if (/[a-z]/.test(password)) score += 1
+    if (/[0-9]/.test(password)) score += 1
+    if (/[^A-Za-z0-9]/.test(password)) score += 1
+
+    if (score < 3) {
+      feedback = 'Include uppercase, lowercase, and numbers'
+    } else if (score < 4) {
+      feedback = 'Strong password!'
+    } else {
+      feedback = 'Very strong password!'
+    }
+
+    return { score, feedback }
+  }
 
   // Handle email verification if verify token is present
   useEffect(() => {
@@ -107,6 +141,12 @@ function UpdateProfileContent() {
       ...prev,
       [name]: value
     }))
+
+    // Update password strength when password changes
+    if (name === 'password') {
+      const strength = validatePassword(value)
+      setPasswordStrength(strength)
+    }
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,13 +172,47 @@ function UpdateProfileContent() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      // Validate passwords
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match')
+        setIsSubmitting(false)
+        return
+      }
+
+      if (passwordStrength.score < 3) {
+        setError('Password is too weak. Please include uppercase, lowercase, and numbers.')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Set password first
+      const passwordResponse = await fetch('/api/set-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: formData.password,
+          profileData: {
+            preferredName: formData.preferredName,
+            mobileNumber: formData.mobileNumber,
+            jobTitle: formData.jobTitle,
+            department: formData.department
+          },
+          profileImage
+        })
+      })
+
+      if (!passwordResponse.ok) {
+        const errorData = await passwordResponse.json()
+        throw new Error(errorData.error || 'Failed to set password')
+      }
+
       // Navigate to company setup page
       router.push('/company-setup')
     } catch (error) {
-      setError('Failed to save profile. Please try again.')
+      console.error('Profile update error:', error)
+      setError(error instanceof Error ? error.message : 'Failed to save profile. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -283,6 +357,69 @@ function UpdateProfileContent() {
                   onChange={handleInputChange}
                   className={fieldStyle}
                 />
+              </div>
+
+              {/* Password Creation Section */}
+              <div className="space-y-4 mt-6 pt-6 border-t border-white/20">
+                <h3 className="text-white font-medium text-lg mb-4">Create Your Password</h3>
+                
+                {/* Password */}
+                <div>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Create Password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className={fieldStyle}
+                  />
+                  {/* Password Strength Indicator */}
+                  {formData.password && (
+                    <div className="mt-2">
+                      <div className="flex space-x-1 mb-1">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <div
+                            key={level}
+                            className={`h-1 flex-1 rounded ${
+                              level <= passwordStrength.score
+                                ? passwordStrength.score <= 2
+                                  ? 'bg-red-400'
+                                  : passwordStrength.score <= 3
+                                  ? 'bg-yellow-400'
+                                  : 'bg-green-400'
+                                : 'bg-white/20'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-white/70">{passwordStrength.feedback}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    className={fieldStyle}
+                  />
+                  {/* Password Match Indicator */}
+                  {formData.confirmPassword && (
+                    <div className="mt-1">
+                      {formData.password === formData.confirmPassword ? (
+                        <p className="text-xs text-green-400">✓ Passwords match</p>
+                      ) : (
+                        <p className="text-xs text-red-400">✗ Passwords do not match</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Error Message */}
