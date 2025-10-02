@@ -305,6 +305,14 @@ function UpdateProfileContent() {
     }
   }
 
+  // Extract first name for personalization
+  const getFirstName = () => {
+    if (formData.preferredName) {
+      return formData.preferredName.split(' ')[0]
+    }
+    return ''
+  }
+
   // Auth module form field styling (exact same as create-account and company-setup)
   const fieldStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-normal"
 
@@ -388,11 +396,16 @@ function UpdateProfileContent() {
                 Click to upload your profile photo (optional)
               </p>
               <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
-                Complete Your Profile
+                {getFirstName() ? `${getFirstName()}, complete your profile` : 'Complete Your Profile'}
               </h1>
               <p className="text-white/70 text-sm">
                 Tell us a bit about yourself
               </p>
+              {currentUser?.email && (
+                <p className="text-white/60 text-xs mt-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+                  Account: {currentUser.email}
+                </p>
+              )}
             </div>
 
             {/* Profile Form */}
