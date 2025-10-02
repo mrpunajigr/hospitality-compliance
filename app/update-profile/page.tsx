@@ -401,21 +401,17 @@ function UpdateProfileContent() {
               <p className="text-white/70 text-sm">
                 Tell us a bit about yourself
               </p>
-              {currentUser?.email && (
-                <p className="text-white/60 text-xs mt-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                  Account: {currentUser.email}
-                </p>
-              )}
             </div>
 
             {/* Profile Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Preferred Name */}
               <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">Preferred Name</label>
                 <input
                   type="text"
                   name="preferredName"
-                  placeholder="Preferred Name"
+                  placeholder="Enter your preferred name"
                   value={formData.preferredName}
                   onChange={handleInputChange}
                   required
@@ -425,10 +421,11 @@ function UpdateProfileContent() {
 
               {/* Mobile Number */}
               <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">Mobile Number</label>
                 <input
                   type="tel"
                   name="mobileNumber"
-                  placeholder="Mobile Number"
+                  placeholder="Enter your mobile number"
                   value={formData.mobileNumber}
                   onChange={handleInputChange}
                   className={fieldStyle}
@@ -437,25 +434,25 @@ function UpdateProfileContent() {
 
               {/* Job Title */}
               <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">Job Title</label>
                 <input
                   type="text"
                   name="jobTitle"
-                  placeholder="Job Title"
+                  placeholder="Enter your job title"
                   value={formData.jobTitle}
                   onChange={handleInputChange}
                   className={fieldStyle}
                 />
               </div>
 
-              {/* Department */}
+              {/* Email Address (Read-only) */}
               <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">Email Address</label>
                 <input
-                  type="text"
-                  name="department"
-                  placeholder="Department"
-                  value={formData.department}
-                  onChange={handleInputChange}
-                  className={fieldStyle}
+                  type="email"
+                  value={currentUser?.email || ''}
+                  readOnly
+                  className="w-full bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-gray-700 text-lg font-normal cursor-not-allowed"
                 />
               </div>
 
