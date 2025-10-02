@@ -112,9 +112,9 @@ export async function POST(req: NextRequest) {
           id: user.id,
           email: userEmail, // Include email to satisfy NOT NULL constraint
           preferred_name: profileData.preferredName,
-          mobile_number: profileData.mobileNumber,
+          phone: profileData.mobileNumber, // Column is 'phone' not 'mobile_number'
           job_title: profileData.jobTitle,
-          department: profileData.department,
+          // department: profileData.department, // Department column doesn't exist in profiles table
           avatar_url: profileImage,
           updated_at: new Date().toISOString()
         })
