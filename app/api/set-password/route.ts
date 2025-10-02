@@ -15,7 +15,21 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    console.log('🔐 Set-password API called at:', new Date().toISOString())
+    console.log('🔧 Environment check:', {
+      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) + '...',
+      serviceRoleKeyPrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 10) + '...'
+    })
+
     const { password, profileData, profileImage, userId } = await req.json()
+    console.log('📝 Request data received:', {
+      hasPassword: !!password,
+      hasProfileData: !!profileData,
+      hasProfileImage: !!profileImage,
+      userId: userId
+    })
 
     if (!password) {
       return NextResponse.json(
@@ -147,8 +161,18 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('❌ Set password API error:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      },
       { status: 500, headers: securityHeaders }
     )
   }
