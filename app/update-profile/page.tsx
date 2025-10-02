@@ -314,7 +314,7 @@ function UpdateProfileContent() {
   }
 
   // Auth module form field styling (exact same as create-account and company-setup)
-  const fieldStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base font-normal"
+  const fieldStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm font-normal"
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -452,7 +452,7 @@ function UpdateProfileContent() {
                   type="email"
                   value={currentUser?.email || ''}
                   readOnly
-                  className="w-full bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-gray-700 text-base font-normal cursor-not-allowed"
+                  className="w-full bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-gray-700 text-sm font-normal cursor-not-allowed"
                 />
               </div>
 
