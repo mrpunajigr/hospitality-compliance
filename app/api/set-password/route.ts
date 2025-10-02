@@ -102,10 +102,15 @@ export async function POST(req: NextRequest) {
 
     // Update user profile in the profiles table using admin client
     if (profileData) {
+      // Get user email for profile update
+      const { data: authUser, error: userError } = await supabaseAdmin.auth.admin.getUserById(user.id)
+      const userEmail = authUser?.user?.email
+
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .upsert({
           id: user.id,
+          email: userEmail, // Include email to satisfy NOT NULL constraint
           preferred_name: profileData.preferredName,
           mobile_number: profileData.mobileNumber,
           job_title: profileData.jobTitle,
@@ -124,31 +129,9 @@ export async function POST(req: NextRequest) {
         console.log('✅ Profile updated successfully')
       }
     } else {
-      // Even if no profile data provided, ensure basic profile exists
-      const { error: basicProfileError } = await supabaseAdmin
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          updated_at: new Date().toISOString()
-        })
-
-      if (basicProfileError) {
-        console.error('❌ Error creating basic profile:', basicProfileError)
-        console.error('❌ Full profile error:', JSON.stringify(basicProfileError, null, 2))
-        console.error('❌ User ID for profile:', user.id)
-        return NextResponse.json(
-          { 
-            error: 'Failed to create user profile', 
-            details: basicProfileError.message,
-            userId: user.id,
-            errorCode: basicProfileError.code || 'unknown',
-            fullError: basicProfileError
-          },
-          { status: 500, headers: securityHeaders }
-        )
-      } else {
-        console.log('✅ Basic profile created successfully')
-      }
+      // No profile data provided - just update the timestamp
+      // Don't create new profile, just update existing one
+      console.log('ℹ️ No profile data provided, skipping profile update')
     }
 
     return NextResponse.json(
