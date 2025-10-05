@@ -24,15 +24,19 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'
     const redirectUrl = `${baseUrl}/reset-password`
     
+    // Force production URL for now to fix the issue
+    const productionRedirectUrl = 'https://jigr.app/reset-password'
+    
     console.log('🔧 Environment check:', {
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
       baseUrl,
-      redirectTo: redirectUrl
+      redirectTo: redirectUrl,
+      productionRedirectUrl
     })
 
-    // Use Supabase's resetPasswordForEmail function
+    // Use Supabase's resetPasswordForEmail function with forced production URL
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl
+      redirectTo: productionRedirectUrl
     })
 
     if (error) {
