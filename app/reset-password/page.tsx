@@ -52,8 +52,22 @@ function ResetPasswordContent() {
   useEffect(() => {
     const accessToken = searchParams.get('access_token')
     const refreshToken = searchParams.get('refresh_token')
+    const token = searchParams.get('token')
+    const type = searchParams.get('type')
     
-    if (!accessToken || !refreshToken) {
+    console.log('🔧 Reset password page loaded with params:', {
+      accessToken: !!accessToken,
+      refreshToken: !!refreshToken,
+      token: !!token,
+      type,
+      allParams: Object.fromEntries(searchParams.entries())
+    })
+    
+    // Check for either new format (token + type=recovery) or old format (access_token + refresh_token)
+    const hasNewFormat = token && type === 'recovery'
+    const hasOldFormat = accessToken && refreshToken
+    
+    if (!hasNewFormat && !hasOldFormat) {
       setIsValidToken(false)
       setError('Invalid or expired reset link. Please request a new one.')
     }
@@ -94,6 +108,8 @@ function ResetPasswordContent() {
 
       const accessToken = searchParams.get('access_token')
       const refreshToken = searchParams.get('refresh_token')
+      const token = searchParams.get('token')
+      const type = searchParams.get('type')
 
       const response = await fetch('/api/reset-password', {
         method: 'POST',
@@ -103,7 +119,9 @@ function ResetPasswordContent() {
         body: JSON.stringify({
           password: formData.password,
           accessToken,
-          refreshToken
+          refreshToken,
+          token,
+          type
         })
       })
 

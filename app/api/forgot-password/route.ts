@@ -19,6 +19,11 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('🔄 Processing password reset request for:', email)
+    console.log('🔧 Environment check:', {
+      hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
+      baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`
+    })
 
     // Use Supabase's resetPasswordForEmail function
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
