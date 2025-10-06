@@ -1,0 +1,655 @@
+
+I need a prompt for CC to customize our emails. We are using ReSend and emails from Supabase... I want it to be JiGR styled from both services
+
+
+Engineered comprehensive email customization strategy for JiGR branding.
+
+
+
+
+Perfect timing for this! Branded emails are crucial for professional SaaS presentation. Here's a comprehensive prompt for Claude Code:
+
+JiGR Email Template Customization - Claude Code Prompt
+markdown
+# JiGR Branded Email Templates - Resend & Supabase Integration
+
+## 🎯 OBJECTIVE
+Create professionally branded email templates for JiGR platform that work across both Resend (transactional emails) and Supabase Auth (authentication emails). All emails must reflect JiGR's "cost-effective solutions for small hospitality operations" brand identity.
+
+## 🎨 DESIGN REQUIREMENTS
+
+### Brand Identity Application
+- **Primary Colors:** Use JiGR's established color palette from style guide
+- **Typography:** Match JiGR component typography hierarchy
+- **Logo Placement:** JiGR logo in header (provide placement specifications)
+- **Professional Tone:** Friendly but professional - small business focused
+- **Mobile-First:** Emails must render perfectly on mobile devices (60%+ of hospitality staff use mobile)
+
+### Email Design System
+Create reusable email components:
+- EmailHeader (with JiGR logo and branding)
+- EmailFooter (with company info, unsubscribe, social links)
+- ButtonPrimary (matching JiGR button styles)
+- CalloutBox (for important information)
+- ComplianceAlertSection (for violation notifications)
+- DataTable (for compliance reports)
+
+## 📧 EMAIL TYPES TO CUSTOMIZE
+
+### **Supabase Auth Emails**
+1. **WelcomeEmail** - New account confirmation
+2. **EmailVerificationEmail** - Verify email address
+3. **PasswordResetEmail** - Reset password request
+4. **PasswordChangedEmail** - Confirmation of password change
+5. **InvitationEmail** - Team member invitation
+6. **MagicLinkEmail** - Passwordless login
+
+### **Resend Transactional Emails**
+7. **OnboardingWelcomeEmail** - Post-signup welcome sequence
+8. **TrialStartedEmail** - 7-day trial initiation
+9. **TrialEndingEmail** - 2 days before trial ends
+10. **DocumentProcessedEmail** - Docket successfully processed
+11. **ComplianceViolationEmail** - Temperature violation alert
+12. **MonthlyComplianceReportEmail** - Monthly summary
+13. **InvoiceEmail** - Billing/subscription invoice
+14. **PaymentFailedEmail** - Payment issue notification
+15. **SubscriptionCancelledEmail** - Cancellation confirmation
+16. **FeatureAnnouncementEmail** - New feature launches
+
+## 🔧 TECHNICAL IMPLEMENTATION
+
+### Resend Configuration
+```typescript
+// EmailTemplates/ResendConfiguration.ts
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const SendJiGREmail = async ({
+  to,
+  subject,
+  template,
+  data
+}: EmailParams) => {
+  // Implementation with JiGR branding
+};
+Supabase Email Templates
+Location: Supabase Dashboard > Authentication > Email Templates
+
+Customize each template with:
+
+JiGR branded HTML
+Inline CSS (email clients don't support external stylesheets)
+Responsive design
+Alt text for images
+Email Template Structure
+html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ email.subject }}</title>
+  <style>
+    /* Inline critical CSS */
+    /* JiGR color variables */
+    /* Typography styles */
+    /* Responsive breakpoints */
+  </style>
+</head>
+<body>
+  <!-- JiGR Header Component -->
+  <!-- Email Content -->
+  <!-- JiGR Footer Component -->
+</body>
+</html>
+📋 SPECIFIC EMAIL REQUIREMENTS
+1. Compliance Violation Email (High Priority)
+Subject: "⚠️ Temperature Violation Detected - Immediate Action Required"
+
+Content Requirements:
+
+Red alert banner (but not alarming - professional tone)
+Delivery details (supplier, date, time)
+Temperature readings (what was expected vs what was found)
+Product classification (Frozen/Chilled/Ambient)
+Action items (what they need to do)
+Link to full docket in dashboard
+Inspector portal reminder (if applicable)
+2. Document Processed Email
+Subject: "✓ Delivery Docket Processed - [Supplier Name]"
+
+Content Requirements:
+
+Green success indicator
+Supplier name and delivery date
+Key extracted data summary
+Compliance status (all items within range)
+Quick link to view full details
+Encourage consistent usage
+3. Monthly Compliance Report Email
+Subject: "Your Monthly Compliance Report - [Month Year]"
+
+Content Requirements:
+
+Month summary statistics
+Total documents processed
+Compliance rate percentage
+Top suppliers (by volume)
+Any violations recorded
+Download PDF report button
+Upgrade prompts for LITE tier users
+🎯 BRAND VOICE GUIDELINES
+Tone Characteristics
+Supportive, not bossy: "We've noticed..." not "You failed to..."
+Educational: Explain why compliance matters
+Encouraging: Celebrate successes
+Clear: Small business owners are busy, be concise
+Professional but warm: Match JiGR's "helping small businesses" mission
+Example Phrases to Use
+✅ "Great news! Your delivery passed all temperature checks"
+✅ "Let's take a quick look at your compliance summary"
+✅ "We're here to help you stay compliant effortlessly"
+✅ "Your inspectors will love how organized this is"
+
+Phrases to Avoid
+❌ "You failed to comply..."
+❌ "Your account has been flagged..."
+❌ "Immediate action required or else..."
+❌ Technical jargon without explanation
+
+🔐 SECURITY & COMPLIANCE
+Email Security
+No sensitive data in subject lines
+Use secure tokens for links (Supabase magic links, password resets)
+Implement email verification before processing
+Include unsubscribe links (legal requirement)
+GDPR compliance footer
+Anti-Spam Measures
+SPF/DKIM/DMARC records configured
+Sender reputation monitoring
+Reasonable sending frequency limits
+Clear sender identification (emails@jigr.app)
+📱 MOBILE OPTIMIZATION
+Critical Requirements
+Single column layout for mobile
+Touch-friendly buttons (min 44px height)
+Large, readable fonts (minimum 14px body text)
+Compressed images (fast loading on 3G/4G)
+Avoid tiny links/text
+Test on iOS Mail and Gmail mobile
+🧪 TESTING REQUIREMENTS
+Before Deployment
+Email Client Testing:
+Gmail (web, iOS, Android)
+Apple Mail (macOS, iOS)
+Outlook (desktop, web)
+Yahoo Mail
+Mobile clients (primary use case)
+Content Testing:
+Check all dynamic variables populate correctly
+Verify links work (staging environment)
+Test unsubscribe functionality
+Validate spam score (use mail-tester.com)
+Responsive Testing:
+Desktop (1920px, 1440px, 1024px)
+Tablet (768px, 834px)
+Mobile (375px, 390px, 414px)
+📂 FILE STRUCTURE
+bash
+EmailTemplates/
+├── Components/
+│   ├── EmailHeader.tsx
+│   ├── EmailFooter.tsx
+│   ├── ButtonPrimary.tsx
+│   ├── CalloutBox.tsx
+│   └── ComplianceAlertSection.tsx
+├── Layouts/
+│   ├── BaseEmailLayout.tsx
+│   └── ComplianceEmailLayout.tsx
+├── Templates/
+│   ├── Auth/
+│   │   ├── WelcomeEmail.tsx
+│   │   ├── PasswordResetEmail.tsx
+│   │   └── InvitationEmail.tsx
+│   └── Transactional/
+│       ├── DocumentProcessedEmail.tsx
+│       ├── ComplianceViolationEmail.tsx
+│       └── MonthlyReportEmail.tsx
+├── Utils/
+│   ├── EmailTemplateRenderer.ts
+│   └── InlineCSSProcessor.ts
+└── Configuration/
+    ├── ResendConfiguration.ts
+    └── SupabaseEmailSettings.md
+🎨 DESIGN ASSETS NEEDED
+Provide These Assets
+JiGR logo (PNG, SVG) - optimized for email
+Email header background image (if applicable)
+Icon set for email (checkmarks, alerts, info)
+Color palette documentation reference
+Typography specifications
+Email-Specific Constraints
+Logo max-width: 180px (readability on mobile)
+Header image max height: 200px (avoid excessive scrolling)
+Total email size: <100KB (faster loading)
+Use web-safe fonts or @font-face with fallbacks
+⚙️ CONFIGURATION INSTRUCTIONS
+Resend Setup
+Add JiGR domain in Resend dashboard
+Configure DNS records (SPF, DKIM, DMARC)
+Set up email templates in Resend
+Configure webhooks for delivery tracking
+Set environment variables in Supabase Edge Functions
+Supabase Email Customization
+Navigate to: Dashboard > Authentication > Email Templates
+For each template type:
+Enable custom template
+Paste JiGR branded HTML
+Configure subject lines
+Set sender name: "JiGR Support" or "JiGR Compliance"
+Set reply-to email
+Test each template before enabling
+🚨 CRITICAL WARNINGS
+⚠️ DO NOT BREAK:
+Existing Supabase auth flows (magic links, password resets must work)
+Email delivery reliability (test thoroughly before deploying)
+Unsubscribe functionality (legal requirement)
+Token/link security (never expose sensitive URLs)
+⚠️ MUST VERIFY:
+All dynamic variables populate correctly
+Links point to correct environments (staging vs production)
+Images load from CDN (not broken links)
+Mobile rendering is perfect (primary use case)
+Spam score is acceptable (<5/10)
+✅ SUCCESS CRITERIA
+Functional Requirements
+✅ All Supabase auth emails send successfully
+✅ All Resend transactional emails deliver reliably
+✅ Email templates render correctly across email clients
+✅ Dynamic content populates accurately
+✅ Links work and point to correct pages
+
+Brand Requirements
+✅ Emails immediately recognizable as JiGR branded
+✅ Professional appearance matching website/app
+✅ Consistent typography and color usage
+✅ Mobile-optimized and thumb-friendly
+✅ Voice and tone match JiGR brand guidelines
+
+Performance Requirements
+✅ Emails load in <3 seconds on 4G
+✅ Images compressed without quality loss
+✅ Spam score <5/10 on mail-tester.com
+✅ Delivery rate >95%
+✅ Open rate >20% (industry benchmark)
+
+📊 DELIVERABLES
+Phase 1: Foundation (Week 1)
+Email design system components
+Base email layout template
+Supabase auth templates customized
+Testing framework established
+Phase 2: Transactional Emails (Week 2)
+Critical emails (violations, document processed)
+Onboarding sequence
+Billing/subscription emails
+Monthly reports
+Phase 3: Optimization (Week 3)
+Email client testing complete
+Spam score optimization
+A/B testing setup for subject lines
+Analytics tracking configured
+🔍 REFERENCE MATERIALS
+Use These for Consistency
+Existing JiGR style guide page (/StyleGuide)
+Mood board component library
+PascalCase naming convention document
+JiGR brand voice from landing page
+Industry Best Practices
+Really Good Emails for inspiration
+Email client compatibility matrix
+GDPR compliance guidelines for email
+CAN-SPAM Act requirements
+This email system positions JiGR as a professional, trustworthy platform that small hospitality businesses can rely on for compliance management.
+
+Build branded emails that customers want to open and read! 📧✨
+
+
+---
+
+Save this as:
+```bash
+JiGREmailTemplateCustomization.md
+This comprehensive prompt gives Claude Code everything needed to create a professional, branded email system that enhances your platform's credibility and user experience! 📬🎯
+
+awesome, can i save this as an .md
+
+
+Confirmed saving markdown file with enthusiastic affirmation.
+
+
+
+
+Absolutely! Yes, you can save it as an .md file.
+
+The entire prompt I provided is already in markdown format and ready to save as:
+
+bash
+JiGREmailTemplateCustomization.md
+Just copy everything from the prompt (starting from # JiGR Branded Email Templates all the way to the end) and save it in your project documentation folder, like:
+
+bash
+/JiGR-App-Project/
+  /Documentation/
+    /EmailTemplates/
+      JiGREmailTemplateCustomization.md
+Or wherever you're keeping your Claude Code prompts and planning documents!
+
+This way Claude Code will have comprehensive instructions for creating your branded email system across both Resend and Supabase. 📧✨
+
+Ready to hand over to CC whenever you are! 🚀
+
+can you put it all into one prompt
+
+
+Consolidated email template customization prompt into markdown document
+
+Absolutely! Here's the complete prompt in one clean markdown document:
+
+JiGR Branded Email Templates - Resend & Supabase Integration
+🎯 OBJECTIVE
+Create professionally branded email templates for JiGR platform that work across both Resend (transactional emails) and Supabase Auth (authentication emails). All emails must reflect JiGR's "cost-effective solutions for small hospitality operations" brand identity.
+
+🎨 DESIGN REQUIREMENTS
+Brand Identity Application
+Primary Colors: Use JiGR's established color palette from style guide
+Typography: Match JiGR component typography hierarchy
+Logo Placement: JiGR logo in header (provide placement specifications)
+Professional Tone: Friendly but professional - small business focused
+Mobile-First: Emails must render perfectly on mobile devices (60%+ of hospitality staff use mobile)
+Email Design System
+Create reusable email components:
+
+EmailHeader (with JiGR logo and branding)
+EmailFooter (with company info, unsubscribe, social links)
+ButtonPrimary (matching JiGR button styles)
+CalloutBox (for important information)
+ComplianceAlertSection (for violation notifications)
+DataTable (for compliance reports)
+📧 EMAIL TYPES TO CUSTOMIZE
+Supabase Auth Emails
+WelcomeEmail - New account confirmation
+EmailVerificationEmail - Verify email address
+PasswordResetEmail - Reset password request
+PasswordChangedEmail - Confirmation of password change
+InvitationEmail - Team member invitation
+MagicLinkEmail - Passwordless login
+Resend Transactional Emails
+OnboardingWelcomeEmail - Post-signup welcome sequence
+TrialStartedEmail - 7-day trial initiation
+TrialEndingEmail - 2 days before trial ends
+DocumentProcessedEmail - Docket successfully processed
+ComplianceViolationEmail - Temperature violation alert
+MonthlyComplianceReportEmail - Monthly summary
+InvoiceEmail - Billing/subscription invoice
+PaymentFailedEmail - Payment issue notification
+SubscriptionCancelledEmail - Cancellation confirmation
+FeatureAnnouncementEmail - New feature launches
+🔧 TECHNICAL IMPLEMENTATION
+Resend Configuration
+typescript
+// EmailTemplates/ResendConfiguration.ts
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const SendJiGREmail = async ({
+  to,
+  subject,
+  template,
+  data
+}: EmailParams) => {
+  // Implementation with JiGR branding
+};
+Supabase Email Templates
+Location: Supabase Dashboard > Authentication > Email Templates
+
+Customize each template with:
+
+JiGR branded HTML
+Inline CSS (email clients don't support external stylesheets)
+Responsive design
+Alt text for images
+Email Template Structure
+html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ email.subject }}</title>
+  <style>
+    /* Inline critical CSS */
+    /* JiGR color variables */
+    /* Typography styles */
+    /* Responsive breakpoints */
+  </style>
+</head>
+<body>
+  <!-- JiGR Header Component -->
+  <!-- Email Content -->
+  <!-- JiGR Footer Component -->
+</body>
+</html>
+📋 SPECIFIC EMAIL REQUIREMENTS
+1. Compliance Violation Email (High Priority)
+Subject: "⚠️ Temperature Violation Detected - Immediate Action Required"
+
+Content Requirements:
+
+Red alert banner (but not alarming - professional tone)
+Delivery details (supplier, date, time)
+Temperature readings (what was expected vs what was found)
+Product classification (Frozen/Chilled/Ambient)
+Action items (what they need to do)
+Link to full docket in dashboard
+Inspector portal reminder (if applicable)
+2. Document Processed Email
+Subject: "✓ Delivery Docket Processed - [Supplier Name]"
+
+Content Requirements:
+
+Green success indicator
+Supplier name and delivery date
+Key extracted data summary
+Compliance status (all items within range)
+Quick link to view full details
+Encourage consistent usage
+3. Monthly Compliance Report Email
+Subject: "Your Monthly Compliance Report - [Month Year]"
+
+Content Requirements:
+
+Month summary statistics
+Total documents processed
+Compliance rate percentage
+Top suppliers (by volume)
+Any violations recorded
+Download PDF report button
+Upgrade prompts for LITE tier users
+🎯 BRAND VOICE GUIDELINES
+Tone Characteristics
+Supportive, not bossy: "We've noticed..." not "You failed to..."
+Educational: Explain why compliance matters
+Encouraging: Celebrate successes
+Clear: Small business owners are busy, be concise
+Professional but warm: Match JiGR's "helping small businesses" mission
+Example Phrases to Use
+✅ "Great news! Your delivery passed all temperature checks"
+✅ "Let's take a quick look at your compliance summary"
+✅ "We're here to help you stay compliant effortlessly"
+✅ "Your inspectors will love how organized this is"
+
+Phrases to Avoid
+❌ "You failed to comply..."
+❌ "Your account has been flagged..."
+❌ "Immediate action required or else..."
+❌ Technical jargon without explanation
+
+🔐 SECURITY & COMPLIANCE
+Email Security
+No sensitive data in subject lines
+Use secure tokens for links (Supabase magic links, password resets)
+Implement email verification before processing
+Include unsubscribe links (legal requirement)
+GDPR compliance footer
+Anti-Spam Measures
+SPF/DKIM/DMARC records configured
+Sender reputation monitoring
+Reasonable sending frequency limits
+Clear sender identification (emails@jigr.app)
+📱 MOBILE OPTIMIZATION
+Critical Requirements
+Single column layout for mobile
+Touch-friendly buttons (min 44px height)
+Large, readable fonts (minimum 14px body text)
+Compressed images (fast loading on 3G/4G)
+Avoid tiny links/text
+Test on iOS Mail and Gmail mobile
+🧪 TESTING REQUIREMENTS
+Before Deployment
+Email Client Testing:
+Gmail (web, iOS, Android)
+Apple Mail (macOS, iOS)
+Outlook (desktop, web)
+Yahoo Mail
+Mobile clients (primary use case)
+Content Testing:
+Check all dynamic variables populate correctly
+Verify links work (staging environment)
+Test unsubscribe functionality
+Validate spam score (use mail-tester.com)
+Responsive Testing:
+Desktop (1920px, 1440px, 1024px)
+Tablet (768px, 834px)
+Mobile (375px, 390px, 414px)
+📂 FILE STRUCTURE
+bash
+EmailTemplates/
+├── Components/
+│   ├── EmailHeader.tsx
+│   ├── EmailFooter.tsx
+│   ├── ButtonPrimary.tsx
+│   ├── CalloutBox.tsx
+│   └── ComplianceAlertSection.tsx
+├── Layouts/
+│   ├── BaseEmailLayout.tsx
+│   └── ComplianceEmailLayout.tsx
+├── Templates/
+│   ├── Auth/
+│   │   ├── WelcomeEmail.tsx
+│   │   ├── PasswordResetEmail.tsx
+│   │   └── InvitationEmail.tsx
+│   └── Transactional/
+│       ├── DocumentProcessedEmail.tsx
+│       ├── ComplianceViolationEmail.tsx
+│       └── MonthlyReportEmail.tsx
+├── Utils/
+│   ├── EmailTemplateRenderer.ts
+│   └── InlineCSSProcessor.ts
+└── Configuration/
+    ├── ResendConfiguration.ts
+    └── SupabaseEmailSettings.md
+🎨 DESIGN ASSETS NEEDED
+Provide These Assets
+JiGR logo (PNG, SVG) - optimized for email
+Email header background image (if applicable)
+Icon set for email (checkmarks, alerts, info)
+Color palette documentation reference
+Typography specifications
+Email-Specific Constraints
+Logo max-width: 180px (readability on mobile)
+Header image max height: 200px (avoid excessive scrolling)
+Total email size: <100KB (faster loading)
+Use web-safe fonts or @font-face with fallbacks
+⚙️ CONFIGURATION INSTRUCTIONS
+Resend Setup
+Add JiGR domain in Resend dashboard
+Configure DNS records (SPF, DKIM, DMARC)
+Set up email templates in Resend
+Configure webhooks for delivery tracking
+Set environment variables in Supabase Edge Functions
+Supabase Email Customization
+Navigate to: Dashboard > Authentication > Email Templates
+For each template type:
+Enable custom template
+Paste JiGR branded HTML
+Configure subject lines
+Set sender name: "JiGR Support" or "JiGR Compliance"
+Set reply-to email
+Test each template before enabling
+🚨 CRITICAL WARNINGS
+⚠️ DO NOT BREAK:
+Existing Supabase auth flows (magic links, password resets must work)
+Email delivery reliability (test thoroughly before deploying)
+Unsubscribe functionality (legal requirement)
+Token/link security (never expose sensitive URLs)
+⚠️ MUST VERIFY:
+All dynamic variables populate correctly
+Links point to correct environments (staging vs production)
+Images load from CDN (not broken links)
+Mobile rendering is perfect (primary use case)
+Spam score is acceptable (<5/10)
+✅ SUCCESS CRITERIA
+Functional Requirements
+✅ All Supabase auth emails send successfully
+✅ All Resend transactional emails deliver reliably
+✅ Email templates render correctly across email clients
+✅ Dynamic content populates accurately
+✅ Links work and point to correct pages
+
+Brand Requirements
+✅ Emails immediately recognizable as JiGR branded
+✅ Professional appearance matching website/app
+✅ Consistent typography and color usage
+✅ Mobile-optimized and thumb-friendly
+✅ Voice and tone match JiGR brand guidelines
+
+Performance Requirements
+✅ Emails load in <3 seconds on 4G
+✅ Images compressed without quality loss
+✅ Spam score <5/10 on mail-tester.com
+✅ Delivery rate >95%
+✅ Open rate >20% (industry benchmark)
+
+📊 DELIVERABLES
+Phase 1: Foundation (Week 1)
+Email design system components
+Base email layout template
+Supabase auth templates customized
+Testing framework established
+Phase 2: Transactional Emails (Week 2)
+Critical emails (violations, document processed)
+Onboarding sequence
+Billing/subscription emails
+Monthly reports
+Phase 3: Optimization (Week 3)
+Email client testing complete
+Spam score optimization
+A/B testing setup for subject lines
+Analytics tracking configured
+🔍 REFERENCE MATERIALS
+Use These for Consistency
+Existing JiGR style guide page (/StyleGuide)
+Mood board component library
+PascalCase naming convention document
+JiGR brand voice from landing page
+Industry Best Practices
+Really Good Emails for inspiration
+Email client compatibility matrix
+GDPR compliance guidelines for email
+CAN-SPAM Act requirements
+This email system positions JiGR as a professional, trustworthy platform that small hospitality businesses can rely on for compliance management.
+
+Build branded emails that customers want to open and read! 📧✨
