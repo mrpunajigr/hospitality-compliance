@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { resendEmailService } from '@/lib/email-templates/resend-config'
 import { generatePasswordResetEmail, createTestPasswordResetEmail } from '@/lib/email-templates/templates/PasswordResetEmail'
+import { generateWelcomeEmail, createTestWelcomeEmail, createTestInviteWelcomeEmail } from '@/lib/email-templates/templates/WelcomeEmail'
+import { generateEmailVerificationEmail, createTestEmailVerificationEmail } from '@/lib/email-templates/templates/EmailVerificationEmail'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +34,33 @@ export async function POST(req: NextRequest) {
             dateStyle: 'full',
             timeStyle: 'short'
           })
+        })
+        break
+
+      case 'welcome':
+        emailTemplate = generateWelcomeEmail({
+          userEmail: testEmail,
+          userName: 'Test User',
+          confirmationUrl: `https://jigr.app/confirm?token=welcome-${Date.now()}`
+        })
+        break
+
+      case 'welcome-invite':
+        emailTemplate = generateWelcomeEmail({
+          userEmail: testEmail,
+          userName: 'Test User',
+          confirmationUrl: `https://jigr.app/confirm?token=invite-${Date.now()}`,
+          isInvited: true,
+          inviterName: 'Manager Sarah'
+        })
+        break
+
+      case 'email-verification':
+        emailTemplate = generateEmailVerificationEmail({
+          userEmail: testEmail,
+          userName: 'Test User',
+          confirmationUrl: `https://jigr.app/verify?token=verify-${Date.now()}`,
+          expiresInHours: 24
         })
         break
 
@@ -99,6 +128,9 @@ export async function GET(req: NextRequest) {
     emailService: 'resend',
     availableTemplates: [
       'password-reset',
+      'welcome',
+      'welcome-invite', 
+      'email-verification',
       'connection-test'
     ],
     environment: {
@@ -110,7 +142,7 @@ export async function GET(req: NextRequest) {
       POST: 'Send test email',
       body: {
         testEmail: 'required - email address to send test to',
-        templateType: 'optional - password-reset (default) or connection-test'
+        templateType: 'optional - password-reset (default), welcome, welcome-invite, email-verification, or connection-test'
       }
     }
   })

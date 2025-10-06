@@ -36,4 +36,7 @@ curl -X POST http://localhost:3000/api/test-email \
 
 ## Available Templates
 - `password-reset` - Professional password reset with security info
+- `welcome` - Welcome email for new users with onboarding info
+- `welcome-invite` - Welcome email for invited team members
+- `email-verification` - Email address verification with secure link
 - `connection-test` - Simple connectivity test email
