@@ -51,23 +51,47 @@ function ResetPasswordContent() {
   // Check for valid reset token on mount
   useEffect(() => {
     const handlePasswordReset = async () => {
+      // Check both URL params and hash fragments (Supabase can use either)
       const accessToken = searchParams.get('access_token')
       const refreshToken = searchParams.get('refresh_token')
       const error = searchParams.get('error')
       const errorCode = searchParams.get('error_code')
       const errorDescription = searchParams.get('error_description')
       
+      // Also check URL hash for tokens (Supabase often uses hash fragments)
+      let hashAccessToken = ''
+      let hashRefreshToken = ''
+      let hashError = ''
+      
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash.substring(1) // Remove #
+        const hashParams = new URLSearchParams(hash)
+        hashAccessToken = hashParams.get('access_token') || ''
+        hashRefreshToken = hashParams.get('refresh_token') || ''
+        hashError = hashParams.get('error') || ''
+      }
+      
+      // Use hash tokens if available, otherwise use query params
+      const finalAccessToken = hashAccessToken || accessToken
+      const finalRefreshToken = hashRefreshToken || refreshToken
+      const finalError = hashError || error
+      
       console.log('🔧 Reset password page loaded with params:', {
-        accessToken: !!accessToken,
-        refreshToken: !!refreshToken,
-        error,
+        queryAccessToken: !!accessToken,
+        queryRefreshToken: !!refreshToken,
+        hashAccessToken: !!hashAccessToken,
+        hashRefreshToken: !!hashRefreshToken,
+        finalAccessToken: !!finalAccessToken,
+        finalRefreshToken: !!finalRefreshToken,
+        error: finalError,
         errorCode,
         errorDescription,
+        currentHash: typeof window !== 'undefined' ? window.location.hash : '',
         allParams: Object.fromEntries(searchParams.entries())
       })
       
       // Check for Supabase error first
-      if (error) {
+      if (finalError) {
         setIsValidToken(false)
         if (errorCode === 'otp_expired') {
           setError('Password reset link has expired. Please request a new one.')
@@ -78,7 +102,7 @@ function ResetPasswordContent() {
       }
       
       // Check if we have the required tokens
-      if (!accessToken || !refreshToken) {
+      if (!finalAccessToken || !finalRefreshToken) {
         setIsValidToken(false)
         setError('Invalid reset link. Please request a new password reset.')
         return
@@ -93,8 +117,8 @@ function ResetPasswordContent() {
         )
 
         const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
+          access_token: finalAccessToken,
+          refresh_token: finalRefreshToken
         })
 
         if (sessionError) {
@@ -149,8 +173,22 @@ function ResetPasswordContent() {
         return
       }
 
+      // Get tokens from both query params and hash (same logic as validation)
       const accessToken = searchParams.get('access_token')
       const refreshToken = searchParams.get('refresh_token')
+      
+      let hashAccessToken = ''
+      let hashRefreshToken = ''
+      
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash.substring(1)
+        const hashParams = new URLSearchParams(hash)
+        hashAccessToken = hashParams.get('access_token') || ''
+        hashRefreshToken = hashParams.get('refresh_token') || ''
+      }
+      
+      const finalAccessToken = hashAccessToken || accessToken
+      const finalRefreshToken = hashRefreshToken || refreshToken
 
       const response = await fetch('/api/reset-password', {
         method: 'POST',
@@ -159,8 +197,8 @@ function ResetPasswordContent() {
         },
         body: JSON.stringify({
           password: formData.password,
-          accessToken,
-          refreshToken
+          accessToken: finalAccessToken,
+          refreshToken: finalRefreshToken
         })
       })
 
