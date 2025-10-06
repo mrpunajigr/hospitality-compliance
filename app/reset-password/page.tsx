@@ -50,44 +50,70 @@ function ResetPasswordContent() {
 
   // Check for valid reset token on mount
   useEffect(() => {
-    const accessToken = searchParams.get('access_token')
-    const refreshToken = searchParams.get('refresh_token')
-    const token = searchParams.get('token')
-    const type = searchParams.get('type')
-    const error = searchParams.get('error')
-    const errorCode = searchParams.get('error_code')
-    const errorDescription = searchParams.get('error_description')
-    
-    console.log('🔧 Reset password page loaded with params:', {
-      accessToken: !!accessToken,
-      refreshToken: !!refreshToken,
-      token: !!token,
-      type,
-      error,
-      errorCode,
-      errorDescription,
-      allParams: Object.fromEntries(searchParams.entries())
-    })
-    
-    // Check for Supabase error first
-    if (error) {
-      setIsValidToken(false)
-      if (errorCode === 'otp_expired') {
-        setError('Password reset link has expired. Please request a new one.')
-      } else {
-        setError(errorDescription || 'Invalid reset link. Please request a new one.')
+    const handlePasswordReset = async () => {
+      const accessToken = searchParams.get('access_token')
+      const refreshToken = searchParams.get('refresh_token')
+      const error = searchParams.get('error')
+      const errorCode = searchParams.get('error_code')
+      const errorDescription = searchParams.get('error_description')
+      
+      console.log('🔧 Reset password page loaded with params:', {
+        accessToken: !!accessToken,
+        refreshToken: !!refreshToken,
+        error,
+        errorCode,
+        errorDescription,
+        allParams: Object.fromEntries(searchParams.entries())
+      })
+      
+      // Check for Supabase error first
+      if (error) {
+        setIsValidToken(false)
+        if (errorCode === 'otp_expired') {
+          setError('Password reset link has expired. Please request a new one.')
+        } else {
+          setError(errorDescription || 'Invalid reset link. Please request a new one.')
+        }
+        return
       }
-      return
+      
+      // Check if we have the required tokens
+      if (!accessToken || !refreshToken) {
+        setIsValidToken(false)
+        setError('Invalid reset link. Please request a new password reset.')
+        return
+      }
+
+      // Verify tokens are valid by attempting to set session
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        })
+
+        if (sessionError) {
+          console.error('❌ Session validation error:', sessionError)
+          setIsValidToken(false)
+          setError('Reset link has expired or is invalid. Please request a new one.')
+          return
+        }
+
+        console.log('✅ Reset tokens validated successfully')
+        setIsValidToken(true)
+      } catch (err) {
+        console.error('❌ Token validation failed:', err)
+        setIsValidToken(false)
+        setError('Failed to validate reset link. Please request a new one.')
+      }
     }
-    
-    // Check for either new format (token + type=recovery) or old format (access_token + refresh_token)
-    const hasNewFormat = token && type === 'recovery'
-    const hasOldFormat = accessToken && refreshToken
-    
-    if (!hasNewFormat && !hasOldFormat) {
-      setIsValidToken(false)
-      setError('Invalid or expired reset link. Please request a new one.')
-    }
+
+    handlePasswordReset()
   }, [searchParams])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,8 +151,6 @@ function ResetPasswordContent() {
 
       const accessToken = searchParams.get('access_token')
       const refreshToken = searchParams.get('refresh_token')
-      const token = searchParams.get('token')
-      const type = searchParams.get('type')
 
       const response = await fetch('/api/reset-password', {
         method: 'POST',
@@ -136,9 +160,7 @@ function ResetPasswordContent() {
         body: JSON.stringify({
           password: formData.password,
           accessToken,
-          refreshToken,
-          token,
-          type
+          refreshToken
         })
       })
 

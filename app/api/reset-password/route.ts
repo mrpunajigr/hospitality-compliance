@@ -9,22 +9,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { password, accessToken, refreshToken, token, type } = await req.json()
+    const { password, accessToken, refreshToken } = await req.json()
 
-    if (!password) {
+    if (!password || !accessToken || !refreshToken) {
       return NextResponse.json(
-        { error: 'Password is required' },
+        { error: 'Missing required parameters' },
         { status: 400, headers: securityHeaders }
       )
     }
 
-    console.log('🔄 Processing password reset with params:', {
-      hasPassword: !!password,
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      hasToken: !!token,
-      type
-    })
+    console.log('🔄 Processing password reset with tokens')
 
     // Create a new Supabase client
     const supabase = createClient(
@@ -38,49 +32,14 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    let sessionSet = false
+    // Set the session with the provided tokens
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    })
 
-    // Handle new format (token + type=recovery)
-    if (token && type === 'recovery') {
-      console.log('🔧 Using new token format (recovery token)')
-      
-      // For the new format, we need to verify the token and get session
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: 'recovery'
-      })
-
-      if (verifyError) {
-        console.error('❌ Error verifying recovery token:', verifyError)
-        return NextResponse.json(
-          { error: 'Invalid or expired reset link' },
-          { status: 400, headers: securityHeaders }
-        )
-      }
-
-      if (data.session) {
-        const { error: sessionError } = await supabase.auth.setSession(data.session)
-        if (!sessionError) {
-          sessionSet = true
-        }
-      }
-    }
-    // Handle old format (access_token + refresh_token)
-    else if (accessToken && refreshToken) {
-      console.log('🔧 Using old token format (access + refresh tokens)')
-      
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      })
-
-      if (!sessionError) {
-        sessionSet = true
-      }
-    }
-
-    if (!sessionSet) {
-      console.error('❌ Could not establish session with provided tokens')
+    if (sessionError) {
+      console.error('❌ Error setting session:', sessionError)
       return NextResponse.json(
         { error: 'Invalid or expired reset link' },
         { status: 400, headers: securityHeaders }

@@ -168,7 +168,7 @@ export default function HomePage() {
           {/* Links */}
           <div className="text-center mt-6 space-y-3">
             <Link 
-              href="/simple-reset" 
+              href="/forgot-password" 
               className="block text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors duration-200"
             >
               Forgot your password?
