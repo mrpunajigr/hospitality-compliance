@@ -54,14 +54,31 @@ function ResetPasswordContent() {
     const refreshToken = searchParams.get('refresh_token')
     const token = searchParams.get('token')
     const type = searchParams.get('type')
+    const error = searchParams.get('error')
+    const errorCode = searchParams.get('error_code')
+    const errorDescription = searchParams.get('error_description')
     
     console.log('🔧 Reset password page loaded with params:', {
       accessToken: !!accessToken,
       refreshToken: !!refreshToken,
       token: !!token,
       type,
+      error,
+      errorCode,
+      errorDescription,
       allParams: Object.fromEntries(searchParams.entries())
     })
+    
+    // Check for Supabase error first
+    if (error) {
+      setIsValidToken(false)
+      if (errorCode === 'otp_expired') {
+        setError('Password reset link has expired. Please request a new one.')
+      } else {
+        setError(errorDescription || 'Invalid reset link. Please request a new one.')
+      }
+      return
+    }
     
     // Check for either new format (token + type=recovery) or old format (access_token + refresh_token)
     const hasNewFormat = token && type === 'recovery'
