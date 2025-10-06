@@ -9,16 +9,32 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { password, accessToken, refreshToken } = await req.json()
+    const requestBody = await req.json()
+    const { password, accessToken, refreshToken } = requestBody
+
+    console.log('🔄 Processing password reset with request:', {
+      hasPassword: !!password,
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      passwordLength: password?.length || 0,
+      accessTokenLength: accessToken?.length || 0,
+      refreshTokenLength: refreshToken?.length || 0,
+      fullBody: requestBody
+    })
 
     if (!password || !accessToken || !refreshToken) {
+      console.error('❌ Missing parameters:', {
+        password: !!password,
+        accessToken: !!accessToken,
+        refreshToken: !!refreshToken
+      })
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400, headers: securityHeaders }
       )
     }
 
-    console.log('🔄 Processing password reset with tokens')
+    console.log('🔄 All parameters present, proceeding with password reset')
 
     // Create a new Supabase client
     const supabase = createClient(

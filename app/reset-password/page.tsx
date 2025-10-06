@@ -190,16 +190,27 @@ function ResetPasswordContent() {
       const finalAccessToken = hashAccessToken || accessToken
       const finalRefreshToken = hashRefreshToken || refreshToken
 
+      console.log('🔄 Sending password reset request:', {
+        hasPassword: !!formData.password,
+        hasAccessToken: !!finalAccessToken,
+        hasRefreshToken: !!finalRefreshToken,
+        passwordLength: formData.password?.length || 0,
+        accessTokenLength: finalAccessToken?.length || 0,
+        refreshTokenLength: finalRefreshToken?.length || 0
+      })
+
+      const requestBody = {
+        password: formData.password,
+        accessToken: finalAccessToken,
+        refreshToken: finalRefreshToken
+      }
+
       const response = await fetch('/api/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          password: formData.password,
-          accessToken: finalAccessToken,
-          refreshToken: finalRefreshToken
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (!response.ok) {
