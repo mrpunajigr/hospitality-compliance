@@ -14,6 +14,10 @@ function ResetPasswordContent() {
   const [error, setError] = useState('')
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' })
   const [isValidToken, setIsValidToken] = useState(true)
+  const [validatedTokens, setValidatedTokens] = useState({
+    accessToken: '',
+    refreshToken: ''
+  })
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -130,6 +134,12 @@ function ResetPasswordContent() {
 
         console.log('✅ Reset tokens validated successfully')
         setIsValidToken(true)
+        
+        // Store the validated tokens in state for later use
+        setValidatedTokens({
+          accessToken: finalAccessToken,
+          refreshToken: finalRefreshToken
+        })
       } catch (err) {
         console.error('❌ Token validation failed:', err)
         setIsValidToken(false)
@@ -173,36 +183,22 @@ function ResetPasswordContent() {
         return
       }
 
-      // Get tokens from both query params and hash (same logic as validation)
-      const accessToken = searchParams.get('access_token')
-      const refreshToken = searchParams.get('refresh_token')
-      
-      let hashAccessToken = ''
-      let hashRefreshToken = ''
-      
-      if (typeof window !== 'undefined') {
-        const hash = window.location.hash.substring(1)
-        const hashParams = new URLSearchParams(hash)
-        hashAccessToken = hashParams.get('access_token') || ''
-        hashRefreshToken = hashParams.get('refresh_token') || ''
-      }
-      
-      const finalAccessToken = hashAccessToken || accessToken
-      const finalRefreshToken = hashRefreshToken || refreshToken
-
+      // Use the validated tokens stored in state
       console.log('🔄 Sending password reset request:', {
         hasPassword: !!formData.password,
-        hasAccessToken: !!finalAccessToken,
-        hasRefreshToken: !!finalRefreshToken,
+        hasAccessToken: !!validatedTokens.accessToken,
+        hasRefreshToken: !!validatedTokens.refreshToken,
         passwordLength: formData.password?.length || 0,
-        accessTokenLength: finalAccessToken?.length || 0,
-        refreshTokenLength: finalRefreshToken?.length || 0
+        accessTokenLength: validatedTokens.accessToken?.length || 0,
+        refreshTokenLength: validatedTokens.refreshToken?.length || 0,
+        accessTokenPreview: validatedTokens.accessToken ? validatedTokens.accessToken.substring(0, 20) + '...' : 'none',
+        refreshTokenPreview: validatedTokens.refreshToken ? validatedTokens.refreshToken.substring(0, 20) + '...' : 'none'
       })
 
       const requestBody = {
         password: formData.password,
-        accessToken: finalAccessToken,
-        refreshToken: finalRefreshToken
+        accessToken: validatedTokens.accessToken,
+        refreshToken: validatedTokens.refreshToken
       }
 
       const response = await fetch('/api/reset-password', {
