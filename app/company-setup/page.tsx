@@ -57,6 +57,7 @@ export default function CompanySetupPage() {
     phoneNumber: ''
   })
   const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const [companyLogoBase64, setCompanyLogoBase64] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [companyName, setCompanyName] = useState('Business Information')
@@ -103,14 +104,35 @@ export default function CompanySetupPage() {
     if (!file) return
 
     try {
-      // Create a preview URL
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file.')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image file must be less than 5MB.')
+        return
+      }
+
+      // Create a preview URL for display
       const previewUrl = URL.createObjectURL(file)
+      
+      // Set preview URL for immediate display
       setCompanyLogo(previewUrl)
       
-      // Here you would typically upload to your storage service
+      // Convert to base64 for storage
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setCompanyLogoBase64(base64String) // Store base64 for API submission
+      }
+      reader.readAsDataURL(file)
+      
     } catch (error) {
-      console.error('Error uploading logo:', error)
-      setError('Failed to upload logo. Please try again.')
+      console.error('Error processing logo:', error)
+      setError('Failed to process logo. Please try again.')
     }
   }
 
@@ -120,12 +142,50 @@ export default function CompanySetupPage() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('User not authenticated. Please sign in again.')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Prepare the company data
+      const companyData = {
+        userId: user.id,
+        ownersName: formData.ownersName,
+        businessType: formData.businessType,
+        address: formData.address,
+        phoneNumber: formData.phoneNumber,
+        companyLogo: companyLogoBase64 // This will be the base64 data URL if uploaded
+      }
+
+      console.log('🏢 Submitting company setup data...')
+      
+      // Call the API to complete company setup
+      const response = await fetch('/api/update-company', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(companyData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        console.error('❌ Company setup failed:', errorData)
+        setError(errorData?.error || 'Failed to save company settings. Please try again.')
+        setIsSubmitting(false)
+        return
+      }
+
+      const result = await response.json()
+      console.log('✅ Company setup completed successfully:', result)
       
       // Navigate to admin console (complete onboarding)
       router.push('/admin/console')
     } catch (error) {
+      console.error('❌ Company setup error:', error)
       setError('Failed to save company settings. Please try again.')
     } finally {
       setIsSubmitting(false)

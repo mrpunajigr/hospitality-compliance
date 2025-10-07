@@ -96,6 +96,13 @@ export default function AdminConsolePage() {
           if (clientInfo) {
             console.log('✅ Admin Console: Client info loaded successfully:', clientInfo.name)
             setUserClient(clientInfo)
+            
+            // Check if onboarding is completed
+            if (clientInfo.onboarding_status !== 'completed') {
+              console.log('⚠️ Admin Console: Onboarding not completed, redirecting to company setup')
+              router.push('/company-setup')
+              return
+            }
           } else {
             console.log('❌ Admin Console: No client info found for user')
           }
@@ -226,13 +233,13 @@ export default function AdminConsolePage() {
                   />
                 </div>
                 <p className="text-gray-700 text-sm mb-4">
-                  Professional Plan
+                  {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) + ' Plan' : 'Plan not specified'}
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Status:</strong> Active</p>
-                <p><strong>Usage:</strong> 127/2000</p>
-                <p><strong>Billing:</strong> $99/month</p>
+                <p><strong>Status:</strong> {userClient?.subscription_status ? userClient.subscription_status.charAt(0).toUpperCase() + userClient.subscription_status.slice(1) : 'Not specified'}</p>
+                <p><strong>Tier:</strong> {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) : 'Not specified'}</p>
+                <p><strong>Onboarding:</strong> {userClient?.onboarding_status ? userClient.onboarding_status.charAt(0).toUpperCase() + userClient.onboarding_status.slice(1) : 'Not specified'}</p>
               </div>
             </div>
 
@@ -248,13 +255,13 @@ export default function AdminConsolePage() {
                   />
                 </div>
                 <p className="text-gray-700 text-sm mb-4">
-                  4 Active Users
+                  {userClient ? '1 Active User' : 'Loading users...'}
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Admins:</strong> 2</p>
-                <p><strong>Staff:</strong> 2</p>
-                <p><strong>Pending:</strong> 0</p>
+                <p><strong>Owner:</strong> {userClient?.name ? 'You' : 'Not specified'}</p>
+                <p><strong>Role:</strong> {userClient?.role ? userClient.role : 'Not specified'}</p>
+                <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Not specified'}</p>
               </div>
             </div>
 
@@ -268,7 +275,7 @@ export default function AdminConsolePage() {
               {/* Left Side - Logo Uploader */}
               <div className="flex-shrink-0">
                 <ImageUploader
-                  currentImageUrl={companyLogoUrl}
+                  currentImageUrl={companyLogoUrl || userClient?.logo_url}
                   onUploadSuccess={handleLogoUploadSuccess}
                   onUploadError={(error) => console.error('Logo upload failed:', error)}
                   uploadEndpoint="/api/upload-client-logo"
@@ -297,8 +304,10 @@ export default function AdminConsolePage() {
                   <label className="block text-black text-sm font-medium mb-2">Owner&apos;s Name</label>
                   <input
                     type="text"
-                    defaultValue="John Smith"
+                    value={userClient?.owner_name || user?.user_metadata?.full_name || ''}
+                    placeholder="Owner name loading..."
                     className={getFormFieldStyle()}
+                    readOnly
                   />
                 </div>
                 
@@ -319,11 +328,20 @@ export default function AdminConsolePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-black text-sm font-medium mb-2">Business Type</label>
-                  <select className={getFormFieldStyle()}>
+                  <select 
+                    className={getFormFieldStyle()}
+                    value={userClient?.business_type || ''}
+                    disabled
+                  >
+                    <option value="">Select business type...</option>
                     <option value="restaurant">Restaurant</option>
                     <option value="cafe">Café</option>
+                    <option value="bar">Bar/Pub</option>
                     <option value="hotel">Hotel</option>
                     <option value="catering">Catering</option>
+                    <option value="food-truck">Food Truck</option>
+                    <option value="takeaway">Takeaway</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
                 
@@ -331,8 +349,10 @@ export default function AdminConsolePage() {
                   <label className="block text-black text-sm font-medium mb-2">Phone Number</label>
                   <input
                     type="tel"
-                    defaultValue="+64 9 123 4567"
+                    value={userClient?.phone || ''}
+                    placeholder="Phone number not provided"
                     className={getFormFieldStyle()}
+                    readOnly
                   />
                 </div>
               </div>
@@ -341,8 +361,10 @@ export default function AdminConsolePage() {
                 <label className="block text-black text-sm font-medium mb-2">Address</label>
                 <textarea
                   rows={3}
-                  defaultValue="123 Queen Street, Auckland CBD, Auckland 1010"
+                  value={userClient?.address || ''}
+                  placeholder="Business address not provided"
                   className={getFormFieldStyle()}
+                  readOnly
                 />
               </div>
 
@@ -350,8 +372,10 @@ export default function AdminConsolePage() {
                 <label className="block text-black text-sm font-medium mb-2">Alcohol License Number</label>
                 <input
                   type="text"
-                  defaultValue="AL123456789"
+                  value={userClient?.license_number || ''}
+                  placeholder="License number not provided"
                   className={getFormFieldStyle()}
+                  readOnly
                 />
               </div>
 

@@ -15,12 +15,14 @@ export interface UserClient {
   business_type?: string
   business_email?: string
   phone?: string
-  address?: any
+  address?: string
   license_number?: string
   subscription_status?: string
   subscription_tier?: string
   onboarding_status?: string
   estimated_monthly_deliveries?: number
+  owner_name?: string
+  logo_url?: string
 }
 
 /**
@@ -68,7 +70,18 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         id: clientInfo.id,
         name: clientInfo.name,
         role: data.role,
-        status: data.status
+        status: data.status,
+        business_type: undefined,
+        business_email: undefined,
+        phone: undefined,
+        address: undefined,
+        license_number: undefined,
+        subscription_status: undefined,
+        subscription_tier: undefined,
+        onboarding_status: undefined,
+        estimated_monthly_deliveries: undefined,
+        owner_name: undefined,
+        logo_url: undefined
       }
     }
 
@@ -85,7 +98,9 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       subscription_status: clientData.subscription_status,
       subscription_tier: clientData.subscription_tier,
       onboarding_status: clientData.onboarding_status,
-      estimated_monthly_deliveries: clientData.estimated_monthly_deliveries
+      estimated_monthly_deliveries: clientData.estimated_monthly_deliveries,
+      owner_name: clientData.owner_name,
+      logo_url: clientData.logo_url
     }
   } catch (error) {
     console.log('ℹ️ getUserClient exception:', error instanceof Error ? error.message : 'Unknown error occurred')

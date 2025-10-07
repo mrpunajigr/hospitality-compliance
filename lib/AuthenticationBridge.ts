@@ -126,19 +126,26 @@ export interface UserClient {
   id: string
   name: string
   role: string
+  status?: string
   clientId?: string
   email?: string
   permissions?: string[] | any
-  status?: 'active' | 'inactive' | 'pending'
   lastActiveAt?: string
   department?: string
   jobTitle?: string
   createdAt?: string
   metadata?: Record<string, any>
   // Client/Company details
-  owner_name?: string
   business_type?: string
+  business_email?: string
   phone?: string
+  address?: string
+  license_number?: string
+  subscription_status?: string
+  subscription_tier?: string
+  onboarding_status?: string
+  estimated_monthly_deliveries?: number
+  owner_name?: string
   logo_url?: string
 }
 
