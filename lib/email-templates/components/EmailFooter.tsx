@@ -43,7 +43,7 @@ export function EmailFooter({
       <div style={{ marginBottom: '16px' }}>
         <strong style={{ color: '#374151' }}>JiGR Hospitality Compliance</strong>
         <br />
-        New Zealand's leading digital compliance platform for hospitality businesses
+        New Zealand&apos;s leading digital compliance platform for hospitality businesses
       </div>
       
       {additionalInfo && (
@@ -71,7 +71,7 @@ export function EmailFooter({
         
         {includeUnsubscribe && (
           <div>
-            Don't want to receive these emails? {' '}
+            Don&apos;t want to receive these emails? {' '}
             <a 
               href={unsubscribeUrl || '#'} 
               style={{ ...linkStyle, fontSize: '12px' }}
@@ -105,7 +105,7 @@ export function getEmailFooterHTML({
       <div style="margin-bottom: 16px;">
         <strong style="color: #374151;">JiGR Hospitality Compliance</strong>
         <br />
-        New Zealand's leading digital compliance platform for hospitality businesses
+        New Zealand&apos;s leading digital compliance platform for hospitality businesses
       </div>
       
       ${additionalInfo ? `

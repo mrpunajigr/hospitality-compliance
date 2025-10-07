@@ -44,6 +44,8 @@
     ":assets/**/*.ts",
     ":assets/**/*.tsx",
     "test/**/*.test.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "implementation-files/**/*.ts",
+    "implementation-files/**/*.tsx"
   ]
 }

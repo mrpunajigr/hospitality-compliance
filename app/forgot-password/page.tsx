@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
               {/* Back to Sign In */}
               <div className="text-center mt-6">
                 <Link 
-                  href="/signin" 
+                  href="/" 
                   className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors duration-200"
                 >
                   ← Back to Sign In
@@ -155,7 +155,7 @@ export default function ForgotPasswordPage() {
                 </p>
 
                 <Link 
-                  href="/signin" 
+                  href="/" 
                   className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                 >
                   Return to Sign In
