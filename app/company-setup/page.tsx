@@ -142,17 +142,30 @@ export default function CompanySetupPage() {
     setIsSubmitting(true)
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        setError('User not authenticated. Please sign in again.')
+      // Enhanced authentication check - try session first, then getUser
+      console.log('🔍 Checking authentication...')
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('🔍 Session check:', session ? 'Found' : 'None', sessionError ? sessionError.message : 'No error')
+      
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      console.log('🔍 User check:', user ? 'Found' : 'None', userError ? userError.message : 'No error')
+      
+      // Use session user first, fallback to getUser result
+      const currentUser = session?.user || user
+      
+      if (!currentUser) {
+        console.error('❌ No authenticated user found in session or getUser')
+        setError('Please sign in again. If this persists, try refreshing the page.')
         setIsSubmitting(false)
         return
       }
+      
+      console.log('✅ Authenticated user found:', currentUser.id, currentUser.email)
 
       // Prepare the company data
       const companyData = {
-        userId: user.id,
+        userId: currentUser.id,
         ownersName: formData.ownersName,
         businessType: formData.businessType,
         address: formData.address,

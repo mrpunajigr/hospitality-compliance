@@ -123,6 +123,15 @@ export default function CreateAccountPage() {
             ownerName: formData.fullName
           }
 
+          // Enhanced diagnostic logging (SAFE - NO LOGIC CHANGES)
+          console.log('🔵 DIAGNOSTIC: Starting company creation for:', {
+            companyName: formData.companyName,
+            email: formData.email,
+            userId: data.user?.id,
+            timestamp: new Date().toISOString(),
+            requestData: companyData
+          })
+
           console.log('🏢 Creating company via API...')
           const response = await fetch('/api/create-company', {
             method: 'POST',
@@ -131,6 +140,10 @@ export default function CreateAccountPage() {
             },
             body: JSON.stringify(companyData)
           })
+
+          // Enhanced response logging (SAFE - NO LOGIC CHANGES)
+          console.log('🔵 DIAGNOSTIC: Company API Response Status:', response.status)
+          console.log('🔵 DIAGNOSTIC: Response OK:', response.ok)
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => null)
@@ -152,6 +165,7 @@ export default function CreateAccountPage() {
           }
 
           const result = await response.json()
+          console.log('🔵 DIAGNOSTIC: Company API Response Data:', result)
           console.log('✅ Company created successfully')
 
 
