@@ -110,7 +110,23 @@ export default function CreateAccountPage() {
       if (data.user) {
         console.log('✅ User created successfully')
         
-        // Create company via enhanced API
+        // CRITICAL FIX: Sign in user to establish session before company creation
+        console.log('🔑 Signing in user to establish authenticated session...')
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: tempPassword
+        })
+        
+        if (signInError) {
+          console.error('❌ Auto sign-in failed:', signInError)
+          setError('Account created but automatic sign-in failed. Please sign in manually.')
+          setIsLoading(false)
+          return
+        }
+        
+        console.log('✅ User authenticated - proceeding with company creation')
+        
+        // Create company via enhanced API (now with authenticated session)
         try {
           const companyData = {
             businessName: formData.companyName,
