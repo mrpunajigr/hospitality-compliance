@@ -109,6 +109,30 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
+  // Add session verification useEffect
+  useEffect(() => {
+    // Ensure Supabase client is available on client side
+    const checkSupabaseClient = async () => {
+      if (typeof window === 'undefined') return
+      
+      // Force a session refresh to ensure auth is current
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (!session) {
+          console.error('No session found, redirecting to signin')
+          router.push('/signin')
+          return
+        }
+        console.log('✅ Session verified:', session.user?.email)
+      } catch (error) {
+        console.error('Session check failed:', error)
+        router.push('/signin')
+      }
+    }
+    
+    checkSupabaseClient()
+  }, [router])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
