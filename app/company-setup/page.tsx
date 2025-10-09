@@ -142,26 +142,34 @@ export default function CompanySetupPage() {
     setIsSubmitting(true)
 
     try {
-      // Enhanced authentication check - try session first, then getUser
+      // SIMPLIFIED: More resilient authentication check for production
       console.log('🔍 Checking authentication...')
       
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('🔍 Session check:', session ? 'Found' : 'None', sessionError ? sessionError.message : 'No error')
+      let currentUser = null
       
+      // Try getUser first (most reliable)
       const { data: { user }, error: userError } = await supabase.auth.getUser()
-      console.log('🔍 User check:', user ? 'Found' : 'None', userError ? userError.message : 'No error')
-      
-      // Use session user first, fallback to getUser result
-      const currentUser = session?.user || user
-      
-      if (!currentUser) {
-        console.error('❌ No authenticated user found in session or getUser')
-        setError('Please sign in again. If this persists, try refreshing the page.')
-        setIsSubmitting(false)
-        return
+      if (user && !userError) {
+        currentUser = user
+        console.log('✅ User found via getUser:', user.id, user.email)
+      } else {
+        console.log('⚠️ getUser failed:', userError?.message)
+        
+        // Fallback to session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        if (session?.user && !sessionError) {
+          currentUser = session.user
+          console.log('✅ User found via session fallback:', session.user.id, session.user.email)
+        } else {
+          console.log('⚠️ Session fallback failed:', sessionError?.message)
+        }
       }
       
-      console.log('✅ Authenticated user found:', currentUser.id, currentUser.email)
+      if (!currentUser) {
+        console.error('❌ No authenticated user found - redirecting to sign in')
+        window.location.href = '/'
+        return
+      }
 
       // Prepare the company data
       const companyData = {
