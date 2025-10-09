@@ -68,6 +68,16 @@ export default function CompanySetupPage() {
   useEffect(() => {
     const fetchCompanyName = async () => {
       try {
+        // Check if Supabase client is available
+        if (!supabase) {
+          console.error('❌ Supabase client not initialized')
+          console.log('Environment check:', {
+            supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+            supabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          })
+          return
+        }
+
         const { data: { user } } = await supabase.auth.getUser()
         if (user?.id) {
           // Look up company through client_users table (proper relationship)
@@ -151,6 +161,14 @@ export default function CompanySetupPage() {
     setIsSubmitting(true)
 
     try {
+      // Check if Supabase client is available
+      if (!supabase) {
+        console.error('❌ Supabase client not initialized - cannot proceed with form submission')
+        setError('System configuration error. Please refresh the page and try again.')
+        setIsSubmitting(false)
+        return
+      }
+
       // SIMPLIFIED: More resilient authentication check for production
       console.log('🔍 Checking authentication...')
       
