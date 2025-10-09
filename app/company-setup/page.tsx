@@ -171,10 +171,9 @@ export default function CompanySetupPage() {
         return
       }
 
-      // Prepare the company data
+      // Prepare the company data (removed ownersName - field not available in DB)
       const companyData = {
         userId: currentUser.id,
-        ownersName: formData.ownersName,
         businessType: formData.businessType,
         address: formData.address,
         phoneNumber: formData.phoneNumber,
