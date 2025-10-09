@@ -101,7 +101,17 @@ if (typeof window !== 'undefined') {
 export const getUserClients = async (userId: string) => {
   const { data, error } = await supabase
     .from('client_users')
-    .select('client_id, role, clients(*)')
+    .select(`
+      client_id,
+      role,
+      clients (
+        id,
+        name,
+        business_type,
+        business_email,
+        subscription_status
+      )
+    `)
     .eq('user_id', userId)
   
   if (error) throw error
