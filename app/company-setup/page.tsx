@@ -94,7 +94,7 @@ export default function CompanySetupPage() {
           if (error) {
             console.log('Company lookup error:', error)
           } else if (clientData?.clients) {
-            const companyName = Array.isArray(clientData.clients) ? clientData.clients[0]?.name : clientData.clients?.name
+            const companyName = Array.isArray(clientData.clients) ? clientData.clients[0]?.name : (clientData.clients as any)?.name
             if (companyName) {
               console.log('✅ Company name found:', companyName)
               setCompanyName(companyName)

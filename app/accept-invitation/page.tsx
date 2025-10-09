@@ -97,7 +97,7 @@ function AcceptInvitationContent() {
         const { data: existingUser } = await supabase.auth.getUser()
         if (existingUser.user && existingUser.user.email === invitationData.email) {
           // User is already signed in with the invited email - accept automatically
-          await acceptInvitation(invitationData.id, Array.isArray(invitationData.clients) ? invitationData.clients[0]?.id : invitationData.clients?.id)
+          await acceptInvitation(invitationData.id, Array.isArray(invitationData.clients) ? invitationData.clients[0]?.id : (invitationData.clients as any)?.id)
           return
         }
 
@@ -121,11 +121,11 @@ function AcceptInvitationContent() {
           firstName: invitationData.first_name,
           lastName: invitationData.last_name,
           role: invitationData.role,
-          organizationName: Array.isArray(invitationData.clients) ? invitationData.clients[0]?.name : invitationData.clients?.name,
-          inviterName: Array.isArray(invitationData.profiles) ? invitationData.profiles[0]?.full_name : invitationData.profiles?.full_name || 'Team Admin',
+          organizationName: Array.isArray(invitationData.clients) ? invitationData.clients[0]?.name : (invitationData.clients as any)?.name,
+          inviterName: Array.isArray(invitationData.profiles) ? invitationData.profiles[0]?.full_name : (invitationData.profiles as any)?.full_name || 'Team Admin',
           expiresAt: invitationData.expires_at,
           message: invitationData.invitation_message,
-          clientId: Array.isArray(invitationData.clients) ? invitationData.clients[0]?.id : invitationData.clients?.id
+          clientId: Array.isArray(invitationData.clients) ? invitationData.clients[0]?.id : (invitationData.clients as any)?.id
         })
         setStep('create-account')
         setLoading(false)
