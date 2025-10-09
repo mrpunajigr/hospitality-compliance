@@ -69,16 +69,25 @@ export default function CompanySetupPage() {
     const fetchCompanyName = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
-        if (user?.email) {
-          // Look up company by user's email in clients table
-          const { data: client } = await supabase
-            .from('clients')
-            .select('name')
-            .eq('business_email', user.email)
+        if (user?.id) {
+          // Look up company through client_users table (proper relationship)
+          const { data: clientData, error } = await supabase
+            .from('client_users')
+            .select(`
+              clients (
+                name
+              )
+            `)
+            .eq('user_id', user.id)
             .single()
           
-          if (client?.name) {
-            setCompanyName(client.name)
+          if (error) {
+            console.log('Company lookup error:', error)
+          } else if (clientData?.clients?.name) {
+            console.log('✅ Company name found:', clientData.clients.name)
+            setCompanyName(clientData.clients.name)
+          } else {
+            console.log('⚠️ No company name found for user')
           }
         }
       } catch (error) {
