@@ -112,24 +112,25 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
-  // Add session verification useEffect
+  // Gentle session verification - logs issues but doesn't force redirect
   useEffect(() => {
     // Ensure Supabase client is available on client side
     const checkSupabaseClient = async () => {
       if (typeof window === 'undefined') return
       
-      // Force a session refresh to ensure auth is current
+      // Gentle session check - log issues but don't redirect immediately
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
         if (!session) {
-          console.error('No session found, redirecting to signin')
-          router.push('/signin')
-          return
+          console.warn('⚠️ No session found on company-setup page - user may need to sign in')
+          // Don't redirect immediately - let user try to use the page
+          // They'll get proper error messages if operations fail
+        } else {
+          console.log('✅ Session verified:', session.user?.email)
         }
-        console.log('✅ Session verified:', session.user?.email)
       } catch (error) {
-        console.error('Session check failed:', error)
-        router.push('/signin')
+        console.warn('⚠️ Session check failed:', error)
+        // Don't redirect immediately - page may still be functional
       }
     }
     
@@ -220,8 +221,9 @@ export default function CompanySetupPage() {
       }
       
       if (!currentUser) {
-        console.error('❌ No authenticated user found - redirecting to sign in')
-        window.location.href = '/'
+        console.error('❌ No authenticated user found')
+        setError('Please sign in to continue. If you just completed verification, try refreshing the page.')
+        setIsSubmitting(false)
         return
       }
 
@@ -407,6 +409,16 @@ export default function CompanySetupPage() {
               {error && (
                 <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
                   <p className="text-red-200 text-sm text-center">{error}</p>
+                  {error.includes('sign in') && (
+                    <div className="mt-3 text-center">
+                      <button
+                        onClick={() => router.push('/signin')}
+                        className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
