@@ -119,41 +119,72 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
-  // Enhanced session monitoring with detailed logging - NO REDIRECTS ALLOWED
+  // CRITICAL: Proper session verification with redirect for unauthenticated users
   useEffect(() => {
-    // Ensure Supabase client is available on client side
-    const checkSupabaseClient = async () => {
+    const verifyAuthentication = async () => {
       if (typeof window === 'undefined') return
       
-      console.log('🔍 COMPANY-SETUP: Starting session verification...')
+      console.log('🔍 COMPANY-SETUP: Starting critical session verification...')
       
-      // Gentle session check - log issues but NEVER redirect
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (!session) {
-          console.warn('⚠️ COMPANY-SETUP: No session found - user may need to sign in')
-          console.warn('⚠️ COMPANY-SETUP: Page will remain functional, errors will show during form submission')
-          console.warn('⚠️ COMPANY-SETUP: NO REDIRECTS WILL BE TRIGGERED FROM HERE')
-          // Don't redirect immediately - let user try to use the page
+        // Try multiple authentication methods to find valid session
+        let authenticatedUser = null
+        
+        // Method 1: Try session refresh first
+        console.log('🔄 COMPANY-SETUP: Attempting session refresh...')
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+        if (refreshData?.session?.user && !refreshError) {
+          authenticatedUser = refreshData.session.user
+          console.log('✅ COMPANY-SETUP: Valid session found via refresh:', authenticatedUser.email)
         } else {
-          console.log('✅ COMPANY-SETUP: Session verified successfully:', session.user?.email)
-          console.log('✅ COMPANY-SETUP: User ID:', session.user?.id)
+          console.log('⚠️ COMPANY-SETUP: Session refresh failed:', refreshError?.message)
+          
+          // Method 2: Try getUser
+          console.log('🔍 COMPANY-SETUP: Trying getUser method...')
+          const { data: { user }, error: userError } = await supabase.auth.getUser()
+          if (user && !userError) {
+            authenticatedUser = user
+            console.log('✅ COMPANY-SETUP: Valid user found via getUser:', user.email)
+          } else {
+            console.log('⚠️ COMPANY-SETUP: getUser failed:', userError?.message)
+            
+            // Method 3: Final session check
+            console.log('🔍 COMPANY-SETUP: Final session check...')
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+            if (session?.user && !sessionError) {
+              authenticatedUser = session.user
+              console.log('✅ COMPANY-SETUP: Valid session found:', session.user.email)
+            } else {
+              console.log('❌ COMPANY-SETUP: No valid session found:', sessionError?.message)
+            }
+          }
         }
         
-        if (error) {
-          console.warn('⚠️ COMPANY-SETUP: Session check error:', error)
-          console.warn('⚠️ COMPANY-SETUP: This error will NOT cause redirects')
+        // If no authenticated user found, redirect to sign-in
+        if (!authenticatedUser) {
+          console.error('🚨 COMPANY-SETUP: No authenticated user - redirecting to sign-in')
+          setError('Your session has expired. Redirecting to sign in...')
+          
+          // Wait 2 seconds then redirect
+          setTimeout(() => {
+            router.push('/signin?message=Session expired, please sign in again')
+          }, 2000)
+          return
         }
+        
+        console.log('✅ COMPANY-SETUP: Authentication verified, user can proceed')
+        
       } catch (error) {
-        console.warn('⚠️ COMPANY-SETUP: Session check exception:', error)
-        console.warn('⚠️ COMPANY-SETUP: This exception will NOT cause redirects')
-        // Don't redirect immediately - page may still be functional
+        console.error('🚨 COMPANY-SETUP: Authentication verification failed:', error)
+        setError('Authentication error. Redirecting to sign in...')
+        
+        setTimeout(() => {
+          router.push('/signin?message=Authentication error, please try again')
+        }, 2000)
       }
-      
-      console.log('✅ COMPANY-SETUP: Session verification complete, page ready - NO REDIRECTS')
     }
     
-    checkSupabaseClient()
+    verifyAuthentication()
   }, [router])
 
   // SIMPLE monitoring - test if our monitoring is causing issues
