@@ -250,15 +250,27 @@ function UpdateProfileContent() {
     setError('')
     setIsSubmitting(true)
 
+    console.log('🚀 PROFILE SUBMISSION: Form submitted', {
+      hasPassword: !!formData.password,
+      hasConfirmPassword: !!formData.confirmPassword,
+      passwordsMatch: formData.password === formData.confirmPassword,
+      passwordScore: passwordStrength.score,
+      hasCurrentUser: !!currentUser,
+      currentUserId: currentUser?.id,
+      timestamp: new Date().toISOString()
+    })
+
     try {
       // Validate passwords
       if (formData.password !== formData.confirmPassword) {
+        console.error('❌ PROFILE SUBMISSION: Passwords do not match')
         setError('Passwords do not match')
         setIsSubmitting(false)
         return
       }
 
       if (passwordStrength.score < 3) {
+        console.error('❌ PROFILE SUBMISSION: Password too weak, score:', passwordStrength.score)
         setError('Password is too weak. Please include uppercase, lowercase, and numbers.')
         setIsSubmitting(false)
         return
@@ -266,12 +278,20 @@ function UpdateProfileContent() {
 
       // Check if user is authenticated
       if (!currentUser) {
+        console.error('❌ PROFILE SUBMISSION: No current user found')
         setError('Authentication required. Please sign in again.')
         setIsSubmitting(false)
         return
       }
 
-      // Set password first
+      // Set password first with enhanced logging
+      console.log('🔵 PROFILE SUBMISSION: Starting set-password API call', {
+        userId: currentUser.id,
+        hasPassword: !!formData.password,
+        hasProfileData: !!formData.preferredName,
+        timestamp: new Date().toISOString()
+      })
+
       const passwordResponse = await fetch('/api/set-password', {
         method: 'POST',
         headers: {
@@ -290,10 +310,16 @@ function UpdateProfileContent() {
         })
       })
 
+      console.log('🔵 PROFILE SUBMISSION: API response status:', passwordResponse.status, passwordResponse.ok)
+
       if (!passwordResponse.ok) {
-        const errorData = await passwordResponse.json()
+        const errorData = await passwordResponse.json().catch(() => ({ error: 'Failed to parse error response' }))
+        console.error('❌ PROFILE SUBMISSION: API error:', errorData)
         throw new Error(errorData.error || 'Failed to set password')
       }
+
+      const successData = await passwordResponse.json()
+      console.log('✅ PROFILE SUBMISSION: Success, redirecting to company-setup', successData)
 
       // Navigate to company setup page
       router.push('/company-setup')
