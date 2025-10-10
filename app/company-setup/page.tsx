@@ -197,15 +197,36 @@ export default function CompanySetupPage() {
     // Monitor page visibility changes that might trigger redirects
     const handleVisibilityChange = () => {
       console.log('🔍 PAGE VISIBILITY CHANGED:', document.visibilityState)
+      if (document.visibilityState === 'hidden') {
+        console.warn('⚠️ PAGE HIDDEN - possible navigation away from page')
+      }
     }
     
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      console.error('🚨 PAGE UNLOADING:', e)
+      console.error('🚨 PAGE UNLOADING - USER NAVIGATING AWAY:', e)
+      console.error('🚨 This could be: back button, refresh, tab close, or external navigation')
       console.trace('🚨 UNLOAD STACK TRACE:')
+    }
+
+    const handlePageShow = (e: PageTransitionEvent) => {
+      console.log('🔍 PAGE SHOW EVENT:', { persisted: e.persisted })
+    }
+
+    const handlePageHide = (e: PageTransitionEvent) => {
+      console.error('🚨 PAGE HIDE EVENT:', { persisted: e.persisted })
+      console.error('🚨 User is navigating away from company-setup page')
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      console.error('🚨 BROWSER BACK/FORWARD BUTTON PRESSED:', e)
+      console.error('🚨 This is likely the cause of returning to landing page')
     }
     
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('pageshow', handlePageShow)
+    window.addEventListener('pagehide', handlePageHide) 
+    window.addEventListener('popstate', handlePopState)
     
     console.log('🔍 COMPANY-SETUP: All redirect monitoring active!')
     
@@ -215,6 +236,9 @@ export default function CompanySetupPage() {
       clearInterval(hrefCheckInterval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('pageshow', handlePageShow)
+      window.removeEventListener('pagehide', handlePageHide)
+      window.removeEventListener('popstate', handlePopState)
       console.log('🔍 COMPANY-SETUP: Redirect monitoring cleaned up')
     }
   }, [router])
