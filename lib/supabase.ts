@@ -91,7 +91,8 @@ export const checkAuth = async () => {
 if (typeof window !== 'undefined') {
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
-      window.location.href = '/signin'
+      console.log('🔄 User signed out, redirecting to home page')
+      window.location.href = '/'
     }
   })
 }

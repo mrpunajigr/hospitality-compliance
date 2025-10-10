@@ -35,13 +35,13 @@ export default function DisplayConfigurationPage() {
           setUserClient(clientInfo)
         }
       } else {
-        // Redirect to login if not authenticated
-        router.push('/signin')
+        // Redirect to home if not authenticated
+        router.push('/')
         return
       }
     } catch (error) {
       console.error('Auth check error:', error)
-      router.push('/signin')
+      router.push('/')
     } finally {
       setLoading(false)
     }
@@ -75,10 +75,10 @@ export default function DisplayConfigurationPage() {
               You need to be signed in with administrator access to view this page.
             </p>
             <button
-              onClick={() => router.push('/signin')}
+              onClick={() => router.push('/')}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200"
             >
-              Sign In
+              Go Home
             </button>
           </div>
         </div>
