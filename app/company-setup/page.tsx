@@ -112,26 +112,35 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
-  // Gentle session verification - logs issues but doesn't force redirect
+  // Enhanced session monitoring with detailed logging
   useEffect(() => {
     // Ensure Supabase client is available on client side
     const checkSupabaseClient = async () => {
       if (typeof window === 'undefined') return
       
+      console.log('🔍 COMPANY-SETUP: Starting session verification...')
+      
       // Gentle session check - log issues but don't redirect immediately
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
         if (!session) {
-          console.warn('⚠️ No session found on company-setup page - user may need to sign in')
+          console.warn('⚠️ COMPANY-SETUP: No session found - user may need to sign in')
+          console.warn('⚠️ COMPANY-SETUP: Page will remain functional, errors will show during form submission')
           // Don't redirect immediately - let user try to use the page
-          // They'll get proper error messages if operations fail
         } else {
-          console.log('✅ Session verified:', session.user?.email)
+          console.log('✅ COMPANY-SETUP: Session verified successfully:', session.user?.email)
+          console.log('✅ COMPANY-SETUP: User ID:', session.user?.id)
+        }
+        
+        if (error) {
+          console.warn('⚠️ COMPANY-SETUP: Session check error:', error)
         }
       } catch (error) {
-        console.warn('⚠️ Session check failed:', error)
+        console.warn('⚠️ COMPANY-SETUP: Session check exception:', error)
         // Don't redirect immediately - page may still be functional
       }
+      
+      console.log('✅ COMPANY-SETUP: Session verification complete, page ready')
     }
     
     checkSupabaseClient()
