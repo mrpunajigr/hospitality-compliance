@@ -236,35 +236,49 @@ export default function CompanySetupPage() {
         return
       }
 
-      // SIMPLIFIED: More resilient authentication check for production
-      console.log('🔍 Checking authentication...')
+      // ENHANCED: Robust authentication with session refresh
+      console.log('🔍 FORM SUBMISSION: Starting authentication check...')
       
       let currentUser = null
       
-      // Try getUser first (most reliable)
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (user && !userError) {
-        currentUser = user
-        console.log('✅ User found via getUser:', user.id, user.email)
+      // Step 1: Try session refresh first to ensure fresh auth state
+      console.log('🔄 FORM SUBMISSION: Refreshing session...')
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+      if (refreshData?.session?.user && !refreshError) {
+        currentUser = refreshData.session.user
+        console.log('✅ FORM SUBMISSION: User authenticated via session refresh:', currentUser.id, currentUser.email)
       } else {
-        console.log('⚠️ getUser failed:', userError?.message)
+        console.log('⚠️ FORM SUBMISSION: Session refresh failed:', refreshError?.message)
         
-        // Fallback to session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        if (session?.user && !sessionError) {
-          currentUser = session.user
-          console.log('✅ User found via session fallback:', session.user.id, session.user.email)
+        // Step 2: Try getUser 
+        console.log('🔍 FORM SUBMISSION: Trying getUser...')
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (user && !userError) {
+          currentUser = user
+          console.log('✅ FORM SUBMISSION: User found via getUser:', user.id, user.email)
         } else {
-          console.log('⚠️ Session fallback failed:', sessionError?.message)
+          console.log('⚠️ FORM SUBMISSION: getUser failed:', userError?.message)
+          
+          // Step 3: Final fallback to session
+          console.log('🔍 FORM SUBMISSION: Final fallback to session...')
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+          if (session?.user && !sessionError) {
+            currentUser = session.user
+            console.log('✅ FORM SUBMISSION: User found via session fallback:', session.user.id, session.user.email)
+          } else {
+            console.log('❌ FORM SUBMISSION: All authentication methods failed:', sessionError?.message)
+          }
         }
       }
       
       if (!currentUser) {
-        console.error('❌ No authenticated user found')
-        setError('Please sign in to continue. If you just completed verification, try refreshing the page.')
+        console.error('❌ FORM SUBMISSION: No authenticated user found after all attempts')
+        setError('Authentication failed. The verification session may have expired. Please refresh the page and try again.')
         setIsSubmitting(false)
         return
       }
+      
+      console.log('✅ FORM SUBMISSION: Authentication successful, proceeding with form submission')
 
       // Prepare the company data (removed ownersName - field not available in DB)
       const companyData = {
