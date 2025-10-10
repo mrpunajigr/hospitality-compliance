@@ -156,92 +156,25 @@ export default function CompanySetupPage() {
     checkSupabaseClient()
   }, [router])
 
-  // AGGRESSIVE redirect monitoring - catch everything
+  // SIMPLE monitoring - test if our monitoring is causing issues
   useEffect(() => {
-    console.log('🔍 COMPANY-SETUP: Page mounted, starting AGGRESSIVE redirect monitoring...')
+    console.log('🔍 COMPANY-SETUP: Page mounted successfully')
+    console.log('🔍 COMPANY-SETUP: Monitoring disabled to test if it was causing interference')
+    console.log('🔍 COMPANY-SETUP: Page should now stay stable')
     
-    // Monitor Next.js router
-    const originalPush = router.push
-    const originalReplace = router.replace
-    
-    router.push = (href, options) => {
-      console.error('🚨 NEXT ROUTER REDIRECT: router.push called with:', href)
-      console.trace('🚨 STACK TRACE:')
-      return originalPush(href, options)
-    }
-    
-    router.replace = (href, options) => {
-      console.error('🚨 NEXT ROUTER REDIRECT: router.replace called with:', href)
-      console.trace('🚨 STACK TRACE:')
-      return originalReplace(href, options)
-    }
-
-    // Monitor window navigation (safer approach)
-    const originalHref = window.location.href
-    let hrefCheckInterval: NodeJS.Timeout
-    
-    const checkForLocationChanges = () => {
-      if (window.location.href !== originalHref) {
-        console.error('🚨 WINDOW LOCATION CHANGED:', {
-          from: originalHref,
-          to: window.location.href,
-          timestamp: new Date().toISOString()
-        })
-        console.trace('🚨 LOCATION CHANGE STACK TRACE:')
-      }
-    }
-    
-    // Check every 100ms for location changes
-    hrefCheckInterval = setInterval(checkForLocationChanges, 100)
-    
-    // Monitor page visibility changes that might trigger redirects
-    const handleVisibilityChange = () => {
-      console.log('🔍 PAGE VISIBILITY CHANGED:', document.visibilityState)
-      if (document.visibilityState === 'hidden') {
-        console.warn('⚠️ PAGE HIDDEN - possible navigation away from page')
-      }
-    }
-    
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      console.error('🚨 PAGE UNLOADING - USER NAVIGATING AWAY:', e)
-      console.error('🚨 This could be: back button, refresh, tab close, or external navigation')
-      console.trace('🚨 UNLOAD STACK TRACE:')
-    }
-
-    const handlePageShow = (e: PageTransitionEvent) => {
-      console.log('🔍 PAGE SHOW EVENT:', { persisted: e.persisted })
-    }
-
-    const handlePageHide = (e: PageTransitionEvent) => {
-      console.error('🚨 PAGE HIDE EVENT:', { persisted: e.persisted })
-      console.error('🚨 User is navigating away from company-setup page')
-    }
-
-    const handlePopState = (e: PopStateEvent) => {
-      console.error('🚨 BROWSER BACK/FORWARD BUTTON PRESSED:', e)
-      console.error('🚨 This is likely the cause of returning to landing page')
-    }
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    window.addEventListener('pageshow', handlePageShow)
-    window.addEventListener('pagehide', handlePageHide) 
-    window.addEventListener('popstate', handlePopState)
-    
-    console.log('🔍 COMPANY-SETUP: All redirect monitoring active!')
+    // Minimal monitoring - just track if page stays mounted
+    const mountTime = Date.now()
+    const checkStillMounted = setInterval(() => {
+      const timeElapsed = Date.now() - mountTime
+      console.log(`✅ COMPANY-SETUP: Still mounted after ${Math.round(timeElapsed/1000)} seconds`)
+    }, 1000)
     
     return () => {
-      router.push = originalPush
-      router.replace = originalReplace
-      clearInterval(hrefCheckInterval)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-      window.removeEventListener('pageshow', handlePageShow)
-      window.removeEventListener('pagehide', handlePageHide)
-      window.removeEventListener('popstate', handlePopState)
-      console.log('🔍 COMPANY-SETUP: Redirect monitoring cleaned up')
+      clearInterval(checkStillMounted)
+      const totalTime = Date.now() - mountTime
+      console.log(`🔍 COMPANY-SETUP: Page unmounted after ${Math.round(totalTime/1000)} seconds`)
     }
-  }, [router])
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
