@@ -149,44 +149,27 @@ export default function CompanySetupPage() {
     checkSupabaseClient()
   }, [router])
 
-  // Add a debugging effect to monitor for unwanted redirects
+  // Simple redirect monitoring without overriding window.location
   useEffect(() => {
+    console.log('🔍 COMPANY-SETUP: Page mounted, monitoring for redirects...')
+    
+    // Simple router monitoring
     const originalPush = router.push
     const originalReplace = router.replace
     
     router.push = (href, options) => {
-      console.error('🚨 REDIRECT DETECTED: router.push called with:', href)
-      console.trace('🚨 REDIRECT STACK TRACE:')
+      console.warn('🚨 REDIRECT DETECTED: router.push called with:', href)
       return originalPush(href, options)
     }
     
     router.replace = (href, options) => {
-      console.error('🚨 REDIRECT DETECTED: router.replace called with:', href)
-      console.trace('🚨 REDIRECT STACK TRACE:')
+      console.warn('🚨 REDIRECT DETECTED: router.replace called with:', href)
       return originalReplace(href, options)
-    }
-    
-    // Monitor window.location changes
-    const originalLocationAssign = window.location.assign
-    const originalLocationReplace = window.location.replace
-    
-    window.location.assign = (url) => {
-      console.error('🚨 REDIRECT DETECTED: window.location.assign called with:', url)
-      console.trace('🚨 REDIRECT STACK TRACE:')
-      return originalLocationAssign.call(window.location, url)
-    }
-    
-    window.location.replace = (url) => {
-      console.error('🚨 REDIRECT DETECTED: window.location.replace called with:', url)
-      console.trace('🚨 REDIRECT STACK TRACE:')
-      return originalLocationReplace.call(window.location, url)
     }
     
     return () => {
       router.push = originalPush
       router.replace = originalReplace
-      window.location.assign = originalLocationAssign
-      window.location.replace = originalLocationReplace
     }
   }, [router])
 
