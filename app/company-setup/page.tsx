@@ -78,6 +78,12 @@ export default function CompanySetupPage() {
           return
         }
 
+        console.log('🏢 COMPANY-SETUP: Database query TEMPORARILY DISABLED for debugging')
+        console.log('🏢 COMPANY-SETUP: Testing if database errors cause 10-second redirects')
+        console.log('🏢 COMPANY-SETUP: Will re-enable once redirect issue is resolved')
+        
+        // TEMPORARILY DISABLED - Testing if database errors cause redirects
+        /*
         const { data: { user } } = await supabase.auth.getUser()
         if (user?.id) {
           // Look up company through client_users table (proper relationship)
@@ -103,6 +109,7 @@ export default function CompanySetupPage() {
             console.log('⚠️ No company name found for user')
           }
         }
+        */
       } catch (error) {
         console.log('Could not fetch company name:', error)
         // Keep default title
