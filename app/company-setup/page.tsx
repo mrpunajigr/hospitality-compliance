@@ -156,27 +156,66 @@ export default function CompanySetupPage() {
     checkSupabaseClient()
   }, [router])
 
-  // Simple redirect monitoring without overriding window.location
+  // AGGRESSIVE redirect monitoring - catch everything
   useEffect(() => {
-    console.log('🔍 COMPANY-SETUP: Page mounted, monitoring for redirects...')
+    console.log('🔍 COMPANY-SETUP: Page mounted, starting AGGRESSIVE redirect monitoring...')
     
-    // Simple router monitoring
+    // Monitor Next.js router
     const originalPush = router.push
     const originalReplace = router.replace
     
     router.push = (href, options) => {
-      console.warn('🚨 REDIRECT DETECTED: router.push called with:', href)
+      console.error('🚨 NEXT ROUTER REDIRECT: router.push called with:', href)
+      console.trace('🚨 STACK TRACE:')
       return originalPush(href, options)
     }
     
     router.replace = (href, options) => {
-      console.warn('🚨 REDIRECT DETECTED: router.replace called with:', href)
+      console.error('🚨 NEXT ROUTER REDIRECT: router.replace called with:', href)
+      console.trace('🚨 STACK TRACE:')
       return originalReplace(href, options)
     }
+
+    // Monitor window navigation (safer approach)
+    const originalHref = window.location.href
+    let hrefCheckInterval: NodeJS.Timeout
+    
+    const checkForLocationChanges = () => {
+      if (window.location.href !== originalHref) {
+        console.error('🚨 WINDOW LOCATION CHANGED:', {
+          from: originalHref,
+          to: window.location.href,
+          timestamp: new Date().toISOString()
+        })
+        console.trace('🚨 LOCATION CHANGE STACK TRACE:')
+      }
+    }
+    
+    // Check every 100ms for location changes
+    hrefCheckInterval = setInterval(checkForLocationChanges, 100)
+    
+    // Monitor page visibility changes that might trigger redirects
+    const handleVisibilityChange = () => {
+      console.log('🔍 PAGE VISIBILITY CHANGED:', document.visibilityState)
+    }
+    
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      console.error('🚨 PAGE UNLOADING:', e)
+      console.trace('🚨 UNLOAD STACK TRACE:')
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    
+    console.log('🔍 COMPANY-SETUP: All redirect monitoring active!')
     
     return () => {
       router.push = originalPush
       router.replace = originalReplace
+      clearInterval(hrefCheckInterval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      console.log('🔍 COMPANY-SETUP: Redirect monitoring cleaned up')
     }
   }, [router])
 
