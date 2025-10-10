@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
     // Handle client association - use the client ID from the request if user has no direct association
     let realClientId
     
-    if (!userClient?.client_id) {
+    if (!(userClient as any)?.client_id) {
       console.error('❌ Current user has no valid client association:', { 
         userId: user.id, 
         userEmail: user.email,
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
       // Check if the expected user (from frontend logs) has client association
       if (expectedUserClients && expectedUserClients.length > 0) {
         console.log('🔄 USING EXPECTED USER CLIENT DATA (Session mismatch detected)')
-        realClientId = expectedUserClients[0].client_id
+        realClientId = (expectedUserClients[0] as any).client_id
         console.warn('⚠️ Using client ID from expected user - session auth needs fixing')
       } else {
         // Last resort: use the clientId from the request body if it exists
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
         }
       }
     } else {
-      realClientId = userClient.client_id
+      realClientId = (userClient as any).client_id
       console.log('✅ Using client ID from authenticated user:', realClientId)
     }
     

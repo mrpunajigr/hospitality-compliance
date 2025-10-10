@@ -62,7 +62,7 @@ export default function ComplianceDashboard({ clientId, userId }: ComplianceDash
 
       // Load recent delivery records and active alerts in parallel
       const [records, alerts] = await Promise.all([
-        getDeliveryRecords(clientId, 20),
+        getDeliveryRecords(clientId),
         getComplianceAlerts(clientId)
       ])
 
@@ -101,9 +101,9 @@ export default function ComplianceDashboard({ clientId, userId }: ComplianceDash
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
-      const result = await acknowledgeAlert(alertId, userId)
+      const result = await acknowledgeAlert(alertId)
       
-      if (result) {
+      if (result !== null) {
         // Update local state
         setComplianceAlerts(prev => 
           prev.map(alert => 

@@ -56,10 +56,10 @@ export default function UploadActionPage() {
           
           if (clientUserData && clientUserData.length > 0 && !clientUserError && clientUserData[0].clients) {
             const clientInfo: UserClient = {
-              id: clientUserData[0].clients.id,
-              name: clientUserData[0].clients.name,
+              id: (clientUserData[0].clients as any).id,
+              name: (clientUserData[0].clients as any).name,
               role: clientUserData[0].role,
-              email: clientUserData[0].clients.business_email
+              email: (clientUserData[0].clients as any).business_email
             }
             setUserClient(clientInfo)
             console.log('✅ AUTH DEBUG: Client found via junction table:', clientInfo.name, clientInfo.id)
