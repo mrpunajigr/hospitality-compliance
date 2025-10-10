@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { supabase, setIntentionalSignOut } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
 
@@ -261,49 +261,20 @@ export default function CompanySetupPage() {
     try {
       console.log('🚀 FORM SUBMISSION: Starting company setup...')
       
-      // ENHANCED: Robust authentication with multiple fallbacks
-      console.log('🔍 FORM SUBMISSION: Starting authentication check...')
+      // SIMPLIFIED: Use existing session without refresh to avoid triggering auth state changes
+      console.log('🔍 FORM SUBMISSION: Getting current session without refresh...')
       
-      let currentUser = null
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      // Step 1: Try session refresh first to ensure fresh auth state
-      console.log('🔄 FORM SUBMISSION: Refreshing session...')
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-      if (refreshData?.session?.user && !refreshError) {
-        currentUser = refreshData.session.user
-        console.log('✅ FORM SUBMISSION: User authenticated via session refresh:', currentUser.id, currentUser.email)
-      } else {
-        console.log('⚠️ FORM SUBMISSION: Session refresh failed:', refreshError?.message)
-        
-        // Step 2: Try getUser 
-        console.log('🔍 FORM SUBMISSION: Trying getUser...')
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        if (user && !userError) {
-          currentUser = user
-          console.log('✅ FORM SUBMISSION: User found via getUser:', user.id, user.email)
-        } else {
-          console.log('⚠️ FORM SUBMISSION: getUser failed:', userError?.message)
-          
-          // Step 3: Final fallback to session
-          console.log('🔍 FORM SUBMISSION: Final fallback to session...')
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-          if (session?.user && !sessionError) {
-            currentUser = session.user
-            console.log('✅ FORM SUBMISSION: User found via session fallback:', session.user.id, session.user.email)
-          } else {
-            console.log('❌ FORM SUBMISSION: All authentication methods failed:', sessionError?.message)
-          }
-        }
-      }
-      
-      if (!currentUser) {
-        console.error('❌ FORM SUBMISSION: No authenticated user found after all attempts')
-        setError('Authentication failed. The verification session may have expired. Please refresh the page and try again.')
+      if (!session?.user || sessionError) {
+        console.error('❌ FORM SUBMISSION: No valid session found:', sessionError?.message)
+        setError('Your session has expired. Please refresh the page and sign in again.')
         setIsSubmitting(false)
         return
       }
       
-      console.log('✅ FORM SUBMISSION: Authentication successful, proceeding with form submission')
+      const currentUser = session.user
+      console.log('✅ FORM SUBMISSION: Using existing session for user:', currentUser.id, currentUser.email)
 
       // Prepare company data - FIXED: Include ownersName
       const companyData = {
@@ -317,6 +288,10 @@ export default function CompanySetupPage() {
 
       console.log('📤 Submitting company data...')
       
+      // CRITICAL: Temporarily mark any sign-out events as intentional to prevent redirects during form submission
+      console.log('🛡️ FORM SUBMISSION: Enabling redirect protection during API call...')
+      setIntentionalSignOut(true)
+      
       const response = await fetch('/api/update-company', {
         method: 'POST',
         headers: {
@@ -325,9 +300,14 @@ export default function CompanySetupPage() {
         body: JSON.stringify(companyData)
       })
 
+      // Disable redirect protection immediately after API call
+      setIntentionalSignOut(false)
+      console.log('🛡️ FORM SUBMISSION: Redirect protection disabled after API call')
+
       console.log('📥 API response status:', response.status, response.ok)
       
       if (!response.ok) {
+        setIntentionalSignOut(false) // Ensure protection is disabled on error
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         console.error('❌ API error:', errorData)
         setError(errorData?.error || 'Failed to save company settings.')
@@ -345,6 +325,7 @@ export default function CompanySetupPage() {
       router.push('/admin/console')
       
     } catch (error) {
+      setIntentionalSignOut(false) // Ensure protection is disabled on exception
       console.error('❌ Exception during company setup:', error)
       setError('An unexpected error occurred. Please try again.')
       setIsSubmitting(false)
