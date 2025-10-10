@@ -228,70 +228,32 @@ export default function CompanySetupPage() {
     setIsSubmitting(true)
 
     try {
-      // Check if Supabase client is available
-      if (!supabase) {
-        console.error('❌ Supabase client not initialized - cannot proceed with form submission')
-        setError('System configuration error. Please refresh the page and try again.')
-        setIsSubmitting(false)
-        return
-      }
-
-      // ENHANCED: Robust authentication with session refresh
-      console.log('🔍 FORM SUBMISSION: Starting authentication check...')
+      console.log('🚀 FORM SUBMISSION: Starting company setup...')
       
-      let currentUser = null
+      // Robust authentication
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
       
-      // Step 1: Try session refresh first to ensure fresh auth state
-      console.log('🔄 FORM SUBMISSION: Refreshing session...')
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-      if (refreshData?.session?.user && !refreshError) {
-        currentUser = refreshData.session.user
-        console.log('✅ FORM SUBMISSION: User authenticated via session refresh:', currentUser.id, currentUser.email)
-      } else {
-        console.log('⚠️ FORM SUBMISSION: Session refresh failed:', refreshError?.message)
-        
-        // Step 2: Try getUser 
-        console.log('🔍 FORM SUBMISSION: Trying getUser...')
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        if (user && !userError) {
-          currentUser = user
-          console.log('✅ FORM SUBMISSION: User found via getUser:', user.id, user.email)
-        } else {
-          console.log('⚠️ FORM SUBMISSION: getUser failed:', userError?.message)
-          
-          // Step 3: Final fallback to session
-          console.log('🔍 FORM SUBMISSION: Final fallback to session...')
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-          if (session?.user && !sessionError) {
-            currentUser = session.user
-            console.log('✅ FORM SUBMISSION: User found via session fallback:', session.user.id, session.user.email)
-          } else {
-            console.log('❌ FORM SUBMISSION: All authentication methods failed:', sessionError?.message)
-          }
-        }
-      }
-      
-      if (!currentUser) {
-        console.error('❌ FORM SUBMISSION: No authenticated user found after all attempts')
-        setError('Authentication failed. The verification session may have expired. Please refresh the page and try again.')
+      if (!user || authError) {
+        console.error('❌ Authentication failed:', authError)
+        setError('Authentication failed. Please refresh and try again.')
         setIsSubmitting(false)
         return
       }
       
-      console.log('✅ FORM SUBMISSION: Authentication successful, proceeding with form submission')
+      console.log('✅ User authenticated:', user.id)
 
-      // Prepare the company data (removed ownersName - field not available in DB)
+      // Prepare company data - FIXED: Include ownersName
       const companyData = {
-        userId: currentUser.id,
+        userId: user.id,
+        ownersName: formData.ownersName,  // ← THIS WAS MISSING!
         businessType: formData.businessType,
         address: formData.address,
         phoneNumber: formData.phoneNumber,
-        companyLogo: companyLogoBase64 // This will be the base64 data URL if uploaded
+        companyLogo: companyLogoBase64
       }
 
-      console.log('🏢 Submitting company setup data...')
+      console.log('📤 Submitting company data...')
       
-      // Call the API to complete company setup
       const response = await fetch('/api/update-company', {
         method: 'POST',
         headers: {
@@ -300,23 +262,28 @@ export default function CompanySetupPage() {
         body: JSON.stringify(companyData)
       })
 
+      console.log('📥 API response status:', response.status, response.ok)
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null)
-        console.error('❌ Company setup failed:', errorData)
-        setError(errorData?.error || 'Failed to save company settings. Please try again.')
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('❌ API error:', errorData)
+        setError(errorData?.error || 'Failed to save company settings.')
         setIsSubmitting(false)
         return
       }
 
       const result = await response.json()
-      console.log('✅ Company setup completed successfully:', result)
+      console.log('✅ Company setup successful:', result)
       
-      // Navigate to admin console (complete onboarding)
+      // CRITICAL: Small delay to ensure API transaction completes
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      console.log('🎯 Redirecting to admin console...')
       router.push('/admin/console')
+      
     } catch (error) {
-      console.error('❌ Company setup error:', error)
-      setError('Failed to save company settings. Please try again.')
-    } finally {
+      console.error('❌ Exception during company setup:', error)
+      setError('An unexpected error occurred. Please try again.')
       setIsSubmitting(false)
     }
   }

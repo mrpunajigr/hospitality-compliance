@@ -87,12 +87,30 @@ export const checkAuth = async () => {
   }
 }
 
+// Smart auth listener with intentional sign-out control
+let isIntentionalSignOut = false
+
+// Export function to control sign-out intent
+export const setIntentionalSignOut = (value: boolean) => {
+  isIntentionalSignOut = value
+}
+
 // Ensure session is refreshed on client side
 if (typeof window !== 'undefined') {
   supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') {
-      console.log('🔄 User signed out, redirecting to home page')
+    console.log('🔐 Auth state changed:', event, 'Session exists:', !!session)
+    
+    // Only redirect on SIGNED_OUT if it was intentional
+    if (event === 'SIGNED_OUT' && isIntentionalSignOut) {
+      console.log('🔄 User signed out intentionally, redirecting to home page')
       window.location.href = '/'
+    } else if (event === 'SIGNED_OUT') {
+      console.warn('⚠️ SIGNED_OUT event detected but not intentional - ignoring redirect')
+    }
+    
+    // Reset the flag
+    if (event === 'SIGNED_OUT') {
+      isIntentionalSignOut = false
     }
   })
 }

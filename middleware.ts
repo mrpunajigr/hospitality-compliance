@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // Global middleware to handle CSRF issues on Netlify
 export function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname
+  
+  // Don't interfere with company-setup or admin routes during onboarding
+  if (path.startsWith('/company-setup') || path.startsWith('/admin/console')) {
+    console.log('🛣️ Middleware: Allowing access to:', path)
+    return NextResponse.next()
+  }
+  
   // Only apply to API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (path.startsWith('/api/')) {
     
     // Handle OPTIONS requests (CORS preflight)
     if (request.method === 'OPTIONS') {
@@ -44,6 +52,6 @@ export function middleware(request: NextRequest) {
 // Configure which paths this middleware runs on
 export const config = {
   matcher: [
-    '/api/:path*',  // Apply to all API routes
-  ]
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 }
