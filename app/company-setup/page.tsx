@@ -112,7 +112,7 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
-  // Enhanced session monitoring with detailed logging
+  // Enhanced session monitoring with detailed logging - NO REDIRECTS ALLOWED
   useEffect(() => {
     // Ensure Supabase client is available on client side
     const checkSupabaseClient = async () => {
@@ -120,12 +120,13 @@ export default function CompanySetupPage() {
       
       console.log('🔍 COMPANY-SETUP: Starting session verification...')
       
-      // Gentle session check - log issues but don't redirect immediately
+      // Gentle session check - log issues but NEVER redirect
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
         if (!session) {
           console.warn('⚠️ COMPANY-SETUP: No session found - user may need to sign in')
           console.warn('⚠️ COMPANY-SETUP: Page will remain functional, errors will show during form submission')
+          console.warn('⚠️ COMPANY-SETUP: NO REDIRECTS WILL BE TRIGGERED FROM HERE')
           // Don't redirect immediately - let user try to use the page
         } else {
           console.log('✅ COMPANY-SETUP: Session verified successfully:', session.user?.email)
@@ -134,16 +135,59 @@ export default function CompanySetupPage() {
         
         if (error) {
           console.warn('⚠️ COMPANY-SETUP: Session check error:', error)
+          console.warn('⚠️ COMPANY-SETUP: This error will NOT cause redirects')
         }
       } catch (error) {
         console.warn('⚠️ COMPANY-SETUP: Session check exception:', error)
+        console.warn('⚠️ COMPANY-SETUP: This exception will NOT cause redirects')
         // Don't redirect immediately - page may still be functional
       }
       
-      console.log('✅ COMPANY-SETUP: Session verification complete, page ready')
+      console.log('✅ COMPANY-SETUP: Session verification complete, page ready - NO REDIRECTS')
     }
     
     checkSupabaseClient()
+  }, [router])
+
+  // Add a debugging effect to monitor for unwanted redirects
+  useEffect(() => {
+    const originalPush = router.push
+    const originalReplace = router.replace
+    
+    router.push = (href, options) => {
+      console.error('🚨 REDIRECT DETECTED: router.push called with:', href)
+      console.trace('🚨 REDIRECT STACK TRACE:')
+      return originalPush(href, options)
+    }
+    
+    router.replace = (href, options) => {
+      console.error('🚨 REDIRECT DETECTED: router.replace called with:', href)
+      console.trace('🚨 REDIRECT STACK TRACE:')
+      return originalReplace(href, options)
+    }
+    
+    // Monitor window.location changes
+    const originalLocationAssign = window.location.assign
+    const originalLocationReplace = window.location.replace
+    
+    window.location.assign = (url) => {
+      console.error('🚨 REDIRECT DETECTED: window.location.assign called with:', url)
+      console.trace('🚨 REDIRECT STACK TRACE:')
+      return originalLocationAssign.call(window.location, url)
+    }
+    
+    window.location.replace = (url) => {
+      console.error('🚨 REDIRECT DETECTED: window.location.replace called with:', url)
+      console.trace('🚨 REDIRECT STACK TRACE:')
+      return originalLocationReplace.call(window.location, url)
+    }
+    
+    return () => {
+      router.push = originalPush
+      router.replace = originalReplace
+      window.location.assign = originalLocationAssign
+      window.location.replace = originalLocationReplace
+    }
   }, [router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
