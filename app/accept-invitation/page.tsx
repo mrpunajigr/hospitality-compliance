@@ -109,8 +109,9 @@ function AcceptInvitationContent() {
           .single()
 
         if (userData) {
-          // User exists, redirect to sign in
-          router.push(`/signin?email=${encodeURIComponent(invitationData.email)}&redirect=/accept-invitation?token=${token}`)
+          // User exists, show message to sign in manually
+          setError(`Account already exists for ${invitationData.email}. Please sign in through your usual method to access the invitation.`)
+          setLoading(false)
           return
         }
 
@@ -371,10 +372,10 @@ function AcceptInvitationContent() {
                 {error}
               </p>
               <button
-                onClick={() => router.push('/signin')}
+                onClick={() => router.push('/')}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200"
               >
-                Go to Sign In
+                Go Home
               </button>
             </div>
           )}

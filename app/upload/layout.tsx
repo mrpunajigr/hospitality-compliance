@@ -54,7 +54,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           }
           setUser(demoUser)
         } else {
-          router.push('/signin')
+          router.push('/')
           return
         }
       }

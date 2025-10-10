@@ -70,7 +70,7 @@ export default function AdminLayout({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
-    window.location.href = '/signin'
+    window.location.href = '/'
   }
 
   return (

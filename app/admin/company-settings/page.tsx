@@ -67,7 +67,7 @@ export default function CompanySettingsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push('/signin')
+        router.push('/')
         return
       }
 

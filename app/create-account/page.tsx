@@ -310,10 +310,10 @@ export default function CreateAccountPage() {
                 {errorType === 'ACCOUNT_EXISTS' && (
                   <div className="mt-3 text-center">
                     <Link 
-                      href="/signin"
+                      href="/"
                       className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
                     >
-                      Sign In Instead
+                      Go Home
                     </Link>
                   </div>
                 )}
@@ -360,12 +360,12 @@ export default function CreateAccountPage() {
           {/* Sign In Link */}
           <div className="text-center mt-6">
             <p className="text-white/70 text-sm">
-              Already have an account?{' '}
+              Need help?{' '}
               <Link 
-                href="/signin" 
+                href="/" 
                 className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
               >
-                Sign In
+                Go Home
               </Link>
             </p>
           </div>
