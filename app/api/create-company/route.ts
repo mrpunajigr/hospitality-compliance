@@ -220,6 +220,71 @@ export async function POST(request: Request) {
       .select()
       .single()
 
+    // If client creation succeeded, send verification email
+    if (!clientError && clientData) {
+      console.log('✅ Client created successfully, sending verification email...')
+      
+      try {
+        // Generate cryptographically secure verification token
+        const verificationToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('')
+        
+        console.log('🔑 Generated verification token')
+        
+        // Store verification token in database
+        const { error: tokenError } = await supabaseAdmin
+          .from('email_verification_tokens')
+          .insert({
+            user_id: userId,
+            token: verificationToken,
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+          })
+
+        if (tokenError) {
+          console.error('❌ Error creating verification token:', tokenError)
+          // Continue without failing - user can request resend later
+        } else {
+          console.log('✅ Verification token stored in database')
+          
+          // Send verification email
+          const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/update-profile?verify=${verificationToken}&onboarding=true`
+          console.log('📧 Attempting to send verification email to:', email)
+          
+          const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'}/api/send-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to: email,
+              subject: 'Welcome to JiGR - Verify Your Email',
+              data: {
+                verificationToken,
+                verificationUrl,
+                userFullName: fullName || 'there',
+                companyName: businessName
+              }
+            })
+          })
+
+          if (emailResponse.ok) {
+            const emailResult = await emailResponse.json()
+            console.log('✅ Verification email sent successfully:', emailResult)
+            emailSentSuccessfully = true
+          } else {
+            const errorText = await emailResponse.text()
+            console.error('❌ Failed to send verification email. Status:', emailResponse.status)
+            console.error('❌ Email API response:', errorText)
+            // Continue without failing - user can request resend later
+          }
+        }
+      } catch (emailError) {
+        console.error('❌ Error during email verification process:', emailError)
+        // Continue without failing - user can request resend later
+      }
+    }
+
     if (clientError) {
       console.error('Error creating client:', clientError)
       console.error('Client error details:', {
