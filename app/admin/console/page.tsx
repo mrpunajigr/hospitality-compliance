@@ -75,6 +75,11 @@ export default function AdminConsolePage() {
   useEffect(() => {
     const checkAuth = async () => {
       console.log('🔍 Admin Console: Starting auth check...')
+      
+      // CRITICAL: Add delay to let session stabilize after redirect from company-setup
+      console.log('⏱️ Admin Console: Waiting for session to stabilize after redirect...')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       const { data: { user } } = await supabase.auth.getUser()
       
       console.log('🔍 Admin Console: User data:', user ? { id: user.id, email: user.email } : 'No user')
