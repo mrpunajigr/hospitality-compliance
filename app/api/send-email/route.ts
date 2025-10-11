@@ -172,7 +172,7 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
     <div class="footer">
       <p><strong>JiGR Hospitality Compliance</strong></p>
       <p>New Zealand's leading digital compliance platform</p>
-      <p><a href="https://jigr.co.nz" style="color: #3b82f6;">jigr.co.nz</a> | <a href="mailto:support@jigr.co.nz" style="color: #3b82f6;">support@jigr.co.nz</a></p>
+      <p><a href="https://jigr.app" style="color: #3b82f6;">jigr.app</a> | <a href="mailto:help@jigr.app" style="color: #3b82f6;">help@jigr.app</a></p>
     </div>
   </div>
 </body>
@@ -206,7 +206,7 @@ If you have any questions, our support team is here to help!
 ---
 JiGR Hospitality Compliance
 New Zealand's leading digital compliance platform
-https://jigr.co.nz | support@jigr.co.nz
+https://jigr.app | help@jigr.app
   `.trim()
 }
 
