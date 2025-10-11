@@ -1187,7 +1187,7 @@ Professional, spam-safe email templates for Supabase authentication system with 
 ## 6. REAUTHENTICATION TEMPLATE
 
 **Template Name**: `Reauthentication`  
-**Subject**: `JiGR Account - Identity Verification Required`  
+**Subject**: `Complete your JiGR session - Continue where you left off`  
 **Sender**: `JiGR <noreply@jigr.app>`
 
 ### HTML Template:
@@ -1372,8 +1372,8 @@ Professional, spam-safe email templates for Supabase authentication system with 
             <div class="header-overlay"></div>
             <div class="header-content">
                 <img src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/jgr_logo_full.png" alt="JiGR Logo" class="logo">
-                <h1 class="header-title">Confirm reauthentication</h1>
-                <p class="header-subtitle">Verify your identity for secure access</p>
+                <h1 class="header-title">Continue Your Session</h1>
+                <p class="header-subtitle">Complete your JiGR compliance task</p>
             </div>
         </div>
         
@@ -1381,29 +1381,25 @@ Professional, spam-safe email templates for Supabase authentication system with 
             <div class="greeting">Hello {{.Email}},</div>
             
             <div class="message">
-                You recently attempted to perform a sensitive action on your JiGR compliance account that requires additional verification for security.
+                You were working in your JiGR compliance dashboard and need to continue your session to complete your task.
             </div>
             
             <div class="message">
-                <strong>What you were trying to do:</strong> Access sensitive account settings or perform administrative actions that require identity confirmation.
-            </div>
-            
-            <div class="message">
-                To continue securely, please click the verification button below. This confirms your identity and allows you to proceed:
+                For security, we've temporarily paused your session. Simply click the button below to pick up exactly where you left off in your compliance management dashboard.
             </div>
             
             <div class="cta-container">
-                <a href="{{.ConfirmationURL}}" class="cta-button">Verify Identity</a>
+                <a href="{{.ConfirmationURL}}" class="cta-button">Continue to Dashboard</a>
             </div>
             
             <div class="alternative-link">
-                <div class="alternative-title">Alternative verification link:</div>
+                <div class="alternative-title">Alternative link to continue:</div>
                 <div class="alternative-url">{{.ConfirmationURL}}</div>
             </div>
             
             <div class="security-note">
-                <div class="security-note-title">🔒 Security Notice</div>
-                <p class="security-note-text">This verification was requested for your JiGR compliance account ({{.Email}}) from your current session. If you didn't attempt to access sensitive settings, please contact our support team at help@jigr.app immediately.</p>
+                <div class="security-note-title">ℹ️ Session Information</div>
+                <p class="security-note-text">This session continuation was requested for your JiGR compliance account ({{.Email}}). The link will take you directly back to your dashboard where you were working.</p>
             </div>
         </div>
         
