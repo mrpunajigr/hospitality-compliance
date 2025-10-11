@@ -1187,7 +1187,7 @@ Professional, spam-safe email templates for Supabase authentication system with 
 ## 6. REAUTHENTICATION TEMPLATE
 
 **Template Name**: `Reauthentication`  
-**Subject**: `Confirm Reauthentication`  
+**Subject**: `JiGR Account - Identity Verification Required`  
 **Sender**: `JiGR <noreply@jigr.app>`
 
 ### HTML Template:
@@ -1381,16 +1381,15 @@ Professional, spam-safe email templates for Supabase authentication system with 
             <div class="greeting">Hello {{.Email}},</div>
             
             <div class="message">
-                For security purposes, we need to verify your identity before proceeding with this sensitive action on your JiGR account.
-            </div>
-            
-            <div class="code-box">
-                <div class="code-title">Enter the code: </div>
-                <div class="code-value">{{ .Token }}</div>
+                You recently attempted to perform a sensitive action on your JiGR compliance account that requires additional verification for security.
             </div>
             
             <div class="message">
-                Alternatively, you can click the button below to complete the verification:
+                <strong>What you were trying to do:</strong> Access sensitive account settings or perform administrative actions that require identity confirmation.
+            </div>
+            
+            <div class="message">
+                To continue securely, please click the verification button below. This confirms your identity and allows you to proceed:
             </div>
             
             <div class="cta-container">
@@ -1404,7 +1403,7 @@ Professional, spam-safe email templates for Supabase authentication system with 
             
             <div class="security-note">
                 <div class="security-note-title">🔒 Security Notice</div>
-                <p class="security-note-text">This verification was requested for {{.Email}}. If you didn't initiate this request, please contact JiGR support immediately.</p>
+                <p class="security-note-text">This verification was requested for your JiGR compliance account ({{.Email}}) from your current session. If you didn't attempt to access sensitive settings, please contact our support team at help@jigr.app immediately.</p>
             </div>
         </div>
         
