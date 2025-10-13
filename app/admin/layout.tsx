@@ -34,21 +34,22 @@ export default function AdminLayout({
       console.log('✅ ADMIN LAYOUT: Authenticated user found:', user.email)
       setUser(user)
       
-      // TEMPORARILY SKIP getUserClient to avoid database auth issues
-      console.log('⚠️ ADMIN LAYOUT: Skipping getUserClient to prevent auth failures')
-      /*
+      // Re-enable getUserClient now that auth is stable
+      console.log('🔍 ADMIN LAYOUT: Loading real company info with getUserClient')
       try {
         const clientInfo = await getUserClient(user.id)
         if (clientInfo) {
+          console.log('✅ ADMIN LAYOUT: Client info loaded:', clientInfo.name)
           setUserClient(clientInfo)
           if (clientInfo.logo_url) {
             setCompanyLogoUrl(clientInfo.logo_url)
           }
+        } else {
+          console.log('⚠️ ADMIN LAYOUT: No client info found')
         }
       } catch (error) {
-        console.error('Error loading client info in admin layout:', error)
+        console.error('❌ ADMIN LAYOUT: Error loading client info:', error)
       }
-      */
     }
     
     loadUserData()

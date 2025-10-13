@@ -113,33 +113,50 @@ export default function AdminConsolePage() {
         console.log('✅ ADMIN CONSOLE: Real user found, loading client info...')
         setUser(user)
         
-        // STEP 3: TEMPORARILY SKIP getUserClient to isolate auth issues
-        console.log('🔍 ADMIN CONSOLE: Skipping getUserClient call to test session stability')
-        console.log('🔍 ADMIN CONSOLE: This should prevent any database auth calls')
+        // STEP 3: Re-enable getUserClient to load real company data
+        console.log('🔍 ADMIN CONSOLE: Loading real company data with getUserClient')
+        console.log('🔍 ADMIN CONSOLE: Auth is stable, should work now')
         
-        // TEMPORARILY COMMENTED OUT to test session stability:
-        /*
         try {
           const clientInfo = await getUserClient(user.id)
+          console.log('🔍 ADMIN CONSOLE: getUserClient result:', {
+            found: !!clientInfo,
+            clientId: clientInfo?.id,
+            clientName: clientInfo?.name,
+            onboardingStatus: clientInfo?.onboarding_status
+          })
+          
           if (clientInfo) {
+            console.log('✅ ADMIN CONSOLE: Real client info loaded:', clientInfo.name)
             setUserClient(clientInfo)
+            
+            // Check if onboarding is completed
             if (clientInfo.onboarding_status !== 'completed') {
+              console.log('⚠️ ADMIN CONSOLE: Onboarding not completed, redirecting to company setup')
               router.push('/company-setup')
               return
             }
+          } else {
+            console.log('❌ ADMIN CONSOLE: No client info found - using fallback')
+            // Fallback to dummy data if no real data found
+            setUserClient({ 
+              id: 'fallback', 
+              name: 'Setup Required', 
+              onboarding_status: 'pending',
+              role: 'OWNER'
+            } as UserClient)
           }
         } catch (error) {
           console.error('❌ ADMIN CONSOLE: Error loading client info:', error)
+          console.error('❌ ADMIN CONSOLE: Using fallback data')
+          // Fallback to dummy data on error
+          setUserClient({ 
+            id: 'error', 
+            name: 'Error Loading', 
+            onboarding_status: 'completed',
+            role: 'OWNER'
+          } as UserClient)
         }
-        */
-        
-        // For testing: Set a dummy client to allow page to render
-        setUserClient({ 
-          id: 'test', 
-          name: 'Test Company', 
-          onboarding_status: 'completed',
-          role: 'OWNER' // Add missing role field
-        } as UserClient)
         
         setLoading(false)
       }
