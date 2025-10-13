@@ -113,36 +113,33 @@ export default function AdminConsolePage() {
         console.log('✅ ADMIN CONSOLE: Real user found, loading client info...')
         setUser(user)
         
-        // STEP 3: Get user's company information with enhanced debugging
+        // STEP 3: TEMPORARILY SKIP getUserClient to isolate auth issues
+        console.log('🔍 ADMIN CONSOLE: Skipping getUserClient call to test session stability')
+        console.log('🔍 ADMIN CONSOLE: This should prevent any database auth calls')
+        
+        // TEMPORARILY COMMENTED OUT to test session stability:
+        /*
         try {
-          console.log('🔍 ADMIN CONSOLE: Calling getUserClient for user ID:', user.id)
-          console.log('🔍 ADMIN CONSOLE: This should work if session is valid...')
-          
           const clientInfo = await getUserClient(user.id)
-          console.log('🔍 ADMIN CONSOLE: getUserClient result:', {
-            found: !!clientInfo,
-            clientId: clientInfo?.id,
-            clientName: clientInfo?.name,
-            onboardingStatus: clientInfo?.onboarding_status
-          })
-          
           if (clientInfo) {
-            console.log('✅ ADMIN CONSOLE: Client info loaded successfully:', clientInfo.name)
             setUserClient(clientInfo)
-            
-            // Check if onboarding is completed
             if (clientInfo.onboarding_status !== 'completed') {
-              console.log('⚠️ ADMIN CONSOLE: Onboarding not completed, redirecting to company setup')
               router.push('/company-setup')
               return
             }
-          } else {
-            console.log('❌ ADMIN CONSOLE: No client info found for user - this indicates a getUserClient issue')
           }
         } catch (error) {
           console.error('❌ ADMIN CONSOLE: Error loading client info:', error)
-          console.error('❌ ADMIN CONSOLE: This error suggests getUserClient is failing')
         }
+        */
+        
+        // For testing: Set a dummy client to allow page to render
+        setUserClient({ 
+          id: 'test', 
+          name: 'Test Company', 
+          onboarding_status: 'completed',
+          role: 'OWNER' // Add missing role field
+        } as UserClient)
         
         setLoading(false)
       }
@@ -150,12 +147,13 @@ export default function AdminConsolePage() {
     
     checkAuth()
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
-      console.log('🔍 ADMIN CONSOLE: Auth state changed:', { event, hasUser: !!session?.user })
-      setUser(session?.user ?? null)
-    })
+    // TEMPORARILY DISABLED: Auth state change listener to prevent session refresh issues
+    // const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+    //   console.log('🔍 ADMIN CONSOLE: Auth state changed:', { event, hasUser: !!session?.user })
+    //   setUser(session?.user ?? null)
+    // })
 
-    return () => subscription.unsubscribe()
+    // return () => subscription.unsubscribe()
   }, [])
 
   const moduleConfig = getModuleConfig('admin')

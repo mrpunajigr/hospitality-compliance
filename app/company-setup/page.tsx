@@ -167,22 +167,18 @@ export default function CompanySetupPage() {
     return () => clearTimeout(timeoutId)
   }, [])
 
-  // MINIMAL monitoring - track page stability without triggering auth events
+  // SILENT monitoring - page stability without console spam
   useEffect(() => {
-    console.log('🔍 COMPANY-SETUP: Page mounted successfully - minimal monitoring mode')
-    console.log('🔍 COMPANY-SETUP: No auth state listeners to prevent SIGNED_OUT events')
+    console.log('🔍 COMPANY-SETUP: Page mounted - silent monitoring mode')
     
-    // Minimal monitoring - just track if page stays mounted
+    // Track page mounting without spamming console
     const mountTime = Date.now()
-    const checkStillMounted = setInterval(() => {
-      const timeElapsed = Date.now() - mountTime
-      console.log(`✅ COMPANY-SETUP: Still mounted after ${Math.round(timeElapsed/1000)} seconds`)
-    }, 2000) // Reduced frequency to minimize interference
     
     return () => {
-      clearInterval(checkStillMounted)
       const totalTime = Date.now() - mountTime
-      console.log(`🔍 COMPANY-SETUP: Page unmounted after ${Math.round(totalTime/1000)} seconds`)
+      if (totalTime > 5000) { // Only log if page was up for more than 5 seconds
+        console.log(`🔍 COMPANY-SETUP: Page unmounted after ${Math.round(totalTime/1000)} seconds`)
+      }
     }
   }, [])
 
