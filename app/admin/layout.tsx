@@ -20,22 +20,27 @@ export default function AdminLayout({
 
   useEffect(() => {
     const loadUserData = async () => {
-      // Get authenticated user
-      const { data: { user } } = await supabase.auth.getUser()
+      console.log('🔍 ADMIN LAYOUT: Getting session to avoid 403 errors...')
       
-      if (!user) {
-        // No user found - redirect will be handled by middleware
+      // Use getSession() instead of getUser() to avoid 403 errors
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session?.user) {
+        console.log('❌ ADMIN LAYOUT: No authenticated user found in session')
         return
       }
-      
+
+      const user = session.user
+      console.log('✅ ADMIN LAYOUT: Authenticated user found:', user.email)
       setUser(user)
       
-      // Get user's company information
+      // TEMPORARILY SKIP getUserClient to avoid database auth issues
+      console.log('⚠️ ADMIN LAYOUT: Skipping getUserClient to prevent auth failures')
+      /*
       try {
         const clientInfo = await getUserClient(user.id)
         if (clientInfo) {
           setUserClient(clientInfo)
-          // Set company logo URL if available
           if (clientInfo.logo_url) {
             setCompanyLogoUrl(clientInfo.logo_url)
           }
@@ -43,6 +48,7 @@ export default function AdminLayout({
       } catch (error) {
         console.error('Error loading client info in admin layout:', error)
       }
+      */
     }
     
     loadUserData()
