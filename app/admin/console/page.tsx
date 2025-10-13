@@ -123,8 +123,14 @@ export default function AdminConsolePage() {
             found: !!clientInfo,
             clientId: clientInfo?.id,
             clientName: clientInfo?.name,
-            onboardingStatus: clientInfo?.onboarding_status
+            onboardingStatus: clientInfo?.onboarding_status,
+            ownerName: clientInfo?.owner_name,
+            address: clientInfo?.address,
+            phone: clientInfo?.phone,
+            businessType: clientInfo?.business_type,
+            logoUrl: clientInfo?.logo_url
           })
+          console.log('🔍 ADMIN CONSOLE: Full clientInfo object:', clientInfo)
           
           if (clientInfo) {
             console.log('✅ ADMIN CONSOLE: Real client info loaded:', clientInfo.name)
