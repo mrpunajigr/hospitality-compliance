@@ -27,9 +27,20 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key'
 )
 
+// Create user client to check session impact
+const supabaseUser = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
+)
+
 export async function POST(request: Request) {
   try {
-    console.log('🏢 Complete company setup API called')
+    console.log('🏢 UPDATE-COMPANY API: Starting company setup API call')
+    
+    // STEP 1: Check if we can validate the user session through headers
+    const authHeader = request.headers.get('Authorization')
+    console.log('🔍 UPDATE-COMPANY API: Auth header present:', !!authHeader)
+    
     const body = await request.json()
     
     const { 
@@ -42,15 +53,19 @@ export async function POST(request: Request) {
     } = body
 
     if (!userId) {
-      console.log('❌ Missing userId')
+      console.log('❌ UPDATE-COMPANY API: Missing userId')
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400, headers: securityHeaders }
       )
     }
+    
+    console.log('🔍 UPDATE-COMPANY API: Processing for user ID:', userId)
 
-    // First, get the client ID associated with this user
-    console.log('🔍 Finding client for user:', userId)
+    // STEP 2: Lookup client for user (using admin client)
+    console.log('🔍 UPDATE-COMPANY API: Finding client for user:', userId)
+    console.log('🔍 UPDATE-COMPANY API: Using admin client for database query...')
+    
     const { data: clientUserData, error: clientUserError } = await supabaseAdmin
       .from('client_users')
       .select(`
@@ -64,8 +79,14 @@ export async function POST(request: Request) {
       .eq('status', 'active')
       .single()
 
+    console.log('🔍 UPDATE-COMPANY API: Client lookup result:', {
+      found: !!clientUserData,
+      error: clientUserError?.message,
+      clientId: clientUserData?.client_id
+    })
+
     if (clientUserError || !clientUserData) {
-      console.error('❌ No client found for user:', clientUserError)
+      console.error('❌ UPDATE-COMPANY API: No client found for user:', clientUserError)
       return NextResponse.json(
         { error: 'No company found for this user. Please contact support.' },
         { status: 404, headers: securityHeaders }
@@ -98,9 +119,10 @@ export async function POST(request: Request) {
     updateData.onboarding_status = 'completed'
     updateData.updated_at = new Date().toISOString()
 
-    console.log('📝 Updating client with data:', updateData)
+    console.log('📝 UPDATE-COMPANY API: Updating client with data:', updateData)
+    console.log('🔍 UPDATE-COMPANY API: Performing database update using admin client...')
 
-    // Update the client record
+    // STEP 3: Update the client record (using admin client)
     const { data: updatedClient, error: updateError } = await supabaseAdmin
       .from('clients')
       .update(updateData)
@@ -108,8 +130,15 @@ export async function POST(request: Request) {
       .select()
       .single()
 
+    console.log('🔍 UPDATE-COMPANY API: Update operation result:', {
+      success: !updateError,
+      error: updateError?.message,
+      updatedFields: updateData,
+      clientId: clientId
+    })
+
     if (updateError) {
-      console.error('❌ Error updating client:', updateError)
+      console.error('❌ UPDATE-COMPANY API: Error updating client:', updateError)
       
       // Handle case where owner_name column doesn't exist
       if (updateError.message?.includes('owner_name') || updateError.code === '42703') {
@@ -146,7 +175,12 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('✅ Company updated successfully')
+    console.log('✅ UPDATE-COMPANY API: Company updated successfully')
+
+    // STEP 4: Final validation - check if user session would still be valid
+    console.log('🔍 UPDATE-COMPANY API: Final session impact check...')
+    console.log('🔍 UPDATE-COMPANY API: Note - Admin operations should not affect user sessions')
+    console.log('🔍 UPDATE-COMPANY API: User ID:', userId, 'should remain authenticated after this API call')
 
     // Handle company logo upload if provided
     let logoUrl = null
@@ -199,6 +233,9 @@ export async function POST(request: Request) {
       }
     }
 
+    console.log('🎯 UPDATE-COMPANY API: Returning success response')
+    console.log('🔍 UPDATE-COMPANY API: Session for user', userId, 'should still be valid after this call')
+    
     return NextResponse.json({
       success: true,
       client: updatedClient,

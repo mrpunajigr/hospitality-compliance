@@ -84,36 +84,75 @@ async function getProfileManagementCapability() {
  * Maintains exact same API as legacy getUserClient
  */
 export async function getUserClient(userId: string): Promise<any> {
+  console.log('🔍 AUTHENTICATION BRIDGE: getUserClient called for user:', userId)
+  
   try {
+    console.log('🔍 AUTHENTICATION BRIDGE: Getting authentication capability...')
     const authCapability = await getAuthenticationCapability()
+    console.log('🔍 AUTHENTICATION BRIDGE: Auth capability result:', {
+      hasCapability: !!authCapability,
+      hasGetUserClient: !!(authCapability as any)?.getUserClient,
+      hasDefault: !!(authCapability as any)?.default,
+      hasDefaultGetUserClient: !!(authCapability as any)?.default?.getUserClient,
+      capabilityType: typeof authCapability
+    })
     
     // If using new module system
-    if (authCapability.getUserClient) {
-      return await authCapability.getUserClient(userId)
+    if ((authCapability as any)?.getUserClient) {
+      console.log('🔍 AUTHENTICATION BRIDGE: Using new module system getUserClient')
+      const result = await (authCapability as any).getUserClient(userId)
+      console.log('🔍 AUTHENTICATION BRIDGE: New module result:', {
+        found: !!result,
+        clientId: result?.id,
+        clientName: result?.name
+      })
+      return result
     }
     
     // If using legacy system
-    if (authCapability.default?.getUserClient) {
-      return await authCapability.default.getUserClient(userId)
+    if ((authCapability as any)?.default?.getUserClient) {
+      console.log('🔍 AUTHENTICATION BRIDGE: Using legacy system with default export')
+      const result = await (authCapability as any).default.getUserClient(userId)
+      console.log('🔍 AUTHENTICATION BRIDGE: Legacy default result:', {
+        found: !!result,
+        clientId: result?.id,
+        clientName: result?.name
+      })
+      return result
     }
     
     // Direct function call for legacy
-    if (typeof authCapability === 'object' && authCapability.getUserClient) {
-      return await authCapability.getUserClient(userId)
+    if (typeof authCapability === 'object' && (authCapability as any).getUserClient) {
+      console.log('🔍 AUTHENTICATION BRIDGE: Using direct function call')
+      const result = await (authCapability as any).getUserClient(userId)
+      console.log('🔍 AUTHENTICATION BRIDGE: Direct call result:', {
+        found: !!result,
+        clientId: result?.id,
+        clientName: result?.name
+      })
+      return result
     }
     
-    console.error('❌ getUserClient function not found in auth capability')
+    console.error('❌ AUTHENTICATION BRIDGE: getUserClient function not found in auth capability')
     return null
     
   } catch (error) {
-    console.error('❌ Error in bridged getUserClient:', error)
+    console.error('❌ AUTHENTICATION BRIDGE: Error in bridged getUserClient:', error)
     
     // Final fallback to direct legacy import
     try {
+      console.log('🔍 AUTHENTICATION BRIDGE: Attempting direct legacy fallback...')
       const legacy = await import('./auth-utils-legacy')
-      return await (legacy as any).getUserClient(userId)
+      console.log('🔍 AUTHENTICATION BRIDGE: Legacy import successful, calling getUserClient...')
+      const result = await (legacy as any).getUserClient(userId)
+      console.log('🔍 AUTHENTICATION BRIDGE: Legacy fallback result:', {
+        found: !!result,
+        clientId: result?.id,
+        clientName: result?.name
+      })
+      return result
     } catch (fallbackError) {
-      console.error('❌ Legacy fallback failed:', fallbackError)
+      console.error('❌ AUTHENTICATION BRIDGE: Legacy fallback failed:', fallbackError)
       return null
     }
   }

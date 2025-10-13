@@ -74,45 +74,72 @@ export default function AdminConsolePage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log('🔍 Admin Console: Starting auth check...')
+      console.log('🔍 ADMIN CONSOLE: Starting comprehensive auth check...')
+      console.log('🔍 ADMIN CONSOLE: This should be called after successful company setup redirect')
       
-      // CRITICAL: Add delay to let session stabilize after redirect from company-setup
-      console.log('⏱️ Admin Console: Waiting for session to stabilize after redirect...')
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // STEP 1: Extended stabilization period for session after redirect
+      console.log('⏱️ ADMIN CONSOLE: Waiting for session to stabilize after redirect...')
+      await new Promise(resolve => setTimeout(resolve, 2000)) // Increased from 1000ms
       
-      const { data: { user } } = await supabase.auth.getUser()
+      // STEP 2: Comprehensive session validation
+      console.log('🔍 ADMIN CONSOLE: Performing comprehensive session check...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('🔍 ADMIN CONSOLE: Session check result:', {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        sessionError: sessionError?.message,
+        accessToken: session?.access_token ? 'present' : 'missing'
+      })
       
-      console.log('🔍 Admin Console: User data:', user ? { id: user.id, email: user.email } : 'No user')
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      console.log('🔍 ADMIN CONSOLE: getUser() result:', {
+        hasUser: !!user,
+        userId: user?.id,
+        userEmail: user?.email,
+        userError: userError?.message
+      })
       
-      if (!user) {
-        console.log('❌ Admin Console: No user found, falling back to demo mode')
-        // Auto sign-in as demo user for development
+      if (!user || userError) {
+        console.log('❌ ADMIN CONSOLE: No user found or error occurred')
+        console.log('❌ ADMIN CONSOLE: Session error:', sessionError?.message)
+        console.log('❌ ADMIN CONSOLE: User error:', userError?.message)
+        console.log('❌ ADMIN CONSOLE: Falling back to demo mode')
         await handleDemoSignIn()
       } else {
-        console.log('✅ Admin Console: Real user found, loading client info...')
+        console.log('✅ ADMIN CONSOLE: Real user found, loading client info...')
         setUser(user)
         
-        // Get user's company information
+        // STEP 3: Get user's company information with enhanced debugging
         try {
-          console.log('🔍 Admin Console: Calling getUserClient for user ID:', user.id)
+          console.log('🔍 ADMIN CONSOLE: Calling getUserClient for user ID:', user.id)
+          console.log('🔍 ADMIN CONSOLE: This should work if session is valid...')
+          
           const clientInfo = await getUserClient(user.id)
-          console.log('🔍 Admin Console: Client info result:', clientInfo)
+          console.log('🔍 ADMIN CONSOLE: getUserClient result:', {
+            found: !!clientInfo,
+            clientId: clientInfo?.id,
+            clientName: clientInfo?.name,
+            onboardingStatus: clientInfo?.onboarding_status
+          })
           
           if (clientInfo) {
-            console.log('✅ Admin Console: Client info loaded successfully:', clientInfo.name)
+            console.log('✅ ADMIN CONSOLE: Client info loaded successfully:', clientInfo.name)
             setUserClient(clientInfo)
             
             // Check if onboarding is completed
             if (clientInfo.onboarding_status !== 'completed') {
-              console.log('⚠️ Admin Console: Onboarding not completed, redirecting to company setup')
+              console.log('⚠️ ADMIN CONSOLE: Onboarding not completed, redirecting to company setup')
               router.push('/company-setup')
               return
             }
           } else {
-            console.log('❌ Admin Console: No client info found for user')
+            console.log('❌ ADMIN CONSOLE: No client info found for user - this indicates a getUserClient issue')
           }
         } catch (error) {
-          console.error('❌ Admin Console: Error loading client info:', error)
+          console.error('❌ ADMIN CONSOLE: Error loading client info:', error)
+          console.error('❌ ADMIN CONSOLE: This error suggests getUserClient is failing')
         }
         
         setLoading(false)
@@ -122,6 +149,7 @@ export default function AdminConsolePage() {
     checkAuth()
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+      console.log('🔍 ADMIN CONSOLE: Auth state changed:', { event, hasUser: !!session?.user })
       setUser(session?.user ?? null)
     })
 

@@ -78,13 +78,11 @@ export default function CompanySetupPage() {
           return
         }
 
-        console.log('🏢 COMPANY-SETUP: Database query TEMPORARILY DISABLED for debugging')
-        console.log('🏢 COMPANY-SETUP: Testing if database errors cause 10-second redirects')
-        console.log('🏢 COMPANY-SETUP: Will re-enable once redirect issue is resolved')
+        console.log('🏢 COMPANY-SETUP: Re-enabling business name query with enhanced debugging')
         
-        // TEMPORARILY DISABLED - Testing if database errors cause redirects
-        /*
         const { data: { user } } = await supabase.auth.getUser()
+        console.log('🔍 COMPANY-SETUP: Current user session:', user ? { id: user.id, email: user.email } : 'No user found')
+        
         if (user?.id) {
           // Look up company through client_users table (proper relationship)
           const { data: clientData, error } = await supabase
@@ -97,19 +95,22 @@ export default function CompanySetupPage() {
             .eq('user_id', user.id)
             .single()
           
+          console.log('🔍 COMPANY-SETUP: Database query result:', { clientData, error })
+          
           if (error) {
-            console.log('Company lookup error:', error)
+            console.log('⚠️ Company lookup error:', error)
           } else if (clientData?.clients) {
             const companyName = Array.isArray(clientData.clients) ? clientData.clients[0]?.name : (clientData.clients as any)?.name
             if (companyName) {
               console.log('✅ Company name found:', companyName)
               setCompanyName(companyName)
+            } else {
+              console.log('⚠️ Company name is empty or null')
             }
           } else {
-            console.log('⚠️ No company name found for user')
+            console.log('⚠️ No company data found for user')
           }
         }
-        */
       } catch (error) {
         console.log('Could not fetch company name:', error)
         // Keep default title
@@ -215,11 +216,19 @@ export default function CompanySetupPage() {
 
     try {
       console.log('🚀 FORM SUBMISSION: Starting company setup...')
+      console.log('🔍 FORM SUBMISSION: Session state debugging begins')
       
-      // SIMPLIFIED: Use existing session without refresh to avoid triggering auth state changes
-      console.log('🔍 FORM SUBMISSION: Getting current session without refresh...')
-      
+      // STEP 1: Validate session before API call
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('🔍 FORM SUBMISSION: Pre-API session check:', {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        sessionError: sessionError?.message,
+        accessToken: session?.access_token ? 'present' : 'missing',
+        refreshToken: session?.refresh_token ? 'present' : 'missing'
+      })
       
       if (!session?.user || sessionError) {
         console.error('❌ FORM SUBMISSION: No valid session found:', sessionError?.message)
@@ -229,7 +238,7 @@ export default function CompanySetupPage() {
       }
       
       const currentUser = session.user
-      console.log('✅ FORM SUBMISSION: Using existing session for user:', currentUser.id, currentUser.email)
+      console.log('✅ FORM SUBMISSION: Session validation passed for user:', currentUser.id, currentUser.email)
 
       // Prepare company data - FIXED: Include ownersName
       const companyData = {
@@ -273,10 +282,39 @@ export default function CompanySetupPage() {
       const result = await response.json()
       console.log('✅ Company setup successful:', result)
       
-      // CRITICAL: Small delay to ensure API transaction completes
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // STEP 2: Validate session immediately after successful API call
+      console.log('🔍 FORM SUBMISSION: Post-API session validation...')
+      const { data: { session: postApiSession }, error: postApiError } = await supabase.auth.getSession()
+      console.log('🔍 FORM SUBMISSION: Post-API session check:', {
+        hasSession: !!postApiSession,
+        hasUser: !!postApiSession?.user,
+        userId: postApiSession?.user?.id,
+        userEmail: postApiSession?.user?.email,
+        sessionError: postApiError?.message,
+        accessToken: postApiSession?.access_token ? 'present' : 'missing',
+        sessionChanged: session?.access_token !== postApiSession?.access_token
+      })
       
-      console.log('🎯 Redirecting to admin console...')
+      if (!postApiSession?.user || postApiError) {
+        console.error('❌ FORM SUBMISSION: Session lost after API call!', postApiError?.message)
+        setError('Session was lost during company setup. Please try again.')
+        setIsSubmitting(false)
+        return
+      }
+      
+      // STEP 3: Refresh session before redirect to ensure it's stable
+      console.log('🔄 FORM SUBMISSION: Refreshing session before redirect...')
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+      console.log('🔍 FORM SUBMISSION: Session refresh result:', {
+        success: !refreshError,
+        hasSession: !!refreshedSession,
+        error: refreshError?.message
+      })
+      
+      // Small delay to ensure session stabilizes
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      console.log('🎯 Redirecting to admin console with validated session...')
       router.push('/admin/console')
       
     } catch (error) {
