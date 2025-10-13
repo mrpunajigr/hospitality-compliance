@@ -40,9 +40,17 @@ export default function AdminLayout({
         const clientInfo = await getUserClient(user.id)
         if (clientInfo) {
           console.log('✅ ADMIN LAYOUT: Client info loaded:', clientInfo.name)
+          console.log('🔍 ADMIN LAYOUT: Logo URL check:', {
+            hasLogoUrl: !!clientInfo.logo_url,
+            logoUrl: clientInfo.logo_url,
+            logoUrlType: typeof clientInfo.logo_url
+          })
           setUserClient(clientInfo)
           if (clientInfo.logo_url) {
+            console.log('✅ ADMIN LAYOUT: Setting company logo URL:', clientInfo.logo_url)
             setCompanyLogoUrl(clientInfo.logo_url)
+          } else {
+            console.log('⚠️ ADMIN LAYOUT: No logo URL found in client info')
           }
         } else {
           console.log('⚠️ ADMIN LAYOUT: No client info found')
