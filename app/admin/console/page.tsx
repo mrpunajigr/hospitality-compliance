@@ -93,12 +93,14 @@ export default function AdminConsolePage() {
         accessToken: session?.access_token ? 'present' : 'missing'
       })
       
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      console.log('🔍 ADMIN CONSOLE: getUser() result:', {
+      // Use getSession() instead of getUser() to avoid 403 errors
+      const { data: { user }, error: userError } = session?.user ? { data: { user: session.user }, error: null } : { data: { user: null }, error: new Error('No user in session') }
+      console.log('🔍 ADMIN CONSOLE: User from session:', {
         hasUser: !!user,
         userId: user?.id,
         userEmail: user?.email,
-        userError: userError?.message
+        fromSession: true,
+        sessionError: sessionError?.message
       })
       
       if (!user || userError) {
