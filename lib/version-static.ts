@@ -5,10 +5,10 @@ export const STATIC_VERSION = {
   major: 1,
   month: 10,
   day: 13,
-  build: 3,
+  build: 5,
   alpha: '',
   buildDate: '2025-10-13',
-  timestamp: 1760330360599
+  timestamp: 1760331987734
 }
 
 export const getStaticVersion = () => {

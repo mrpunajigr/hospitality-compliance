@@ -78,38 +78,53 @@ export default function CompanySetupPage() {
           return
         }
 
-        console.log('🏢 COMPANY-SETUP: Re-enabling business name query with enhanced debugging')
+        console.log('🏢 COMPANY-SETUP: Attempting graceful business name lookup...')
         
-        const { data: { user } } = await supabase.auth.getUser()
-        console.log('🔍 COMPANY-SETUP: Current user session:', user ? { id: user.id, email: user.email } : 'No user found')
+        // Use getSession() instead of getUser() to avoid 403 errors
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.log('⚠️ COMPANY-SETUP: Session error during company name lookup:', sessionError.message)
+          console.log('⚠️ COMPANY-SETUP: Will use default business name')
+          return
+        }
+        
+        const user = session?.user
+        console.log('🔍 COMPANY-SETUP: User from session:', user ? { id: user.id, email: user.email } : 'No user found')
         
         if (user?.id) {
-          // Look up company through client_users table (proper relationship)
-          const { data: clientData, error } = await supabase
-            .from('client_users')
-            .select(`
-              clients (
-                name
-              )
-            `)
-            .eq('user_id', user.id)
-            .single()
-          
-          console.log('🔍 COMPANY-SETUP: Database query result:', { clientData, error })
-          
-          if (error) {
-            console.log('⚠️ Company lookup error:', error)
-          } else if (clientData?.clients) {
-            const companyName = Array.isArray(clientData.clients) ? clientData.clients[0]?.name : (clientData.clients as any)?.name
-            if (companyName) {
-              console.log('✅ Company name found:', companyName)
-              setCompanyName(companyName)
+          try {
+            // Look up company through client_users table (proper relationship)
+            const { data: clientData, error } = await supabase
+              .from('client_users')
+              .select(`
+                clients (
+                  name
+                )
+              `)
+              .eq('user_id', user.id)
+              .single()
+            
+            console.log('🔍 COMPANY-SETUP: Database query result:', { clientData, error })
+            
+            if (error) {
+              console.log('⚠️ COMPANY-SETUP: Company lookup error (using default):', error.message)
+            } else if (clientData?.clients) {
+              const companyName = Array.isArray(clientData.clients) ? clientData.clients[0]?.name : (clientData.clients as any)?.name
+              if (companyName) {
+                console.log('✅ COMPANY-SETUP: Company name found:', companyName)
+                setCompanyName(companyName)
+              } else {
+                console.log('⚠️ COMPANY-SETUP: Company name is empty, using default')
+              }
             } else {
-              console.log('⚠️ Company name is empty or null')
+              console.log('⚠️ COMPANY-SETUP: No company data found, using default')
             }
-          } else {
-            console.log('⚠️ No company data found for user')
+          } catch (dbError) {
+            console.log('⚠️ COMPANY-SETUP: Database query failed (using default):', dbError)
           }
+        } else {
+          console.log('⚠️ COMPANY-SETUP: No user in session, using default business name')
         }
       } catch (error) {
         console.log('Could not fetch company name:', error)
@@ -120,41 +135,49 @@ export default function CompanySetupPage() {
     fetchCompanyName()
   }, [])
 
-  // GENTLE: Session monitoring - warn but don't redirect immediately
+  // GRACEFUL: Session monitoring - non-intrusive checking to avoid 403 errors
   useEffect(() => {
     const checkSession = async () => {
       if (typeof window === 'undefined') return
       
-      console.log('🔍 COMPANY-SETUP: Checking session status...')
+      console.log('🔍 COMPANY-SETUP: Performing non-intrusive session check...')
       
       try {
+        // Use getSession() instead of getUser() to avoid triggering 403 errors
         const { data: { session }, error } = await supabase.auth.getSession()
-        if (!session || error) {
+        
+        if (error) {
+          console.warn('⚠️ COMPANY-SETUP: Session check error (non-critical):', error.message)
+          console.warn('⚠️ COMPANY-SETUP: Will validate authentication during form submission')
+        } else if (!session) {
           console.warn('⚠️ COMPANY-SETUP: No session found - user may need to authenticate during form submission')
-          console.warn('⚠️ COMPANY-SETUP: Page will remain accessible, authentication will be checked on form submission')
+          console.warn('⚠️ COMPANY-SETUP: Page remains accessible, authentication checked on form submission')
         } else {
           console.log('✅ COMPANY-SETUP: Session found for user:', session.user?.email)
+          console.log('✅ COMPANY-SETUP: Session appears valid, form submission should work')
         }
       } catch (error) {
-        console.warn('⚠️ COMPANY-SETUP: Session check failed:', error)
+        console.warn('⚠️ COMPANY-SETUP: Session check failed (non-critical):', error)
+        console.warn('⚠️ COMPANY-SETUP: Authentication will be validated during form submission')
       }
     }
     
-    checkSession()
-  }, [router])
+    // Small delay to avoid interfering with page mounting
+    const timeoutId = setTimeout(checkSession, 1000)
+    return () => clearTimeout(timeoutId)
+  }, [])
 
-  // SIMPLE monitoring - test if our monitoring is causing issues
+  // MINIMAL monitoring - track page stability without triggering auth events
   useEffect(() => {
-    console.log('🔍 COMPANY-SETUP: Page mounted successfully')
-    console.log('🔍 COMPANY-SETUP: Monitoring disabled to test if it was causing interference')
-    console.log('🔍 COMPANY-SETUP: Page should now stay stable')
+    console.log('🔍 COMPANY-SETUP: Page mounted successfully - minimal monitoring mode')
+    console.log('🔍 COMPANY-SETUP: No auth state listeners to prevent SIGNED_OUT events')
     
     // Minimal monitoring - just track if page stays mounted
     const mountTime = Date.now()
     const checkStillMounted = setInterval(() => {
       const timeElapsed = Date.now() - mountTime
       console.log(`✅ COMPANY-SETUP: Still mounted after ${Math.round(timeElapsed/1000)} seconds`)
-    }, 1000)
+    }, 2000) // Reduced frequency to minimize interference
     
     return () => {
       clearInterval(checkStillMounted)
@@ -232,6 +255,7 @@ export default function CompanySetupPage() {
       
       if (!session?.user || sessionError) {
         console.error('❌ FORM SUBMISSION: No valid session found:', sessionError?.message)
+        console.error('❌ FORM SUBMISSION: This is the root cause of the authorization failure')
         setError('Your session has expired. Please refresh the page and sign in again.')
         setIsSubmitting(false)
         return
