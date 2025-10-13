@@ -128,13 +128,21 @@ export default function AdminConsolePage() {
           
           if (clientInfo) {
             console.log('✅ ADMIN CONSOLE: Real client info loaded:', clientInfo.name)
+            console.log('🔍 ADMIN CONSOLE: Onboarding status check:', {
+              status: clientInfo.onboarding_status,
+              isCompleted: clientInfo.onboarding_status === 'completed',
+              shouldRedirect: clientInfo.onboarding_status !== 'completed'
+            })
             setUserClient(clientInfo)
             
-            // Check if onboarding is completed
+            // TEMPORARILY BYPASS onboarding check to debug the issue
             if (clientInfo.onboarding_status !== 'completed') {
-              console.log('⚠️ ADMIN CONSOLE: Onboarding not completed, redirecting to company setup')
-              router.push('/company-setup')
-              return
+              console.log('⚠️ ADMIN CONSOLE: Onboarding not completed, but BYPASSING redirect for debugging')
+              console.log('⚠️ ADMIN CONSOLE: Status:', clientInfo.onboarding_status, 'Expected: completed')
+              console.log('⚠️ ADMIN CONSOLE: Allowing admin console to load for testing')
+              // TEMPORARILY COMMENTED OUT:
+              // router.push('/company-setup')
+              // return
             }
           } else {
             console.log('❌ ADMIN CONSOLE: No client info found - using fallback')
