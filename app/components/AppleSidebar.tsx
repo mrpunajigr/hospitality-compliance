@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { DesignTokens, getTextStyle } from '@/lib/design-system'
 import { getMappedIcon, getUIIcon } from '@/lib/image-storage'
 import { supabase } from '@/lib/supabase'
+import { getVersionDisplay } from '@/lib/version'
 
 interface SidebarNavItem {
   name: string
@@ -413,7 +414,7 @@ export default function AppleSidebar({
               
               {/* Version Number */}
               <div className="text-center mb-4">
-                <span className="text-white/30 text-xs font-mono" title="Application Version - v1.9.4.001">v1.9.4.001</span>
+                <span className="text-white/30 text-xs font-mono" title={`Application Version - ${getVersionDisplay()}`}>{getVersionDisplay()}</span>
               </div>
             </div>
           </div>
