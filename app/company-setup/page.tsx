@@ -322,14 +322,9 @@ export default function CompanySetupPage() {
         return
       }
       
-      // STEP 3: Refresh session before redirect to ensure it's stable
-      console.log('🔄 FORM SUBMISSION: Refreshing session before redirect...')
-      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
-      console.log('🔍 FORM SUBMISSION: Session refresh result:', {
-        success: !refreshError,
-        hasSession: !!refreshedSession,
-        error: refreshError?.message
-      })
+      // STEP 3: REMOVED session refresh - it was breaking the session!
+      console.log('🔄 FORM SUBMISSION: Skipping session refresh to prevent token invalidation')
+      console.log('🔍 FORM SUBMISSION: Session is valid, proceeding with redirect')
       
       // Small delay to ensure session stabilizes
       await new Promise(resolve => setTimeout(resolve, 1000))
