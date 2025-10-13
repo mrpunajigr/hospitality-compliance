@@ -170,14 +170,21 @@ export default function AppleSidebar({
         onTouchStart={() => isIPad && !isPortrait && setIsCollapsed(false)}
       >
         
-        {/* Header */}
+        {/* Header - Company Logo */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-center">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
               <img 
                 src={logoUrl || "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png"}
-                alt="Company Logo" 
+                alt={logoUrl ? "Company Logo" : "JiGR Default Logo"} 
                 className="w-full h-full object-contain p-2"
+                onError={(e) => {
+                  console.error('Company logo failed to load:', logoUrl);
+                  e.currentTarget.src = "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png";
+                }}
+                onLoad={() => {
+                  console.log('✅ SIDEBAR: Company logo loaded successfully:', logoUrl || 'JiGR default');
+                }}
               />
             </div>
           </div>
@@ -378,7 +385,7 @@ export default function AppleSidebar({
                   />
                 </button>
                 
-                {/* User Avatar */}
+                {/* User Avatar - Personal profile picture */}
                 <div className="flex justify-center items-center py-2">
                   <div 
                     className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
@@ -390,6 +397,8 @@ export default function AppleSidebar({
                         src={userAvatar} 
                         alt="User Avatar" 
                         className="w-full h-full object-cover"
+                        onLoad={() => console.log('✅ SIDEBAR: User avatar loaded successfully')}
+                        onError={() => console.log('⚠️ SIDEBAR: User avatar failed to load, showing initials')}
                       />
                     ) : (
                       <span className="text-white font-bold text-lg">
