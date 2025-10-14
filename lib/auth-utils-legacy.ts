@@ -33,6 +33,8 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
   try {
     // First, get the basic client relationship
     console.log('🔍 getUserClient: Querying client_users for userId:', userId)
+    console.log('🔍 getUserClient: Expected userId should be: 3d8ab048-d77a-488b-9931-43c6981c397b')
+    
     const { data, error } = await supabase
       .from('client_users')
       .select(`
@@ -48,7 +50,12 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       .eq('status', 'active')
       .single()
     
-    console.log('🔍 getUserClient: client_users query result:', { data, error: error?.message })
+    console.log('🔍 getUserClient: client_users query result:', { 
+      data, 
+      error: error?.message,
+      userId_matches: userId === '3d8ab048-d77a-488b-9931-43c6981c397b',
+      actual_userId: userId
+    })
 
     if (error || !data || !data.clients) {
       if (error) {
