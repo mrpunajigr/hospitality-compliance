@@ -301,16 +301,18 @@ export default function AdminConsolePage() {
             {/* Business Info */}
             <div className={getCardStyle('primary')}>
               <div className="mb-4">
-                <h3 className="text-black text-lg font-semibold mb-3">Business Info</h3>
+                <h3 className="text-black text-lg font-semibold mb-3">{userClient?.name || 'Loading...'}</h3>
                 <div className="flex justify-center mb-4">
-                  <img 
-                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"
-                    alt="Business Info"
-                    className="w-16 h-16 object-contain"
-                  />
+                  <Link href="/admin/company">
+                    <img 
+                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"
+                      alt="Business Info"
+                      className="w-16 h-16 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                    />
+                  </Link>
                 </div>
                 <p className="text-gray-700 text-sm mb-4">
-                  {userClient?.name || 'Loading...'}
+                  &nbsp;
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
@@ -364,135 +366,6 @@ export default function AdminConsolePage() {
               </div>
             </div>
 
-          </div>
-
-          {/* Business Information Form */}
-          <div className={getCardStyle('primary')}>
-            <h2 className="text-black text-xl font-semibold mb-6">Business Information</h2>
-            
-            <div className="flex gap-6 mb-6">
-              {/* Left Side - Logo Uploader */}
-              <div className="flex-shrink-0">
-                <ImageUploader
-                  currentImageUrl={companyLogoUrl || userClient?.logo_url}
-                  onUploadSuccess={handleLogoUploadSuccess}
-                  onUploadError={(error) => console.error('Logo upload failed:', error)}
-                  uploadEndpoint="/api/upload-client-logo"
-                  uploadData={{ clientId: userClient?.id || '', userId: user?.id || '' }}
-                  shape="square"
-                  size="medium"
-                  title="Company Logo"
-                  description="Upload logo"
-                />
-              </div>
-              
-              {/* Right Side - Business Name & Contact Email */}
-              <div className="flex-1 space-y-4">
-                <div>
-                  <label className="block text-black text-sm font-medium mb-2">Business Name</label>
-                  <input
-                    type="text"
-                    value={userClient?.name || ''}
-                    placeholder="Business name loading..."
-                    className={getFormFieldStyle()}
-                    readOnly
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-black text-sm font-medium mb-2">Owner&apos;s Name</label>
-                  <input
-                    type="text"
-                    value={userClient?.owner_name || user?.user_metadata?.full_name || ''}
-                    placeholder="Owner name loading..."
-                    className={getFormFieldStyle()}
-                    readOnly
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-black text-sm font-medium mb-2">Contact Email</label>
-                  <input
-                    type="email"
-                    value={user?.email || ''}
-                    placeholder="Email loading..."
-                    className={getFormFieldStyle()}
-                    readOnly
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <form className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-black text-sm font-medium mb-2">Business Type</label>
-                  <select 
-                    className={getFormFieldStyle()}
-                    value={userClient?.business_type || ''}
-                    disabled
-                  >
-                    <option value="">Select business type...</option>
-                    <option value="restaurant">Restaurant</option>
-                    <option value="cafe">Café</option>
-                    <option value="bar">Bar/Pub</option>
-                    <option value="hotel">Hotel</option>
-                    <option value="catering">Catering</option>
-                    <option value="food-truck">Food Truck</option>
-                    <option value="takeaway">Takeaway</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-black text-sm font-medium mb-2">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={userClient?.phone || ''}
-                    placeholder="Phone number not provided"
-                    className={getFormFieldStyle()}
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-black text-sm font-medium mb-2">Address</label>
-                <textarea
-                  rows={3}
-                  value={userClient?.address ? userClient.address : ''}
-                  placeholder={userClient?.address ? undefined : "Business address not provided"}
-                  className={getFormFieldStyle()}
-                  readOnly
-                />
-              </div>
-
-              <div>
-                <label className="block text-black text-sm font-medium mb-2">Alcohol License Number</label>
-                <input
-                  type="text"
-                  value={userClient?.license_number || ''}
-                  placeholder="License number not provided"
-                  className={getFormFieldStyle()}
-                  readOnly
-                />
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  className="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 border border-white/30 backdrop-blur-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
           </div>
 
         </div>

@@ -7,12 +7,25 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+import { getModuleConfig } from '@/lib/module-config'
+import { ModuleHeader } from '@/app/components/ModuleHeader'
+import ImageUploader from '@/app/components/ImageUploader'
 
 export default function CompanyPage() {
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  const handleLogoUploadSuccess = (logoUrl: string) => {
+    setCompanyLogoUrl(logoUrl)
+    console.log('Company logo uploaded successfully:', logoUrl)
+    
+    // Notify the layout about the logo update
+    localStorage.setItem('companyLogoUrl', logoUrl)
+    window.dispatchEvent(new CustomEvent('companyLogoUpdated', { detail: { logoUrl } }))
+  }
 
   const handleDemoSignIn = async () => {
     try {
@@ -92,6 +105,11 @@ export default function CompanyPage() {
     return () => subscription.unsubscribe()
   }, [])
 
+  const moduleConfig = getModuleConfig('admin')
+  
+  if (!moduleConfig) {
+    return <div>Module configuration not found</div>
+  }
 
   if (loading) {
     return (
@@ -137,154 +155,138 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="min-h-screen">
-        {/* Header */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className={`${getTextStyle('pageTitle')} drop-shadow-lg`}>
-                Company Profile
-              </h1>
-              <p className={`${getTextStyle('bodySmall')} drop-shadow-md`}>
-                Manage your business information and settings
-              </p>
-              {userClient && (
-                <div className={`${getTextStyle('meta')} text-white/80 drop-shadow-md mt-1`}>
-                  {userClient.name} • {userClient.role}
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+      
+      {/* Standardized Module Header */}
+      <ModuleHeader 
+        module={moduleConfig}
+        currentPage="company"
+      />
+      
+      {/* User Info Display */}
+      {userClient && (
+        <div className="mb-4 text-center">
+          <p className="text-blue-300 text-sm">
+            {userClient.name} • {userClient.role}
+          </p>
         </div>
+      )}
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          
-          <div className="flex gap-6">
-            
-            {/* Left Column - Main Content */}
-            <div className="flex-1">
+      {/* Main Content */}
+      <div className="flex gap-6">
+        
+        {/* Left Column - Main Content */}
+        <div className="flex-1">
               
-              {/* Overview Cards */}
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                
-                {/* Business Info */}
-                <div className={getCardStyle('primary')}>
-                  <div className="text-center mb-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">🏢</span>
-                    </div>
-                    <h3 className={getTextStyle('cardTitle')}>Business Info</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
-                      Demo Restaurant Ltd
-                    </p>
-                  </div>
-                  <div className={`${getTextStyle('body')} space-y-1`}>
-                    <p><strong>Type:</strong> Restaurant</p>
-                    <p><strong>License:</strong> AL123456</p>
-                    <p><strong>Phone:</strong> +64 9 123 4567</p>
-                  </div>
-                </div>
-
-                {/* Subscription */}
-                <div className={getCardStyle('primary')}>
-                  <div className="text-center mb-4">
-                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">💎</span>
-                    </div>
-                    <h3 className={getTextStyle('cardTitle')}>Subscription</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
-                      Professional Plan
-                    </p>
-                  </div>
-                  <div className={`${getTextStyle('body')} space-y-1`}>
-                    <p><strong>Status:</strong> Active</p>
-                    <p><strong>Usage:</strong> 127/2000</p>
-                    <p><strong>Billing:</strong> $99/month</p>
-                  </div>
-                </div>
-
-                {/* Team */}
-                <div className={getCardStyle('primary')}>
-                  <div className="text-center mb-4">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">👥</span>
-                    </div>
-                    <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                    <p className={`${getTextStyle('bodySmall')} mt-2`}>
-                      4 Active Users
-                    </p>
-                  </div>
-                  <div className={`${getTextStyle('body')} space-y-1`}>
-                    <p><strong>Admins:</strong> 2</p>
-                    <p><strong>Staff:</strong> 2</p>
-                    <p><strong>Pending:</strong> 0</p>
-                  </div>
-                </div>
-
-              </div>
-
               {/* Business Information Form */}
               <div className={getCardStyle('primary')}>
-                <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Information</h2>
+                <h2 className="text-black text-xl font-semibold mb-6">Business Information</h2>
+                
+                <div className="flex gap-6 mb-6">
+                  {/* Left Side - Logo Uploader */}
+                  <div className="flex-shrink-0">
+                    <ImageUploader
+                      currentImageUrl={companyLogoUrl || userClient?.logo_url}
+                      onUploadSuccess={handleLogoUploadSuccess}
+                      onUploadError={(error) => console.error('Logo upload failed:', error)}
+                      uploadEndpoint="/api/upload-client-logo"
+                      uploadData={{ clientId: userClient?.id || '', userId: user?.id || '' }}
+                      shape="square"
+                      size="medium"
+                      title="Company Logo"
+                      description="Upload logo"
+                    />
+                  </div>
+                  
+                  {/* Right Side - Business Name & Contact Email */}
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <label className="block text-black text-sm font-medium mb-2">Business Name</label>
+                      <input
+                        type="text"
+                        value={userClient?.name || ''}
+                        placeholder="Business name loading..."
+                        className={getFormFieldStyle()}
+                        readOnly
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-black text-sm font-medium mb-2">Owner&apos;s Name</label>
+                      <input
+                        type="text"
+                        value={userClient?.owner_name || user?.user_metadata?.full_name || ''}
+                        placeholder="Owner name loading..."
+                        className={getFormFieldStyle()}
+                        readOnly
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-black text-sm font-medium mb-2">Contact Email</label>
+                      <input
+                        type="email"
+                        value={user?.email || ''}
+                        placeholder="Email loading..."
+                        className={getFormFieldStyle()}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </div>
                 
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className={`block ${getTextStyle('label')} mb-2`}>Business Name</label>
-                      <input
-                        type="text"
-                        defaultValue="Demo Restaurant Ltd"
+                      <label className="block text-black text-sm font-medium mb-2">Business Type</label>
+                      <select 
                         className={getFormFieldStyle()}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className={`block ${getTextStyle('label')} mb-2`}>Business Type</label>
-                      <select className={getFormFieldStyle()}>
+                        value={userClient?.business_type || ''}
+                        disabled
+                      >
+                        <option value="">Select business type...</option>
                         <option value="restaurant">Restaurant</option>
                         <option value="cafe">Café</option>
+                        <option value="bar">Bar/Pub</option>
                         <option value="hotel">Hotel</option>
                         <option value="catering">Catering</option>
+                        <option value="food-truck">Food Truck</option>
+                        <option value="takeaway">Takeaway</option>
+                        <option value="other">Other</option>
                       </select>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className={`block ${getTextStyle('label')} mb-2`}>Contact Email</label>
-                      <input
-                        type="email"
-                        defaultValue="admin@demorestaurant.co.nz"
-                        className={getFormFieldStyle()}
-                      />
                     </div>
                     
                     <div>
-                      <label className={`block ${getTextStyle('label')} mb-2`}>Phone Number</label>
+                      <label className="block text-black text-sm font-medium mb-2">Phone Number</label>
                       <input
                         type="tel"
-                        defaultValue="+64 9 123 4567"
+                        value={userClient?.phone || ''}
+                        placeholder="Phone number not provided"
                         className={getFormFieldStyle()}
+                        readOnly
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={`block ${getTextStyle('label')} mb-2`}>Address</label>
+                    <label className="block text-black text-sm font-medium mb-2">Address</label>
                     <textarea
                       rows={3}
-                      defaultValue="123 Queen Street, Auckland CBD, Auckland 1010"
+                      value={userClient?.address ? userClient.address : ''}
+                      placeholder={userClient?.address ? undefined : "Business address not provided"}
                       className={getFormFieldStyle()}
+                      readOnly
                     />
                   </div>
 
                   <div>
-                    <label className={`block ${getTextStyle('label')} mb-2`}>Alcohol License Number</label>
+                    <label className="block text-black text-sm font-medium mb-2">Alcohol License Number</label>
                     <input
                       type="text"
-                      defaultValue="AL123456789"
+                      value={userClient?.license_number || ''}
+                      placeholder="License number not provided"
                       className={getFormFieldStyle()}
+                      readOnly
                     />
                   </div>
 
@@ -305,55 +307,14 @@ export default function CompanyPage() {
                 </form>
               </div>
 
-            </div>
-
-            {/* Right Column - Quick Actions Sidebar */}
-            <div className="w-64">
-              <div className={`${getCardStyle('sidebar')} sticky top-8`}>
-                <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Quick Actions</h2>
-                
-                <div>
-                  <Link href="/admin/company/settings" className="block mb-4">
-                    <div className={getCardStyle('secondary')}>
-                      <div>
-                        <h3 className={getTextStyle('cardTitle')}>Settings</h3>
-                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Compliance rules & preferences</p>
-                      </div>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/admin/company/team" className="block mb-4">
-                    <div className={getCardStyle('secondary')}>
-                      <div>
-                        <h3 className={getTextStyle('cardTitle')}>Team</h3>
-                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Manage users & permissions</p>
-                      </div>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/admin/company/billing" className="block mb-4">
-                    <div className={getCardStyle('secondary')}>
-                      <div>
-                        <h3 className={getTextStyle('cardTitle')}>Billing</h3>
-                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Subscription & payment</p>
-                      </div>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/workspace/reports" className="block">
-                    <div className={getCardStyle('secondary')}>
-                      <div>
-                        <h3 className={getTextStyle('cardTitle')}>Reports</h3>
-                        <p className={`${getTextStyle('bodySmall')} mt-2`}>Export compliance data</p>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-          </div>
         </div>
+
+        {/* Right Column - Empty Sidebar */}
+        <div className="w-64">
+          {/* Empty sidebar to maintain layout consistency */}
+        </div>
+
+      </div>
     </div>
   )
 }

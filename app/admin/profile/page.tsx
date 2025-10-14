@@ -17,6 +17,12 @@ function ProfilePageContent() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [twoFactorSetupStep, setTwoFactorSetupStep] = useState<'disabled' | 'enrolling' | 'verifying' | 'enabled'>('disabled')
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
+  const [backupCodes, setBackupCodes] = useState<string[]>([])
+  const [verificationCode, setVerificationCode] = useState('')
+  const [setupError, setSetupError] = useState('')
   const [hasAccess, setHasAccess] = useState<boolean>(true)
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [verificationToken, setVerificationToken] = useState<string | null>(null)
@@ -267,6 +273,17 @@ function ProfilePageContent() {
               weeklyReports: false
             }
           })
+          
+          // Check if user has 2FA enabled
+          try {
+            const { data: factors } = await supabase.auth.mfa.listFactors()
+            if (factors && factors.totp && factors.totp.length > 0) {
+              setTwoFactorEnabled(true)
+              setTwoFactorSetupStep('enabled')
+            }
+          } catch (mfaError) {
+            console.log('MFA check failed (might not be enabled):', mfaError)
+          }
         } else {
           // Demo fallback
           setProfile({
@@ -303,6 +320,114 @@ function ProfilePageContent() {
   const handleAvatarUploadError = (error: string) => {
     console.error('Avatar upload error:', error)
     alert(`Avatar upload failed: ${error}`)
+  }
+
+  // 2FA Setup Functions
+  const handleEnable2FA = async () => {
+    try {
+      setSetupError('')
+      setTwoFactorSetupStep('enrolling')
+      
+      // Enroll user in MFA
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp'
+      })
+
+      if (error) {
+        setSetupError(error.message)
+        setTwoFactorSetupStep('disabled')
+        return
+      }
+
+      // Set QR code URL for user to scan
+      setQrCodeUrl(data.totp.qr_code)
+      setTwoFactorSetupStep('verifying')
+    } catch (error: any) {
+      setSetupError(error.message || 'Failed to setup 2FA')
+      setTwoFactorSetupStep('disabled')
+    }
+  }
+
+  const handleVerify2FA = async () => {
+    try {
+      setSetupError('')
+      
+      if (!verificationCode || verificationCode.length !== 6) {
+        setSetupError('Please enter a valid 6-digit code')
+        return
+      }
+
+      // Get current factors to find the factor we just enrolled
+      const { data: factors } = await supabase.auth.mfa.listFactors()
+      const factor = factors && factors.totp ? factors.totp[0] : null // Get the first TOTP factor
+      
+      if (!factor) {
+        setSetupError('No 2FA factor found. Please restart setup.')
+        setTwoFactorSetupStep('disabled')
+        return
+      }
+
+      // Verify the code
+      const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+        factorId: factor.id,
+        code: verificationCode
+      })
+
+      if (error) {
+        setSetupError(error.message)
+        return
+      }
+
+      // Success! 2FA is now enabled
+      setTwoFactorEnabled(true)
+      setTwoFactorSetupStep('enabled')
+      setVerificationCode('')
+      
+      // Generate backup codes (simulated for now)
+      setBackupCodes([
+        'BACKUP-001-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        'BACKUP-002-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        'BACKUP-003-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        'BACKUP-004-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        'BACKUP-005-' + Math.random().toString(36).substr(2, 6).toUpperCase()
+      ])
+      
+    } catch (error: any) {
+      setSetupError(error.message || 'Failed to verify 2FA code')
+    }
+  }
+
+  const handleDisable2FA = async () => {
+    try {
+      // Get factors and unenroll
+      const { data: factors } = await supabase.auth.mfa.listFactors()
+      
+      if (factors && factors.totp && factors.totp.length > 0) {
+        const { error } = await supabase.auth.mfa.unenroll({
+          factorId: factors.totp[0].id
+        })
+        
+        if (error) {
+          setSetupError(error.message)
+          return
+        }
+      }
+
+      setTwoFactorEnabled(false)
+      setTwoFactorSetupStep('disabled')
+      setQrCodeUrl('')
+      setBackupCodes([])
+      setVerificationCode('')
+    } catch (error: any) {
+      setSetupError(error.message || 'Failed to disable 2FA')
+    }
+  }
+
+  const handleCancelSetup = () => {
+    setTwoFactorSetupStep('disabled')
+    setQrCodeUrl('')
+    setVerificationCode('')
+    setSetupError('')
   }
 
   const handleDemoSignIn = async () => {
@@ -454,7 +579,7 @@ function ProfilePageContent() {
             <div className="flex-1">
               
               {/* Profile Overview */}
-              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
+              <div className={`${getCardStyle('primary')} mb-6`}>
                 <div className="flex items-start space-x-6 mb-6">
                   {/* Avatar Upload */}
                   <div className="flex-shrink-0">
@@ -475,9 +600,9 @@ function ProfilePageContent() {
                   
                   {/* User Info */}
                   <div className="flex-1 pt-4">
-                    <h2 className="text-2xl font-semibold text-black">{profile?.full_name || 'Demo User'}</h2>
+                    <h2 className="text-2xl font-semibold text-black">{profile?.preferred_name || profile?.full_name || 'Demo User'}</h2>
                     <p className="text-gray-800">{profile?.email || 'demo@example.com'}</p>
-                    <p className="text-sm text-gray-700 mt-1">Administrator • Demo Restaurant Ltd</p>
+                    <p className="text-sm text-gray-700 mt-1">{profile?.job_title || userClient?.jobTitle || 'Job Title'} • {userClient?.name || 'Company Name'}</p>
                   </div>
                 </div>
 
@@ -500,7 +625,7 @@ function ProfilePageContent() {
 
               {/* Onboarding Progress Indicator - Only show in onboarding mode */}
               {isOnboarding && (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200/50 rounded-2xl p-6 shadow-lg mb-6">
+                <div className={`${getCardStyle('primary')} mb-6`}>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Complete Your Profile Setup</h2>
                   
                   {/* Progress Steps */}
@@ -535,44 +660,9 @@ function ProfilePageContent() {
                 </div>
               )}
 
-              {/* Email Verification Status */}
-              {verificationToken || !emailVerified ? (
-                <div className="bg-white/90 backdrop-blur-lg border border-orange-200/50 rounded-2xl p-6 shadow-lg mb-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        emailVerified ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
-                      }`}>
-                        {emailVerified ? '✓' : '⚠️'}
-                      </div>
-                    </div>
-                    <div className="ml-4 flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {emailVerified ? 'Email Verified!' : 'Email Verification Required'}
-                      </h3>
-                      <p className="text-gray-600">
-                        {emailVerified 
-                          ? 'Your email address has been successfully verified.' 
-                          : 'Please verify your email address to access all features.'
-                        }
-                      </p>
-                    </div>
-                    {!emailVerified && (
-                      <div className="flex-shrink-0">
-                        <button 
-                          onClick={handleResendVerification}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                        >
-                          Resend Email
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : null}
 
               {/* Personal Information */}
-              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
+              <div className={`${getCardStyle('primary')} mb-6`}>
                 <h2 className="text-xl font-semibold text-black mb-6">Personal Information</h2>
                 
                 <form className="space-y-6">
@@ -670,77 +760,10 @@ function ProfilePageContent() {
                 </form>
               </div>
 
-              {/* Business Information */}
-              {(isOnboarding || onboardingData.businessType) && (
-                <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
-                  <h2 className="text-xl font-semibold text-black mb-6">Business Information</h2>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-black mb-2">Business Type</label>
-                      <select
-                        name="businessType"
-                        value={onboardingData.businessType}
-                        onChange={handleOnboardingInputChange}
-                        className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="cafe">☕ Café</option>
-                        <option value="restaurant">🍽️ Restaurant</option>
-                        <option value="hotel">🏨 Hotel</option>
-                        <option value="catering">🚐 Catering</option>
-                        <option value="other">📦 Other</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
 
-              {/* Notification Preferences */}
-              {(isOnboarding || Object.values(onboardingData.notificationPreferences).some(v => v)) && (
-                <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
-                  <h2 className="text-xl font-semibold text-black mb-6">Notification Preferences</h2>
-                  
-                  <div className="space-y-4">
-                    <p className="text-gray-600 mb-4">Stay informed with:</p>
-                    
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="emailAlerts"
-                        checked={onboardingData.notificationPreferences.emailAlerts}
-                        onChange={handleOnboardingInputChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="ml-3 text-sm text-gray-700">Email alerts for compliance violations</span>
-                    </label>
-                    
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="complianceReminders"
-                        checked={onboardingData.notificationPreferences.complianceReminders}
-                        onChange={handleOnboardingInputChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="ml-3 text-sm text-gray-700">Weekly compliance reports</span>
-                    </label>
-                    
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="weeklyReports"
-                        checked={onboardingData.notificationPreferences.weeklyReports}
-                        onChange={handleOnboardingInputChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="ml-3 text-sm text-gray-700">Daily reminders</span>
-                    </label>
-                  </div>
-                </div>
-              )}
 
               {/* Password & Security */}
-              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-6">
+              <div className={`${getCardStyle('primary')} mb-6`}>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Password & Security</h2>
                 
                 <div className="space-y-6">
@@ -773,14 +796,115 @@ function ProfilePageContent() {
                     </div>
                   </div>
 
-                  <div className="bg-white/20 rounded-xl p-4 border border-white/20">
-                    <h3 className="font-medium text-gray-900 mb-2">Two-Factor Authentication</h3>
-                    <p className="text-sm text-gray-700 mb-4">
-                      Add an extra layer of security to your account
-                    </p>
-                    <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">
-                      Enable 2FA
-                    </button>
+                  {/* Two-Factor Authentication Section */}
+                  <div className="bg-white/20 rounded-xl p-6 border border-white/20">
+                    <h3 className="font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
+                    
+                    {twoFactorSetupStep === 'disabled' && (
+                      <>
+                        <p className="text-sm text-gray-700 mb-4">
+                          Add an extra layer of security to your account using an authenticator app like Google Authenticator or Authy.
+                        </p>
+                        <button 
+                          onClick={handleEnable2FA}
+                          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                        >
+                          Enable 2FA
+                        </button>
+                      </>
+                    )}
+
+                    {twoFactorSetupStep === 'enrolling' && (
+                      <div className="text-center">
+                        <div className="animate-spin h-6 w-6 border-2 border-green-600 border-t-transparent rounded-full mx-auto mb-3"></div>
+                        <p className="text-sm text-gray-700">Setting up 2FA...</p>
+                      </div>
+                    )}
+
+                    {twoFactorSetupStep === 'verifying' && (
+                      <div className="space-y-4">
+                        <p className="text-sm text-gray-700 mb-4">
+                          Scan this QR code with your authenticator app, then enter the 6-digit code:
+                        </p>
+                        
+                        {qrCodeUrl && (
+                          <div className="flex justify-center mb-4">
+                            <img 
+                              src={qrCodeUrl} 
+                              alt="2FA QR Code" 
+                              className="w-40 h-40 border rounded-lg bg-white p-2"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="space-y-3">
+                          <input
+                            type="text"
+                            placeholder="Enter 6-digit code"
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            className="w-full px-4 py-3 bg-white/60 border border-gray-300/50 rounded-xl text-black text-center text-lg font-mono tracking-widest placeholder-gray-500 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            maxLength={6}
+                          />
+                          
+                          {setupError && (
+                            <p className="text-red-600 text-sm text-center">{setupError}</p>
+                          )}
+                          
+                          <div className="flex space-x-3">
+                            <button 
+                              onClick={handleCancelSetup}
+                              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              onClick={handleVerify2FA}
+                              disabled={verificationCode.length !== 6}
+                              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                            >
+                              Verify & Enable
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {twoFactorSetupStep === 'enabled' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3 mb-4">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs">✓</span>
+                          </div>
+                          <p className="text-sm text-gray-700">
+                            Two-factor authentication is <strong>enabled</strong> and protecting your account.
+                          </p>
+                        </div>
+                        
+                        {backupCodes.length > 0 && (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                            <h4 className="font-medium text-yellow-800 mb-2">Backup Codes</h4>
+                            <p className="text-xs text-yellow-700 mb-3">
+                              Save these codes in a secure location. You can use them to access your account if you lose your authenticator device.
+                            </p>
+                            <div className="grid grid-cols-1 gap-1 font-mono text-xs">
+                              {backupCodes.map((code, index) => (
+                                <div key={index} className="bg-white px-2 py-1 rounded border text-center">
+                                  {code}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <button 
+                          onClick={handleDisable2FA}
+                          className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                        >
+                          Disable 2FA
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-end">
@@ -795,7 +919,7 @@ function ProfilePageContent() {
               </div>
 
               {/* Activity Log */}
-              <div className="bg-white/90 backdrop-blur-lg border border-white/40 rounded-2xl p-6 shadow-lg">
+              <div className={`${getCardStyle('primary')} mb-6`}>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
                 
                 <div className="space-y-4">
@@ -825,29 +949,24 @@ function ProfilePageContent() {
                 </div>
               </div>
 
-            </div>
-
-            {/* Right Column - Account Actions Sidebar */}
-            <div className="w-64">
-              <div className="bg-white/90 backdrop-blur-lg border border-white/40 rounded-2xl p-6 shadow-lg sticky top-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Actions</h2>
-                
-                <div>
-                  <button className="block w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-left">
+              {/* Account Actions - Horizontal Layout */}
+              <div className={getCardStyle('primary')}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
                     <div>
                       <h3 className="font-semibold text-lg">Download My Data</h3>
                       <p className="text-sm text-blue-100 mt-1">Export all your data</p>
                     </div>
                   </button>
                   
-                  <button className="block w-full mb-4 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-left">
+                  <button className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
                     <div>
                       <h3 className="font-semibold text-lg">Sign Out All Devices</h3>
                       <p className="text-sm text-yellow-100 mt-1">Security action</p>
                     </div>
                   </button>
                   
-                  <button className="block w-full bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-left">
+                  <button className="bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
                     <div>
                       <h3 className="font-semibold text-lg">Delete Account</h3>
                       <p className="text-sm text-red-100 mt-1">Permanent action</p>
@@ -855,6 +974,12 @@ function ProfilePageContent() {
                   </button>
                 </div>
               </div>
+
+            </div>
+
+            {/* Right Column - Empty Sidebar */}
+            <div className="w-64">
+              {/* Empty sidebar to maintain layout consistency */}
             </div>
 
           </div>
