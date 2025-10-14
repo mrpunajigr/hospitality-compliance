@@ -1,0 +1,98 @@
+name: Sync CodeRabbit Feedback
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+
+jobs:
+  sync-coderabbit:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request || github.event.issue.pull_request
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup GitHub CLI
+        run: |
+          type -p curl >/dev/null || sudo apt install curl -y
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Create reports directory
+        run: mkdir -p .quality-reports
+
+      - name: Fetch PR feedback
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number || github.event.issue.number }}
+          gh pr view $PR_NUMBER --json number,title,body,reviews,comments,labels > .quality-reports/PR-${PR_NUMBER}-Feedback.json
+
+      - name: Generate summary report
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number || github.event.issue.number }}
+          
+          cat > .quality-reports/PR-${PR_NUMBER}-Summary.md << 'EOFMARKER'
+          # PR #${PR_NUMBER} - CodeRabbit Feedback
+          
+          **Generated:** $(date)
+          **Event:** ${{ github.event_name }}
+          
+          ## Pull Request Details
+          EOFMARKER
+          
+          gh pr view $PR_NUMBER --json title,body | python3 -c '
+          import json
+          import sys
+          data = json.load(sys.stdin)
+          print(f"**Title:** {data[\"title\"]}\n")
+          print(f"**Description:**\n{data.get(\"body\", \"No description\")}\n")
+          ' >> .quality-reports/PR-${PR_NUMBER}-Summary.md
+          
+          echo -e "\n## Reviews\n" >> .quality-reports/PR-${PR_NUMBER}-Summary.md
+          
+          gh pr view $PR_NUMBER --json reviews | python3 -c '
+          import json
+          import sys
+          data = json.load(sys.stdin)
+          reviews = data.get("reviews", [])
+          
+          if not reviews:
+              print("*No reviews yet*")
+          else:
+              for review in reviews:
+                  author = review.get("author", {}).get("login", "Unknown")
+                  state = review.get("state", "UNKNOWN")
+                  body = review.get("body", "")
+                  
+                  print(f"### {author} - {state}")
+                  if body:
+                      print(body)
+                  print()
+          ' >> .quality-reports/PR-${PR_NUMBER}-Summary.md
+
+      - name: Commit and push feedback
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .quality-reports/
+          git commit -m "chore: Update CodeRabbit feedback for PR #${{ github.event.pull_request.number || github.event.issue.number }}" || exit 0
+          git push
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request_review'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh pr comment $PR_NUMBER --body "✅ CodeRabbit feedback has been synced to \`.quality-reports/PR-${PR_NUMBER}-Summary.md\`. Claude Code can now read and address this feedback!"

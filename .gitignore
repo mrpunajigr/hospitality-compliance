@@ -40,12 +40,12 @@ next-env.d.ts
 # Local Netlify folder
 .netlify
 
-# Development Assets (archived to Supabase)
-:assets/DevScreenshots/
-:assets/BackupComponents/
-:assets/ConversationBackups/
-:assets/docs\ completed/DevScreenshots_ARCHIVED_*/
-:assets/SuccessReference/
-:assets/*.json
+# Development Assets (exclude entire folder)
+:assets/
+
+# Development backups and test files
 lib/DesignSystemBACKUP/
 components/AppleSidebar.tsx
+deployment-test.*
+test-upload.*
+*-test.txt

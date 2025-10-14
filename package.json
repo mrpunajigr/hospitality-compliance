@@ -15,14 +15,14 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
-    "increment-build": "node scripts/increment-build.js",
-    "log": "node scripts/log-change.js",
-    "alpha": "node scripts/increment-alpha.js",
-    "production": "node scripts/mark-production.js",
+    "increment-build": "node \":assets/scripts/increment-build.js\"",
+    "log": "node \":assets/scripts/log-change.js\"",
+    "alpha": "node \":assets/scripts/increment-alpha.js\"",
+    "production": "node \":assets/scripts/mark-production.js\"",
     "version-check": "cat version.json",
-    "generate-static-version": "node scripts/generate-static-version.js",
-    "archive": "node scripts/archive-manager.js",
-    "cleanup": "node scripts/cleanup-demo-data.js"
+    "generate-static-version": "node \":assets/scripts/generate-static-version.js\"",
+    "archive": "node \":assets/scripts/archive-manager.js\"",
+    "cleanup": "node \":assets/scripts/cleanup-demo-data.js\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

@@ -148,6 +148,43 @@ This is the JiGR Hospitality Compliance platform - a multi-tenant SaaS system fo
 - Implement comprehensive audit logging
 - Ensure multi-tenant data isolation
 
+## 🎯 Critical Problem-Solving Philosophy
+
+### When Debugging Gets Stuck in Circles
+
+**LESSON LEARNED (October 2025)**: When debugging complex authentication/database issues:
+
+1. **STOP after 3-4 debugging attempts** if the same logs keep appearing
+2. **Don't keep adding more debugging** - it wastes time and context
+3. **Take DIRECT ACTION approach** instead of endless diagnosis
+
+### Winning Strategy: Direct Working Solutions
+
+**Instead of fighting with broken legacy functions:**
+
+```typescript
+// ❌ DON'T: Keep debugging broken getUserClient() 
+// ✅ DO: Replace with working API endpoint
+
+// Create: /api/user-client/route.ts
+// Use: Admin client with direct database query
+// Result: Immediate solution that works
+```
+
+**Key Principles:**
+- **Data exists in database** = Create working API to access it
+- **Client-side auth issues** = Move logic to server-side API  
+- **RLS policy problems** = Use service role in API endpoints
+- **Legacy code broken** = Build new working replacement
+
+### Success Metrics
+- ✅ **Authentication Bridge Fixed**: USER ↔ COMPANY data loading
+- ✅ **Owner Name Display**: Real data instead of "Not specified" 
+- ✅ **Business Address**: Populated from database correctly
+- ✅ **Team/Business Cards**: All company data showing properly
+
+**Time Saved**: 2+ hours by switching from debugging to direct solution approach.
+
 ## Email Configuration Memories
 
 - **Email Service Direct Sending Test**: 
