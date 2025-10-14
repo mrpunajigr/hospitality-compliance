@@ -284,7 +284,7 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'} {console.log('🔍 RENDER: Business Info owner_name:', userClient?.owner_name) || ''}</p>
                 <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
                 <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
               </div>
@@ -328,7 +328,7 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'} {console.log('🔍 RENDER: Team owner_name:', userClient?.owner_name) || ''}</p>
                 <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
                 <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
               </div>
