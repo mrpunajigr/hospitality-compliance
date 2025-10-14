@@ -61,11 +61,21 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
 
     // Then get full client details
     const clientInfo = Array.isArray(data.clients) ? data.clients[0] : data.clients as { id: string; name: string }
+    console.log('🔍 getUserClient: Querying clients table for ID:', clientInfo.id)
     const { data: clientData, error: clientError } = await supabase
       .from('clients')
       .select('*')
       .eq('id', clientInfo.id)
       .single()
+    
+    console.log('🔍 getUserClient: clients query result:', { 
+      success: !clientError,
+      error: clientError?.message,
+      hasClientData: !!clientData,
+      clientDataKeys: clientData ? Object.keys(clientData) : [],
+      owner_name: clientData?.owner_name,
+      address: clientData?.address
+    })
 
     if (clientError) {
       console.log('ℹ️ Client details lookup result:', clientError.message || 'Unable to fetch extended client details')
