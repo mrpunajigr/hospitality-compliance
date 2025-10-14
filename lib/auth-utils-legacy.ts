@@ -6,6 +6,19 @@
  */
 
 import { supabase } from './supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Create admin client for getUserClient queries
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+)
 
 export interface UserClient {
   id: string
@@ -62,7 +75,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
     // Then get full client details
     const clientInfo = Array.isArray(data.clients) ? data.clients[0] : data.clients as { id: string; name: string }
     console.log('🔍 getUserClient: Querying clients table for ID:', clientInfo.id)
-    const { data: clientData, error: clientError } = await supabase
+    const { data: clientData, error: clientError } = await supabaseAdmin
       .from('clients')
       .select('*')
       .eq('id', clientInfo.id)
