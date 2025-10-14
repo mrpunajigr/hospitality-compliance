@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -27,13 +28,35 @@ export default function HomePage() {
     setIsLoading(true)
 
     try {
-      // For demo purposes - redirect to admin console
-      console.log('🚀 Demo mode - redirecting to admin console')
-      setTimeout(() => {
-        window.location.href = '/admin/console'
-      }, 1000)
+      // Real Supabase authentication
+      console.log('🔐 Attempting Supabase authentication for:', formData.email)
+      
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      })
+
+      if (authError) {
+        console.error('❌ Authentication failed:', authError.message)
+        setError(`Authentication failed: ${authError.message}`)
+        setIsLoading(false)
+        return
+      }
+
+      if (authData.user) {
+        console.log('✅ User authenticated successfully:', authData.user.email)
+        console.log('🔍 Session established, redirecting to admin console...')
+        // Wait a moment for session to establish, then redirect
+        setTimeout(() => {
+          window.location.href = '/admin/console'
+        }, 1500)
+      } else {
+        setError('Authentication failed. Please check your credentials.')
+        setIsLoading(false)
+      }
       
     } catch (err) {
+      console.error('❌ Login exception:', err)
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
     }
