@@ -74,7 +74,8 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       hasClientData: !!clientData,
       clientDataKeys: clientData ? Object.keys(clientData) : [],
       owner_name: clientData?.owner_name,
-      address: clientData?.address
+      address: clientData?.address,
+      fullClientData: clientData  // Show complete object
     })
 
     if (clientError) {
