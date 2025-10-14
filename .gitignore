@@ -49,3 +49,8 @@ components/AppleSidebar.tsx
 deployment-test.*
 test-upload.*
 *-test.txt
+
+# Backup files and disabled components
+*.backup
+*.DISABLED
+*.COMPLETELY_DISABLED
