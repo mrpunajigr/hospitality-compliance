@@ -32,13 +32,13 @@ export interface UserClient {
 export async function getUserClient(userId: string): Promise<UserClient | null> {
   try {
     // First, get the basic client relationship
+    console.log('🔍 getUserClient: Querying client_users for userId:', userId)
     const { data, error } = await supabase
       .from('client_users')
       .select(`
         client_id,
         role,
         status,
-        job_title,
         clients (
           id,
           name
@@ -47,6 +47,8 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       .eq('user_id', userId)
       .eq('status', 'active')
       .single()
+    
+    console.log('🔍 getUserClient: client_users query result:', { data, error: error?.message })
 
     if (error || !data || !data.clients) {
       if (error) {
@@ -73,7 +75,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         name: clientInfo.name,
         role: data.role,
         status: data.status,
-        jobTitle: data.job_title,
+        jobTitle: undefined, // job_title column may not exist yet
         business_type: undefined,
         business_email: undefined,
         phone: undefined,
@@ -88,12 +90,13 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       }
     }
 
+    console.log('✅ getUserClient: Successfully retrieved client data for:', clientInfo.name)
     return {
       id: clientInfo.id,
       name: clientInfo.name,
       role: data.role,
       status: data.status,
-      jobTitle: data.job_title,
+      jobTitle: undefined, // job_title column may not exist yet - will add later
       business_type: clientData.business_type,
       business_email: clientData.business_email,
       phone: clientData.phone,
