@@ -27,6 +27,19 @@ export default function AdminConsolePage() {
     window.dispatchEvent(new CustomEvent('companyLogoUpdated', { detail: { logoUrl } }))
   }
 
+  // Debug userClient state changes
+  useEffect(() => {
+    if (userClient) {
+      console.log('🔍 STATE UPDATE: userClient changed:', {
+        name: userClient.name,
+        owner_name: userClient.owner_name,
+        address: userClient.address,
+        hasOwnerName: !!userClient.owner_name,
+        hasAddress: !!userClient.address
+      })
+    }
+  }, [userClient])
+
   const handleDemoSignIn = async () => {
     try {
       const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
@@ -139,6 +152,14 @@ export default function AdminConsolePage() {
           
           if (clientInfo) {
             console.log('✅ ADMIN CONSOLE: Real client info loaded:', clientInfo.name)
+            console.log('🔍 ADMIN CONSOLE: Complete client data loaded:', {
+              name: clientInfo.name,
+              owner_name: clientInfo.owner_name,
+              address: clientInfo.address,
+              phone: clientInfo.phone,
+              business_type: clientInfo.business_type,
+              logo_url: clientInfo.logo_url
+            })
             console.log('🔍 ADMIN CONSOLE: Onboarding status check:', {
               status: clientInfo.onboarding_status,
               isCompleted: clientInfo.onboarding_status === 'completed',
@@ -284,7 +305,7 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'} {console.log('🔍 RENDER: Business Info owner_name:', userClient?.owner_name) || ''}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
                 <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
               </div>
@@ -328,7 +349,7 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'} {console.log('🔍 RENDER: Team owner_name:', userClient?.owner_name) || ''}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
                 <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
               </div>
