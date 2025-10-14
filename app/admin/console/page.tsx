@@ -29,15 +29,15 @@ export default function AdminConsolePage() {
 
   // Debug userClient state changes
   useEffect(() => {
-    if (userClient) {
-      console.log('🔍 STATE UPDATE: userClient changed:', {
-        name: userClient.name,
-        owner_name: userClient.owner_name,
-        address: userClient.address,
-        hasOwnerName: !!userClient.owner_name,
-        hasAddress: !!userClient.address
-      })
-    }
+    console.log('🔍 STATE UPDATE: userClient changed:', userClient ? {
+      id: userClient.id,
+      name: userClient.name,
+      owner_name: userClient.owner_name,
+      address: userClient.address,
+      hasOwnerName: !!userClient.owner_name,
+      hasAddress: !!userClient.address,
+      isComplete: !!(userClient.owner_name && userClient.address)
+    } : 'null')
   }, [userClient])
 
   const handleDemoSignIn = async () => {
@@ -166,6 +166,12 @@ export default function AdminConsolePage() {
               shouldRedirect: clientInfo.onboarding_status !== 'completed'
             })
             setUserClient(clientInfo)
+            console.log('✅ ADMIN CONSOLE: setUserClient called with complete data:', {
+              hasOwnerName: !!clientInfo.owner_name,
+              hasAddress: !!clientInfo.address,
+              owner_name: clientInfo.owner_name,
+              address: clientInfo.address
+            })
             
             // TEMPORARILY BYPASS onboarding check to debug the issue
             if (clientInfo.onboarding_status !== 'completed') {
@@ -305,9 +311,9 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name ? userClient.owner_name : 'Not specified'}</p>
                 <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
-                <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
+                <p><strong>Phone:</strong> {userClient?.phone ? userClient.phone : 'Not provided'}</p>
               </div>
             </div>
 
@@ -349,7 +355,7 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name ? userClient.owner_name : 'Not specified'}</p>
                 <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
                 <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
               </div>
@@ -451,8 +457,8 @@ export default function AdminConsolePage() {
                 <label className="block text-black text-sm font-medium mb-2">Address</label>
                 <textarea
                   rows={3}
-                  value={userClient?.address || ''}
-                  placeholder="Business address not provided"
+                  value={userClient?.address ? userClient.address : ''}
+                  placeholder={userClient?.address ? undefined : "Business address not provided"}
                   className={getFormFieldStyle()}
                   readOnly
                 />
