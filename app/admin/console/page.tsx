@@ -131,7 +131,10 @@ export default function AdminConsolePage() {
         console.log('🔍 ADMIN CONSOLE: Auth is stable, should work now')
         
         try {
-          const clientInfo = await getUserClient(user.id)
+          // Use API endpoint instead of broken getUserClient function
+          const response = await fetch(`/api/user-client?userId=${user.id}`)
+          const result = await response.json()
+          const clientInfo = result.userClient
           console.log('🔍 ADMIN CONSOLE: getUserClient result:', {
             found: !!clientInfo,
             clientId: clientInfo?.id,
