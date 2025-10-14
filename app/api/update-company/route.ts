@@ -115,6 +115,11 @@ export async function POST(request: Request) {
       updateData.owner_name = ownersName
     }
     
+    if (companyLogo) {
+      updateData.logo_url = companyLogo
+      console.log('🖼️ UPDATE-COMPANY API: Setting company logo URL:', companyLogo)
+    }
+    
     // Mark onboarding as completed
     updateData.onboarding_status = 'completed'
     updateData.updated_at = new Date().toISOString()
@@ -145,6 +150,7 @@ export async function POST(request: Request) {
         console.log('⚠️ owner_name column missing, retrying without it...')
         const retryData = { ...updateData }
         delete retryData.owner_name
+        console.log('🔍 UPDATE-COMPANY API: Retry data includes logo_url:', !!retryData.logo_url)
         
         const { data: retryUpdatedClient, error: retryError } = await supabaseAdmin
           .from('clients')
