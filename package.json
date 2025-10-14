@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "dev": "npm run increment-build && next dev",
-    "build": "npm run increment-build && npm run generate-static-version && next build",
+    "build": "next build",
+    "build-with-scripts": "npm run increment-build && npm run generate-static-version && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate-types": "supabase gen types typescript --local > types/supabase.ts",
