@@ -27,10 +27,10 @@ export default function HomePage() {
     setIsLoading(true)
 
     try {
-      // For demo purposes - redirect to upload console
-      console.log('🚀 Demo mode - redirecting to upload console')
+      // For demo purposes - redirect to admin console
+      console.log('🚀 Demo mode - redirecting to admin console')
       setTimeout(() => {
-        window.location.href = '/upload/console'
+        window.location.href = '/admin/console'
       }, 1000)
       
     } catch (err) {
