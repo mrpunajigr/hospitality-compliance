@@ -233,12 +233,31 @@ function UpdateProfileContent() {
     if (!file) return
 
     try {
-      // Create a preview URL
+      // Create a preview URL for immediate display
       const previewUrl = URL.createObjectURL(file)
       setProfileImage(previewUrl)
       
-      // Here you would typically upload to your storage service
-      // For now, we'll just use the preview URL
+      // Upload the actual file to Supabase storage
+      if (currentUser?.id) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('userId', currentUser.id)
+
+        const uploadResponse = await fetch('/api/upload-avatar', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResponse.ok) {
+          const result = await uploadResponse.json()
+          console.log('✅ Avatar uploaded successfully:', result.avatar_url)
+          // Update state with the actual Supabase storage URL
+          setProfileImage(result.avatar_url)
+        } else {
+          console.error('❌ Avatar upload failed')
+          // Keep the preview URL but log the failure
+        }
+      }
     } catch (error) {
       console.error('Error uploading image:', error)
       setError('Failed to upload image. Please try again.')
