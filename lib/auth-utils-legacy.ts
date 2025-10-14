@@ -12,6 +12,7 @@ export interface UserClient {
   name: string
   role: string
   status: string
+  jobTitle?: string
   business_type?: string
   business_email?: string
   phone?: string
@@ -37,6 +38,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         client_id,
         role,
         status,
+        job_title,
         clients (
           id,
           name
@@ -71,6 +73,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         name: clientInfo.name,
         role: data.role,
         status: data.status,
+        jobTitle: data.job_title,
         business_type: undefined,
         business_email: undefined,
         phone: undefined,
@@ -90,6 +93,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       name: clientInfo.name,
       role: data.role,
       status: data.status,
+      jobTitle: data.job_title,
       business_type: clientData.business_type,
       business_email: clientData.business_email,
       phone: clientData.phone,

@@ -131,6 +131,11 @@ export default function AdminConsolePage() {
             logoUrl: clientInfo?.logo_url
           })
           console.log('🔍 ADMIN CONSOLE: Full clientInfo object:', clientInfo)
+          console.log('🔍 ADMIN CONSOLE: Team/Owner data check:', {
+            owner_name: clientInfo?.owner_name,
+            jobTitle: clientInfo?.jobTitle,
+            role: clientInfo?.role
+          })
           
           if (clientInfo) {
             console.log('✅ ADMIN CONSOLE: Real client info loaded:', clientInfo.name)
@@ -323,9 +328,9 @@ export default function AdminConsolePage() {
                 </p>
               </div>
               <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Owner:</strong> {userClient?.name ? 'You' : 'Not specified'}</p>
-                <p><strong>Role:</strong> {userClient?.role ? userClient.role : 'Not specified'}</p>
-                <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Not specified'}</p>
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
+                <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
               </div>
             </div>
 
