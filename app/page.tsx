@@ -45,8 +45,35 @@ export default function HomePage() {
 
       if (authData.user) {
         console.log('✅ User authenticated successfully:', authData.user.email)
+        
+        // Check if user has 2FA enabled
+        try {
+          const { data: factors } = await supabase.auth.mfa.listFactors()
+          const has2FA = factors?.totp && factors.totp.length > 0
+          
+          if (has2FA) {
+            console.log('🔐 User has 2FA enabled, checking AAL level...')
+            
+            // Check AAL level - if aal1, user needs 2FA verification
+            const userAal = (authData.session?.user as any)?.aal
+            if (userAal === 'aal1') {
+              console.log('🔐 AAL1 detected - redirecting to 2FA verification')
+              setTimeout(() => {
+                window.location.href = '/verify-2fa'
+              }, 1500)
+              return
+            } else if (userAal === 'aal2') {
+              console.log('✅ AAL2 confirmed - 2FA already verified')
+            }
+          } else {
+            console.log('ℹ️ User does not have 2FA enabled')
+          }
+        } catch (mfaError) {
+          console.log('⚠️ MFA check failed (continuing without 2FA):', mfaError)
+        }
+        
+        // Redirect to admin console (either no 2FA or already verified)
         console.log('🔍 Session established, redirecting to admin console...')
-        // Wait a moment for session to establish, then redirect
         setTimeout(() => {
           window.location.href = '/admin/console'
         }, 1500)
@@ -218,7 +245,7 @@ export default function HomePage() {
           {/* Version */}
           <div className="text-center mt-6 pt-4 border-t border-white/10">
             <p className="text-xs font-medium text-white/90">
-              v1.9.8.12
+              v1.11.0.001
             </p>
           </div>
         </div>

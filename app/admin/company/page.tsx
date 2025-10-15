@@ -82,14 +82,40 @@ export default function CompanyPage() {
       } else {
         setUser(user)
         
-        // Get user's company information
+        // Get user's company information using direct API call
         try {
-          const clientInfo = await getUserClient(user.id)
-          if (clientInfo) {
+          console.log('🔍 COMPANY PAGE: Loading client info via API for user:', user.id)
+          const response = await fetch(`/api/user-client?userId=${user.id}`)
+          
+          if (response.ok) {
+            const data = await response.json()
+            const clientInfo = data.userClient
+            
+            console.log('✅ COMPANY PAGE: Client info loaded:', {
+              name: clientInfo.name,
+              address: clientInfo.address,
+              owner_name: clientInfo.owner_name,
+              logo_url: clientInfo.logo_url,
+              hasAddress: !!clientInfo.address,
+              hasLogoUrl: !!clientInfo.logo_url
+            })
+            
             setUserClient(clientInfo)
+            
+            // Set logo URL if it exists
+            if (clientInfo.logo_url) {
+              console.log('🖼️ COMPANY PAGE: Setting logo URL from API response:', clientInfo.logo_url)
+              setCompanyLogoUrl(clientInfo.logo_url)
+              // Update localStorage for consistency
+              localStorage.setItem('companyLogoUrl', clientInfo.logo_url)
+            } else {
+              console.log('⚠️ COMPANY PAGE: No logo URL found in API response')
+            }
+          } else {
+            console.error('❌ COMPANY PAGE: Failed to load client info via API:', response.status)
           }
         } catch (error) {
-          console.error('Error loading client info:', error)
+          console.error('❌ COMPANY PAGE: Error loading client info via API:', error)
         }
         
         setLoading(false)

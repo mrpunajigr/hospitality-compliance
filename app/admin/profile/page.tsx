@@ -36,6 +36,10 @@ function ProfilePageContent() {
       weeklyReports: false
     }
   })
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const isOnboarding = searchParams.get('onboarding') === 'true'
@@ -428,6 +432,232 @@ function ProfilePageContent() {
     setQrCodeUrl('')
     setVerificationCode('')
     setSetupError('')
+  }
+
+  // Account Action Handlers
+  const handleDownloadData = async () => {
+    setIsDownloading(true)
+    try {
+      // Create formatted HTML report
+      const reportDate = new Date().toLocaleDateString('en-NZ', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+      
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>JiGR Data Export - ${user?.email}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #333; }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #3B82F6; padding-bottom: 20px; }
+        .header h1 { color: #3B82F6; margin: 0; font-size: 28px; }
+        .header p { color: #666; margin: 5px 0; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; }
+        .section h2 { color: #1F2937; margin-top: 0; font-size: 20px; border-bottom: 1px solid #E5E7EB; padding-bottom: 10px; }
+        .data-row { display: flex; margin: 10px 0; }
+        .data-label { font-weight: 600; width: 200px; color: #4B5563; }
+        .data-value { flex: 1; color: #1F2937; }
+        .empty-value { color: #9CA3AF; font-style: italic; }
+        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>JiGR Data Export Report</h1>
+        <p>Personal Data Report for ${user?.email}</p>
+        <p>Generated on ${reportDate}</p>
+    </div>
+
+    <div class="section">
+        <h2>👤 Personal Information</h2>
+        <div class="data-row">
+            <div class="data-label">Email Address:</div>
+            <div class="data-value">${user?.email || 'Not specified'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">User ID:</div>
+            <div class="data-value">${user?.id || 'Not available'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Account Created:</div>
+            <div class="data-value">${user?.created_at ? new Date(user.created_at).toLocaleDateString('en-NZ') : 'Not available'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Email Verified:</div>
+            <div class="data-value">${user?.email_verified_at ? 'Yes (' + new Date(user.email_verified_at).toLocaleDateString('en-NZ') + ')' : 'No'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Preferred Name:</div>
+            <div class="data-value">${profile?.preferred_name || onboardingData?.preferredName || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Job Title:</div>
+            <div class="data-value">${profile?.job_title || onboardingData?.jobTitle || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🏢 Company Information</h2>
+        <div class="data-row">
+            <div class="data-label">Company Name:</div>
+            <div class="data-value">${userClient?.name || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Business Type:</div>
+            <div class="data-value">${userClient?.business_type || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Owner Name:</div>
+            <div class="data-value">${userClient?.owner_name || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Business Email:</div>
+            <div class="data-value">${userClient?.business_email || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Phone Number:</div>
+            <div class="data-value">${userClient?.phone || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Business Address:</div>
+            <div class="data-value">${userClient?.address || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">License Number:</div>
+            <div class="data-value">${userClient?.license_number || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Role:</div>
+            <div class="data-value">${userClient?.role || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Account Status</h2>
+        <div class="data-row">
+            <div class="data-label">Subscription Status:</div>
+            <div class="data-value">${userClient?.subscription_status || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Subscription Tier:</div>
+            <div class="data-value">${userClient?.subscription_tier || '<span class="empty-value">Not specified</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Onboarding Status:</div>
+            <div class="data-value">${userClient?.onboarding_status || '<span class="empty-value">Not completed</span>'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Two-Factor Auth:</div>
+            <div class="data-value">${twoFactorEnabled ? 'Enabled' : 'Disabled'}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⚙️ Preferences</h2>
+        <div class="data-row">
+            <div class="data-label">Email Alerts:</div>
+            <div class="data-value">${onboardingData?.notificationPreferences?.emailAlerts ? 'Enabled' : 'Disabled'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Compliance Reminders:</div>
+            <div class="data-value">${onboardingData?.notificationPreferences?.complianceReminders ? 'Enabled' : 'Disabled'}</div>
+        </div>
+        <div class="data-row">
+            <div class="data-label">Weekly Reports:</div>
+            <div class="data-value">${onboardingData?.notificationPreferences?.weeklyReports ? 'Enabled' : 'Disabled'}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This report contains all personal data stored in the JiGR Hospitality Compliance system.</p>
+        <p>Generated by JiGR Suite v${getVersionDisplay ? getVersionDisplay('short') : '1.0'} | Export ID: ${Date.now()}</p>
+        <p>For questions about your data, contact: support@jigr.app</p>
+    </div>
+</body>
+</html>
+      `
+
+      // Create downloadable HTML file
+      const dataBlob = new Blob([htmlContent], { type: 'text/html' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      // Create download link
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `JiGR-Data-Report-${user?.email?.split('@')[0]}-${new Date().toISOString().split('T')[0]}.html`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      console.log('✅ Data export completed successfully as HTML report')
+    } catch (error) {
+      console.error('❌ Data export failed:', error)
+      alert('Failed to export data. Please try again.')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
+  const handleSignOutAllDevices = async () => {
+    if (!confirm('Are you sure you want to sign out from all devices? You will need to log in again on all devices.')) {
+      return
+    }
+
+    setIsSigningOut(true)
+    try {
+      // Sign out from all sessions
+      const { error } = await supabase.auth.signOut({ scope: 'global' })
+      
+      if (error) {
+        console.error('❌ Sign out failed:', error)
+        alert('Failed to sign out from all devices. Please try again.')
+        setIsSigningOut(false)
+        return
+      }
+
+      console.log('✅ Successfully signed out from all devices')
+      // Redirect to login page
+      window.location.href = '/'
+    } catch (error) {
+      console.error('❌ Sign out exception:', error)
+      alert('An error occurred. Please try again.')
+      setIsSigningOut(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      alert('Please type DELETE to confirm account deletion')
+      return
+    }
+
+    try {
+      // Call delete account API
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        alert('Account deletion requested. You will be contacted within 24 hours.')
+        // Sign out user
+        await supabase.auth.signOut()
+        window.location.href = '/'
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to delete account: ${errorData.message}`)
+      }
+    } catch (error) {
+      console.error('❌ Account deletion failed:', error)
+      alert('Failed to process account deletion. Please contact support.')
+    }
   }
 
   const handleDemoSignIn = async () => {
@@ -952,21 +1182,36 @@ function ProfilePageContent() {
               {/* Account Actions - Horizontal Layout */}
               <div className={getCardStyle('primary')}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
+                  <button 
+                    onClick={handleDownloadData}
+                    disabled={isDownloading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
+                  >
                     <div>
-                      <h3 className="font-semibold text-lg">Download My Data</h3>
+                      <h3 className="font-semibold text-lg">
+                        {isDownloading ? 'Downloading...' : 'Download My Data'}
+                      </h3>
                       <p className="text-sm text-blue-100 mt-1">Export all your data</p>
                     </div>
                   </button>
                   
-                  <button className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
+                  <button 
+                    onClick={handleSignOutAllDevices}
+                    disabled={isSigningOut}
+                    className="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
+                  >
                     <div>
-                      <h3 className="font-semibold text-lg">Sign Out All Devices</h3>
+                      <h3 className="font-semibold text-lg">
+                        {isSigningOut ? 'Signing Out...' : 'Sign Out All Devices'}
+                      </h3>
                       <p className="text-sm text-yellow-100 mt-1">Security action</p>
                     </div>
                   </button>
                   
-                  <button className="bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center">
+                  <button 
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
+                  >
                     <div>
                       <h3 className="font-semibold text-lg">Delete Account</h3>
                       <p className="text-sm text-red-100 mt-1">Permanent action</p>
@@ -990,6 +1235,47 @@ function ProfilePageContent() {
           </div>
 
         </div>
+
+        {/* Delete Account Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-red-600 mb-4">Delete Account</h3>
+              <p className="text-gray-700 mb-4">
+                This action cannot be undone. All your data will be permanently deleted.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Type <strong>DELETE</strong> to confirm:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE here"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false)
+                    setDeleteConfirmText('')
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== 'DELETE'}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
     </div>
   )
 }

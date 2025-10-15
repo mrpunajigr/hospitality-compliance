@@ -27,36 +27,74 @@ export default function AdminLayout({
       
       if (sessionError || !session?.user) {
         console.log('❌ ADMIN LAYOUT: No authenticated user found in session')
+        window.location.href = '/'
         return
       }
 
       const user = session.user
       console.log('✅ ADMIN LAYOUT: Authenticated user found:', user.email)
-      setUser(user)
       
-      // Re-enable getUserClient now that auth is stable
-      console.log('🔍 ADMIN LAYOUT: Loading real company info with getUserClient')
+      // 2FA Route Protection - Check if user has 2FA enabled
       try {
-        const clientInfo = await getUserClient(user.id)
-        if (clientInfo) {
-          console.log('✅ ADMIN LAYOUT: Client info loaded:', clientInfo.name)
-          console.log('🔍 ADMIN LAYOUT: Logo URL check:', {
-            hasLogoUrl: !!clientInfo.logo_url,
-            logoUrl: clientInfo.logo_url,
-            logoUrlType: typeof clientInfo.logo_url
-          })
-          setUserClient(clientInfo)
-          if (clientInfo.logo_url) {
-            console.log('✅ ADMIN LAYOUT: Setting company logo URL:', clientInfo.logo_url)
-            setCompanyLogoUrl(clientInfo.logo_url)
+        const { data: factors } = await supabase.auth.mfa.listFactors()
+        const has2FA = factors?.totp && factors.totp.length > 0
+        
+        if (has2FA) {
+          console.log('🔐 ADMIN LAYOUT: User has 2FA enabled, checking AAL level...')
+          
+          // If user has 2FA but is only at AAL1, redirect to verification
+          const userAal = (user as any).aal
+          if (userAal === 'aal1') {
+            console.log('🔐 ADMIN LAYOUT: AAL1 detected - redirecting to 2FA verification')
+            window.location.href = '/verify-2fa'
+            return
+          } else if (userAal === 'aal2') {
+            console.log('✅ ADMIN LAYOUT: AAL2 confirmed - access granted')
           } else {
-            console.log('⚠️ ADMIN LAYOUT: No logo URL found in client info')
+            console.log('⚠️ ADMIN LAYOUT: Unknown AAL level:', userAal)
           }
         } else {
-          console.log('⚠️ ADMIN LAYOUT: No client info found')
+          console.log('ℹ️ ADMIN LAYOUT: User does not have 2FA enabled - allowing access')
+        }
+      } catch (mfaError) {
+        console.log('⚠️ ADMIN LAYOUT: MFA check failed (continuing):', mfaError)
+      }
+      
+      setUser(user)
+      
+      // Load company info using reliable API
+      console.log('🔍 ADMIN LAYOUT: Loading real company info via API')
+      try {
+        const response = await fetch(`/api/user-client?userId=${user.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const clientInfo = data.userClient
+          
+          console.log('✅ ADMIN LAYOUT: Client info loaded via API:', {
+            name: clientInfo.name,
+            address: clientInfo.address,
+            owner_name: clientInfo.owner_name,
+            logo_url: clientInfo.logo_url,
+            hasAddress: !!clientInfo.address,
+            hasLogoUrl: !!clientInfo.logo_url
+          })
+          
+          setUserClient(clientInfo)
+          
+          if (clientInfo.logo_url) {
+            console.log('✅ ADMIN LAYOUT: Setting company logo URL from API:', clientInfo.logo_url)
+            setCompanyLogoUrl(clientInfo.logo_url)
+            // Update localStorage for consistency
+            localStorage.setItem('companyLogoUrl', clientInfo.logo_url)
+          } else {
+            console.log('⚠️ ADMIN LAYOUT: No logo URL found in API response')
+          }
+        } else {
+          console.error('❌ ADMIN LAYOUT: Failed to load client info via API:', response.status)
         }
       } catch (error) {
-        console.error('❌ ADMIN LAYOUT: Error loading client info:', error)
+        console.error('❌ ADMIN LAYOUT: Error loading client info via API:', error)
       }
     }
     
