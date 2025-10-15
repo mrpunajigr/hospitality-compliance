@@ -1,11 +1,8 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { supabase } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -17,23 +14,8 @@ export async function GET() {
     // Get MFA factors using the client library
     const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
     
-    // Also try to query the database directly (with service role)
-    const serviceSupabase = createRouteHandlerClient({ 
-      cookies: () => cookieStore,
-      // Note: This might not work without service role key
-    })
-
-    let dbFactors = null
-    try {
-      const { data: dbResult, error: dbError } = await serviceSupabase
-        .from('auth.mfa_factors')
-        .select('*')
-        .eq('user_id', user.id)
-      
-      dbFactors = { data: dbResult, error: dbError }
-    } catch (dbErr) {
-      dbFactors = { error: 'Cannot query auth schema directly' }
-    }
+    // Note: auth.mfa_factors is not directly queryable via regular Supabase client
+    // MFA factors are only accessible through the auth.mfa APIs
 
     return NextResponse.json({
       user: {
@@ -41,11 +23,10 @@ export async function GET() {
         email: user.email,
         aal: (user as any).aal
       },
-      clientFactors: {
+      factors: {
         data: factors,
         error: factorsError
       },
-      dbFactors,
       timestamp: new Date().toISOString()
     })
 
