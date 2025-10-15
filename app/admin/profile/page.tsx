@@ -333,13 +333,26 @@ function ProfilePageContent() {
           // Check if user has 2FA enabled (separate try-catch)
           try {
             console.log('🔍 PROFILE PAGE: Checking 2FA status...')
-            const { data: factors } = await supabase.auth.mfa.listFactors()
+            const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+            
+            console.log('📋 PROFILE PAGE: MFA factors response:', { factors, factorsError })
+            
+            if (factorsError) {
+              console.error('❌ PROFILE PAGE: Error listing factors:', factorsError)
+            }
+            
             if (factors && factors.totp && factors.totp.length > 0) {
-              console.log('✅ PROFILE PAGE: 2FA is enabled')
+              console.log('✅ PROFILE PAGE: 2FA is enabled', {
+                totpCount: factors.totp.length,
+                factors: factors.totp
+              })
               setTwoFactorEnabled(true)
               setTwoFactorSetupStep('enabled')
             } else {
-              console.log('ℹ️ PROFILE PAGE: 2FA is not enabled')
+              console.log('ℹ️ PROFILE PAGE: 2FA is not enabled', {
+                hasFactors: !!factors,
+                totpCount: factors?.totp?.length || 0
+              })
             }
           } catch (mfaError) {
             console.log('⚠️ PROFILE PAGE: MFA check failed (might not be enabled):', mfaError)
@@ -1138,28 +1151,41 @@ function ProfilePageContent() {
                   {/* Two-Factor Authentication Section */}
                   <div className="bg-white/20 rounded-xl p-6 border border-white/20">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-medium text-gray-900">Two-Factor Authentication</h3>
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        twoFactorEnabled 
-                          ? 'bg-green-100 text-green-800 border border-green-200' 
-                          : 'bg-gray-100 text-gray-600 border border-gray-200'
-                      }`}>
-                        {twoFactorEnabled ? '🔒 ON' : '🔓 OFF'}
+                      <div>
+                        <h3 className="font-medium text-gray-900">Two-Factor Authentication</h3>
+                        <p className="text-sm text-gray-600 mt-1">Add an extra layer of security to your account</p>
                       </div>
+                      
+                      {/* Toggle Switch */}
+                      <button
+                        onClick={twoFactorEnabled ? handleDisable2FA : handleEnable2FA}
+                        className={`
+                          relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full 
+                          border-2 border-transparent transition-colors duration-200 ease-in-out 
+                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                          ${twoFactorEnabled 
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : 'bg-gray-300 hover:bg-gray-400'
+                          }
+                        `}
+                        role="switch"
+                        aria-checked={twoFactorEnabled}
+                        aria-label="Toggle Two-Factor Authentication"
+                      >
+                        <span
+                          className={`
+                            pointer-events-none inline-block h-6 w-6 transform rounded-full 
+                            bg-white shadow-lg ring-0 transition duration-200 ease-in-out
+                            ${twoFactorEnabled ? 'translate-x-5' : 'translate-x-0'}
+                          `}
+                        />
+                      </button>
                     </div>
                     
                     {twoFactorSetupStep === 'disabled' && (
-                      <>
-                        <p className="text-sm text-gray-700 mb-4">
-                          Add an extra layer of security to your account using an authenticator app like Google Authenticator or Authy.
-                        </p>
-                        <button 
-                          onClick={handleEnable2FA}
-                          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                        >
-                          Enable 2FA
-                        </button>
-                      </>
+                      <p className="text-sm text-gray-700">
+                        Use the toggle above to enable two-factor authentication with an authenticator app like Google Authenticator or Authy.
+                      </p>
                     )}
                     
                     {twoFactorSetupStep === 'enabled' && (
@@ -1167,20 +1193,12 @@ function ProfilePageContent() {
                         <p className="text-sm text-gray-700 mb-4">
                           ✅ Two-factor authentication is active. Your account is protected with an additional layer of security.
                         </p>
-                        <div className="flex gap-3">
-                          <button 
-                            onClick={handleDisable2FA}
-                            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                          >
-                            Disable 2FA
-                          </button>
-                          <button 
-                            onClick={handleRegenerateBackupCodes}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                          >
-                            Generate Backup Codes
-                          </button>
-                        </div>
+                        <button 
+                          onClick={handleRegenerateBackupCodes}
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                        >
+                          Generate Backup Codes
+                        </button>
                       </>
                     )}
 

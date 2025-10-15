@@ -48,8 +48,23 @@ export default function HomePage() {
         
         // Check if user has 2FA enabled
         try {
-          const { data: factors } = await supabase.auth.mfa.listFactors()
+          console.log('🔍 Checking for 2FA factors...')
+          const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+          
+          console.log('📋 MFA factors response:', { factors, factorsError })
+          
+          if (factorsError) {
+            console.error('❌ Error listing factors:', factorsError)
+          }
+          
           const has2FA = factors?.totp && factors.totp.length > 0
+          
+          console.log('🔐 2FA Status:', {
+            hasFactors: !!factors,
+            totpFactors: factors?.totp?.length || 0,
+            has2FA,
+            allFactors: factors
+          })
           
           if (has2FA) {
             console.log('🔐 User has 2FA enabled - redirecting to verification')
@@ -60,7 +75,7 @@ export default function HomePage() {
             }, 1500)
             return
           } else {
-            console.log('ℹ️ User does not have 2FA enabled')
+            console.log('ℹ️ User does not have 2FA enabled, proceeding to admin console')
           }
         } catch (mfaError) {
           console.log('⚠️ MFA check failed (continuing without 2FA):', mfaError)
