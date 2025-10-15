@@ -434,24 +434,52 @@ function ProfilePageContent() {
 
       // Get current factors to find the factor we just enrolled
       const { data: factors } = await supabase.auth.mfa.listFactors()
+      console.log('📋 ENROLLMENT: Current factors during verification:', factors)
+      
       const factor = factors && factors.totp ? factors.totp[0] : null // Get the first TOTP factor
       
       if (!factor) {
+        console.error('❌ ENROLLMENT: No factor found during verification')
         setSetupError('No 2FA factor found. Please restart setup.')
         setTwoFactorSetupStep('disabled')
         return
       }
+      
+      console.log('🔑 ENROLLMENT: Found factor for verification:', {
+        id: factor.id,
+        status: factor.status,
+        factor: factor
+      })
+
+      // Create challenge and verify the code (matching login flow)
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: factor.id
+      })
+
+      if (challengeError) {
+        console.error('Challenge creation failed:', challengeError)
+        setSetupError('Failed to create verification challenge. Please try again.')
+        return
+      }
 
       // Verify the code
-      const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+      const { data, error } = await supabase.auth.mfa.verify({
         factorId: factor.id,
+        challengeId: challengeData.id,
         code: verificationCode
       })
 
       if (error) {
+        console.error('❌ ENROLLMENT: Verification failed:', error)
         setSetupError(error.message)
         return
       }
+
+      console.log('✅ ENROLLMENT: Verification successful!', data)
+      
+      // Verify the factor is now properly saved
+      const { data: updatedFactors } = await supabase.auth.mfa.listFactors()
+      console.log('📋 ENROLLMENT: Factors after successful verification:', updatedFactors)
 
       // Success! 2FA is now enabled
       setTwoFactorEnabled(true)
