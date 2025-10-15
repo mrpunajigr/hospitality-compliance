@@ -245,7 +245,7 @@ export default function HomePage() {
           {/* Version */}
           <div className="text-center mt-6 pt-4 border-t border-white/10">
             <p className="text-xs font-medium text-white/90">
-              v1.11.0.001
+              v1.11.1.001
             </p>
           </div>
         </div>
