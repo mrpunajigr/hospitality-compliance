@@ -213,7 +213,7 @@ export default function Verify2FAPage() {
           {/* Help Text */}
           <div className="text-center mt-6">
             <p className="text-white/60 text-sm">
-              Can't access your authenticator app?<br />
+              Can&apos;t access your authenticator app?<br />
               Contact your system administrator for assistance.
             </p>
           </div>
