@@ -66,9 +66,22 @@ export default function Verify2FAPage() {
 
       const factor = factors.totp[0]
 
+      // Create challenge first, then verify
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: factor.id
+      })
+
+      if (challengeError) {
+        console.error('Challenge creation failed:', challengeError)
+        setError('Failed to create verification challenge. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
       // Verify the 2FA code
-      const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+      const { data, error } = await supabase.auth.mfa.verify({
         factorId: factor.id,
+        challengeId: challengeData.id,
         code: verificationCode
       })
 

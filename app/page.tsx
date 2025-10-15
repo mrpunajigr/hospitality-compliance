@@ -52,19 +52,13 @@ export default function HomePage() {
           const has2FA = factors?.totp && factors.totp.length > 0
           
           if (has2FA) {
-            console.log('🔐 User has 2FA enabled, checking AAL level...')
-            
-            // Check AAL level - if aal1, user needs 2FA verification
-            const userAal = (authData.session?.user as any)?.aal
-            if (userAal === 'aal1') {
-              console.log('🔐 AAL1 detected - redirecting to 2FA verification')
-              setTimeout(() => {
-                window.location.href = '/verify-2fa'
-              }, 1500)
-              return
-            } else if (userAal === 'aal2') {
-              console.log('✅ AAL2 confirmed - 2FA already verified')
-            }
+            console.log('🔐 User has 2FA enabled - redirecting to verification')
+            // Always redirect to 2FA verification if user has 2FA set up
+            // The verify-2fa page will handle AAL level checking
+            setTimeout(() => {
+              window.location.href = '/verify-2fa'
+            }, 1500)
+            return
           } else {
             console.log('ℹ️ User does not have 2FA enabled')
           }
