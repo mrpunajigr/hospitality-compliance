@@ -34,31 +34,8 @@ export default function AdminLayout({
       const user = session.user
       console.log('✅ ADMIN LAYOUT: Authenticated user found:', user.email)
       
-      // 2FA Route Protection - Check if user has 2FA enabled
-      try {
-        const { data: factors } = await supabase.auth.mfa.listFactors()
-        const has2FA = factors?.totp && factors.totp.length > 0
-        
-        if (has2FA) {
-          console.log('🔐 ADMIN LAYOUT: User has 2FA enabled, checking AAL level...')
-          
-          // If user has 2FA but is only at AAL1, redirect to verification
-          const userAal = (user as any).aal
-          if (userAal === 'aal1') {
-            console.log('🔐 ADMIN LAYOUT: AAL1 detected - redirecting to 2FA verification')
-            window.location.href = '/verify-2fa'
-            return
-          } else if (userAal === 'aal2') {
-            console.log('✅ ADMIN LAYOUT: AAL2 confirmed - access granted')
-          } else {
-            console.log('⚠️ ADMIN LAYOUT: Unknown AAL level:', userAal)
-          }
-        } else {
-          console.log('ℹ️ ADMIN LAYOUT: User does not have 2FA enabled - allowing access')
-        }
-      } catch (mfaError) {
-        console.log('⚠️ ADMIN LAYOUT: MFA check failed (continuing):', mfaError)
-      }
+      // Authentication verified - proceed with admin access
+      console.log('✅ ADMIN LAYOUT: User authenticated, proceeding to admin dashboard')
       
       setUser(user)
       

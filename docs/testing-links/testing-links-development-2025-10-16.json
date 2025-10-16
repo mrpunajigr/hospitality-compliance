@@ -1,0 +1,702 @@
+{
+  "environment": "development",
+  "baseUrl": "http://localhost:3000",
+  "generated": "2025-10-16T10:38:34.056Z",
+  "developers": [
+    {
+      "developer": {
+        "id": "sarah_smith",
+        "name": "Sarah Smith",
+        "email": "sarah@example.com",
+        "role": "Senior Mobile Developer",
+        "company": "DevCorp"
+      },
+      "environment": "development",
+      "primaryUrl": "http://localhost:3000/?testing=true&testerId=sarah_smith",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=sarah_smith"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=sarah_smith"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=sarah_smith"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=sarah_smith"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=sarah_smith"
+        }
+      ]
+    },
+    {
+      "developer": {
+        "id": "john_doe",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "role": "Full Stack Developer",
+        "company": "TechSolutions"
+      },
+      "environment": "development",
+      "primaryUrl": "http://localhost:3000/?testing=true&testerId=john_doe",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=john_doe"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=john_doe"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=john_doe"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=john_doe"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=john_doe"
+        }
+      ]
+    },
+    {
+      "developer": {
+        "id": "maria_garcia",
+        "name": "Maria Garcia",
+        "email": "maria@example.com",
+        "role": "UI/UX Developer",
+        "company": "DesignStudio"
+      },
+      "environment": "development",
+      "primaryUrl": "http://localhost:3000/?testing=true&testerId=maria_garcia",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=maria_garcia"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=maria_garcia"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=maria_garcia"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=maria_garcia"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=maria_garcia"
+        }
+      ]
+    },
+    {
+      "developer": {
+        "id": "david_chen",
+        "name": "David Chen",
+        "email": "david@example.com",
+        "role": "Frontend Specialist",
+        "company": "WebExperts"
+      },
+      "environment": "development",
+      "primaryUrl": "http://localhost:3000/?testing=true&testerId=david_chen",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=david_chen"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=david_chen"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=david_chen"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=david_chen"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=david_chen"
+        }
+      ]
+    },
+    {
+      "developer": {
+        "id": "emma_wilson",
+        "name": "Emma Wilson",
+        "email": "emma@example.com",
+        "role": "React Developer",
+        "company": "ReactPros"
+      },
+      "environment": "development",
+      "primaryUrl": "http://localhost:3000/?testing=true&testerId=emma_wilson",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=emma_wilson"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "http://localhost:3000/?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/console?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/profile?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "http://localhost:3000/admin/upload?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "http://localhost:3000/company-setup?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/create-account",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "http://localhost:3000/create-account?testing=true&testerId=emma_wilson"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/delivery?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/reports?testing=true&testerId=emma_wilson"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "http://localhost:3000/admin/team?testing=true&testerId=emma_wilson"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "http://localhost:3000/admin/settings?testing=true&testerId=emma_wilson"
+        }
+      ]
+    }
+  ]
+}

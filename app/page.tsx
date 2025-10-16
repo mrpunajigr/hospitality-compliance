@@ -46,87 +46,11 @@ export default function HomePage() {
       if (authData.user) {
         console.log('✅ User authenticated successfully:', authData.user.email)
         
-        // Check if user has 2FA enabled (with retry logic)
-        let factorCheckAttempts = 0
-        const maxAttempts = 3
-        
-        const checkFactors = async () => {
-          try {
-            factorCheckAttempts++
-            console.log(`🔍 Checking for 2FA factors (attempt ${factorCheckAttempts}/${maxAttempts})...`)
-            
-            const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
-            
-            console.log('📋 MFA factors response:', { 
-              factors, 
-              factorsError,
-              attempt: factorCheckAttempts 
-            })
-            
-            if (factorsError) {
-              console.error('❌ Error listing factors:', factorsError)
-              
-              // Retry if we haven't reached max attempts
-              if (factorCheckAttempts < maxAttempts) {
-                console.log(`🔄 Retrying factor detection in 1 second...`)
-                setTimeout(checkFactors, 1000)
-                return
-              } else {
-                console.log('⚠️ Max attempts reached, proceeding without 2FA')
-              }
-            }
-            
-            // Check for VERIFIED factors only
-            const verifiedFactors = factors?.totp?.filter(f => f.status === 'verified') || []
-            const has2FA = verifiedFactors.length > 0
-            
-            console.log('🔐 2FA Status:', {
-              hasFactors: !!factors,
-              totalFactors: factors?.totp?.length || 0,
-              verifiedFactors: verifiedFactors.length,
-              has2FA,
-              allFactors: factors?.totp,
-              verifiedDetails: verifiedFactors
-            })
-            
-            if (has2FA) {
-              console.log('🔐 User has VERIFIED 2FA - redirecting to verification')
-              setTimeout(() => {
-                window.location.href = '/verify-2fa'
-              }, 1500)
-              return
-            } else {
-              console.log('ℹ️ No verified 2FA factors found, proceeding to admin console')
-            }
-            
-            // Proceed to admin console
-            proceedToAdmin()
-            
-          } catch (mfaError) {
-            console.log('⚠️ MFA check failed:', mfaError)
-            
-            // Retry if we haven't reached max attempts
-            if (factorCheckAttempts < maxAttempts) {
-              console.log(`🔄 Retrying after exception in 1 second...`)
-              setTimeout(checkFactors, 1000)
-              return
-            } else {
-              console.log('⚠️ Max attempts reached after exceptions, proceeding without 2FA')
-              proceedToAdmin()
-            }
-          }
-        }
-        
-        const proceedToAdmin = () => {
-          // Redirect to admin console (either no 2FA or already verified)
-          console.log('🔍 Session established, redirecting to admin console...')
-          setTimeout(() => {
-            window.location.href = '/admin/console'
-          }, 1500)
-        }
-        
-        // Start the factor checking process
-        checkFactors()
+        // Redirect to admin console after successful authentication
+        console.log('🔍 Session established, redirecting to admin console...')
+        setTimeout(() => {
+          window.location.href = '/admin/console'
+        }, 1500)
       } else {
         setError('Authentication failed. Please check your credentials.')
         setIsLoading(false)

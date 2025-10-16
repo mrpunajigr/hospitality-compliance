@@ -1,5 +1,6 @@
 import { Inter } from 'next/font/google'
 import { getChefWorkspaceBackground } from '@/lib/image-storage'
+import { FeedbackWidget } from './components/testing/FeedbackWidget'
 import './globals.css'
 import '../styles/ipad-responsive.css'
 
@@ -51,6 +52,9 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+        
+        {/* Testing Feedback Widget - Only visible with ?testing=true parameter */}
+        <FeedbackWidget />
       </body>
     </html>
   )
