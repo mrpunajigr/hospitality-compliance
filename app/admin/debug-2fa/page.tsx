@@ -10,14 +10,16 @@ export default function Debug2FAPage() {
   useEffect(() => {
     const fetchDebugInfo = async () => {
       try {
-        // Get current user and session
-        const { data: { user, session }, error: sessionError } = await supabase.auth.getSession()
+        // Get current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        if (sessionError || !user) {
+        if (sessionError || !session?.user) {
           setDebugInfo({ error: 'Not authenticated', sessionError })
           setLoading(false)
           return
         }
+
+        const user = session.user
 
         // Get MFA factors
         const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
