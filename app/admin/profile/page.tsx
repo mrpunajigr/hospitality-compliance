@@ -448,30 +448,28 @@ function ProfilePageContent() {
       console.log('🔑 ENROLLMENT: Found factor for verification:', {
         id: factor.id,
         status: factor.status,
-        factor: factor
+        factorType: factor.factor_type,
+        friendly_name: factor.friendly_name
       })
 
-      // Create challenge and verify the code (matching login flow)
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: factor.id
-      })
+      console.log('🔍 ENROLLMENT: Attempting verification with code:', verificationCode)
 
-      if (challengeError) {
-        console.error('Challenge creation failed:', challengeError)
-        setSetupError('Failed to create verification challenge. Please try again.')
-        return
-      }
-
-      // Verify the code
-      const { data, error } = await supabase.auth.mfa.verify({
+      // For enrollment verification, use challengeAndVerify directly
+      // This is different from login verification which uses separate challenge/verify
+      const { data, error } = await supabase.auth.mfa.challengeAndVerify({
         factorId: factor.id,
-        challengeId: challengeData.id,
         code: verificationCode
       })
 
+      console.log('📝 ENROLLMENT: Verification response:', { data, error })
+
       if (error) {
-        console.error('❌ ENROLLMENT: Verification failed:', error)
-        setSetupError(error.message)
+        console.error('❌ ENROLLMENT: Verification failed:', {
+          error: error.message,
+          code: error.code || 'NO_CODE',
+          details: error
+        })
+        setSetupError(`Verification failed: ${error.message}`)
         return
       }
 
