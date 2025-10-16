@@ -511,8 +511,8 @@ function ProfilePageContent() {
 
       console.log('🔑 VERIFICATION: Found unverified factor:', unverifiedFactor)
 
-      // Verify using the simplest possible method
-      console.log('✨ VERIFICATION: Attempting challengeAndVerify...')
+      // Try alternative verification approach - create challenge first, then verify
+      console.log('✨ VERIFICATION: Trying challenge + verify approach...')
       console.log('🔑 VERIFICATION: Factor details before verify:', {
         id: unverifiedFactor.id,
         status: unverifiedFactor.status,
@@ -520,22 +520,39 @@ function ProfilePageContent() {
         updated: unverifiedFactor.updated_at
       })
       
-      const verifyResult = await supabase.auth.mfa.challengeAndVerify({
+      // Step 1: Create a challenge
+      console.log('🎯 VERIFICATION: Creating challenge...')
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: unverifiedFactor.id
+      })
+
+      if (challengeError) {
+        console.error('❌ VERIFICATION: Challenge creation failed:', challengeError)
+        setSetupError('Failed to create verification challenge: ' + challengeError.message)
+        return
+      }
+
+      console.log('✅ VERIFICATION: Challenge created:', challengeData)
+
+      // Step 2: Verify with the challenge
+      console.log('🔐 VERIFICATION: Verifying with challenge...')
+      const { data: verifyData, error: verifyError } = await supabase.auth.mfa.verify({
         factorId: unverifiedFactor.id,
+        challengeId: challengeData.id,
         code: verificationCode
       })
 
-      console.log('📝 VERIFICATION: Challenge and verify result:', verifyResult)
+      console.log('📝 VERIFICATION: Verify result:', { verifyData, verifyError })
 
-      if (verifyResult.error) {
-        console.error('❌ VERIFICATION: Failed:', verifyResult.error)
-        setSetupError(verifyResult.error.message || 'Invalid verification code')
+      if (verifyError) {
+        console.error('❌ VERIFICATION: Verification failed:', verifyError)
+        setSetupError('Verification failed: ' + verifyError.message)
         return
       }
 
       // Wait a moment for the database to update
       console.log('⏱️ VERIFICATION: Waiting for database update...')
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Double-check factors are now verified
       console.log('🔄 VERIFICATION: Checking final factor status...')
