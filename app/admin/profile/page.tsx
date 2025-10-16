@@ -400,30 +400,46 @@ function ProfilePageContent() {
   // 2FA Setup Functions
   const handleEnable2FA = async () => {
     try {
+      console.log('🚀 ENROLLMENT: Starting 2FA enrollment...')
       setSetupError('')
       setTwoFactorSetupStep('enrolling')
       
       // Enroll user in MFA
+      console.log('📝 ENROLLMENT: Calling supabase.auth.mfa.enroll...')
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp'
       })
 
+      console.log('📋 ENROLLMENT: Enroll response:', { data, error })
+
       if (error) {
+        console.error('❌ ENROLLMENT: Enroll failed:', error)
         setSetupError(error.message)
         setTwoFactorSetupStep('disabled')
         return
       }
 
+      if (!data?.totp?.qr_code) {
+        console.error('❌ ENROLLMENT: No QR code received')
+        setSetupError('Failed to generate QR code')
+        setTwoFactorSetupStep('disabled')
+        return
+      }
+
+      console.log('✅ ENROLLMENT: QR code generated successfully')
       // Set QR code URL for user to scan
       setQrCodeUrl(data.totp.qr_code)
       setTwoFactorSetupStep('verifying')
     } catch (error: any) {
+      console.error('❌ ENROLLMENT: Exception during enrollment:', error)
       setSetupError(error.message || 'Failed to setup 2FA')
       setTwoFactorSetupStep('disabled')
     }
   }
 
   const handleVerify2FA = async () => {
+    console.log('🔍 VERIFICATION: Starting verification process...')
+    
     try {
       setSetupError('')
       
@@ -432,68 +448,67 @@ function ProfilePageContent() {
         return
       }
 
-      // Get current factors to find the factor we just enrolled
-      const { data: factors } = await supabase.auth.mfa.listFactors()
-      console.log('📋 ENROLLMENT: Current factors during verification:', factors)
+      console.log('📝 VERIFICATION: Code entered:', verificationCode)
+
+      // List all current factors
+      console.log('📋 VERIFICATION: Checking current factors...')
+      const { data: allFactors, error: listError } = await supabase.auth.mfa.listFactors()
       
-      const factor = factors && factors.totp ? factors.totp[0] : null // Get the first TOTP factor
+      if (listError) {
+        console.error('❌ VERIFICATION: Failed to list factors:', listError)
+        setSetupError('Failed to check 2FA status')
+        return
+      }
+
+      console.log('📋 VERIFICATION: All factors:', allFactors)
+
+      // Find unverified TOTP factor
+      const unverifiedFactor = allFactors?.totp?.find(f => f.status === 'unverified')
       
-      if (!factor) {
-        console.error('❌ ENROLLMENT: No factor found during verification')
-        setSetupError('No 2FA factor found. Please restart setup.')
+      if (!unverifiedFactor) {
+        console.error('❌ VERIFICATION: No unverified factor found')
+        setSetupError('No pending 2FA setup found. Please restart.')
         setTwoFactorSetupStep('disabled')
         return
       }
-      
-      console.log('🔑 ENROLLMENT: Found factor for verification:', {
-        id: factor.id,
-        status: factor.status,
-        factorType: factor.factor_type,
-        friendly_name: factor.friendly_name
-      })
 
-      console.log('🔍 ENROLLMENT: Attempting verification with code:', verificationCode)
+      console.log('🔑 VERIFICATION: Found unverified factor:', unverifiedFactor)
 
-      // For enrollment verification, use challengeAndVerify directly
-      // This is different from login verification which uses separate challenge/verify
-      const { data, error } = await supabase.auth.mfa.challengeAndVerify({
-        factorId: factor.id,
+      // Verify using the simplest possible method
+      console.log('✨ VERIFICATION: Attempting challengeAndVerify...')
+      const verifyResult = await supabase.auth.mfa.challengeAndVerify({
+        factorId: unverifiedFactor.id,
         code: verificationCode
       })
 
-      console.log('📝 ENROLLMENT: Verification response:', { data, error })
+      console.log('📝 VERIFICATION: Challenge and verify result:', verifyResult)
 
-      if (error) {
-        console.error('❌ ENROLLMENT: Verification failed:', {
-          error: error.message,
-          code: error.code || 'NO_CODE',
-          details: error
-        })
-        setSetupError(`Verification failed: ${error.message}`)
+      if (verifyResult.error) {
+        console.error('❌ VERIFICATION: Failed:', verifyResult.error)
+        setSetupError(verifyResult.error.message || 'Invalid verification code')
         return
       }
 
-      console.log('✅ ENROLLMENT: Verification successful!', data)
-      
-      // Verify the factor is now properly saved
-      const { data: updatedFactors } = await supabase.auth.mfa.listFactors()
-      console.log('📋 ENROLLMENT: Factors after successful verification:', updatedFactors)
+      // Double-check factors are now verified
+      console.log('🔄 VERIFICATION: Checking final factor status...')
+      const { data: finalFactors } = await supabase.auth.mfa.listFactors()
+      console.log('📋 VERIFICATION: Final factors:', finalFactors)
 
-      // Success! 2FA is now enabled
-      setTwoFactorEnabled(true)
-      setTwoFactorSetupStep('enabled')
-      setVerificationCode('')
-      
-      // Generate backup codes (simulated for now)
-      setBackupCodes([
-        'BACKUP-001-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-        'BACKUP-002-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-        'BACKUP-003-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-        'BACKUP-004-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-        'BACKUP-005-' + Math.random().toString(36).substr(2, 6).toUpperCase()
-      ])
+      const verifiedCount = finalFactors?.totp?.filter(f => f.status === 'verified')?.length || 0
+      console.log('✅ VERIFICATION: Verified factors count:', verifiedCount)
+
+      if (verifiedCount > 0) {
+        console.log('🎉 VERIFICATION: SUCCESS! 2FA is now active')
+        setTwoFactorEnabled(true)
+        setTwoFactorSetupStep('enabled')
+        setVerificationCode('')
+      } else {
+        console.error('❌ VERIFICATION: No verified factors found after verification')
+        setSetupError('Verification appeared to succeed but factor not found. Please try again.')
+      }
       
     } catch (error: any) {
+      console.error('❌ VERIFICATION: Exception:', error)
       setSetupError(error.message || 'Failed to verify 2FA code')
     }
   }
