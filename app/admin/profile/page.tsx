@@ -341,18 +341,27 @@ function ProfilePageContent() {
               console.error('❌ PROFILE PAGE: Error listing factors:', factorsError)
             }
             
-            if (factors && factors.totp && factors.totp.length > 0) {
-              console.log('✅ PROFILE PAGE: 2FA is enabled', {
-                totpCount: factors.totp.length,
-                factors: factors.totp
+            // Check for VERIFIED factors only
+            const verifiedFactors = factors?.totp?.filter(f => f.status === 'verified') || []
+            const hasVerified2FA = verifiedFactors.length > 0
+            
+            if (hasVerified2FA) {
+              console.log('✅ PROFILE PAGE: 2FA is enabled with verified factors', {
+                verifiedCount: verifiedFactors.length,
+                allFactors: factors.totp,
+                verifiedFactors
               })
               setTwoFactorEnabled(true)
               setTwoFactorSetupStep('enabled')
             } else {
-              console.log('ℹ️ PROFILE PAGE: 2FA is not enabled', {
+              console.log('ℹ️ PROFILE PAGE: No verified 2FA factors found', {
                 hasFactors: !!factors,
-                totpCount: factors?.totp?.length || 0
+                totalFactors: factors?.totp?.length || 0,
+                verifiedFactors: verifiedFactors.length,
+                allFactors: factors?.totp
               })
+              setTwoFactorEnabled(false)
+              setTwoFactorSetupStep('disabled')
             }
           } catch (mfaError) {
             console.log('⚠️ PROFILE PAGE: MFA check failed (might not be enabled):', mfaError)
@@ -395,6 +404,34 @@ function ProfilePageContent() {
   const handleAvatarUploadError = (error: string) => {
     console.error('Avatar upload error:', error)
     alert(`Avatar upload failed: ${error}`)
+  }
+
+  // 2FA Status Check Function
+  const refresh2FAStatus = async () => {
+    try {
+      console.log('🔄 Refreshing 2FA status from database...')
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+      
+      if (factorsError) {
+        console.error('❌ Failed to refresh 2FA status:', factorsError)
+        return
+      }
+
+      const verifiedFactors = factors?.totp?.filter(f => f.status === 'verified') || []
+      const hasVerified2FA = verifiedFactors.length > 0
+      
+      console.log('📊 2FA Status Update:', {
+        totalFactors: factors?.totp?.length || 0,
+        verifiedFactors: verifiedFactors.length,
+        hasVerified2FA
+      })
+      
+      setTwoFactorEnabled(hasVerified2FA)
+      setTwoFactorSetupStep(hasVerified2FA ? 'enabled' : 'disabled')
+      
+    } catch (error) {
+      console.error('❌ Error refreshing 2FA status:', error)
+    }
   }
 
   // 2FA Setup Functions
@@ -502,9 +539,17 @@ function ProfilePageContent() {
         setTwoFactorEnabled(true)
         setTwoFactorSetupStep('enabled')
         setVerificationCode('')
+        
+        // Clear any previous errors
+        setSetupError('')
+        
+        // Refresh status to ensure toggle is accurate
+        setTimeout(() => refresh2FAStatus(), 1000)
       } else {
         console.error('❌ VERIFICATION: No verified factors found after verification')
         setSetupError('Verification appeared to succeed but factor not found. Please try again.')
+        setTwoFactorEnabled(false)
+        setTwoFactorSetupStep('disabled')
       }
       
     } catch (error: any) {
