@@ -17,6 +17,12 @@ function ProfilePageContent() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [twoFactorSetupStep, setTwoFactorSetupStep] = useState<'disabled' | 'enrolling' | 'verifying' | 'enabled'>('disabled')
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
+  const [backupCodes, setBackupCodes] = useState<string[]>([])
+  const [verificationCode, setVerificationCode] = useState('')
+  const [setupError, setSetupError] = useState('')
   const [hasAccess, setHasAccess] = useState<boolean>(true)
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [verificationToken, setVerificationToken] = useState<string | null>(null)
@@ -324,8 +330,42 @@ function ProfilePageContent() {
             })
           }
           
-          // Profile data loaded successfully
-          console.log('✅ PROFILE PAGE: Profile initialization complete')
+          // Check if user has 2FA enabled (separate try-catch)
+          try {
+            console.log('🔍 PROFILE PAGE: Checking 2FA status...')
+            const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+            
+            console.log('📋 PROFILE PAGE: MFA factors response:', { factors, factorsError })
+            
+            if (factorsError) {
+              console.error('❌ PROFILE PAGE: Error listing factors:', factorsError)
+            }
+            
+            // Check for VERIFIED factors only
+            const verifiedFactors = factors?.totp?.filter(f => f.status === 'verified') || []
+            const hasVerified2FA = verifiedFactors.length > 0
+            
+            if (hasVerified2FA) {
+              console.log('✅ PROFILE PAGE: 2FA is enabled with verified factors', {
+                verifiedCount: verifiedFactors.length,
+                allFactors: factors?.totp || [],
+                verifiedFactors
+              })
+              setTwoFactorEnabled(true)
+              setTwoFactorSetupStep('enabled')
+            } else {
+              console.log('ℹ️ PROFILE PAGE: No verified 2FA factors found', {
+                hasFactors: !!factors,
+                totalFactors: factors?.totp?.length || 0,
+                verifiedFactors: verifiedFactors.length,
+                allFactors: factors?.totp
+              })
+              setTwoFactorEnabled(false)
+              setTwoFactorSetupStep('disabled')
+            }
+          } catch (mfaError) {
+            console.log('⚠️ PROFILE PAGE: MFA check failed (might not be enabled):', mfaError)
+          }
           
         } catch (profileError) {
           console.log('⚠️ PROFILE PAGE: Profile loading failed, using demo fallback:', profileError)
@@ -366,9 +406,36 @@ function ProfilePageContent() {
     alert(`Avatar upload failed: ${error}`)
   }
 
+  // 2FA Status Check Function
+  const refresh2FAStatus = async () => {
+    try {
+      console.log('🔄 Refreshing 2FA status from database...')
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+      
+      if (factorsError) {
+        console.error('❌ Failed to refresh 2FA status:', factorsError)
+        return
+      }
 
-  // Account Action Handlers
-  const handleDownloadData = async () => {
+      const verifiedFactors = factors?.totp?.filter(f => f.status === 'verified') || []
+      const hasVerified2FA = verifiedFactors.length > 0
+      
+      console.log('📊 2FA Status Update:', {
+        totalFactors: factors?.totp?.length || 0,
+        verifiedFactors: verifiedFactors.length,
+        hasVerified2FA
+      })
+      
+      setTwoFactorEnabled(hasVerified2FA)
+      setTwoFactorSetupStep(hasVerified2FA ? 'enabled' : 'disabled')
+      
+    } catch (error) {
+      console.error('❌ Error refreshing 2FA status:', error)
+    }
+  }
+
+  // 2FA Setup Functions
+  const handleEnable2FA = async () => {
     try {
       console.log('🚀 ENROLLMENT: Starting fresh 2FA enrollment...')
       setSetupError('')
@@ -738,8 +805,8 @@ function ProfilePageContent() {
             <div class="data-value">${userClient?.onboarding_status || '<span class="empty-value">Not completed</span>'}</div>
         </div>
         <div class="data-row">
-            <div class="data-label">Account Security:</div>
-            <div class="data-value">Standard authentication</div>
+            <div class="data-label">Two-Factor Auth:</div>
+            <div class="data-value">${twoFactorEnabled ? 'Enabled' : 'Disabled'}</div>
         </div>
     </div>
 
