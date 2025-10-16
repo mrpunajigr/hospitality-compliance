@@ -513,6 +513,13 @@ function ProfilePageContent() {
 
       // Verify using the simplest possible method
       console.log('✨ VERIFICATION: Attempting challengeAndVerify...')
+      console.log('🔑 VERIFICATION: Factor details before verify:', {
+        id: unverifiedFactor.id,
+        status: unverifiedFactor.status,
+        created: unverifiedFactor.created_at,
+        updated: unverifiedFactor.updated_at
+      })
+      
       const verifyResult = await supabase.auth.mfa.challengeAndVerify({
         factorId: unverifiedFactor.id,
         code: verificationCode
@@ -526,30 +533,46 @@ function ProfilePageContent() {
         return
       }
 
+      // Wait a moment for the database to update
+      console.log('⏱️ VERIFICATION: Waiting for database update...')
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
       // Double-check factors are now verified
       console.log('🔄 VERIFICATION: Checking final factor status...')
       const { data: finalFactors } = await supabase.auth.mfa.listFactors()
       console.log('📋 VERIFICATION: Final factors:', finalFactors)
 
+      // Check the specific factor that was just verified
+      const verifiedFactor = finalFactors?.totp?.find(f => f.id === unverifiedFactor.id)
+      console.log('🔍 VERIFICATION: Specific factor status after verify:', {
+        factorId: unverifiedFactor.id,
+        beforeStatus: unverifiedFactor.status,
+        afterStatus: verifiedFactor?.status,
+        factorExists: !!verifiedFactor,
+        factorDetails: verifiedFactor
+      })
+
       const verifiedCount = finalFactors?.totp?.filter(f => f.status === 'verified')?.length || 0
       console.log('✅ VERIFICATION: Verified factors count:', verifiedCount)
 
-      if (verifiedCount > 0) {
-        console.log('🎉 VERIFICATION: SUCCESS! 2FA is now active')
+      if (verifiedCount > 0 && verifiedFactor?.status === 'verified') {
+        console.log('🎉 VERIFICATION: SUCCESS! Factor status updated to verified')
         setTwoFactorEnabled(true)
         setTwoFactorSetupStep('enabled')
         setVerificationCode('')
-        
-        // Clear any previous errors
         setSetupError('')
         
         // Refresh status to ensure toggle is accurate
         setTimeout(() => refresh2FAStatus(), 1000)
       } else {
-        console.error('❌ VERIFICATION: No verified factors found after verification')
-        setSetupError('Verification appeared to succeed but factor not found. Please try again.')
-        setTwoFactorEnabled(false)
-        setTwoFactorSetupStep('disabled')
+        console.error('❌ VERIFICATION: Factor status not updated to verified', {
+          verifiedCount,
+          factorStatus: verifiedFactor?.status,
+          expectedStatus: 'verified'
+        })
+        setSetupError('Code appears correct but factor not verified. The factor may need to be re-enrolled.')
+        
+        // Don't update UI state since verification didn't complete
       }
       
     } catch (error: any) {
