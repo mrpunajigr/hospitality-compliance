@@ -437,20 +437,41 @@ function ProfilePageContent() {
   // 2FA Setup Functions
   const handleEnable2FA = async () => {
     try {
-      console.log('🚀 ENROLLMENT: Starting 2FA enrollment...')
+      console.log('🚀 ENROLLMENT: Starting fresh 2FA enrollment...')
       setSetupError('')
       setTwoFactorSetupStep('enrolling')
       
-      // Enroll user in MFA
-      console.log('📝 ENROLLMENT: Calling supabase.auth.mfa.enroll...')
+      // First, clean up any existing unverified factors
+      console.log('🧹 ENROLLMENT: Cleaning up existing factors...')
+      const { data: existingFactors } = await supabase.auth.mfa.listFactors()
+      
+      if (existingFactors?.totp) {
+        for (const factor of existingFactors.totp) {
+          if (factor.status === 'unverified') {
+            console.log('🗑️ ENROLLMENT: Removing unverified factor:', factor.id)
+            try {
+              await supabase.auth.mfa.unenroll({ factorId: factor.id })
+              console.log('✅ ENROLLMENT: Unverified factor removed')
+            } catch (cleanupError) {
+              console.log('⚠️ ENROLLMENT: Could not remove factor:', cleanupError)
+            }
+          }
+        }
+      }
+      
+      // Wait a moment after cleanup
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Enroll user in MFA with fresh start
+      console.log('📝 ENROLLMENT: Starting fresh enrollment...')
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp'
       })
 
-      console.log('📋 ENROLLMENT: Enroll response:', { data, error })
+      console.log('📋 ENROLLMENT: Fresh enroll response:', { data, error })
 
       if (error) {
-        console.error('❌ ENROLLMENT: Enroll failed:', error)
+        console.error('❌ ENROLLMENT: Fresh enroll failed:', error)
         setSetupError(error.message)
         setTwoFactorSetupStep('disabled')
         return
@@ -463,12 +484,12 @@ function ProfilePageContent() {
         return
       }
 
-      console.log('✅ ENROLLMENT: QR code generated successfully')
+      console.log('✅ ENROLLMENT: Fresh QR code generated successfully')
       // Set QR code URL for user to scan
       setQrCodeUrl(data.totp.qr_code)
       setTwoFactorSetupStep('verifying')
     } catch (error: any) {
-      console.error('❌ ENROLLMENT: Exception during enrollment:', error)
+      console.error('❌ ENROLLMENT: Exception during fresh enrollment:', error)
       setSetupError(error.message || 'Failed to setup 2FA')
       setTwoFactorSetupStep('disabled')
     }
@@ -511,8 +532,8 @@ function ProfilePageContent() {
 
       console.log('🔑 VERIFICATION: Found unverified factor:', unverifiedFactor)
 
-      // Try alternative verification approach - create challenge first, then verify
-      console.log('✨ VERIFICATION: Trying challenge + verify approach...')
+      // Simple verification approach - back to challengeAndVerify but with fresh factor
+      console.log('✨ VERIFICATION: Using challengeAndVerify on fresh factor...')
       console.log('🔑 VERIFICATION: Factor details before verify:', {
         id: unverifiedFactor.id,
         status: unverifiedFactor.status,
@@ -520,29 +541,12 @@ function ProfilePageContent() {
         updated: unverifiedFactor.updated_at
       })
       
-      // Step 1: Create a challenge
-      console.log('🎯 VERIFICATION: Creating challenge...')
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: unverifiedFactor.id
-      })
-
-      if (challengeError) {
-        console.error('❌ VERIFICATION: Challenge creation failed:', challengeError)
-        setSetupError('Failed to create verification challenge: ' + challengeError.message)
-        return
-      }
-
-      console.log('✅ VERIFICATION: Challenge created:', challengeData)
-
-      // Step 2: Verify with the challenge
-      console.log('🔐 VERIFICATION: Verifying with challenge...')
-      const { data: verifyData, error: verifyError } = await supabase.auth.mfa.verify({
+      const { data: verifyResult, error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
         factorId: unverifiedFactor.id,
-        challengeId: challengeData.id,
         code: verificationCode
       })
 
-      console.log('📝 VERIFICATION: Verify result:', { verifyData, verifyError })
+      console.log('📝 VERIFICATION: challengeAndVerify result:', { verifyResult, verifyError })
 
       if (verifyError) {
         console.error('❌ VERIFICATION: Verification failed:', verifyError)
@@ -550,9 +554,11 @@ function ProfilePageContent() {
         return
       }
 
-      // Wait a moment for the database to update
+      console.log('✅ VERIFICATION: challengeAndVerify succeeded')
+
+      // Wait for database update
       console.log('⏱️ VERIFICATION: Waiting for database update...')
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
       // Double-check factors are now verified
       console.log('🔄 VERIFICATION: Checking final factor status...')
