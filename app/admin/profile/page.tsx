@@ -348,7 +348,7 @@ function ProfilePageContent() {
             if (hasVerified2FA) {
               console.log('✅ PROFILE PAGE: 2FA is enabled with verified factors', {
                 verifiedCount: verifiedFactors.length,
-                allFactors: factors.totp,
+                allFactors: factors?.totp || [],
                 verifiedFactors
               })
               setTwoFactorEnabled(true)
