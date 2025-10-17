@@ -63,10 +63,13 @@ function ResetPasswordContent() {
         // Check if user is already authenticated (Supabase may have set session)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
+        const recovery = searchParams.get('recovery')
+        
         console.log('🔧 Reset password page - checking auth session:', {
           hasSession: !!session,
           hasUser: !!session?.user,
           sessionError: sessionError?.message,
+          recovery,
           urlParams: Object.fromEntries(searchParams.entries()),
           urlHash: typeof window !== 'undefined' ? window.location.hash : '',
           fullUrl: typeof window !== 'undefined' ? window.location.href : '',
@@ -81,7 +84,18 @@ function ResetPasswordContent() {
           return
         }
         
-        // If we have a valid session, the user came from a valid reset link
+        // If we have a valid session and this is a recovery flow, allow password reset
+        if (session && session.user && recovery === 'true') {
+          console.log('✅ Valid recovery session found for password reset')
+          setIsValidToken(true)
+          setValidatedTokens({
+            accessToken: session.access_token,
+            refreshToken: session.refresh_token
+          })
+          return
+        }
+        
+        // If we have a valid session but no recovery parameter, still allow reset
         if (session && session.user) {
           console.log('✅ Valid session found for password reset')
           setIsValidToken(true)

@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
     
     // Get the base URL with fallback to production URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'
-    const redirectUrl = `${baseUrl}/reset-password`
+    const redirectUrl = `${baseUrl}/auth/callback`
     
-    // Use the correct production URL - main domain
-    const productionRedirectUrl = 'https://jigr.app/reset-password'
+    // Use the correct production URL - auth callback for proper flow
+    const productionRedirectUrl = 'https://jigr.app/auth/callback'
     
     console.log('🔧 Environment check:', {
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,

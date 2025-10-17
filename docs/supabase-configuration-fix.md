@@ -24,15 +24,16 @@ Look for these settings and update them:
 - **Site URL**: `https://jigr.app` (HTTPS protocol)
 - **Redirect URLs**: Add/Update to include:
   - `https://jigr.app/**`
+  - `https://jigr.app/auth/callback`
   - `https://jigr.app/reset-password`
   - `https://jigr.app/login`
 
 ### Step 3: Update Additional Redirect URLs
 In the **Redirect URLs** section, ensure these are listed:
 ```
+https://jigr.app/auth/callback
 https://jigr.app/reset-password
 https://jigr.app/login
-https://jigr.app/auth/callback
 https://jigr.app/**
 ```
 
@@ -55,11 +56,12 @@ https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=pkce_8950f82c8a25a
 
 **Expected URL after fix:**
 ```
-https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=...&type=recovery&redirect_to=https://jigr.app/reset-password
+https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=...&type=recovery&redirect_to=https://jigr.app/auth/callback
 ```
 
 ## Notes
 - This is a **one-time configuration fix** in Supabase dashboard
-- Our code is correctly setting `redirectTo: 'https://jigr.app/reset-password'`
+- Our code is correctly setting `redirectTo: 'https://jigr.app/auth/callback'`
+- The auth callback will handle token verification and redirect to reset-password
 - Supabase's default Site URL setting overrides our API parameter
 - Changes may take a few minutes to take effect
