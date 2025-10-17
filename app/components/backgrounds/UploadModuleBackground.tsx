@@ -49,11 +49,20 @@ export default function UploadModuleBackground({
     <div className={`min-h-screen relative overflow-hidden ${className}`}>
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
-          filter: `brightness(${variant === 'standard' ? brightness : settings.brightness})`
-        }}
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          // iOS 12 vendor prefix
+          WebkitBackgroundSize: 'cover',
+          // Use opacity instead of filter
+          opacity: variant === 'standard' ? brightness : settings.brightness,
+          // Force GPU acceleration
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)'
+        } as React.CSSProperties}
       />
       
       {/* Overlay optimized for form visibility */}
