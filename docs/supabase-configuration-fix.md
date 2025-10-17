@@ -1,10 +1,10 @@
 # Supabase Configuration Fix for Password Reset Emails
 
 ## Problem
-Password reset emails are redirecting to `http://jigr.app` (main domain, HTTP) instead of `https://app.jigr.app/reset-password` (app subdomain, HTTPS)
+Password reset emails are redirecting to `http://jigr.app` (HTTP) instead of `https://jigr.app/reset-password` (HTTPS with correct path)
 
-## Root Cause
-The Supabase project's site URL configuration is set to the main domain `jigr.app` instead of the app subdomain `app.jigr.app`.
+## Root Cause  
+The Supabase project's site URL configuration is using HTTP instead of HTTPS, and not including the correct redirect path.
 
 ## Fix Required in Supabase Dashboard
 
@@ -17,24 +17,23 @@ The Supabase project's site URL configuration is set to the main domain `jigr.ap
 Look for these settings and update them:
 
 **Current (Incorrect) Settings:**
-- Site URL: `http://jigr.app` or `https://jigr.app` (main domain)
-- Redirect URLs: May only include main `jigr.app` domain
+- Site URL: `http://jigr.app` (HTTP protocol)
+- Redirect URLs: May not include reset-password path
 
 **Required (Correct) Settings:**
-- **Site URL**: `https://app.jigr.app` (app subdomain)
+- **Site URL**: `https://jigr.app` (HTTPS protocol)
 - **Redirect URLs**: Add/Update to include:
-  - `https://app.jigr.app/**`
-  - `https://app.jigr.app/reset-password`
-  - `https://app.jigr.app/login`
-  - Keep existing `https://jigr.app/**` for backwards compatibility
+  - `https://jigr.app/**`
+  - `https://jigr.app/reset-password`
+  - `https://jigr.app/login`
 
 ### Step 3: Update Additional Redirect URLs
 In the **Redirect URLs** section, ensure these are listed:
 ```
-https://app.jigr.app/reset-password
-https://app.jigr.app/login
-https://app.jigr.app/auth/callback
-https://app.jigr.app/**
+https://jigr.app/reset-password
+https://jigr.app/login
+https://jigr.app/auth/callback
+https://jigr.app/**
 ```
 
 ### Step 4: Save and Test
@@ -44,7 +43,7 @@ https://app.jigr.app/**
 
 ## Verification
 After making these changes, password reset emails should:
-1. Redirect to: `https://app.jigr.app/reset-password?token=...&type=recovery`
+1. Redirect to: `https://jigr.app/reset-password?token=...&type=recovery`
 2. Load the reset password form properly
 3. Allow successful password changes
 
@@ -56,11 +55,11 @@ https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=pkce_8950f82c8a25a
 
 **Expected URL after fix:**
 ```
-https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=...&type=recovery&redirect_to=https://app.jigr.app/reset-password
+https://rggdywqnvpuwssluzfud.supabase.co/auth/v1/verify?token=...&type=recovery&redirect_to=https://jigr.app/reset-password
 ```
 
 ## Notes
 - This is a **one-time configuration fix** in Supabase dashboard
-- Our code is correctly setting `redirectTo: 'https://app.jigr.app/reset-password'`
+- Our code is correctly setting `redirectTo: 'https://jigr.app/reset-password'`
 - Supabase's default Site URL setting overrides our API parameter
 - Changes may take a few minutes to take effect
