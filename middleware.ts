@@ -1,8 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Global middleware to handle CSRF issues on Netlify
+// Global middleware to handle CSRF issues on Netlify and Supabase auth redirects
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
+  const url = request.nextUrl.clone()
+  
+  // Handle Supabase auth redirects that come to root with recovery tokens
+  if (path === '/' && url.searchParams.has('token') && url.searchParams.get('type') === 'recovery') {
+    console.log('🔄 Middleware: Redirecting Supabase recovery token to reset-password page')
+    
+    // If this is coming from jigr.app (main domain), redirect to app.jigr.app
+    if (url.hostname === 'jigr.app') {
+      const appUrl = new URL(url)
+      appUrl.hostname = 'app.jigr.app'
+      appUrl.pathname = '/reset-password'
+      appUrl.protocol = 'https:'
+      console.log('🔄 Middleware: Redirecting from main domain to app subdomain:', appUrl.href)
+      return NextResponse.redirect(appUrl.href)
+    } else {
+      // Already on app.jigr.app, just redirect to reset-password
+      url.pathname = '/reset-password'
+      return NextResponse.redirect(url)
+    }
+  }
   
   // Don't interfere with company-setup or admin routes during onboarding
   if (path.startsWith('/company-setup') || path.startsWith('/admin/console')) {

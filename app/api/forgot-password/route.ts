@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://app.jigr.app'
     const redirectUrl = `${baseUrl}/reset-password`
     
-    // Use the correct production URL
+    // Use the correct production URL - app subdomain is critical
     const productionRedirectUrl = 'https://app.jigr.app/reset-password'
     
     console.log('🔧 Environment check:', {
