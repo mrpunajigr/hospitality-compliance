@@ -23,7 +23,7 @@ function ProfilePageContent() {
   const [onboardingData, setOnboardingData] = useState({
     jobTitle: '',
     preferredName: '',
-    businessType: 'restaurant',
+    businessType: '',
     notificationPreferences: {
       emailAlerts: true,
       complianceReminders: true,
@@ -266,7 +266,7 @@ function ProfilePageContent() {
             ...prev,
             jobTitle: profileData.job_title || '',
             preferredName: profileData.preferred_name || '',
-            businessType: userClient?.business_type || 'restaurant',
+            businessType: userClient?.business_type || '',
             notificationPreferences: profileData.notification_preferences || {
               emailAlerts: true,
               complianceReminders: true,
@@ -278,9 +278,9 @@ function ProfilePageContent() {
           // Demo fallback
           setProfile({
             id: user.id,
-            full_name: user.user_metadata?.full_name || 'Steve',
+            full_name: user.user_metadata?.full_name || 'User',
             avatar_url: null,
-            phone: '+64 21 123 4567'
+            phone: ''
           })
         }
         
@@ -289,9 +289,9 @@ function ProfilePageContent() {
         // Demo fallback for any profile loading errors
         setProfile({
           id: user.id,
-          full_name: user.user_metadata?.full_name || 'Steve',
+          full_name: user.user_metadata?.full_name || 'User',
           avatar_url: null,
-          phone: '+64 21 123 4567'
+          phone: ''
         })
       }
 
@@ -605,23 +605,23 @@ function ProfilePageContent() {
                         {user?.email}
                       </p>
                       <p className={`${getTextStyle('body')} text-gray-500`}>
-                        {userClient?.role || 'Manager'} • {userClient?.name || 'Corellis 83'}
+                        {userClient?.role || 'Member'} • {userClient?.name || 'Loading...'}
                       </p>
                     </div>
 
                     {/* Quick Stats */}
                     <div className="grid grid-cols-3 gap-6">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">47</div>
-                        <div className="text-sm text-gray-600">Documents Uploaded</div>
+                        <div className="text-2xl font-bold text-gray-900">-</div>
+                        <div className="text-sm text-gray-600">Documents</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">12</div>
+                        <div className="text-2xl font-bold text-blue-600">-</div>
                         <div className="text-sm text-gray-600">Days Active</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">98%</div>
-                        <div className="text-sm text-gray-600">Compliance Rate</div>
+                        <div className="text-2xl font-bold text-green-600">-</div>
+                        <div className="text-sm text-gray-600">Compliance</div>
                       </div>
                     </div>
                   </div>
@@ -671,6 +671,7 @@ function ProfilePageContent() {
                       onChange={(e) => setOnboardingData(prev => ({ ...prev, businessType: e.target.value }))}
                       className={getFormFieldStyle('default')}
                     >
+                      <option value="">Select business type...</option>
                       <option value="restaurant">Restaurant</option>
                       <option value="cafe">Cafe</option>
                       <option value="bar">Bar/Pub</option>
