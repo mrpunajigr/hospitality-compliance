@@ -152,7 +152,7 @@ export function generatePasswordResetEmail(data: PasswordResetEmailData) {
 
     <div style="text-align: center; color: #6b7280; font-size: 14px;">
       <p style="margin: 0;">
-        This password reset was requested for your JiGR Hospitality Compliance account.
+        This password reset was requested for your JiGR | Modular Hospitality Solution account.
         <br>
         Keep your compliance data secure and accessible.
       </p>
@@ -184,7 +184,7 @@ NEED HELP?
 For security questions or if you continue to have problems, contact our 
 support team at support@jigr.app.
 
-This password reset was requested for your JiGR Hospitality Compliance account.
+This password reset was requested for your JiGR | Modular Hospitality Solution account.
 Keep your compliance data secure and accessible.
   `
 

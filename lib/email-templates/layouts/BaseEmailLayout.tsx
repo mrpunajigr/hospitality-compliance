@@ -92,7 +92,7 @@ export function getBaseEmailLayoutHTML({
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
-    <title>${headerTitle || 'JiGR Hospitality Compliance'}</title>
+    <title>${headerTitle || 'JiGR | Modular Hospitality Solution'}</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -211,7 +211,7 @@ export function getBaseEmailLayoutHTML({
 
 // Text version for plain text emails
 export function getBaseEmailLayoutText({
-  headerTitle = 'JiGR Hospitality Compliance',
+  headerTitle = 'JiGR | Modular Hospitality Solution',
   children,
   footerInfo
 }: Pick<BaseEmailLayoutProps, 'headerTitle' | 'children' | 'footerInfo'>): string {
@@ -222,13 +222,12 @@ ${'='.repeat(headerTitle.length)}
 ${children}
 
 ${footerInfo ? `${footerInfo}\n\n` : ''}---
-JiGR Hospitality Compliance
-New Zealand's leading digital compliance platform for hospitality businesses
+JiGR | Modular Hospitality Solution
 
 Visit Dashboard: https://jigr.app
 Contact Support: support@jigr.app
 Help Center: https://jigr.app/help
 
-© 2025 JiGR Hospitality Compliance. All rights reserved.
+© 2025 JiGR | Modular Hospitality Solution. All rights reserved.
   `.trim()
 }

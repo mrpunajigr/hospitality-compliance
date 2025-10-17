@@ -41,10 +41,7 @@ export function EmailFooter({
   return (
     <div style={footerStyle}>
       <div style={{ marginBottom: '16px' }}>
-        <strong style={{ color: '#374151' }}>JiGR Hospitality Compliance</strong>
-        <br />
-        New Zealand&apos;s leading digital compliance platform for hospitality businesses
-      </div>
+        <strong style={{ color: '#374151' }}>JiGR | Modular Hospitality Solution</strong>      </div>
       
       {additionalInfo && (
         <>
@@ -66,7 +63,7 @@ export function EmailFooter({
 
       <div style={{ fontSize: '12px', color: '#9ca3af' }}>
         <div style={{ marginBottom: '8px' }}>
-          © 2025 JiGR Hospitality Compliance. All rights reserved.
+          © 2025 JiGR | Modular Hospitality Solution. All rights reserved.
         </div>
         
         {includeUnsubscribe && (
@@ -103,10 +100,7 @@ export function getEmailFooterHTML({
       border-top: 1px solid #e2e8f0;
     ">
       <div style="margin-bottom: 16px;">
-        <strong style="color: #374151;">JiGR Hospitality Compliance</strong>
-        <br />
-        New Zealand&apos;s leading digital compliance platform for hospitality businesses
-      </div>
+        <strong style="color: #374151;">JiGR | Modular Hospitality Solution</strong>      </div>
       
       ${additionalInfo ? `
         <div style="margin-bottom: 16px; font-style: italic;">
@@ -126,7 +120,7 @@ export function getEmailFooterHTML({
 
       <div style="font-size: 12px; color: #9ca3af;">
         <div style="margin-bottom: 8px;">
-          © 2025 JiGR Hospitality Compliance. All rights reserved.
+          © 2025 JiGR | Modular Hospitality Solution. All rights reserved.
         </div>
         
         ${includeUnsubscribe ? `

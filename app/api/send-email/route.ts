@@ -44,7 +44,7 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to JiGR Hospitality Compliance</title>
+  <title>Welcome to JiGR | Modular Hospitality Solution</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -132,7 +132,7 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
     <div class="content">
       <h2>Hello ${data.userFullName}! 👋</h2>
       
-      <p>Welcome to <strong>${data.companyName}</strong> on the JiGR Hospitality Compliance platform!</p>
+      <p>Welcome to <strong>${data.companyName}</strong> on the JiGR | Modular Hospitality Solution platform!</p>
       
       <div class="welcome-card">
         <h3>🎉 Your account is almost ready!</h3>
@@ -170,9 +170,8 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
     </div>
     
     <div class="footer">
-      <p><strong>JiGR Hospitality Compliance</strong></p>
-      <p>New Zealand's leading digital compliance platform</p>
-      <p><a href="https://jigr.app" style="color: #3b82f6;">jigr.app</a> | <a href="mailto:help@jigr.app" style="color: #3b82f6;">help@jigr.app</a></p>
+      <p><strong>JiGR | Modular Hospitality Solution</strong></p>
+      <p><a href="https://jigr.app" style="color: #3b82f6;">jigr.app</a> | <a href="mailto:support@jigr.app" style="color: #3b82f6;">support@jigr.app</a></p>
     </div>
   </div>
 </body>
@@ -182,11 +181,11 @@ function generateWelcomeEmailHTML(data: WelcomeEmailData): string {
 
 function generateWelcomeEmailText(data: WelcomeEmailData): string {
   return `
-Welcome to JiGR Hospitality Compliance!
+Welcome to JiGR | Modular Hospitality Solution!
 
 Hello ${data.userFullName},
 
-Welcome to ${data.companyName} on the JiGR Hospitality Compliance platform!
+Welcome to ${data.companyName} on the JiGR | Modular Hospitality Solution platform!
 
 VERIFY YOUR EMAIL:
 Please verify your email address to complete your account setup and access your dashboard.
@@ -204,9 +203,8 @@ What's Next:
 If you have any questions, our support team is here to help!
 
 ---
-JiGR Hospitality Compliance
-New Zealand's leading digital compliance platform
-https://jigr.app | help@jigr.app
+JiGR | Modular Hospitality Solution
+https://jigr.app | support@jigr.app
   `.trim()
 }
 
@@ -215,7 +213,7 @@ const getEmailFromAddress = () => {
   if (process.env.EMAIL_FROM_ADDRESS) {
     return process.env.EMAIL_FROM_ADDRESS
   }
-  return 'onboarding@resend.dev' // Fallback for development
+  return 'noreply@jigr.app' // Professional fallback
 }
 
 export async function POST(request: NextRequest) {
@@ -342,7 +340,7 @@ export async function GET() {
       hasApiKey: !!process.env.RESEND_API_KEY,
       apiKeyPreview: process.env.RESEND_API_KEY ? 
         `${process.env.RESEND_API_KEY.substring(0, 8)}...` : 'Not set',
-      fromAddress: process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev',
+      fromAddress: process.env.EMAIL_FROM_ADDRESS || 'noreply@jigr.app',
       environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
     }

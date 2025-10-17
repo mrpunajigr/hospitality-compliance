@@ -41,9 +41,9 @@ export interface EmailSendResult {
 const DEFAULT_CONFIG: EmailConfig = {
   provider: (process.env.EMAIL_PROVIDER as 'sendgrid' | 'demo') || 'demo',
   apiKey: process.env.EMAIL_API_KEY || process.env.SENDGRID_API_KEY,
-  fromEmail: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
+  fromEmail: process.env.EMAIL_FROM_ADDRESS || 'noreply@jigr.app',
   fromName: process.env.EMAIL_FROM_NAME || 'JiGR | Modular Hospitality Solution',
-  replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app'
+  replyTo: process.env.EMAIL_REPLY_TO || 'support@jigr.app'
 }
 
 // Role display helpers
@@ -222,12 +222,12 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
             <hr style="margin: 30px 0; border: none; height: 1px; background: #e2e8f0;">
             
             <h3>About JiGR | Modular Hospitality Solution</h3>
-            <p>JiGR is New Zealand's leading digital compliance platform for hospitality businesses. We help restaurants, cafes, and food service operators maintain food safety standards, manage deliveries, and ensure regulatory compliance through intelligent document processing.</p>
+            <p>JiGR helps restaurants, cafes, and food service operators maintain food safety standards, manage deliveries, and ensure regulatory compliance through intelligent document processing.</p>
         </div>
         
         <div class="footer">
-            <p>If you have any questions, please contact ${data.inviterName} or reply to this email.</p>
-            <p>JiGR | Modular Hospitality Solution Platform | <a href="https://jigr.co.nz">jigr.co.nz</a></p>
+            <p>If you have any questions, please contact ${data.inviterName} or reach out to our <a href="mailto:support@jigr.app">support team</a>.</p>
+            <p>JiGR | Modular Hospitality Solution Platform | <a href="https://jigr.app">jigr.app</a></p>
             <p><small>This email was sent to ${data.inviteeEmail}. If you weren't expecting this invitation, you can safely ignore this email.</small></p>
         </div>
     </div>
@@ -257,13 +257,13 @@ ${roleDescription}
 ⏰ This invitation expires on ${new Date(data.expiresAt).toLocaleDateString('en-NZ')}
 
 About JiGR:
-JiGR is New Zealand's leading digital compliance platform for hospitality businesses, helping maintain food safety standards and regulatory compliance.
+JiGR helps hospitality businesses maintain food safety standards and regulatory compliance.
 
-If you have questions, contact ${data.inviterName} or reply to this email.
+If you have questions, contact ${data.inviterName} or reach out to our support team at support@jigr.app.
 
 ---
 JiGR | Modular Hospitality Solution Platform
-https://jigr.co.nz
+https://jigr.app
   `
 
   return { subject, htmlContent, textContent }

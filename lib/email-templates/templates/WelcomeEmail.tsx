@@ -23,7 +23,7 @@ export function generateWelcomeEmail(data: WelcomeEmailData) {
 
   const subject = isInvited 
     ? `Welcome to JiGR - ${inviterName} invited you!`
-    : 'Welcome to JiGR Hospitality Compliance'
+    : 'Welcome to JiGR | Modular Hospitality Solution'
   
   const preheaderText = isInvited
     ? `${inviterName} invited you to join their compliance team`

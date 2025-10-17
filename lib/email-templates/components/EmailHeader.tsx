@@ -10,7 +10,7 @@ interface EmailHeaderProps {
 }
 
 export function EmailHeader({ 
-  title = 'JiGR Hospitality Compliance', 
+  title = 'JiGR | Modular Hospitality Solution', 
   subtitle,
   variant = 'default' 
 }: EmailHeaderProps) {
@@ -101,7 +101,7 @@ export function EmailHeader({
 
 // HTML version for direct use in email templates
 export function getEmailHeaderHTML({
-  title = 'JiGR Hospitality Compliance',
+  title = 'JiGR | Modular Hospitality Solution',
   subtitle,
   variant = 'default'
 }: EmailHeaderProps): string {

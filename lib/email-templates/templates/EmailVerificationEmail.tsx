@@ -137,7 +137,7 @@ export function generateEmailVerificationEmail(data: EmailVerificationData) {
 
     <div style="text-align: center; color: #6b7280; font-size: 14px;">
       <p style="margin: 0;">
-        This verification was requested for your JiGR Hospitality Compliance account.
+        This verification was requested for your JiGR | Modular Hospitality Solution account.
         <br>
         Secure compliance management for your business.
       </p>
@@ -164,7 +164,7 @@ If you continue to have problems, contact our support team at support@jigr.app.
 DIDN'T CREATE A JIGR ACCOUNT?
 If you didn't sign up for JiGR, you can safely ignore this email.
 
-This verification was requested for your JiGR Hospitality Compliance account.
+This verification was requested for your JiGR | Modular Hospitality Solution account.
 Secure compliance management for your business.
   `
 
