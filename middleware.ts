@@ -7,9 +7,16 @@ export function middleware(request: NextRequest) {
   
   // Handle Supabase auth redirects that come to root with recovery tokens
   if (path === '/' && url.searchParams.has('token') && url.searchParams.get('type') === 'recovery') {
-    console.log('🔄 Middleware: Redirecting Supabase recovery token to reset-password page')
+    console.log('🔄 Middleware: Redirecting Supabase recovery token to reset-password page', {
+      originalUrl: request.url,
+      token: url.searchParams.get('token')?.substring(0, 20) + '...',
+      type: url.searchParams.get('type'),
+      allParams: Object.fromEntries(url.searchParams.entries())
+    })
     url.pathname = '/reset-password'
-    return NextResponse.redirect(url)
+    const redirectUrl = url.toString()
+    console.log('🔄 Middleware: Redirecting to:', redirectUrl)
+    return NextResponse.redirect(redirectUrl)
   }
   
   // Don't interfere with company-setup or admin routes during onboarding

@@ -68,7 +68,10 @@ function ResetPasswordContent() {
           hasUser: !!session?.user,
           sessionError: sessionError?.message,
           urlParams: Object.fromEntries(searchParams.entries()),
-          urlHash: typeof window !== 'undefined' ? window.location.hash : ''
+          urlHash: typeof window !== 'undefined' ? window.location.hash : '',
+          fullUrl: typeof window !== 'undefined' ? window.location.href : '',
+          pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+          search: typeof window !== 'undefined' ? window.location.search : ''
         })
         
         if (sessionError) {
@@ -92,6 +95,8 @@ function ResetPasswordContent() {
         // Check URL parameters for manual token handling (fallback)
         const accessToken = searchParams.get('access_token')
         const refreshToken = searchParams.get('refresh_token')
+        const token = searchParams.get('token') // This is the recovery token from email
+        const type = searchParams.get('type') // Should be 'recovery'
         const error = searchParams.get('error')
         const errorCode = searchParams.get('error_code')
         const errorDescription = searchParams.get('error_description')
@@ -117,13 +122,16 @@ function ResetPasswordContent() {
         console.log('🔧 Manual token check:', {
           queryAccessToken: !!accessToken,
           queryRefreshToken: !!refreshToken,
+          queryToken: !!token,
+          queryType: type,
           hashAccessToken: !!hashAccessToken,
           hashRefreshToken: !!hashRefreshToken,
           finalAccessToken: !!finalAccessToken,
           finalRefreshToken: !!finalRefreshToken,
           error: finalError,
           errorCode,
-          errorDescription
+          errorDescription,
+          tokenPreview: token ? token.substring(0, 20) + '...' : 'none'
         })
         
         // Check for Supabase error first
@@ -137,7 +145,40 @@ function ResetPasswordContent() {
           return
         }
         
-        // If we have tokens in URL, try to set session manually
+        // If we have a recovery token, use Supabase's verifyOtp method
+        if (token && type === 'recovery') {
+          console.log('🔄 Processing recovery token with Supabase verifyOtp')
+          try {
+            const { data, error: verifyError } = await supabase.auth.verifyOtp({
+              token_hash: token,
+              type: 'recovery'
+            })
+
+            if (verifyError) {
+              console.error('❌ Recovery token verification failed:', verifyError)
+              setIsValidToken(false)
+              setError('Reset link has expired or is invalid. Please request a new one.')
+              return
+            }
+
+            if (data.session) {
+              console.log('✅ Recovery token verified successfully')
+              setIsValidToken(true)
+              setValidatedTokens({
+                accessToken: data.session.access_token,
+                refreshToken: data.session.refresh_token
+              })
+              return
+            }
+          } catch (err) {
+            console.error('❌ Recovery token verification error:', err)
+            setIsValidToken(false)
+            setError('Failed to verify reset link. Please request a new one.')
+            return
+          }
+        }
+        
+        // If we have access/refresh tokens in URL, try to set session manually
         if (finalAccessToken && finalRefreshToken) {
           const { error: setSessionError } = await supabase.auth.setSession({
             access_token: finalAccessToken,
