@@ -61,6 +61,28 @@ export default function LandingPage() {
 
         {/* Footer */}
         <div className="absolute bottom-4 left-0 right-0 text-center">
+          <div className="flex justify-center items-center gap-3 mb-2 flex-wrap">
+            <Link 
+              href="/privacy-policy"
+              className="text-white/60 hover:text-white/80 text-xs transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <div className="w-px h-3 bg-white/30"></div>
+            <Link 
+              href="/cookie-policy"
+              className="text-white/60 hover:text-white/80 text-xs transition-colors duration-200"
+            >
+              Cookie Policy
+            </Link>
+            <div className="w-px h-3 bg-white/30"></div>
+            <Link 
+              href="/terms-of-service"
+              className="text-white/60 hover:text-white/80 text-xs transition-colors duration-200"
+            >
+              Terms of Service
+            </Link>
+          </div>
           <p className="text-white/50 text-xs">
             © 2025 JiGR | Modular Hospitality Solution
           </p>
