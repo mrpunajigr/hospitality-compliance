@@ -1,0 +1,146 @@
+{
+  "environment": "production",
+  "baseUrl": "https://jigr.app",
+  "generated": "2025-10-17T08:11:26.035Z",
+  "developers": [
+    {
+      "developer": {
+        "id": "steve_laird",
+        "name": "Steve Laird",
+        "email": "steve@mrpuna.com",
+        "role": "Senior Mobile Developer",
+        "company": "mrpuna.com"
+      },
+      "environment": "production",
+      "primaryUrl": "https://jigr.app/?testing=true&testerId=steve_laird",
+      "pages": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "https://jigr.app/?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "https://jigr.app/admin/console?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "https://jigr.app/admin/profile?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "https://jigr.app/admin/upload?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/delivery?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/reports?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/team?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "https://jigr.app/admin/settings?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "https://jigr.app/company-setup?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/register",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "https://jigr.app/register?testing=true&testerId=steve_laird"
+        }
+      ],
+      "highPriority": [
+        {
+          "path": "/",
+          "name": "Login Page",
+          "priority": "high",
+          "url": "https://jigr.app/?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/console",
+          "name": "Admin Console",
+          "priority": "high",
+          "url": "https://jigr.app/admin/console?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/profile",
+          "name": "Profile Page",
+          "priority": "high",
+          "url": "https://jigr.app/admin/profile?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/upload",
+          "name": "Upload Module",
+          "priority": "high",
+          "url": "https://jigr.app/admin/upload?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/company-setup",
+          "name": "Company Setup",
+          "priority": "high",
+          "url": "https://jigr.app/company-setup?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/register",
+          "name": "Account Creation",
+          "priority": "high",
+          "url": "https://jigr.app/register?testing=true&testerId=steve_laird"
+        }
+      ],
+      "mediumPriority": [
+        {
+          "path": "/admin/delivery",
+          "name": "Delivery Tracking",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/delivery?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/reports",
+          "name": "Reports",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/reports?testing=true&testerId=steve_laird"
+        },
+        {
+          "path": "/admin/team",
+          "name": "Team Management",
+          "priority": "medium",
+          "url": "https://jigr.app/admin/team?testing=true&testerId=steve_laird"
+        }
+      ],
+      "lowPriority": [
+        {
+          "path": "/admin/settings",
+          "name": "Settings",
+          "priority": "low",
+          "url": "https://jigr.app/admin/settings?testing=true&testerId=steve_laird"
+        }
+      ]
+    }
+  ]
+}

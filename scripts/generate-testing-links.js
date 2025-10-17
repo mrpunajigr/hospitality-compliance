@@ -13,39 +13,11 @@ const path = require('path')
 // App developers
 const APP_DEVELOPERS = [
   {
-    id: 'sarah_smith',
-    name: 'Sarah Smith',
-    email: 'sarah@example.com',
+    id: 'steve_laird',
+    name: 'Steve Laird',
+    email: 'steve@mrpuna.com',
     role: 'Senior Mobile Developer',
-    company: 'DevCorp'
-  },
-  {
-    id: 'john_doe',
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'Full Stack Developer',
-    company: 'TechSolutions'
-  },
-  {
-    id: 'maria_garcia',
-    name: 'Maria Garcia',
-    email: 'maria@example.com',
-    role: 'UI/UX Developer',
-    company: 'DesignStudio'
-  },
-  {
-    id: 'david_chen',
-    name: 'David Chen',
-    email: 'david@example.com',
-    role: 'Frontend Specialist',
-    company: 'WebExperts'
-  },
-  {
-    id: 'emma_wilson',
-    name: 'Emma Wilson',
-    email: 'emma@example.com',
-    role: 'React Developer',
-    company: 'ReactPros'
+    company: 'mrpuna.com'
   }
 ]
 
@@ -67,7 +39,7 @@ const KEY_TESTING_PAGES = [
 const BASE_URLS = {
   development: 'http://localhost:3000',
   staging: 'https://staging.jigr.app',
-  production: 'https://app.jigr.app'
+  production: 'https://jigr.app'
 }
 
 /**
@@ -152,7 +124,7 @@ ${developerUrls.mediumPriority.map(page =>
 
 🔍 Detailed Architecture Review (Dev Dashboard):
 1. Contact team lead for secure dev dashboard credentials
-2. Access: https://app.jigr.app/dev/architecture-testing
+2. Access: https://jigr.app/dev/architecture-testing
 3. Use systematic component testing checklist for thorough QA
 4. Track testing progress across all app modules
 5. Export comprehensive testing reports for development team
