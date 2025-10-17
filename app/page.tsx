@@ -62,7 +62,7 @@ export default function LandingPage() {
         {/* Footer */}
         <div className="absolute bottom-4 left-0 right-0 text-center">
           <p className="text-white/50 text-xs">
-            © 2025 JiGR Hospitality Solutions. Compliance made simple.
+            © 2025 JiGR | Modular Hospitality Solution
           </p>
         </div>
       </div>
