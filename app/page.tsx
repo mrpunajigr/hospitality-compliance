@@ -25,7 +25,7 @@ export default function LandingPage() {
         {/* Tagline */}
         <div className="text-center mb-6">
           <h2 className="text-white/90 text-sm md:text-base font-medium tracking-wider uppercase mb-6">
-            MODULAR HOSPITALITY TOOL
+            MODULAR HOSPITALITY SOLUTION
           </h2>
         </div>
 
