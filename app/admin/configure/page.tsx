@@ -103,14 +103,6 @@ export default function AdminConfigurePage() {
         currentPage="configure"
       />
       
-      {/* User Info Display */}
-      {userClient && (
-        <div className="mb-4 text-center">
-          <p className="text-blue-300 text-sm">
-            {userClient.name} • {userClient.role}
-          </p>
-        </div>
-      )}
 
       {/* Success/Error Message */}
       {message && (

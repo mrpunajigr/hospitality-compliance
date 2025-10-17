@@ -280,14 +280,6 @@ export default function AdminConsolePage() {
         currentPage="console"
       />
       
-      {/* User Info Display */}
-      {userClient && (
-        <div className="mb-4 text-center">
-          <p className="text-blue-300 text-sm">
-            {userClient.name} • {userClient.role}
-          </p>
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="flex gap-6">

@@ -90,21 +90,6 @@ export default function UploadReportsPage() {
         currentPage="reports"
       />
       
-      {/* User Info Display */}
-      {(userClient || user) && (
-        <div className="mb-4 text-center">
-          {userClient && (
-            <p className="text-blue-300 text-sm">
-              {userClient.name} • {userClient.role}
-            </p>
-          )}
-          {user && !userClient && (
-            <p className="text-blue-300 text-sm">
-              {user.user_metadata?.full_name || user.email} • Demo Mode
-            </p>
-          )}
-        </div>
-      )}
 
       <div>
             

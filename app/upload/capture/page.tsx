@@ -388,21 +388,6 @@ export default function UploadActionPage() {
         currentPage="capture"
       />
       
-      {/* User Info Display */}
-      {(userClient || user) && (
-        <div className="mb-4 text-center">
-          {userClient && (
-            <p className="text-blue-300 text-sm">
-              {userClient.name} • {userClient.role}
-            </p>
-          )}
-          {user && !userClient && (
-            <p className="text-blue-300 text-sm">
-              {user.user_metadata?.full_name || user.email} • Demo Mode
-            </p>
-          )}
-        </div>
-      )}
 
       {/* Capture Interface Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">

@@ -418,14 +418,6 @@ export default function AdminTeamPage() {
         currentPage="team"
       />
       
-      {/* User Info Display */}
-      {userClient && (
-        <div className="mb-4 text-center">
-          <p className="text-blue-300 text-sm">
-            {userClient?.name || 'Loading...'} • {userClient?.role || 'OWNER'}
-          </p>
-        </div>
-      )}
 
       <div className="flex gap-6">
         
