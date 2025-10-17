@@ -94,7 +94,7 @@ function ArchitectureTestingMapPage() {
     },
     {
       module: 'PUBLIC',
-      path: '/create-account',
+      path: '/register',
       title: 'Account Creation',
       description: 'Multi-step registration process with plan selection',
       components: [

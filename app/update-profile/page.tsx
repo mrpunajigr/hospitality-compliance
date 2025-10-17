@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 // Progress Indicator Component
 const ProgressIndicator = () => (
@@ -358,25 +359,12 @@ function UpdateProfileContent() {
     return ''
   }
 
-  // Auth module form field styling (exact same as create-account and company-setup)
+  // Auth module form field styling (exact same as register and company-setup)
   const fieldStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm font-normal"
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* CafeWindow Background - EXACT SAME as auth module */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-          filter: 'brightness(0.4)'
-        }}
-      />
-      
-      {/* Overlay - EXACT SAME as auth module */}
-      <div className="absolute inset-0 bg-black/15" />
-
-      {/* Main Content - EXACT SAME structure as auth module */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+    <PublicPageBackground overlayOpacity="light">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         
         {/* JiGR Logo - EXACT SAME as auth module */}
         <div className="mb-8">
@@ -608,31 +596,25 @@ function UpdateProfileContent() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageBackground>
   )
 }
 
 export default function UpdateProfilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-            filter: 'brightness(0.4)'
-          }}
-        />
-        <div className="absolute inset-0 bg-black/15" />
-        <div className={`${getCardStyle('primary')} p-8 relative z-10`}>
-          <div className="animate-pulse">
-            <div className="w-20 h-20 bg-white/20 rounded-full mx-auto mb-4"></div>
-            <div className="h-8 bg-white/20 rounded mb-4"></div>
-            <div className="h-4 bg-white/20 rounded mb-2"></div>
-            <div className="h-4 bg-white/20 rounded"></div>
+      <PublicPageBackground overlayOpacity="light">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className={`${getCardStyle('primary')} p-8`}>
+            <div className="animate-pulse">
+              <div className="w-20 h-20 bg-white/20 rounded-full mx-auto mb-4"></div>
+              <div className="h-8 bg-white/20 rounded mb-4"></div>
+              <div className="h-4 bg-white/20 rounded mb-2"></div>
+              <div className="h-4 bg-white/20 rounded"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </PublicPageBackground>
     }>
       <UpdateProfileContent />
     </Suspense>

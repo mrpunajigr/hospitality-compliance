@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase, setIntentionalSignOut } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 // Progress Indicator Component
 const ProgressIndicator = () => (
@@ -345,21 +346,8 @@ export default function CompanySetupPage() {
   const selectStyle = "w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm font-normal appearance-none"
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* CafeWindow Background - EXACT SAME as auth module */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-          filter: 'brightness(0.4)'
-        }}
-      />
-      
-      {/* Overlay - EXACT SAME as auth module */}
-      <div className="absolute inset-0 bg-black/15" />
-
-      {/* Main Content - EXACT SAME structure as auth module */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+    <PublicPageBackground overlayOpacity="light">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         
         {/* JiGR Logo - EXACT SAME as auth module */}
         <div className="mb-8">
@@ -484,7 +472,7 @@ export default function CompanySetupPage() {
                   {error.includes('sign in') && (
                     <div className="mt-3 text-center">
                       <button
-                        onClick={() => router.push('/create-account')}
+                        onClick={() => router.push('/register')}
                         className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
                       >
                         Create Account
@@ -531,6 +519,6 @@ export default function CompanySetupPage() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageBackground>
   )
 }

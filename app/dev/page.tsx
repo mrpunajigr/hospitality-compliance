@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useDevAuth } from '@/lib/dev-auth-context'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import DevModuleBackground from '@/app/components/backgrounds/DevModuleBackground'
 
 const devTools = [
   {
@@ -95,28 +96,10 @@ export default function DevDashboardPage() {
   }, {} as Record<string, typeof devTools>)
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
-        style={{
-          backgroundImage: `url('/chef-workspace1jpg.jpg')`,
-          backgroundPosition: '50% 50%',
-          backgroundAttachment: 'fixed',
-          filter: 'brightness(0.5)'
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-black/80" />
-
-      {/* DEV Header */}
-      <div className="absolute top-0 left-0 right-0 z-10">
-        <div className="bg-orange-600 text-white text-center py-2 text-sm font-medium">
-          🔧 DEVELOPMENT PORTAL - {devUser.username.toUpperCase()} ({devUser.role}) - TOOLS ACTIVE 🔧
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-20 min-h-screen pt-12">
+    <DevModuleBackground 
+      headerContent={`🔧 DEVELOPMENT PORTAL - ${devUser.username.toUpperCase()} (${devUser.role}) - TOOLS ACTIVE 🔧`}
+    >
+      <div className="min-h-screen pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
           {/* Header */}
@@ -238,6 +221,6 @@ export default function DevDashboardPage() {
 
         </div>
       </div>
-    </div>
+    </DevModuleBackground>
   )
 }

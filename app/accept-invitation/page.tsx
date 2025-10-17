@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { CheckCircle, AlertTriangle, Users, Building2 } from 'lucide-react'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 // =====================================================
 // TYPES
@@ -31,7 +32,7 @@ function AcceptInvitationContent() {
   const [error, setError] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [step, setStep] = useState<'loading' | 'invalid' | 'expired' | 'create-account' | 'success'>('loading')
+  const [step, setStep] = useState<'loading' | 'invalid' | 'expired' | 'register' | 'success'>('loading')
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -128,7 +129,7 @@ function AcceptInvitationContent() {
           message: invitationData.invitation_message,
           clientId: Array.isArray(invitationData.clients) ? invitationData.clients[0]?.id : (invitationData.clients as any)?.id
         })
-        setStep('create-account')
+        setStep('register')
         setLoading(false)
 
       } catch (error) {
@@ -315,19 +316,10 @@ function AcceptInvitationContent() {
   // =====================================================
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3')`,
-          filter: 'brightness(0.6)'
-        }}
-      />
-      
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/30" />
-
+    <PublicPageBackground 
+      overlayOpacity="dark" 
+      backgroundImage="CafeWindow.jpg"
+    >
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -347,7 +339,7 @@ function AcceptInvitationContent() {
       </header>
       
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 pt-40">
+      <div className="min-h-screen flex items-center justify-center px-4 pt-40">
         <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
 
           {/* Loading State */}
@@ -381,7 +373,7 @@ function AcceptInvitationContent() {
           )}
 
           {/* Account Creation State */}
-          {step === 'create-account' && invitation && (
+          {step === 'register' && invitation && (
             <>
               <div className="text-center mb-6">
                 <Users className="w-16 h-16 text-blue-400 mx-auto mb-4" />
@@ -518,7 +510,7 @@ function AcceptInvitationContent() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageBackground>
   )
 }
 
@@ -526,7 +518,7 @@ function AcceptInvitationContent() {
 function AcceptInvitationLoading() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/24" />
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>

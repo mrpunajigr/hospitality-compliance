@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useDevAuth } from '@/lib/dev-auth-context'
 import { getVersionDisplay } from '@/lib/version'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import DevModuleBackground from '@/app/components/backgrounds/DevModuleBackground'
 
 export default function DevLoginPage() {
   const router = useRouter()

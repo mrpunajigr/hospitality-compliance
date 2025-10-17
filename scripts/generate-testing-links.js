@@ -60,7 +60,7 @@ const KEY_TESTING_PAGES = [
   { path: '/admin/team', name: 'Team Management', priority: 'medium' },
   { path: '/admin/settings', name: 'Settings', priority: 'low' },
   { path: '/company-setup', name: 'Company Setup', priority: 'high' },
-  { path: '/create-account', name: 'Account Creation', priority: 'high' }
+  { path: '/register', name: 'Account Creation', priority: 'high' }
 ]
 
 // Environment URLs

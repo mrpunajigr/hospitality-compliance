@@ -7,6 +7,7 @@ import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import AppleSidebar from '@/app/components/AppleSidebar'
 import { PlatformProvider } from '@/lib/platform-context'
+import AdminModuleBackground from '@/app/components/backgrounds/AdminModuleBackground'
 
 export default function AdminLayout({
   children,
@@ -105,20 +106,8 @@ export default function AdminLayout({
 
   return (
     <PlatformProvider>
-      <div className="min-h-screen relative overflow-hidden ContentArea">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
-        style={{
-          backgroundImage: `url('/Home-Chef-Chicago-8.webp')`,
-          backgroundPosition: '50% 50%',
-          backgroundAttachment: 'fixed',
-          filter: 'brightness(0.9)'
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30" />
-
-      {/* Apple-style Sidebar */}
+      <AdminModuleBackground>
+        {/* Apple-style Sidebar */}
       <AppleSidebar 
         user={user}
         userClient={userClient}
@@ -133,7 +122,7 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
-      </div>
+      </AdminModuleBackground>
     </PlatformProvider>
   )
 }

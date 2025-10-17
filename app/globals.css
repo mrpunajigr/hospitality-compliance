@@ -45,6 +45,9 @@ body {
 .font-kirgina {
   font-family: 'Kirgina', serif;
 }
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
 
 /* Typography Semantic Classes */
 .typography-title {

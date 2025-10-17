@@ -1,10 +1,11 @@
-import { Inter } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
 import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import { FeedbackWidget } from './components/testing/FeedbackWidget'
 import './globals.css'
 import '../styles/ipad-responsive.css'
 
 const inter = Inter({ subsets: ['latin'] })
+const playfair = Playfair_Display({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Hospitality Compliance System',

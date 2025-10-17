@@ -9,6 +9,7 @@ import { generateSecurePassword } from '@/lib/password-utils'
 import { updateOnboardingProgress } from '@/lib/onboarding-progress'
 import EmailDebugDashboard from '@/app/components/EmailDebugDashboard'
 import Link from 'next/link'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 // Development-only Platform Selector Component
 interface PlatformSelectorProps {
@@ -220,21 +221,11 @@ export default function CreateAccountPage() {
   }
 
   return (
-    <div className={`min-h-screen relative overflow-hidden Platform${platformMode.charAt(0).toUpperCase()}${platformMode.slice(1)}`}>
-      {/* Cafe Window Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-          filter: 'brightness(0.4)'
-        }}
-      />
-      
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/15" />
-
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+    <PublicPageBackground 
+      overlayOpacity="light"
+      className={`Platform${platformMode.charAt(0).toUpperCase()}${platformMode.slice(1)}`}
+    >
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         
         {/* JiGR Logo */}
         <div className="mb-8">
@@ -310,35 +301,15 @@ export default function CreateAccountPage() {
                 {errorType === 'ACCOUNT_EXISTS' && (
                   <div className="mt-3 text-center">
                     <Link 
-                      href="/"
+                      href="/login"
                       className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
                     >
-                      Go Home
+                      LOGIN
                     </Link>
                   </div>
                 )}
               </div>
             )}
-
-            {/* What You Get */}
-            <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">✓</span>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-blue-200 font-medium text-sm mb-1">What you get:</h4>
-                  <ul className="text-blue-100 text-xs space-y-1">
-                    <li>Instant access to your dashboard</li>
-                    <li>30-day free trial with full features</li>
-                    <li>Compliance tracking & alerts</li>
-                    <li>Email confirmation & login details</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
 
             {/* Submit Button */}
             <button
@@ -352,20 +323,20 @@ export default function CreateAccountPage() {
                   Creating Your Account...
                 </div>
               ) : (
-                'Create Free Account'
+                'REGISTER'
               )}
             </button>
           </form>
 
-          {/* Sign In Link */}
+          {/* LOGIN Link */}
           <div className="text-center mt-6">
             <p className="text-white/70 text-sm">
-              Need help?{' '}
+              Already have an account?{' '}
               <Link 
-                href="/" 
+                href="/login" 
                 className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
               >
-                Go Home
+                LOGIN
               </Link>
             </p>
           </div>
@@ -387,6 +358,6 @@ export default function CreateAccountPage() {
       
       {/* Email Debug Dashboard (Development Only) */}
       <EmailDebugDashboard />
-    </div>
+    </PublicPageBackground>
   )
 }

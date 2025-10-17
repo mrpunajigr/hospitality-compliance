@@ -497,7 +497,7 @@ export default function StyleGuidePage() {
                   <div className="space-y-4">
                     <div className="border border-gray-200 rounded-lg p-4">
                       <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
-                        Sign In as Demo User
+                        LOGIN as Demo User
                       </button>
                       <div className="mt-3 text-sm text-gray-600">
                         <p><strong>Component:</strong> PrimaryButton</p>

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 function ResetPasswordContent() {
   const [formData, setFormData] = useState({
@@ -229,18 +230,8 @@ function ResetPasswordContent() {
 
   if (!isValidToken) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        {/* CafeWindow Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-            filter: 'brightness(0.4)'
-          }}
-        />
-        <div className="absolute inset-0 bg-black/15" />
-
-        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+      <PublicPageBackground overlayOpacity="light">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4">
           <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto text-center`}>
             <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,30 +255,20 @@ function ResetPasswordContent() {
             </Link>
 
             <Link 
-              href="/signin"
+              href="/login"
               className="inline-block text-blue-300 hover:text-blue-200 font-medium py-3 px-6 transition-colors duration-200"
             >
-              Back to Sign In
+              Back to LOGIN
             </Link>
           </div>
         </div>
-      </div>
+      </PublicPageBackground>
     )
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* CafeWindow Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-          filter: 'brightness(0.4)'
-        }}
-      />
-      <div className="absolute inset-0 bg-black/15" />
-
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+    <PublicPageBackground overlayOpacity="light">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         {/* JiGR Logo */}
         <div className="mb-8">
           <div className="w-144 h-36">
@@ -395,13 +376,13 @@ function ResetPasswordContent() {
             </button>
           </form>
 
-          {/* Back to Sign In */}
+          {/* Back to LOGIN */}
           <div className="text-center mt-6">
             <Link 
-              href="/signin" 
+              href="/login" 
               className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors duration-200"
             >
-              ← Back to Sign In
+              ← Back to LOGIN
             </Link>
           </div>
 
@@ -413,7 +394,7 @@ function ResetPasswordContent() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicPageBackground>
   )
 }
 

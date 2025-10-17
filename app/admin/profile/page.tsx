@@ -1013,7 +1013,7 @@ function ProfilePageContent() {
               onClick={handleDemoSignIn}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] mb-4"
             >
-              Sign In as Demo User
+              LOGIN as Demo User
             </button>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
