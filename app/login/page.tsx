@@ -1,19 +1,28 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { PublicPageBackgroundWithGradient } from '@/app/components/backgrounds/PublicPageBackground'
 
-export default function LoginPage() {
+function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const message = searchParams.get('message')
+    if (message === 'password-reset-success') {
+      setSuccessMessage('Password reset successful! You can now login with your new password.')
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,6 +111,13 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+              <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-3">
+                <p className="text-green-200 text-sm text-center">{successMessage}</p>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3">
@@ -155,5 +171,17 @@ export default function LoginPage() {
         </div>
       </div>
     </PublicPageBackgroundWithGradient>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }

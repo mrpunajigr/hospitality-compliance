@@ -240,3 +240,13 @@ This is the JiGR Hospitality Compliance platform - a multi-tenant SaaS system fo
 - Email templates contain real tester data, ready for sending
 - Dev authentication protects sensitive testing tools
 - Build optimization ensures unchanged pages don't rebuild unnecessarily
+
+## Git Deployment Protocol
+
+**CRITICAL**: Auto-trigger deployment when committing to GitHub
+
+When making commits, Claude must:
+1. Complete all code changes and testing
+2. Commit changes to the main branch
+3. Deployment will automatically trigger via GitHub Actions
+4. Monitor deployment status and address any issues

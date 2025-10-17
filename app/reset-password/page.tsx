@@ -115,11 +115,8 @@ function ResetPasswordContent() {
 
       // Verify tokens are valid by attempting to set session
       try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
+        // Import supabase client directly instead of accessing env vars client-side
+        const { supabase } = await import('@/lib/supabase')
 
         const { error: sessionError } = await supabase.auth.setSession({
           access_token: finalAccessToken,
@@ -215,8 +212,8 @@ function ResetPasswordContent() {
         throw new Error(errorData.error || 'Failed to reset password')
       }
 
-      // Redirect to signin with success message
-      router.push('/signin?message=password-reset-success')
+      // Redirect to login with success message
+      router.push('/login?message=password-reset-success')
     } catch (error) {
       console.error('Reset password error:', error)
       setError(error instanceof Error ? error.message : 'Failed to reset password. Please try again.')

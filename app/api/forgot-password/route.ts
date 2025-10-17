@@ -21,11 +21,11 @@ export async function POST(req: NextRequest) {
     console.log('🔄 Processing password reset request for:', email)
     
     // Get the base URL with fallback to production URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://jigr.app'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://app.jigr.app'
     const redirectUrl = `${baseUrl}/reset-password`
     
-    // Force production URL for now to fix the issue
-    const productionRedirectUrl = 'https://jigr.app/reset-password'
+    // Use the correct production URL
+    const productionRedirectUrl = 'https://app.jigr.app/reset-password'
     
     console.log('🔧 Environment check:', {
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,

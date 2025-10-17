@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { getCardStyle, getTextStyle } from '@/lib/design-system'
+import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -122,13 +123,13 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
 
-              {/* Back to Sign In */}
+              {/* Back to LOGIN */}
               <div className="text-center mt-6">
                 <Link 
-                  href="/" 
+                  href="/login" 
                   className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors duration-200"
                 >
-                  ← Back to Sign In
+                  ← Back to LOGIN
                 </Link>
               </div>
             </>
@@ -155,10 +156,10 @@ export default function ForgotPasswordPage() {
                 </p>
 
                 <Link 
-                  href="/" 
+                  href="/login" 
                   className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                 >
-                  Return to Sign In
+                  Return to LOGIN
                 </Link>
               </div>
             </>
