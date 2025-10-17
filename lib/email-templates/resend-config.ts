@@ -26,7 +26,7 @@ export interface EmailTemplate {
 const DEFAULT_CONFIG: EmailConfig = {
   apiKey: process.env.RESEND_API_KEY || '',
   fromEmail: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
-  fromName: process.env.EMAIL_FROM_NAME || 'JiGR Hospitality Compliance',
+  fromName: process.env.EMAIL_FROM_NAME || 'JiGR | Modular Hospitality Solution',
   replyTo: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app'
 }
 

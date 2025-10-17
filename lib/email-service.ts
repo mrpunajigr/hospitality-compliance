@@ -1,4 +1,4 @@
-// Email Service for JiGR Hospitality Compliance Platform
+// Email Service for JiGR | Modular Hospitality Solution Platform
 // Handles all email notifications including invitations, role changes, and system alerts
 
 import { UserRole } from './navigation-permissions'
@@ -42,7 +42,7 @@ const DEFAULT_CONFIG: EmailConfig = {
   provider: (process.env.EMAIL_PROVIDER as 'sendgrid' | 'demo') || 'demo',
   apiKey: process.env.EMAIL_API_KEY || process.env.SENDGRID_API_KEY,
   fromEmail: process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app',
-  fromName: process.env.EMAIL_FROM_NAME || 'JiGR Hospitality Compliance',
+  fromName: process.env.EMAIL_FROM_NAME || 'JiGR | Modular Hospitality Solution',
   replyTo: process.env.EMAIL_REPLY_TO || process.env.EMAIL_FROM_ADDRESS || 'dev@jigr.app'
 }
 
@@ -72,7 +72,7 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
   const roleDisplay = getRoleDisplayName(data.role)
   const roleDescription = getRoleDescription(data.role)
   
-  const subject = `You're invited to join ${data.organizationName} - JiGR Hospitality Compliance`
+  const subject = `You're invited to join ${data.organizationName} - JiGR | Modular Hospitality Solution`
   
   const htmlContent = `
 <!DOCTYPE html>
@@ -168,7 +168,7 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
         <div class="header">
             <div class="logo">JiGR</div>
             <h1>You've been invited!</h1>
-            <p>Join ${data.organizationName} on JiGR Hospitality Compliance</p>
+            <p>Join ${data.organizationName} on JiGR | Modular Hospitality Solution</p>
         </div>
         
         <div class="content">
@@ -221,13 +221,13 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
             
             <hr style="margin: 30px 0; border: none; height: 1px; background: #e2e8f0;">
             
-            <h3>About JiGR Hospitality Compliance</h3>
+            <h3>About JiGR | Modular Hospitality Solution</h3>
             <p>JiGR is New Zealand's leading digital compliance platform for hospitality businesses. We help restaurants, cafes, and food service operators maintain food safety standards, manage deliveries, and ensure regulatory compliance through intelligent document processing.</p>
         </div>
         
         <div class="footer">
             <p>If you have any questions, please contact ${data.inviterName} or reply to this email.</p>
-            <p>JiGR Hospitality Compliance Platform | <a href="https://jigr.co.nz">jigr.co.nz</a></p>
+            <p>JiGR | Modular Hospitality Solution Platform | <a href="https://jigr.co.nz">jigr.co.nz</a></p>
             <p><small>This email was sent to ${data.inviteeEmail}. If you weren't expecting this invitation, you can safely ignore this email.</small></p>
         </div>
     </div>
@@ -240,7 +240,7 @@ You're invited to join ${data.organizationName}!
 
 Hello ${data.inviteeName},
 
-${data.inviterName} has invited you to join ${data.organizationName}${(data.department || data.jobTitle) ? ' as:' : ` as a ${roleDisplay}`} on JiGR Hospitality Compliance.
+${data.inviterName} has invited you to join ${data.organizationName}${(data.department || data.jobTitle) ? ' as:' : ` as a ${roleDisplay}`} on JiGR | Modular Hospitality Solution.
 
 ${(data.department || data.jobTitle) ? `Position: ${data.jobTitle ? data.jobTitle : ''}${data.department && data.jobTitle ? ' • ' : ''}${data.department ? `${data.department} Department` : ''}
 
@@ -262,7 +262,7 @@ JiGR is New Zealand's leading digital compliance platform for hospitality busine
 If you have questions, contact ${data.inviterName} or reply to this email.
 
 ---
-JiGR Hospitality Compliance Platform
+JiGR | Modular Hospitality Solution Platform
 https://jigr.co.nz
   `
 
@@ -430,7 +430,7 @@ export class EmailService {
           
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
           <p style="font-size: 12px; color: #999;">
-            JiGR Hospitality Compliance System
+            JiGR | Modular Hospitality Solution System
           </p>
         </div>
       </body>
@@ -456,19 +456,19 @@ This invitation will expire on ${new Date(data.expiresAt).toLocaleDateString()}.
 If you have any questions, please contact ${data.inviterName}.
 
 ---
-JiGR Hospitality Compliance System
+JiGR | Modular Hospitality Solution System
     `.trim()
   }
 
   async sendWelcome(userEmail: string, userName: string, organizationName: string): Promise<EmailSendResult> {
     const template: EmailTemplate = {
-      subject: `Welcome to ${organizationName} - JiGR Hospitality Compliance`,
+      subject: `Welcome to ${organizationName} - JiGR | Modular Hospitality Solution`,
       htmlContent: `
         <h1>Welcome ${userName}!</h1>
-        <p>You've successfully joined ${organizationName} on JiGR Hospitality Compliance.</p>
+        <p>You've successfully joined ${organizationName} on JiGR | Modular Hospitality Solution.</p>
         <p>You can now access your dashboard and start managing compliance documents.</p>
       `,
-      textContent: `Welcome ${userName}! You've successfully joined ${organizationName} on JiGR Hospitality Compliance.`
+      textContent: `Welcome ${userName}! You've successfully joined ${organizationName} on JiGR | Modular Hospitality Solution.`
     }
     
     return this.service.send(userEmail, template)
@@ -478,7 +478,7 @@ JiGR Hospitality Compliance System
     const roleDisplay = getRoleDisplayName(newRole)
     
     const template: EmailTemplate = {
-      subject: `Your role has been updated - JiGR Hospitality Compliance`,
+      subject: `Your role has been updated - JiGR | Modular Hospitality Solution`,
       htmlContent: `
         <h1>Role Updated</h1>
         <p>Hi ${userName},</p>

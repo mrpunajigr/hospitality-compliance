@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
           {/* Version */}
           <div className="text-center mt-8 pt-4 border-t border-white/10">
             <p className="text-xs font-medium text-white/60">
-              JiGR Hospitality Compliance
+              JiGR | Modular Hospitality Solution
             </p>
           </div>
         </div>
