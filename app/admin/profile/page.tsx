@@ -12,6 +12,7 @@ import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { getModuleConfig } from '@/lib/module-config'
 
 function ProfilePageContent() {
+  const moduleConfig = getModuleConfig('admin')
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
   const [loading, setLoading] = useState(true)
@@ -534,19 +535,14 @@ function ProfilePageContent() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1E3A8A' }}>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
         {/* Module Header */}
-        <ModuleHeader 
-          module={{
-            key: 'profile',
-            title: 'Profile Settings',
-            description: 'Manage your account settings',
-            iconUrl: '👤',
-            pages: [],
-            isActive: true
-          }}
-          currentPage="settings"
-        />
+        {moduleConfig && (
+          <ModuleHeader 
+            module={moduleConfig}
+            currentPage="profile"
+          />
+        )}
 
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           
