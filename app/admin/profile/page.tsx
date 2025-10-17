@@ -537,7 +537,15 @@ function ProfilePageContent() {
     <div className="min-h-screen" style={{ backgroundColor: '#1E3A8A' }}>
         {/* Module Header */}
         <ModuleHeader 
-          userClient={userClient}
+          module={{
+            key: 'profile',
+            title: 'Profile Settings',
+            description: 'Manage your account settings',
+            iconUrl: '👤',
+            pages: [],
+            isActive: true
+          }}
+          currentPage="settings"
         />
 
         <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -574,10 +582,9 @@ function ProfilePageContent() {
                       currentImageUrl={avatarUrl}
                       onUploadSuccess={handleAvatarUploadSuccess}
                       onUploadError={handleAvatarUploadError}
-                      className="w-32 h-32 rounded-full"
-                      bucket="avatars"
-                      accept="image/*"
-                      maxSize={5 * 1024 * 1024} // 5MB
+                      uploadEndpoint="/api/upload-avatar"
+                      uploadData={{ userId: user?.id || '' }}
+                      shape="circle"
                     />
                     <div className="text-center mt-4">
                       <h3 className="font-medium text-gray-900">Profile Picture</h3>
