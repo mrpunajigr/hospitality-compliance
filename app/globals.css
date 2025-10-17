@@ -371,3 +371,55 @@ textarea {
           drop-shadow(0 0 20px rgba(156, 39, 176, 0.2))
           drop-shadow(0 0 30px rgba(233, 30, 99, 0.1));
 }
+
+/* ========================================
+   iOS 12 BACKGROUND IMAGE OPTIMIZATION
+   ======================================== */
+
+/* Force hardware acceleration for background images on iOS 12 */
+@supports (-webkit-overflow-scrolling: touch) {
+  /* Target any absolute positioned div with background image */
+  .absolute[style*="backgroundImage"] {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Prevent flickering on iOS */
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+  
+  /* Optimize background rendering */
+  div[style*="backgroundSize"] {
+    -webkit-background-size: cover;
+    background-size: cover;
+  }
+}
+
+/* iOS 12 specific background image fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* Safari-specific optimizations */
+  .min-h-screen > div[style*="backgroundImage"] {
+    /* Force repaint on iOS */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Prevent white flash when loading backgrounds on iOS 12 */
+.relative.overflow-hidden {
+  background-color: #1a1a1a; /* Dark fallback while image loads */
+}
+
+/* Ensure z-index stacking works correctly on iOS 12 */
+.relative.z-10 {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* iOS 12 gradient rendering fix */
+div[style*="linear-gradient"] {
+  /* Ensure gradients render properly */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
