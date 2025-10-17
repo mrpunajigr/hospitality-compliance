@@ -14,6 +14,8 @@ function LoginContent() {
   })
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [welcomeMessage, setWelcomeMessage] = useState('')
+  const [lastLoginInfo, setLastLoginInfo] = useState<{email: string, name?: string, lastLogin?: string} | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -21,6 +23,34 @@ function LoginContent() {
     const message = searchParams.get('message')
     if (message === 'password-reset-success') {
       setSuccessMessage('Password reset successful! You can now login with your new password.')
+    }
+
+    // Load personalization data from localStorage
+    const lastEmail = localStorage.getItem('jigr_last_email')
+    const lastLoginData = localStorage.getItem('jigr_last_login_info')
+    
+    if (lastEmail) {
+      setFormData(prev => ({ ...prev, email: lastEmail }))
+    }
+
+    if (lastLoginData) {
+      try {
+        const loginInfo = JSON.parse(lastLoginData)
+        setLastLoginInfo(loginInfo)
+        
+        // Generate time-based greeting
+        const hour = new Date().getHours()
+        let greeting = 'Good evening'
+        if (hour < 12) greeting = 'Good morning'
+        else if (hour < 17) greeting = 'Good afternoon'
+        
+        const name = loginInfo.name || loginInfo.email.split('@')[0]
+        const lastLoginDate = loginInfo.lastLogin ? new Date(loginInfo.lastLogin).toLocaleDateString('en-NZ') : 'recently'
+        
+        setWelcomeMessage(`${greeting}, ${name}! Last login: ${lastLoginDate}`)
+      } catch (error) {
+        console.warn('Failed to parse last login info:', error)
+      }
     }
   }, [searchParams])
 
@@ -42,6 +72,21 @@ function LoginContent() {
       }
 
       if (data.user) {
+        // Save personalization data for next visit
+        localStorage.setItem('jigr_last_email', formData.email)
+        
+        // Get user display name from metadata or email
+        const userName = data.user.user_metadata?.full_name || 
+                        data.user.user_metadata?.name || 
+                        formData.email.split('@')[0]
+        
+        const loginInfo = {
+          email: formData.email,
+          name: userName,
+          lastLogin: new Date().toISOString()
+        }
+        localStorage.setItem('jigr_last_login_info', JSON.stringify(loginInfo))
+        
         router.push('/admin/profile')
       }
     } catch (err) {
@@ -75,23 +120,56 @@ function LoginContent() {
         {/* Glass morphism container */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl max-w-md w-full mx-auto">
           
+          {/* Welcome Back Message */}
+          {welcomeMessage && (
+            <div className="mb-6 text-center">
+              <div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4">
+                <p className="text-blue-200 text-sm font-medium">{welcomeMessage}</p>
+              </div>
+            </div>
+          )}
+          
           {/* LOGIN Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-white text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-normal"
-                placeholder="Enter your email"
-              />
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="email" className="block text-white text-sm font-medium">
+                  Email
+                </label>
+                {lastLoginInfo && formData.email && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, email: '' }))
+                      localStorage.removeItem('jigr_last_email')
+                      localStorage.removeItem('jigr_last_login_info')
+                      setWelcomeMessage('')
+                      setLastLoginInfo(null)
+                    }}
+                    className="text-xs text-blue-300 hover:text-blue-200 underline transition-colors"
+                  >
+                    Use different email
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-4 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg font-normal"
+                  placeholder="Enter your email"
+                />
+                {lastLoginInfo && formData.email && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <span className="text-green-600 text-sm">✓</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Password Field */}
