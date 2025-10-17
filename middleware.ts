@@ -13,8 +13,16 @@ export function middleware(request: NextRequest) {
       type: url.searchParams.get('type'),
       allParams: Object.fromEntries(url.searchParams.entries())
     })
-    url.pathname = '/reset-password'
-    const redirectUrl = url.toString()
+    
+    // Build new URL with preserved search parameters
+    const resetUrl = new URL('/reset-password', url.origin)
+    
+    // Copy all search parameters to the new URL
+    url.searchParams.forEach((value, key) => {
+      resetUrl.searchParams.set(key, value)
+    })
+    
+    const redirectUrl = resetUrl.toString()
     console.log('🔄 Middleware: Redirecting to:', redirectUrl)
     return NextResponse.redirect(redirectUrl)
   }
