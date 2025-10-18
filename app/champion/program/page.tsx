@@ -68,40 +68,6 @@ export default function ChampionProgramPage() {
           </p>
         </div>
 
-        {/* Champion Status Card */}
-        {userClient?.role === 'CHAMPION' && (
-          <div 
-            className="mb-8 p-6 rounded-xl border"
-            style={{
-              background: 'linear-gradient(135deg, rgba(252, 211, 77, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%)',
-              borderColor: 'rgba(252, 211, 77, 0.3)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(252, 211, 77, 0.3)'
-            }}
-          >
-            <div className="flex items-center mb-4">
-              <span className="text-2xl mr-3">🎯</span>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Welcome, Champion {user?.user_metadata?.full_name || 'User'}!
-                </h3>
-                <p className="text-gray-600">
-                  You're currently evaluating JiGR for <strong>{userClient.name}</strong>
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 rounded-lg p-4 border border-white/40">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Evaluation Progress</span>
-                <span className="text-sm text-gray-500">30 days remaining</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full" style={{width: '35%'}}></div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* What is the Champion Program */}
         <section className="mb-12">

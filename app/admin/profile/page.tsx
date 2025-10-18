@@ -898,10 +898,6 @@ function ProfilePageContent() {
 
           </div>
           
-          {/* Version */}
-          <div className="text-center mt-8">
-            <span className={`${getTextStyle('version')} text-white/60`}>{getVersionDisplay('short')}</span>
-          </div>
 
         </div>
 

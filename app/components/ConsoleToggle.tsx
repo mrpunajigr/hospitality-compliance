@@ -13,9 +13,15 @@ export default function ConsoleToggle() {
     const isTesting = window.location.search.includes('testing=true')
     setIsVisible(isDev || isTesting)
     
-    // Check current mode
+    // Default to quiet mode for better testing experience
     const currentMode = testUtils.getCurrentMode()
-    setIsQuietMode(currentMode === 'quiet')
+    if (currentMode === 'verbose') {
+      // Auto-enable quiet mode on first load
+      testUtils.showOnlyErrors()
+      setIsQuietMode(true)
+    } else {
+      setIsQuietMode(currentMode === 'quiet')
+    }
   }, [])
 
   const toggleQuietMode = () => {
