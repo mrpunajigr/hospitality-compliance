@@ -9,10 +9,10 @@ import ConfigCard, { PermissionGate, useConfigConfirmation, SecurityBadge } from
 interface Department {
   id: string
   name: string
-  description: string
+  description: string | null
   color: string
   icon: string
-  security_level: 'public' | 'internal' | 'restricted' | 'confidential'
+  security_level: 'low' | 'medium' | 'high' | 'critical'
   sort_order: number
   is_active: boolean
   is_default: boolean
@@ -25,15 +25,15 @@ interface DepartmentFormData {
   description: string
   color: string
   icon: string
-  security_level: 'public' | 'internal' | 'restricted' | 'confidential'
+  security_level: 'low' | 'medium' | 'high' | 'critical'
   sort_order: number
 }
 
 const SECURITY_LEVELS = [
-  { value: 'public', label: 'Public', description: 'Visible to all users' },
-  { value: 'internal', label: 'Internal', description: 'Staff and above' },
-  { value: 'restricted', label: 'Restricted', description: 'Supervisor and above' },
-  { value: 'confidential', label: 'Confidential', description: 'Manager and above' }
+  { value: 'low', label: 'Low', description: 'Visible to all users' },
+  { value: 'medium', label: 'Medium', description: 'Staff and above' },
+  { value: 'high', label: 'High', description: 'Supervisor and above' },
+  { value: 'critical', label: 'Critical', description: 'Manager and above' }
 ]
 
 const DEFAULT_ICONS = ['🏢', '🍳', '🍽️', '🍺', '💼', '🧹', '🔧', '📋', '🎯', '⚙️']
@@ -56,7 +56,7 @@ export default function DepartmentConfigCard() {
     description: '',
     color: '#3B82F6',
     icon: '🏢',
-    security_level: 'internal',
+    security_level: 'medium',
     sort_order: 0
   })
 
@@ -93,7 +93,7 @@ export default function DepartmentConfigCard() {
       description: '',
       color: '#3B82F6',
       icon: '🏢',
-      security_level: 'internal',
+      security_level: 'medium',
       sort_order: departments.length
     })
     setEditingDept(null)
@@ -197,7 +197,8 @@ export default function DepartmentConfigCard() {
   const securityLevel = {
     level: 'medium' as const,
     label: 'Elevated',
-    description: 'Changes affect departmental organization and user access'
+    description: 'Changes affect departmental organization and user access',
+    color: 'text-yellow-400'
   }
 
   return (
@@ -209,7 +210,7 @@ export default function DepartmentConfigCard() {
         securityLevel={securityLevel}
         userPermissions={userPermissions}
         isLoading={isLoading}
-        error={error}
+        error={error || undefined}
         onRefresh={loadDepartments}
       >
         {/* Departments List */}
@@ -286,7 +287,7 @@ export default function DepartmentConfigCard() {
         </div>
 
         {/* Add/Edit Form */}
-        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && editingDept)}>
+        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && !!editingDept)}>
           {!showAddForm ? (
             <button
               onClick={() => setShowAddForm(true)}

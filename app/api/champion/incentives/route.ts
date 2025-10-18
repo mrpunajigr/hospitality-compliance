@@ -199,7 +199,7 @@ async function getChampionAchievements(championId: string, clientId: string) {
     const progress = await getChampionProgress(championId, clientId)
 
     // Configuration achievements
-    if (progress.departmentsConfigured >= 3) {
+    if ((progress.departmentsConfigured ?? 0) >= 3) {
       achievements.push({
         id: 'departments_configured',
         title: '🏢 Department Architect',
@@ -209,7 +209,7 @@ async function getChampionAchievements(championId: string, clientId: string) {
       })
     }
 
-    if (progress.jobTitlesConfigured >= 4) {
+    if ((progress.jobTitlesConfigured ?? 0) >= 4) {
       achievements.push({
         id: 'job_titles_configured',
         title: '👥 Team Builder',

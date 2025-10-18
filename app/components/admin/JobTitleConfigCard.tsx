@@ -15,7 +15,7 @@ interface Department {
 interface JobTitle {
   id: string
   title: string
-  description: string
+  description: string | null
   default_role: UserRole
   hierarchy_level: number
   security_clearance: 'basic' | 'standard' | 'elevated' | 'admin'
@@ -259,7 +259,8 @@ export default function JobTitleConfigCard() {
   const securityLevel = {
     level: 'high' as const,
     label: 'Restricted',
-    description: 'Changes affect user roles and system permissions'
+    description: 'Changes affect user roles and system permissions',
+    color: 'text-orange-400'
   }
 
   return (
@@ -271,7 +272,7 @@ export default function JobTitleConfigCard() {
         securityLevel={securityLevel}
         userPermissions={userPermissions}
         isLoading={isLoading}
-        error={error}
+        error={error || undefined}
         onRefresh={loadData}
       >
         {/* Job Titles List */}
@@ -373,7 +374,7 @@ export default function JobTitleConfigCard() {
         </div>
 
         {/* Add/Edit Form */}
-        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && editingTitle)}>
+        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && !!editingTitle)}>
           {!showAddForm ? (
             <button
               onClick={() => setShowAddForm(true)}
