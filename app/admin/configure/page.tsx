@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
-import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
+import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getButtonStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 
@@ -166,13 +166,13 @@ export default function AdminConfigurePage() {
                     <input
                       type="number"
                       defaultValue="-18"
-                      className={getFormFieldStyle()}
+                      className={getFormFieldStyle('default')}
                       placeholder="Min °C"
                     />
                     <input
                       type="number"
                       defaultValue="4"
-                      className={getFormFieldStyle()}
+                      className={getFormFieldStyle('default')}
                       placeholder="Max °C"
                     />
                   </div>
@@ -183,7 +183,7 @@ export default function AdminConfigurePage() {
                   <input
                     type="number"
                     defaultValue="2"
-                    className={getFormFieldStyle()}
+                    className={getFormFieldStyle('default')}
                   />
                 </div>
               </div>
@@ -195,15 +195,26 @@ export default function AdminConfigurePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className={getTextStyle('body')}>Email Alerts</span>
-                  <input type="checkbox" defaultChecked className="w-4 h-4" />
+                  <input 
+                    type="checkbox" 
+                    defaultChecked 
+                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className={getTextStyle('body')}>SMS Notifications</span>
-                  <input type="checkbox" className="w-4 h-4" />
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className={getTextStyle('body')}>Daily Reports</span>
-                  <input type="checkbox" defaultChecked className="w-4 h-4" />
+                  <input 
+                    type="checkbox" 
+                    defaultChecked 
+                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
+                  />
                 </div>
               </div>
             </div>
@@ -232,7 +243,7 @@ export default function AdminConfigurePage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
+            className={`${getButtonStyle('primary')} py-3 px-8 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] ${
               saving ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
