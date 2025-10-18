@@ -9,6 +9,8 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getButtonStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import DepartmentConfigCard from '@/app/components/admin/DepartmentConfigCard'
+import JobTitleConfigCard from '@/app/components/admin/JobTitleConfigCard'
 
 interface BackgroundAsset {
   id: string
@@ -150,9 +152,20 @@ export default function AdminConfigurePage() {
           </div>
         </div>
 
-        {/* Business Configuration */}
+        {/* Business Structure Configuration */}
+        <div className="space-y-6">
+          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Structure</h2>
+          
+          {/* Departments Configuration */}
+          <DepartmentConfigCard />
+          
+          {/* Job Titles Configuration */}
+          <JobTitleConfigCard />
+        </div>
+
+        {/* Operational Configuration */}
         <div className={getCardStyle('primary')}>
-          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Configuration</h2>
+          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Operational Settings</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
             

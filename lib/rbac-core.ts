@@ -13,7 +13,7 @@ import { supabase } from './supabase'
 // TYPES AND INTERFACES
 // =====================================================
 
-export type UserRole = 'STAFF' | 'SUPERVISOR' | 'MANAGER' | 'OWNER'
+export type UserRole = 'STAFF' | 'SUPERVISOR' | 'MANAGER' | 'OWNER' | 'CHAMPION'
 
 export interface UserPermissions {
   // Document Management
@@ -50,6 +50,16 @@ export interface UserPermissions {
   exportData: boolean
   deleteOrganization: boolean
   viewAuditLogs: boolean
+  
+  // Champion/Evaluation Specific
+  configureEvaluationSettings?: boolean
+  inviteOwnerForApproval?: boolean
+  createTemporaryTeam?: boolean
+  exportEvaluationReport?: boolean
+  extendEvaluationPeriod?: boolean
+  setTemporarySecurityLevels?: boolean
+  viewAllFeatures?: boolean
+  finalizeSettings?: boolean
   
   // Role level for hierarchy checks
   roleLevel: number
@@ -254,7 +264,66 @@ const ROLE_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     deleteOrganization: true,
     viewAuditLogs: true,
     
+    // Champion/Evaluation (N/A for owner)
+    configureEvaluationSettings: false,
+    inviteOwnerForApproval: false,
+    createTemporaryTeam: false,
+    exportEvaluationReport: true,
+    extendEvaluationPeriod: false,
+    setTemporarySecurityLevels: false,
+    viewAllFeatures: true,
+    finalizeSettings: true,
+    
     roleLevel: 4
+  },
+  
+  CHAMPION: {
+    // Document Management (Manager-level)
+    uploadDocuments: true,
+    viewAllDocuments: true,
+    viewOwnDocuments: true,
+    deleteDocuments: true,
+    
+    // User Management (Enhanced for evaluation)
+    inviteUsers: true,
+    removeUsers: false, // Cannot remove, only invite for demo
+    changeUserRoles: false, // Cannot change roles permanently
+    viewUserList: true,
+    
+    // Company Settings (Evaluation mode)
+    editBusinessDetails: false, // Can configure but not finalize
+    editComplianceRules: true,
+    editBranding: false,
+    viewSettings: true,
+    
+    // Billing & Subscriptions (Restricted)
+    manageBilling: false,
+    viewUsage: true, // Can see usage for ROI demo
+    changeSubscription: false,
+    downloadInvoices: false,
+    
+    // Reports & Analytics (Full access for demo)
+    viewComplianceReports: true,
+    exportReports: true,
+    viewAnalytics: true,
+    viewBasicStats: true,
+    
+    // System Administration (Limited)
+    exportData: true, // For demo purposes
+    deleteOrganization: false,
+    viewAuditLogs: true, // For demo purposes
+    
+    // Champion/Evaluation Specific
+    configureEvaluationSettings: true,
+    inviteOwnerForApproval: true,
+    createTemporaryTeam: true,
+    exportEvaluationReport: true,
+    extendEvaluationPeriod: true,
+    setTemporarySecurityLevels: true,
+    viewAllFeatures: true,
+    finalizeSettings: false, // Must hand off to owner
+    
+    roleLevel: 5 // Higher than OWNER for evaluation purposes
   }
 }
 
@@ -608,7 +677,8 @@ export function getRoleDisplayName(role: UserRole): string {
     STAFF: 'Staff',
     SUPERVISOR: 'Supervisor', 
     MANAGER: 'Manager',
-    OWNER: 'Owner'
+    OWNER: 'Owner',
+    CHAMPION: 'Champion (Evaluation)'
   }
   return roleNames[role] || role
 }
@@ -621,7 +691,8 @@ export function getRoleDescription(role: UserRole): string {
     STAFF: 'Upload documents and view own uploads',
     SUPERVISOR: 'Shift management and basic reporting',
     MANAGER: 'Full operations and team management',
-    OWNER: 'Complete system access and billing'
+    OWNER: 'Complete system access and billing',
+    CHAMPION: 'Evaluation setup with owner invitation privileges'
   }
   return descriptions[role] || ''
 }
@@ -632,6 +703,10 @@ export function getRoleDescription(role: UserRole): string {
 export function getAssignableRoles(userRole: UserRole): UserRole[] {
   if (userRole === 'OWNER') {
     return ['STAFF', 'SUPERVISOR', 'MANAGER', 'OWNER']
+  }
+  
+  if (userRole === 'CHAMPION') {
+    return ['STAFF', 'SUPERVISOR', 'MANAGER'] // Can assign for evaluation
   }
   
   if (userRole === 'MANAGER') {
