@@ -50,8 +50,8 @@ export async function GET(request: NextRequest) {
 
     // Filter sensitive information based on user role
     const filteredDepartments = departments?.map(dept => {
-      // Only MANAGER/OWNER can see security levels
-      if (!['MANAGER', 'OWNER'].includes(userClient.role)) {
+      // Only MANAGER/OWNER/CHAMPION can see security levels
+      if (!['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role)) {
         const { security_level, ...publicDept } = dept
         return publicDept
       }
@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
       success: true,
       departments: filteredDepartments || [],
       userPermissions: {
-        canCreate: ['MANAGER', 'OWNER'].includes(userClient.role),
-        canEdit: ['MANAGER', 'OWNER'].includes(userClient.role),
-        canDelete: userClient.role === 'OWNER',
-        canViewSecurity: ['MANAGER', 'OWNER'].includes(userClient.role)
+        canCreate: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
+        canEdit: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
+        canDelete: ['OWNER', 'CHAMPION'].includes(userClient.role),
+        canViewSecurity: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role)
       }
     })
 
@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not associated with a client' }, { status: 403 })
     }
 
-    // Check permissions - only MANAGER/OWNER can create departments
-    if (!['MANAGER', 'OWNER'].includes(userClient.role)) {
+    // Check permissions - only MANAGER/OWNER/CHAMPION can create departments
+    if (!['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
     }
 

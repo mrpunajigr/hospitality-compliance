@@ -63,10 +63,10 @@ export async function GET(request: NextRequest) {
       success: true,
       jobTitles: filteredJobTitles || [],
       userPermissions: {
-        canCreate: ['MANAGER', 'OWNER'].includes(userClient.role),
-        canEdit: ['MANAGER', 'OWNER'].includes(userClient.role),
-        canDelete: userClient.role === 'OWNER',
-        canViewSecurity: ['MANAGER', 'OWNER'].includes(userClient.role),
+        canCreate: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
+        canEdit: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
+        canDelete: ['OWNER', 'CHAMPION'].includes(userClient.role),
+        canViewSecurity: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
         canEditHigherRoles: userClient.role === 'OWNER'
       }
     })
@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not associated with a client' }, { status: 403 })
     }
 
-    // Check permissions - only MANAGER/OWNER can create job titles
-    if (!['MANAGER', 'OWNER'].includes(userClient.role)) {
+    // Check permissions - only MANAGER/OWNER/CHAMPION can create job titles
+    if (!['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
     }
 
