@@ -10,6 +10,7 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { getModuleConfig } from '@/lib/module-config'
+import ChampionWelcomeOverlay from '@/app/components/ChampionWelcomeOverlay'
 
 function ProfilePageContent() {
   const moduleConfig = getModuleConfig('admin')
@@ -35,6 +36,7 @@ function ProfilePageContent() {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [showChampionWelcome, setShowChampionWelcome] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const isOnboarding = searchParams.get('onboarding') === 'true'
@@ -166,6 +168,15 @@ function ProfilePageContent() {
     }
   }
 
+  // Champion Welcome Overlay Handler
+  const handleChampionWelcomeDismiss = () => {
+    if (user) {
+      localStorage.setItem(`championWelcome_${user.id}`, 'shown')
+      console.log('🏆 CHAMPION: Welcome overlay dismissed and marked as shown')
+    }
+    setShowChampionWelcome(false)
+  }
+
   useEffect(() => {
     async function loadUserProfile() {
       setLoading(true)
@@ -224,6 +235,15 @@ function ProfilePageContent() {
           })
           
           setUserClient(clientInfo)
+          
+          // Champion Welcome Overlay Logic
+          if (clientInfo.role === 'CHAMPION') {
+            const championWelcomeShown = localStorage.getItem(`championWelcome_${user.id}`)
+            if (!championWelcomeShown) {
+              console.log('🏆 CHAMPION: First visit detected - showing welcome overlay')
+              setShowChampionWelcome(true)
+            }
+          }
           
           // Check if user has permission to access profile management
           // Allow: Administrators, Owners, or the profile owner themselves
@@ -923,6 +943,19 @@ function ProfilePageContent() {
               </div>
             </div>
           </div>
+        )}
+        
+        {/* Champion Welcome Overlay */}
+        {showChampionWelcome && userClient && (
+          <ChampionWelcomeOverlay
+            userClient={{
+              name: userClient.name,
+              companyName: userClient.name, // Company name is stored in the 'name' field
+              fullName: user?.user_metadata?.full_name || userClient.name
+            }}
+            isVisible={showChampionWelcome}
+            onDismiss={handleChampionWelcomeDismiss}
+          />
         )}
         
     </div>

@@ -14,6 +14,7 @@ interface SidebarNavItem {
   icon: string
   section: 'quickActions' | 'modules' | 'settings'
   context?: 'admin' | 'console' | 'both' | 'upload' | 'operations'
+  roles?: string[] // Optional: restrict to specific user roles
   subItems?: SidebarSubItem[]
 }
 
@@ -61,6 +62,7 @@ const sidebarNavigation: SidebarNavItem[] = [
   // Settings
   { name: 'Settings', href: '/admin/company-settings', icon: '/icons/JiGRadmin.png', section: 'settings', context: 'both' },
   { name: 'Profile', href: '/admin/profile', icon: '/icons/JiGRadmin.png', section: 'settings', context: 'both' },
+  { name: 'Champion Program', href: '/champion/program', icon: '🏆', section: 'settings', context: 'both', roles: ['CHAMPION'] },
 ]
 
 export default function AppleSidebar({ 
@@ -144,20 +146,25 @@ export default function AppleSidebar({
     }
   }, [])
 
-  // Filter items by section and context
+  // Filter items by section, context, and user role
+  const filterByRoleAndContext = (item: SidebarNavItem) => {
+    // Check context
+    const contextMatch = item.context === activeSection || item.context === 'both'
+    // Check role (if roles are specified, user must have one of them)
+    const roleMatch = !item.roles || (userClient?.role && item.roles.includes(userClient.role))
+    return contextMatch && roleMatch
+  }
+
   const quickActionItems = sidebarNavigation.filter(item => 
-    item.section === 'quickActions' && 
-    (item.context === activeSection || item.context === 'both')
+    item.section === 'quickActions' && filterByRoleAndContext(item)
   )
   
   const moduleItems = sidebarNavigation.filter(item => 
-    item.section === 'modules' && 
-    (item.context === activeSection || item.context === 'both')
+    item.section === 'modules' && filterByRoleAndContext(item)
   )
   
   const settingsItems = sidebarNavigation.filter(item => 
-    item.section === 'settings' && 
-    (item.context === activeSection || item.context === 'both')
+    item.section === 'settings' && filterByRoleAndContext(item)
   )
 
   return (
@@ -387,11 +394,12 @@ export default function AppleSidebar({
                 
                 {/* User Avatar - Personal profile picture */}
                 <div className="flex justify-center items-center py-2">
-                  <div 
-                    className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
-                    onClick={() => window.location.href = '/admin/profile'}
-                    title="User Profile - Edit your profile information"
-                  >
+                  <div className="relative">
+                    <div 
+                      className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
+                      onClick={() => window.location.href = '/admin/profile'}
+                      title={`User Profile - Edit your profile information${userClient?.role === 'CHAMPION' ? ' | Champion User' : ''}`}
+                    >
                     {userAvatar ? (
                       <img 
                         src={userAvatar} 
@@ -404,6 +412,14 @@ export default function AppleSidebar({
                       <span className="text-white font-bold text-lg">
                         {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                       </span>
+                    )}
+                    </div>
+                    
+                    {/* Champion Badge */}
+                    {userClient?.role === 'CHAMPION' && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-2 border-white/30 shadow-lg">
+                        <span className="text-xs">🏆</span>
+                      </div>
                     )}
                   </div>
                 </div>

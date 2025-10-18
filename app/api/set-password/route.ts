@@ -128,30 +128,29 @@ export async function POST(req: NextRequest) {
       } else {
         console.log('✅ Profile updated successfully')
         
-        // Champion Role Detection Logic
-        if (profileData.jobTitle) {
-          const championRoles = [
-            'head chef', 'chef', 'operations manager', 'general manager', 
-            'assistant manager', 'shift supervisor', 'kitchen manager',
-            'front of house manager', 'service manager', 'restaurant manager'
-          ]
+        // Champion Role Detection Logic - First User Registration
+        // Find the user's client record
+        const { data: clientUser, error: clientError } = await supabaseAdmin
+          .from('client_users')
+          .select('client_id, role')
+          .eq('user_id', user.id)
+          .single()
+        
+        if (clientUser) {
+          // Check if this is the first user for this company
+          const { data: allClientUsers, error: countError } = await supabaseAdmin
+            .from('client_users')
+            .select('id, created_at')
+            .eq('client_id', clientUser.client_id)
+            .order('created_at', { ascending: true })
           
-          const isChampionRole = championRoles.some(role => 
-            profileData.jobTitle.toLowerCase().includes(role)
-          )
-          
-          if (isChampionRole) {
-            console.log(`🏆 Champion role detected: ${profileData.jobTitle}`)
+          if (!countError && allClientUsers && allClientUsers.length > 0) {
+            const isFirstUser = allClientUsers[0].id === user.id || allClientUsers.length === 1
             
-            // Find the user's client record to update role
-            const { data: clientUser, error: clientError } = await supabaseAdmin
-              .from('client_users')
-              .select('client_id, role')
-              .eq('user_id', user.id)
-              .single()
-            
-            if (clientUser && clientUser.role === 'OWNER') {
-              // Update role to CHAMPION
+            if (isFirstUser && clientUser.role === 'OWNER') {
+              console.log(`🏆 Champion detected: First user registration for company`)
+              
+              // Update role to CHAMPION (first users are Champions, not owners initially)
               const { error: roleUpdateError } = await supabaseAdmin
                 .from('client_users')
                 .update({ 
@@ -182,6 +181,8 @@ export async function POST(req: NextRequest) {
                   console.log('✅ Client set to evaluation mode successfully')
                 }
               }
+            } else if (!isFirstUser) {
+              console.log(`ℹ️ Not first user - regular role assignment`)
             }
           }
         }
