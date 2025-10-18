@@ -44,13 +44,22 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* CafeWindow Background - EXACT SAME as auth module */}
+      {/* CafeWindow Background - iOS 12 Compatible */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/CafeWindow.jpg')`,
-          filter: 'brightness(0.4)'
-        }}
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          // iOS 12 vendor prefix
+          WebkitBackgroundSize: 'cover',
+          // Use opacity instead of filter brightness
+          opacity: 0.4,
+          // Force GPU acceleration
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)'
+        } as React.CSSProperties}
       />
       
       {/* Overlay for better text readability */}

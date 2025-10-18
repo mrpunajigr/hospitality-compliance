@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { PublicPageBackgroundWithGradient } from '@/app/components/backgrounds/PublicPageBackground'
+import { detectDevice } from '@/lib/device-detection'
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
@@ -86,6 +87,33 @@ function LoginContent() {
           lastLogin: new Date().toISOString()
         }
         localStorage.setItem('jigr_last_login_info', JSON.stringify(loginInfo))
+        
+        // Capture device information for analytics
+        try {
+          const deviceInfo = detectDevice()
+          
+          // Send device info to backend (async, don't wait)
+          fetch('/api/user/device-info', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: data.user.id,
+              deviceInfo
+            })
+          }).then(response => {
+            if (response.ok) {
+              console.log('✅ Device info captured for user analytics')
+            }
+          }).catch(error => {
+            console.warn('Device info capture failed:', error)
+            // Don't block login for device detection failures
+          })
+        } catch (error) {
+          console.warn('Device detection failed:', error)
+          // Don't block login for device detection failures
+        }
         
         router.push('/admin/profile')
       }

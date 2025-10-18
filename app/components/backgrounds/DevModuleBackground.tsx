@@ -26,13 +26,21 @@ export default function DevModuleBackground({
     <div className={`min-h-screen relative overflow-hidden ${className}`}>
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('/${backgroundImage}')`,
+          backgroundSize: 'cover',
           backgroundPosition: '50% 50%',
-          backgroundAttachment: 'fixed',
-          filter: `brightness(${brightness})`
-        }}
+          backgroundRepeat: 'no-repeat',
+          // iOS 12 vendor prefixes
+          WebkitBackgroundSize: 'cover',
+          // Use opacity instead of filter for iOS 12 compatibility
+          opacity: brightness,
+          // Force GPU acceleration for better iOS performance
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          // DO NOT USE: backgroundAttachment: 'fixed' - NOT SUPPORTED ON iOS 12
+        } as React.CSSProperties}
       />
       
       {/* Gradient Overlay */}
