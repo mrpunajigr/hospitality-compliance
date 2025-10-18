@@ -8,6 +8,7 @@ import { getVersionDisplay } from '@/lib/version'
 import AppleSidebar from '@/app/components/AppleSidebar'
 import { PlatformProvider } from '@/lib/platform-context'
 import AdminModuleBackground from '@/app/components/backgrounds/AdminModuleBackground'
+import ConsoleToggle from '@/app/components/ConsoleToggle'
 
 export default function AdminLayout({
   children,
@@ -122,6 +123,9 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
+      
+      {/* Console Toggle for Testing */}
+      <ConsoleToggle />
       </AdminModuleBackground>
     </PlatformProvider>
   )
