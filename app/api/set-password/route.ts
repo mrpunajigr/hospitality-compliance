@@ -127,6 +127,64 @@ export async function POST(req: NextRequest) {
         )
       } else {
         console.log('✅ Profile updated successfully')
+        
+        // Champion Role Detection Logic
+        if (profileData.jobTitle) {
+          const championRoles = [
+            'head chef', 'chef', 'operations manager', 'general manager', 
+            'assistant manager', 'shift supervisor', 'kitchen manager',
+            'front of house manager', 'service manager', 'restaurant manager'
+          ]
+          
+          const isChampionRole = championRoles.some(role => 
+            profileData.jobTitle.toLowerCase().includes(role)
+          )
+          
+          if (isChampionRole) {
+            console.log(`🏆 Champion role detected: ${profileData.jobTitle}`)
+            
+            // Find the user's client record to update role
+            const { data: clientUser, error: clientError } = await supabaseAdmin
+              .from('client_users')
+              .select('client_id, role')
+              .eq('user_id', user.id)
+              .single()
+            
+            if (clientUser && clientUser.role === 'OWNER') {
+              // Update role to CHAMPION
+              const { error: roleUpdateError } = await supabaseAdmin
+                .from('client_users')
+                .update({ 
+                  role: 'CHAMPION',
+                  updated_at: new Date().toISOString()
+                })
+                .eq('user_id', user.id)
+              
+              if (roleUpdateError) {
+                console.error('❌ Failed to update role to CHAMPION:', roleUpdateError)
+              } else {
+                console.log('✅ Role updated to CHAMPION successfully')
+                
+                // Set client to evaluation mode
+                const { error: evaluationError } = await supabaseAdmin
+                  .from('clients')
+                  .update({
+                    evaluation_mode: true,
+                    evaluation_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+                    champion_user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('id', clientUser.client_id)
+                
+                if (evaluationError) {
+                  console.error('❌ Failed to set evaluation mode:', evaluationError)
+                } else {
+                  console.log('✅ Client set to evaluation mode successfully')
+                }
+              }
+            }
+          }
+        }
       }
     } else {
       // No profile data provided - just update the timestamp
