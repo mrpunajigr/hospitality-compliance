@@ -10,7 +10,7 @@ import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getButtonS
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 // import RoleConfigCard from '@/app/components/admin/RoleConfigCard'
-import DepartmentConfigCard from '@/app/components/admin/DepartmentConfigCard'
+import DepartmentConfigCardNew from '@/app/components/admin/DepartmentConfigCardNew'
 import JobTitleConfigCard from '@/app/components/admin/JobTitleConfigCard'
 import SecurityConfigCard from '@/app/components/admin/SecurityConfigCard'
 import StorageConfigCard from '@/app/components/admin/StorageConfigCard'
@@ -134,7 +134,7 @@ export default function AdminConfigurePage() {
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* Departments Configuration */}
             <div>
-              <DepartmentConfigCard />
+              <DepartmentConfigCardNew />
             </div>
             
             {/* Job Titles Configuration */}
