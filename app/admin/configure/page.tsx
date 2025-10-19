@@ -9,8 +9,10 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle, getButtonStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+// import RoleConfigCard from '@/app/components/admin/RoleConfigCard'
 import DepartmentConfigCard from '@/app/components/admin/DepartmentConfigCard'
 import JobTitleConfigCard from '@/app/components/admin/JobTitleConfigCard'
+import SecurityConfigCard from '@/app/components/admin/SecurityConfigCard'
 
 interface BackgroundAsset {
   id: string
@@ -89,7 +91,7 @@ export default function AdminConfigurePage() {
         <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className={getTextStyle('body')}>Loading configuration...</p>
+            <p className={getTextStyle('body', 'light')}>Loading configuration...</p>
           </div>
         </div>
       </div>
@@ -123,58 +125,46 @@ export default function AdminConfigurePage() {
         <div className="flex-1">
           <div className="space-y-8">
         
-        {/* Display Configuration */}
-        <div className={getCardStyle('primary')}>
-          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Display Configuration</h2>
-          
-          <div className="space-y-6">
-            
-            {/* Background Management */}
-            <div>
-              <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Background Settings</h3>
-              <div className="p-4 bg-white/10 rounded-lg border border-white/20">
-                <p className={`${getTextStyle('body')} text-white/70`}>
-                  Background selection and upload options will be available in a future update.
-                </p>
-              </div>
-            </div>
-
-            {/* Results Card Configuration */}
-            <div>
-              <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Results Card Settings</h3>
-              <div className="p-4 bg-white/10 rounded-lg border border-white/20">
-                <p className={`${getTextStyle('body')} text-white/70`}>
-                  Results card configuration options will be available here.
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
         {/* Business Structure Configuration */}
-        <div className="space-y-6">
-          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Business Structure</h2>
+        <div className={getCardStyle('primary')}>
+          <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>{userClient?.name || 'Business'} Structure</h2>
           
-          {/* Departments Configuration */}
-          <DepartmentConfigCard />
-          
-          {/* Job Titles Configuration */}
-          <JobTitleConfigCard />
+          {/* Three-Column Configuration Layout */}
+          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Roles Configuration - Temporarily disabled */}
+            {/* <div>
+              <RoleConfigCard />
+            </div> */}
+            
+            {/* Departments Configuration */}
+            <div>
+              <DepartmentConfigCard />
+            </div>
+            
+            {/* Job Titles Configuration */}
+            <div>
+              <JobTitleConfigCard />
+            </div>
+            
+            {/* Security Configuration */}
+            <div>
+              <SecurityConfigCard />
+            </div>
+          </div>
         </div>
 
         {/* Operational Configuration */}
         <div className={getCardStyle('primary')}>
-          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Operational Settings</h2>
+          <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>{userClient?.business_type || 'Operational'} Settings</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
             
             {/* Compliance Settings */}
             <div className={getCardStyle('secondary')}>
-              <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Compliance Settings</h3>
+              <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Compliance Settings</h3>
               <div className="space-y-4">
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Default Temperature Range</label>
+                  <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Default Temperature Range</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
@@ -192,7 +182,7 @@ export default function AdminConfigurePage() {
                 </div>
                 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>Alert Threshold (hours)</label>
+                  <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Alert Threshold (hours)</label>
                   <input
                     type="number"
                     defaultValue="2"
@@ -204,10 +194,10 @@ export default function AdminConfigurePage() {
 
             {/* Notification Settings */}
             <div className={getCardStyle('secondary')}>
-              <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Notifications</h3>
+              <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Notifications</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body')}>Email Alerts</span>
+                  <span className={getTextStyle('body', 'light')}>Email Alerts</span>
                   <input 
                     type="checkbox" 
                     defaultChecked 
@@ -215,14 +205,14 @@ export default function AdminConfigurePage() {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body')}>SMS Notifications</span>
+                  <span className={getTextStyle('body', 'light')}>SMS Notifications</span>
                   <input 
                     type="checkbox" 
                     className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body')}>Daily Reports</span>
+                  <span className={getTextStyle('body', 'light')}>Daily Reports</span>
                   <input 
                     type="checkbox" 
                     defaultChecked 
@@ -237,16 +227,16 @@ export default function AdminConfigurePage() {
 
         {/* System Information */}
         <div className={getCardStyle('primary')}>
-          <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>System Information</h2>
+          <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>System Information</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <p className={getTextStyle('body')}><strong>Version:</strong> {getVersionDisplay()}</p>
-              <p className={getTextStyle('body')}><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
+              <p className={getTextStyle('body', 'light')}><strong>Version:</strong> {getVersionDisplay()}</p>
+              <p className={getTextStyle('body', 'light')}><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
             </div>
             <div>
-              <p className={getTextStyle('body')}><strong>Environment:</strong> Production</p>
-              <p className={getTextStyle('body')}><strong>Region:</strong> New Zealand</p>
+              <p className={getTextStyle('body', 'light')}><strong>Environment:</strong> Production</p>
+              <p className={getTextStyle('body', 'light')}><strong>Region:</strong> New Zealand</p>
             </div>
           </div>
         </div>
