@@ -77,10 +77,10 @@ export default function LandingPage() {
             </Link>
             <div className="w-px h-3 bg-white/30"></div>
             <Link 
-              href="/terms-of-service"
+              href="/champion/program"
               className="text-white/60 hover:text-white/80 text-xs transition-colors duration-200"
             >
-              Terms of Service
+              JiGR Heroes
             </Link>
           </div>
           <p className="text-white/50 text-xs">

@@ -1,260 +1,248 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getUserClient, UserRole, getRoleDisplayName } from '@/lib/rbac-core'
+import { getUserClient } from '@/lib/rbac-core'
 import { supabase } from '@/lib/supabase'
-import { getButtonStyle } from '@/lib/design-system'
-import ConfigCard, { PermissionGate, useConfigConfirmation, SecurityBadge } from './ConfigCard'
-
-interface Department {
-  id: string
-  name: string
-  color: string
-}
+import ConfigCard, { PermissionGate, useConfigConfirmation } from './ConfigCard'
 
 interface JobTitle {
   id: string
   title: string
   description: string | null
-  default_role: UserRole
-  hierarchy_level: number
-  security_clearance: 'basic' | 'standard' | 'elevated' | 'admin'
-  permission_template: any
-  sort_order: number
+  default_role: string
   is_active: boolean
-  is_default: boolean
-  created_at: string
-  updated_at: string
-  primary_department?: Department
-  reports_to?: { id: string; title: string }
 }
 
-interface JobTitleFormData {
-  title: string
-  description: string
-  default_role: UserRole
-  hierarchy_level: number
-  security_clearance: 'basic' | 'standard' | 'elevated' | 'admin'
-  primary_department_id: string
-  reports_to_title_id: string
-  sort_order: number
-}
-
-const SECURITY_CLEARANCE_LEVELS = [
-  { value: 'basic', label: 'Basic', description: 'Limited system access' },
-  { value: 'standard', label: 'Standard', description: 'Normal operational access' },
-  { value: 'elevated', label: 'Elevated', description: 'Enhanced permissions' },
-  { value: 'admin', label: 'Admin', description: 'Administrative access' }
-]
-
-const HIERARCHY_LEVELS = [
-  { value: 1, label: 'Level 1', description: 'Entry level staff' },
-  { value: 2, label: 'Level 2', description: 'Experienced staff/supervisors' },
-  { value: 3, label: 'Level 3', description: 'Management level' },
-  { value: 4, label: 'Level 4', description: 'Executive level' }
-]
-
-const ROLE_OPTIONS: { value: UserRole; label: string; description: string }[] = [
-  { value: 'STAFF', label: 'Staff', description: 'Basic user with limited permissions' },
-  { value: 'SUPERVISOR', label: 'Supervisor', description: 'Team leader with oversight responsibilities' },
-  { value: 'MANAGER', label: 'Manager', description: 'Management level with operational control' },
-  { value: 'OWNER', label: 'Owner', description: 'Full system access and control' }
+// Built-in hospitality job titles
+const BUILTIN_JOBS = [
+  { name: 'Server', color: '#3B82F6', description: 'Customer service and table management', default_role: 'STAFF' },
+  { name: 'Host/Hostess', color: '#10B981', description: 'Guest greeting and seating', default_role: 'STAFF' },
+  { name: 'Bartender', color: '#8B5CF6', description: 'Beverage preparation and service', default_role: 'STAFF' },
+  { name: 'Kitchen Hand', color: '#EF4444', description: 'Food preparation assistance', default_role: 'STAFF' },
+  { name: 'Chef', color: '#F59E0B', description: 'Food preparation and cooking', default_role: 'STAFF' },
+  { name: 'Shift Supervisor', color: '#6B7280', description: 'Team leadership and oversight', default_role: 'SUPERVISOR' },
+  { name: 'Assistant Manager', color: '#EC4899', description: 'Operations support and management', default_role: 'SUPERVISOR' },
+  { name: 'Head Chef', color: '#14B8A6', description: 'Kitchen management and menu oversight', default_role: 'MANAGER' },
+  { name: 'Restaurant Manager', color: '#F97316', description: 'Overall restaurant operations', default_role: 'MANAGER' },
+  { name: 'Owner', color: '#6366F1', description: 'Business ownership and strategic decisions', default_role: 'OWNER' }
 ]
 
 export default function JobTitleConfigCard() {
   const [jobTitles, setJobTitles] = useState<JobTitle[]>([])
-  const [departments, setDepartments] = useState<Department[]>([])
+  const [userClient, setUserClient] = useState<any>(null)
   const [userPermissions, setUserPermissions] = useState({
     canCreate: false,
     canEdit: false,
     canDelete: false,
-    canViewSecurity: false,
-    canEditHigherRoles: false
+    canViewSecurity: false
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [editingTitle, setEditingTitle] = useState<JobTitle | null>(null)
-  const [formData, setFormData] = useState<JobTitleFormData>({
-    title: '',
-    description: '',
-    default_role: 'STAFF',
-    hierarchy_level: 1,
-    security_clearance: 'standard',
-    primary_department_id: '',
-    reports_to_title_id: '',
-    sort_order: 0
-  })
+  const [newJobName, setNewJobName] = useState('')
+  const [renamingJob, setRenamingJob] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
 
   const { confirm, ConfirmationDialog } = useConfigConfirmation()
 
   useEffect(() => {
-    loadData()
+    loadUserClient()
+    loadJobTitles()
   }, [])
 
-  const loadData = async () => {
+  const loadUserClient = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const clientInfo = await getUserClient(user.id)
+        if (clientInfo) {
+          setUserClient(clientInfo)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user client:', error)
+    }
+  }
+
+  const loadJobTitles = async () => {
     try {
       setIsLoading(true)
       setError(null)
 
-      // Load job titles
-      const titleResponse = await fetch('/api/config/job-titles')
-      const titleData = await titleResponse.json()
-
-      if (!titleResponse.ok) {
-        throw new Error(titleData.error || 'Failed to load job titles')
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
       }
 
-      // Load departments
-      const deptResponse = await fetch('/api/config/departments')
-      const deptData = await deptResponse.json()
+      const response = await fetch('/api/config/job-titles', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
+      const data = await response.json()
 
-      if (!deptResponse.ok) {
-        throw new Error(deptData.error || 'Failed to load departments')
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load job titles')
       }
 
-      setJobTitles(titleData.jobTitles || [])
-      setUserPermissions(titleData.userPermissions || {})
-      setDepartments(deptData.departments || [])
+      setJobTitles(data.jobTitles || [])
+      setUserPermissions(data.userPermissions || {})
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data')
+      setError(err instanceof Error ? err.message : 'Failed to load job titles')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      default_role: 'STAFF',
-      hierarchy_level: 1,
-      security_clearance: 'standard',
-      primary_department_id: '',
-      reports_to_title_id: '',
-      sort_order: jobTitles.length
-    })
-    setEditingTitle(null)
-    setShowAddForm(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const toggleBuiltinJob = async (builtinJob: any, enable: boolean) => {
     try {
-      const isEdit = editingTitle !== null
-      const url = '/api/config/job-titles'
-      const method = isEdit ? 'PUT' : 'POST'
-      
-      const payload = isEdit 
-        ? { id: editingTitle.id, ...formData }
-        : formData
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} job title`)
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
       }
 
-      await loadData()
-      resetForm()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Operation failed')
-    }
-  }
+      if (enable) {
+        // Create/enable the job title
+        const response = await fetch('/api/config/job-titles', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            title: builtinJob.name,
+            description: builtinJob.description,
+            default_role: builtinJob.default_role,
+            hierarchy_level: 1,
+            security_clearance: 'standard',
+            primary_department_id: '',
+            reports_to_title_id: '',
+            sort_order: jobTitles.length
+          })
+        })
 
-  const handleEdit = (title: JobTitle) => {
-    setFormData({
-      title: title.title,
-      description: title.description || '',
-      default_role: title.default_role,
-      hierarchy_level: title.hierarchy_level,
-      security_clearance: title.security_clearance,
-      primary_department_id: title.primary_department?.id || '',
-      reports_to_title_id: title.reports_to?.id || '',
-      sort_order: title.sort_order
-    })
-    setEditingTitle(title)
-    setShowAddForm(true)
-  }
-
-  const handleDelete = async (title: JobTitle) => {
-    const confirmed = await confirm({
-      title: 'Delete Job Title',
-      message: `Are you sure you want to delete "${title.title}"? This action cannot be undone.`,
-      confirmText: 'Delete',
-      isDangerous: true,
-      onConfirm: async () => {
-        try {
-          const response = await fetch(`/api/config/job-titles?id=${title.id}`, {
-            method: 'DELETE'
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to enable job title')
+        }
+      } else {
+        // Disable the job title
+        const existingJob = jobTitles.find(j => j.title === builtinJob.name)
+        if (existingJob) {
+          const response = await fetch('/api/config/job-titles', {
+            method: 'PUT',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+              id: existingJob.id,
+              title: existingJob.title,
+              is_active: false
+            })
           })
 
           const data = await response.json()
-
           if (!response.ok) {
-            throw new Error(data.error || 'Failed to delete job title')
+            throw new Error(data.error || 'Failed to disable job title')
           }
-
-          await loadData()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Delete failed')
         }
       }
-    })
+
+      await loadJobTitles()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Toggle failed')
+    }
   }
 
-  const toggleStatus = async (title: JobTitle) => {
+  const handleRename = (builtinJob: any) => {
+    const currentName = jobTitles.find(j => j.title === builtinJob.name)?.title || builtinJob.name
+    setRenamingJob(builtinJob.name)
+    setRenameValue(currentName)
+  }
+
+  const saveRename = async () => {
+    if (!renamingJob || !renameValue.trim()) return
+
     try {
+      const existingJob = jobTitles.find(j => j.title === renamingJob)
+      if (!existingJob) return
+
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
       const response = await fetch('/api/config/job-titles', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
-          id: title.id,
-          title: title.title,
-          is_active: !title.is_active
+          id: existingJob.id,
+          title: renameValue.trim(),
+          description: existingJob.description,
+          default_role: existingJob.default_role
         })
       })
 
       const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update job title status')
+        throw new Error(data.error || 'Failed to rename job title')
       }
 
-      await loadData()
+      await loadJobTitles()
+      setRenamingJob(null)
+      setRenameValue('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Status update failed')
+      setError(err instanceof Error ? err.message : 'Rename failed')
     }
   }
 
-  const getSecurityClearanceColor = (level: string) => {
-    const colors = {
-      basic: 'text-green-400',
-      standard: 'text-blue-400',
-      elevated: 'text-yellow-400',
-      admin: 'text-red-400'
+  const addCustomJob = async () => {
+    if (!newJobName.trim()) return
+
+    try {
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
+      const response = await fetch('/api/config/job-titles', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          title: newJobName.trim(),
+          description: 'Custom job title',
+          default_role: 'STAFF',
+          hierarchy_level: 1,
+          security_clearance: 'standard',
+          primary_department_id: '',
+          reports_to_title_id: '',
+          sort_order: jobTitles.length
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add job title')
+      }
+
+      await loadJobTitles()
+      setNewJobName('')
+      setShowAddForm(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Add failed')
     }
-    return colors[level as keyof typeof colors] || 'text-gray-400'
   }
-
-  const getHierarchyIcon = (level: number) => {
-    const icons = ['🔹', '🔸', '🔶', '🔴']
-    return icons[level - 1] || '🔹'
-  }
-
-  // Filter available reporting titles (must be higher hierarchy)
-  const availableReportingTitles = jobTitles.filter(title => 
-    title.id !== editingTitle?.id && 
-    title.hierarchy_level > formData.hierarchy_level &&
-    title.is_active
-  )
 
   const securityLevel = {
     level: 'high' as const,
@@ -266,274 +254,131 @@ export default function JobTitleConfigCard() {
   return (
     <>
       <ConfigCard
-        title="Job Titles & Roles"
-        description="Configure job titles with role mapping and hierarchy structure"
-        icon="👥"
+        title="Jobs"
+        description={`Setup the job titles in your ${userClient?.business_type || 'business'}`}
+        icon=""
         securityLevel={securityLevel}
         userPermissions={userPermissions}
         isLoading={isLoading}
         error={error || undefined}
-        onRefresh={loadData}
+        onRefresh={loadJobTitles}
       >
-        {/* Job Titles List */}
+        {/* Built-in Jobs with Toggles */}
         <div className="space-y-3 mb-6">
-          {jobTitles.map((title) => (
-            <div
-              key={title.id}
-              className="p-4 rounded-lg bg-white/5 border border-white/10"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-lg">{getHierarchyIcon(title.hierarchy_level)}</span>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-white">{title.title}</h4>
-                        <span className={`px-2 py-0.5 text-xs rounded bg-${title.default_role === 'OWNER' ? 'red' : title.default_role === 'MANAGER' ? 'blue' : title.default_role === 'SUPERVISOR' ? 'yellow' : 'green'}-500/20 text-${title.default_role === 'OWNER' ? 'red' : title.default_role === 'MANAGER' ? 'blue' : title.default_role === 'SUPERVISOR' ? 'yellow' : 'green'}-300`}>
-                          {getRoleDisplayName(title.default_role)}
-                        </span>
-                        {userPermissions.canViewSecurity && (
-                          <span className={`px-2 py-0.5 text-xs rounded border ${getSecurityClearanceColor(title.security_clearance)}`}>
-                            {title.security_clearance}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-white/60">
-                        <span>Level {title.hierarchy_level}</span>
-                        {title.primary_department && (
-                          <>
-                            <span>•</span>
-                            <span style={{ color: title.primary_department.color }}>
-                              {title.primary_department.name}
-                            </span>
-                          </>
-                        )}
-                        {title.reports_to && (
-                          <>
-                            <span>•</span>
-                            <span>Reports to: {title.reports_to.title}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+          {BUILTIN_JOBS.map((builtinJob) => {
+            const isEnabled = jobTitles.some(j => j.title === builtinJob.name && j.is_active)
+            const customName = jobTitles.find(j => j.title === builtinJob.name)?.title || builtinJob.name
+            
+            return (
+              <div
+                key={builtinJob.name}
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200"
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: builtinJob.color }}
+                  >
                   </div>
-                  
-                  {title.description && (
-                    <p className="text-sm text-white/70 mb-2">{title.description}</p>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                    {!title.is_active && (
-                      <span className="px-2 py-0.5 text-xs bg-gray-500/20 text-gray-300 rounded">
-                        Inactive
-                      </span>
-                    )}
-                    {title.is_default && (
-                      <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-300 rounded">
-                        Default
-                      </span>
-                    )}
+                  <div>
+                    <h4 className="font-medium text-gray-900">{customName}</h4>
+                    <p className="text-sm text-gray-600">{builtinJob.description}</p>
+                    <p className="text-xs text-gray-500">Role: {builtinJob.default_role}</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <PermissionGate hasPermission={userPermissions.canEdit}>
                     <button
-                      onClick={() => toggleStatus(title)}
-                      className="px-3 py-1 text-xs rounded bg-white/10 hover:bg-white/20 transition-colors"
+                      onClick={() => toggleBuiltinJob(builtinJob, !isEnabled)}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                        isEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
                     >
-                      {title.is_active ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button
-                      onClick={() => handleEdit(title)}
-                      className="px-3 py-1 text-xs rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
-                    >
-                      Edit
-                    </button>
-                  </PermissionGate>
-                  
-                  <PermissionGate hasPermission={userPermissions.canDelete && !title.is_default}>
-                    <button
-                      onClick={() => handleDelete(title)}
-                      className="px-3 py-1 text-xs rounded bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
-                    >
-                      Delete
+                      <span
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                          isEnabled ? 'translate-x-7' : 'translate-x-1'
+                        }`}
+                      />
                     </button>
                   </PermissionGate>
+                  {isEnabled && (
+                    <button
+                      onClick={() => handleRename(builtinJob)}
+                      className="px-3 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
+                    >
+                      Rename
+                    </button>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
-
-          {jobTitles.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-white/60">
-              <span className="text-2xl block mb-2">👥</span>
-              <p>No job titles configured yet</p>
-            </div>
-          )}
+            )
+          })}
         </div>
 
-        {/* Add/Edit Form */}
-        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && !!editingTitle)}>
-          {!showAddForm ? (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className={`${getButtonStyle('primary')} w-full`}
-            >
-              + Add Job Title
-            </button>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4 p-4 rounded-lg bg-white/5 border border-white/20">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-white">
-                  {editingTitle ? 'Edit Job Title' : 'Add New Job Title'}
-                </h4>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="text-white/60 hover:text-white/80"
-                >
-                  ✕
-                </button>
-              </div>
+        {/* Rename Dialog */}
+        {renamingJob && (
+          <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 mb-4">
+            <h4 className="font-medium text-gray-900 mb-3">Rename Job Title</h4>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter new name"
+              />
+              <button
+                onClick={saveRename}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {setRenamingJob(null); setRenameValue('')}}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Job Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40"
-                    placeholder="e.g., Head Chef, Server, Manager"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Default Role *
-                  </label>
-                  <select
-                    value={formData.default_role}
-                    onChange={(e) => setFormData({ ...formData, default_role: e.target.value as UserRole })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    {ROLE_OPTIONS.map((role) => (
-                      <option key={role.value} value={role.value} className="bg-gray-800">
-                        {role.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40"
-                  placeholder="Job responsibilities and requirements"
-                  rows={2}
+        {/* Add Custom Job Title */}
+        <PermissionGate hasPermission={userPermissions.canCreate}>
+          <div className="border-t border-gray-200 pt-6">
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Add Custom Job Title</h4>
+            {!showAddForm ? (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
+              >
+                + Add Custom Job Title
+              </button>
+            ) : (
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={newJobName}
+                  onChange={(e) => setNewJobName(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter job title name"
                 />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Hierarchy Level
-                  </label>
-                  <select
-                    value={formData.hierarchy_level}
-                    onChange={(e) => setFormData({ ...formData, hierarchy_level: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    {HIERARCHY_LEVELS.map((level) => (
-                      <option key={level.value} value={level.value} className="bg-gray-800">
-                        {level.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Security Clearance
-                  </label>
-                  <select
-                    value={formData.security_clearance}
-                    onChange={(e) => setFormData({ ...formData, security_clearance: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    {SECURITY_CLEARANCE_LEVELS.map((level) => (
-                      <option key={level.value} value={level.value} className="bg-gray-800">
-                        {level.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Department
-                  </label>
-                  <select
-                    value={formData.primary_department_id}
-                    onChange={(e) => setFormData({ ...formData, primary_department_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    <option value="" className="bg-gray-800">None</option>
-                    {departments.map((dept) => (
-                      <option key={dept.id} value={dept.id} className="bg-gray-800">
-                        {dept.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {availableReportingTitles.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Reports To
-                  </label>
-                  <select
-                    value={formData.reports_to_title_id}
-                    onChange={(e) => setFormData({ ...formData, reports_to_title_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    <option value="" className="bg-gray-800">No direct report</option>
-                    {availableReportingTitles.map((title) => (
-                      <option key={title.id} value={title.id} className="bg-gray-800">
-                        {title.title} (Level {title.hierarchy_level})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
                 <button
-                  type="submit"
-                  className={`${getButtonStyle('primary')} flex-1`}
+                  onClick={addCustomJob}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {editingTitle ? 'Update Job Title' : 'Create Job Title'}
+                  Add
                 </button>
                 <button
-                  type="button"
-                  onClick={resetForm}
-                  className={`${getButtonStyle('outline')} px-4`}
+                  onClick={() => {setShowAddForm(false); setNewJobName('')}}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                 >
                   Cancel
                 </button>
               </div>
-            </form>
-          )}
+            )}
+          </div>
         </PermissionGate>
       </ConfigCard>
 
