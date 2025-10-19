@@ -130,6 +130,30 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
     }
   }
 
+  // Custom header renderer for the template
+  const renderHeader = () => (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-black text-lg font-semibold">{title}</h3>
+        {/* Security Warning Icon (for high/critical levels) */}
+        {['high', 'critical'].includes(securityLevel.level) && (
+          <div className="relative group">
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.png"
+              alt="Security Warning"
+              className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
+            />
+            <div className="absolute right-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+              <div className="font-medium">Security Warning</div>
+              <div className="text-orange-100">{securityLevel.description}</div>
+            </div>
+          </div>
+        )}
+      </div>
+      <p className="text-gray-600 text-sm">{description}</p>
+    </div>
+  )
+
   // Default item renderer
   const defaultRenderItem = (item: T, isBuiltIn: boolean, builtInConfig?: BuiltInItem) => {
     const isEnabled = item.is_active
@@ -255,19 +279,41 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
     </div>
   )
 
+  // Handle loading state with custom layout
+  if (isLoading) {
+    return (
+      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+        {renderHeader()}
+        <div className="text-center py-8">
+          <p className="text-gray-600 text-sm">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+        {renderHeader()}
+        <div className="text-center py-8">
+          <p className="text-red-600 text-sm mb-2">Error: {error}</p>
+          <button 
+            onClick={loadItems}
+            className="text-blue-600 hover:text-blue-700 text-sm underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
-      <ConfigCard
-        title={title}
-        description={description}
-        icon={icon}
-        securityLevel={securityLevel}
-        userPermissions={userPermissions}
-        isLoading={isLoading}
-        error={error || undefined}
-        onRefresh={loadItems}
-        className={className}
-      >
+      <div className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 ${className}`}>
+        {renderHeader()}
+        
         {/* Built-in Items with Toggles */}
         <div className="space-y-3 mb-6">
           {builtInItems.map((builtInItem) => {
@@ -358,7 +404,7 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
             </div>
           </PermissionGate>
         )}
-      </ConfigCard>
+      </div>
 
       <ConfirmationDialog />
     </>
