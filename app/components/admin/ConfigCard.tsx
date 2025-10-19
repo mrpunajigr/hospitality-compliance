@@ -80,26 +80,26 @@ export default function ConfigCard({
       {/* Card Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3">
-          <div className="flex items-center gap-3">
-            {/* Security Warning Icon (for high/critical levels) */}
-            {['high', 'critical'].includes(securityLevel.level) && (
-              <div className="relative group">
-                <img 
-                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.svg"
-                  alt="Security Warning"
-                  className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
-                />
-                {/* Hover Tooltip */}
-                <div className="absolute left-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
-                  <div className="font-medium">Security Warning</div>
-                  <div className="text-orange-100">{securityLevel.description}</div>
-                </div>
-              </div>
-            )}
-            <div className="text-2xl">{icon}</div>
-          </div>
+          <div className="text-2xl">{icon}</div>
           <div className="flex-1">
-            <h3 className={`${getTextStyle('cardTitle', 'light')} mb-1`}>{title}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              {/* Security Warning Icon (for high/critical levels) */}
+              {['high', 'critical'].includes(securityLevel.level) && (
+                <div className="relative group">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.svg"
+                    alt="Security Warning"
+                    className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
+                  />
+                  {/* Hover Tooltip */}
+                  <div className="absolute left-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                    <div className="font-medium">Security Warning</div>
+                    <div className="text-orange-100">{securityLevel.description}</div>
+                  </div>
+                </div>
+              )}
+              <h3 className={`${getTextStyle('cardTitle', 'light')}`}>{title}</h3>
+            </div>
             <p className={`${getTextStyle('body', 'light')} text-gray-600 text-sm`}>
               {description}
             </p>
