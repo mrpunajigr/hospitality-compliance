@@ -298,7 +298,7 @@ export default function SecurityConfigCard() {
     <>
       <ConfigCard
         title="Security"
-        description={`Setup security policies for your ${userClient?.business_type || 'business'}`}
+        description="Set policies"
         icon=""
         securityLevel={securityLevel}
         userPermissions={userPermissions}

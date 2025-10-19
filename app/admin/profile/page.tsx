@@ -10,7 +10,6 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { getModuleConfig } from '@/lib/module-config'
-import ChampionWelcomeOverlay from '@/app/components/ChampionWelcomeOverlay'
 
 function ProfilePageContent() {
   const moduleConfig = getModuleConfig('admin')
@@ -25,7 +24,6 @@ function ProfilePageContent() {
   const [onboardingData, setOnboardingData] = useState({
     jobTitle: '',
     preferredName: '',
-    businessType: '',
     notificationPreferences: {
       emailAlerts: true,
       complianceReminders: true,
@@ -36,7 +34,6 @@ function ProfilePageContent() {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
-  const [showChampionWelcome, setShowChampionWelcome] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const isOnboarding = searchParams.get('onboarding') === 'true'
@@ -126,19 +123,6 @@ function ProfilePageContent() {
         return
       }
 
-      // Update client business type if we have userClient and business type changed
-      if (userClient && onboardingData.businessType !== userClient.business_type) {
-        const { error: clientError } = await supabase
-          .from('clients')
-          .update({
-            business_type: onboardingData.businessType
-          })
-          .eq('id', userClient.clientId)
-
-        if (clientError) {
-          console.warn('⚠️ Business type update failed:', clientError)
-        }
-      }
 
       // Update client_users job title if we have userClient
       if (userClient && onboardingData.jobTitle) {
@@ -168,14 +152,6 @@ function ProfilePageContent() {
     }
   }
 
-  // Champion Welcome Overlay Handler
-  const handleChampionWelcomeDismiss = () => {
-    if (user) {
-      localStorage.setItem(`championWelcome_${user.id}`, 'shown')
-      console.log('🏆 CHAMPION: Welcome overlay dismissed and marked as shown')
-    }
-    setShowChampionWelcome(false)
-  }
 
   useEffect(() => {
     async function loadUserProfile() {
@@ -236,15 +212,6 @@ function ProfilePageContent() {
           
           setUserClient(clientInfo)
           
-          // Champion Welcome Overlay Logic
-          if (clientInfo.role === 'CHAMPION') {
-            const championWelcomeShown = localStorage.getItem(`championWelcome_${user.id}`)
-            if (!championWelcomeShown) {
-              console.log('🏆 CHAMPION: First visit detected - showing welcome overlay')
-              setShowChampionWelcome(true)
-            }
-          }
-          
           // Check if user has permission to access profile management
           // Allow: Administrators, Owners, or the profile owner themselves
           const hasProfileAccess = 
@@ -287,7 +254,6 @@ function ProfilePageContent() {
             ...prev,
             jobTitle: profileData.job_title || '',
             preferredName: profileData.preferred_name || '',
-            businessType: userClient?.business_type || '',
             notificationPreferences: profileData.notification_preferences || {
               emailAlerts: true,
               complianceReminders: true,
@@ -525,7 +491,7 @@ function ProfilePageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#1E3A8A' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white">Loading profile...</p>
@@ -536,7 +502,7 @@ function ProfilePageContent() {
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#1E3A8A' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className={`${getCardStyle('primary')} max-w-md text-center`}>
           <h2 className="text-xl font-bold text-red-600 mb-4">Access Denied</h2>
           <p className="text-gray-700 mb-4">
@@ -555,7 +521,8 @@ function ProfilePageContent() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="h-screen overflow-y-auto">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
         {/* Module Header */}
         {moduleConfig && (
           <ModuleHeader 
@@ -570,23 +537,6 @@ function ProfilePageContent() {
             {/* Left Column - Main Content */}
             <div className="flex-1">
 
-              {/* Email Verification Alert */}
-              {!emailVerified && (
-                <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-xl p-4 mb-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-yellow-200 mb-1">Email Verification Required</h3>
-                      <p className="text-sm text-yellow-100">Please check your email and click the verification link.</p>
-                    </div>
-                    <button
-                      onClick={handleResendVerification}
-                      className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                    >
-                      Resend Email
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* Profile Information Card */}
               <div className={`${getCardStyle('primary')} mb-6`}>
@@ -602,27 +552,46 @@ function ProfilePageContent() {
                       uploadData={{ userId: user?.id || '' }}
                       shape="circle"
                     />
-                    <div className="text-center mt-4">
-                      <h3 className="font-medium text-gray-900">Profile Picture</h3>
-                      <p className="text-xs text-gray-600 mt-1">
-                        Click to change avatar<br/>
-                        JPEG, PNG, WEBP, GIF • Max 5MB
-                      </p>
-                    </div>
                   </div>
 
                   {/* User Info */}
                   <div className="flex-1">
                     <div className="mb-6">
-                      <h1 className={`${getTextStyle('pageTitle')} text-gray-900 mb-2`}>
-                        {profile?.full_name || user?.user_metadata?.full_name || 'User Profile'}
-                      </h1>
-                      <p className={`${getTextStyle('body')} text-gray-600 mb-1`}>
-                        {user?.email}
-                      </p>
-                      <p className={`${getTextStyle('body')} text-gray-500`}>
-                        {userClient?.role || 'Member'} • {userClient?.name || 'Loading...'}
-                      </p>
+                      <div className="flex items-start gap-24">
+                        <div>
+                          <h1 className={`${getTextStyle('pageTitle')} text-gray-900 mb-2`}>
+                            {profile?.full_name || user?.user_metadata?.full_name || 'User Profile'}
+                          </h1>
+                          <p className={`${getTextStyle('body')} text-gray-900 mb-1`}>
+                            {user?.email}
+                          </p>
+                          <p className={`${getTextStyle('body')} text-gray-900`}>
+                            {profile?.job_title || onboardingData?.jobTitle || 'No job title set'} • {userClient?.name || 'Loading...'}
+                          </p>
+                        </div>
+                        
+                        {/* Hero Trophy and Text - Right of user info */}
+                        {userClient?.champion_enrolled && (
+                          <div className="flex flex-col items-center">
+                            <img 
+                              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"
+                              alt="Hero Trophy"
+                              className="w-16 h-16 object-contain mb-2"
+                            />
+                            <div className="text-center">
+                              <p className="text-sm font-semibold text-gray-900 mb-1">
+                                JiGR Hero
+                              </p>
+                              <a 
+                                href="/champion/program"
+                                className="text-xs text-yellow-600 hover:text-yellow-800 underline hover:no-underline transition-colors"
+                              >
+                                Find Out More
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Quick Stats */}
@@ -675,27 +644,6 @@ function ProfilePageContent() {
                         placeholder="e.g., Restaurant Manager, Chef, Owner"
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
-                      Business Type
-                    </label>
-                    <select
-                      id="businessType"
-                      value={onboardingData.businessType}
-                      onChange={(e) => setOnboardingData(prev => ({ ...prev, businessType: e.target.value }))}
-                      className={getFormFieldStyle('default')}
-                    >
-                      <option value="">Select business type...</option>
-                      <option value="restaurant">Restaurant</option>
-                      <option value="cafe">Cafe</option>
-                      <option value="bar">Bar/Pub</option>
-                      <option value="hotel">Hotel</option>
-                      <option value="catering">Catering</option>
-                      <option value="food_truck">Food Truck</option>
-                      <option value="other">Other</option>
-                    </select>
                   </div>
 
                   {/* Notification Preferences */}
@@ -941,19 +889,7 @@ function ProfilePageContent() {
           </div>
         )}
         
-        {/* Champion Welcome Overlay */}
-        {showChampionWelcome && userClient && (
-          <ChampionWelcomeOverlay
-            userClient={{
-              name: userClient.name,
-              companyName: userClient.name, // Company name is stored in the 'name' field
-              fullName: user?.user_metadata?.full_name || userClient.name
-            }}
-            isVisible={showChampionWelcome}
-            onDismiss={handleChampionWelcomeDismiss}
-          />
-        )}
-        
+      </div>
     </div>
   )
 }

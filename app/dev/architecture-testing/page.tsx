@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { withDevAuth } from '@/lib/dev-auth-context'
+import { withHeroOrDevAuth } from '@/lib/dev-auth-context'
 
 // TypeScript interfaces for architecture mapping
 interface ComponentDefinition {
@@ -818,4 +818,4 @@ function ArchitectureTestingMapPage() {
 }
 
 // Export the protected component
-export default withDevAuth(ArchitectureTestingMapPage, { requiredRole: 'DEV' })
+export default withHeroOrDevAuth(ArchitectureTestingMapPage)

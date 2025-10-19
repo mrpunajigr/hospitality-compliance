@@ -13,6 +13,7 @@ import { ModuleHeader } from '@/app/components/ModuleHeader'
 import DepartmentConfigCard from '@/app/components/admin/DepartmentConfigCard'
 import JobTitleConfigCard from '@/app/components/admin/JobTitleConfigCard'
 import SecurityConfigCard from '@/app/components/admin/SecurityConfigCard'
+import StorageConfigCard from '@/app/components/admin/StorageConfigCard'
 
 interface BackgroundAsset {
   id: string
@@ -99,7 +100,7 @@ export default function AdminConfigurePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -130,12 +131,7 @@ export default function AdminConfigurePage() {
           <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>{userClient?.name || 'Business'} Structure</h2>
           
           {/* Three-Column Configuration Layout */}
-          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Roles Configuration - Temporarily disabled */}
-            {/* <div>
-              <RoleConfigCard />
-            </div> */}
-            
+          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* Departments Configuration */}
             <div>
               <DepartmentConfigCard />
@@ -157,7 +153,12 @@ export default function AdminConfigurePage() {
         <div className={getCardStyle('primary')}>
           <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>{userClient?.business_type || 'Operational'} Settings</h2>
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            
+            {/* Storage Areas Configuration */}
+            <div>
+              <StorageConfigCard />
+            </div>
             
             {/* Compliance Settings */}
             <div className={getCardStyle('secondary')}>

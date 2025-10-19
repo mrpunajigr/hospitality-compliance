@@ -272,7 +272,8 @@ export default function AdminConsolePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="h-screen overflow-y-auto">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -368,6 +369,7 @@ export default function AdminConsolePage() {
         </div>
 
       </div>
+    </div>
     </div>
   )
 }

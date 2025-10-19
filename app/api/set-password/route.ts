@@ -150,19 +150,19 @@ export async function POST(req: NextRequest) {
             if (isFirstUser && clientUser.role === 'OWNER') {
               console.log(`🏆 Champion detected: First user registration for company`)
               
-              // Update role to CHAMPION (first users are Champions, not owners initially)
-              const { error: roleUpdateError } = await supabaseAdmin
+              // Enroll in Champion program (keep original role)
+              const { error: championUpdateError } = await supabaseAdmin
                 .from('client_users')
                 .update({ 
-                  role: 'CHAMPION',
+                  champion_enrolled: true,
                   updated_at: new Date().toISOString()
                 })
                 .eq('user_id', user.id)
               
-              if (roleUpdateError) {
-                console.error('❌ Failed to update role to CHAMPION:', roleUpdateError)
+              if (championUpdateError) {
+                console.error('❌ Failed to enroll in Champion program:', championUpdateError)
               } else {
-                console.log('✅ Role updated to CHAMPION successfully')
+                console.log('✅ Enrolled in Champion program successfully')
                 
                 // Set client to evaluation mode
                 const { error: evaluationError } = await supabaseAdmin

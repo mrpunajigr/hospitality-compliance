@@ -8,10 +8,8 @@ export default function ConsoleToggle() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Only show in development or when testing
-    const isDev = process.env.NODE_ENV === 'development'
-    const isTesting = window.location.search.includes('testing=true')
-    setIsVisible(isDev || isTesting)
+    // Disabled - console toggle no longer needed
+    setIsVisible(false)
     
     // Default to quiet mode for better testing experience
     const currentMode = testUtils.getCurrentMode()

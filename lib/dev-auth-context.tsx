@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { DevUser, DevRole, DevSessionManager, logDevAccess } from './dev-auth'
+import { getUserClient } from '@/lib/auth-utils'
+import { supabase } from '@/lib/supabase'
 
 interface DevAuthContextType {
   devUser: DevUser | null
@@ -173,6 +175,77 @@ export function withDevAuth<P extends object>(
             >
               DEV Login
             </a>
+          </div>
+        </div>
+      )
+    }
+
+    return <Component {...props} />
+  }
+}
+
+/**
+ * Higher-order component that allows both DEV users and Heroes access
+ */
+export function withHeroOrDevAuth<P extends object>(
+  Component: React.ComponentType<P>,
+  { fallback }: { fallback?: React.ReactNode } = {}
+) {
+  return function ProtectedComponent(props: P) {
+    const { isAuthenticated: devAuthenticated, isLoading: devLoading } = useDevAuth()
+    const [heroAccess, setHeroAccess] = useState(false)
+    const [heroLoading, setHeroLoading] = useState(true)
+
+    useEffect(() => {
+      const checkHeroAccess = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.user) {
+            const clientInfo = await getUserClient(session.user.id)
+            if (clientInfo?.champion_enrolled) {
+              setHeroAccess(true)
+            }
+          }
+        } catch (error) {
+          console.log('Hero access check failed:', error)
+        } finally {
+          setHeroLoading(false)
+        }
+      }
+
+      if (!devAuthenticated) {
+        checkHeroAccess()
+      } else {
+        setHeroLoading(false)
+      }
+    }, [devAuthenticated])
+
+    if (devLoading || heroLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-900">
+          <div className="text-center">
+            <div className="animate-spin h-8 w-8 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-white">Verifying access...</p>
+          </div>
+        </div>
+      )
+    }
+
+    if (!devAuthenticated && !heroAccess) {
+      return fallback || (
+        <div className="min-h-screen flex items-center justify-center bg-gray-900">
+          <div className="text-center max-w-md">
+            <div className="text-6xl mb-6">🔒</div>
+            <h1 className="text-2xl font-bold text-white mb-4">Access Required</h1>
+            <p className="text-gray-300 mb-6">
+              This area requires DEV access or Hero program enrollment.
+            </p>
+            <button
+              onClick={() => window.location.href = '/admin/profile'}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Back to Profile
+            </button>
           </div>
         </div>
       )

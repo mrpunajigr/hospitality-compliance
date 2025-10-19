@@ -83,22 +83,22 @@ export default function ConfigCard({
           <div className="text-2xl">{icon}</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
+              <h3 className={`${getTextStyle('cardTitle', 'light')}`}>{title}</h3>
               {/* Security Warning Icon (for high/critical levels) */}
               {['high', 'critical'].includes(securityLevel.level) && (
                 <div className="relative group">
                   <img 
-                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.svg"
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.png"
                     alt="Security Warning"
                     className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
                   />
                   {/* Hover Tooltip */}
-                  <div className="absolute left-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                  <div className="absolute right-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
                     <div className="font-medium">Security Warning</div>
                     <div className="text-orange-100">{securityLevel.description}</div>
                   </div>
                 </div>
               )}
-              <h3 className={`${getTextStyle('cardTitle', 'light')}`}>{title}</h3>
             </div>
             <p className={`${getTextStyle('body', 'light')} text-gray-600 text-sm`}>
               {description}
@@ -124,37 +124,20 @@ export default function ConfigCard({
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-              ↓
-            </span>
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/expand.png"
+              alt="Expand"
+              className={`w-4 h-4 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            />
           </button>
         </div>
       </div>
 
 
-      {/* Permission Summary (when collapsed) */}
-      {!isExpanded && (
-        <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-          <div className="flex items-center gap-4 text-sm">
-            <span className={`${userPermissions.canCreate ? 'text-green-400' : 'text-gray-500'}`}>
-              {userPermissions.canCreate ? '✓' : '✗'} Create
-            </span>
-            <span className={`${userPermissions.canEdit ? 'text-green-400' : 'text-gray-500'}`}>
-              {userPermissions.canEdit ? '✓' : '✗'} Edit
-            </span>
-            <span className={`${userPermissions.canDelete ? 'text-green-400' : 'text-gray-500'}`}>
-              {userPermissions.canDelete ? '✓' : '✗'} Delete
-            </span>
-          </div>
-          <span className="text-xs text-gray-600">
-            Click to configure
-          </span>
-        </div>
-      )}
 
       {/* Expandable Content */}
       {isExpanded && (
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-96 overflow-y-auto overflow-x-hidden">
           {/* Error Display */}
           {error && (
             <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/40">
@@ -198,30 +181,6 @@ export default function ConfigCard({
             </div>
           )}
 
-          {/* Permissions Detail */}
-          <div className="pt-4 border-t border-white/20">
-            <h4 className="text-sm font-medium text-gray-800 mb-3">Your Permissions</h4>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className={`flex items-center gap-2 ${userPermissions.canCreate ? 'text-green-400' : 'text-gray-500'}`}>
-                <span>{userPermissions.canCreate ? '✓' : '✗'}</span>
-                <span>Create new items</span>
-              </div>
-              <div className={`flex items-center gap-2 ${userPermissions.canEdit ? 'text-green-400' : 'text-gray-500'}`}>
-                <span>{userPermissions.canEdit ? '✓' : '✗'}</span>
-                <span>Edit existing items</span>
-              </div>
-              <div className={`flex items-center gap-2 ${userPermissions.canDelete ? 'text-green-400' : 'text-gray-500'}`}>
-                <span>{userPermissions.canDelete ? '✓' : '✗'}</span>
-                <span>Delete items</span>
-              </div>
-              {userPermissions.canViewSecurity !== undefined && (
-                <div className={`flex items-center gap-2 ${userPermissions.canViewSecurity ? 'text-green-400' : 'text-gray-500'}`}>
-                  <span>{userPermissions.canViewSecurity ? '✓' : '✗'}</span>
-                  <span>View security settings</span>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>

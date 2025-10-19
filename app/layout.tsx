@@ -1,6 +1,7 @@
 import { Inter, Playfair_Display } from 'next/font/google'
 import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import { FeedbackWidget } from './components/testing/FeedbackWidget'
+import ConsoleManager from './components/ConsoleManager'
 import './globals.css'
 import '../styles/ipad-responsive.css'
 
@@ -31,13 +32,19 @@ export default function RootLayout({
         
         {/* Kitchen workspace overlay for context */}
         <div 
-          className="fixed inset-0 -z-10"
           style={{
+            position: 'fixed',
+            top: '0px',
+            left: '0px', 
+            width: '100vw',
+            height: '100vh',
+            zIndex: -999,
             backgroundImage: `url(${getChefWorkspaceBackground()})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            opacity: 0.3
+            opacity: 0.3,
+            pointerEvents: 'none'
           }}
         />
         
@@ -53,6 +60,9 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+        
+        {/* Console Management - Auto-enable quiet mode */}
+        <ConsoleManager />
         
         {/* Testing Feedback Widget - Only visible with ?testing=true parameter */}
         <FeedbackWidget />

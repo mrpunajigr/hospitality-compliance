@@ -80,9 +80,65 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    if (action === 'setup-hero') {
+      // Create demo hero data
+      console.log('🏆 Setting up demo hero data...')
+      
+      // First, ensure we have a demo client
+      const { data: client, error: clientError } = await supabaseAdmin
+        .from('clients')
+        .upsert({
+          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          name: 'Demo Restaurant',
+          business_type: 'restaurant',
+          business_email: 'demo@example.com',
+          phone: '+64 21 123 4567',
+          address: '123 Queen Street, Auckland, New Zealand',
+          owner_name: 'Demo Owner',
+          subscription_status: 'active',
+          subscription_tier: 'professional',
+          onboarding_status: 'completed'
+        })
+        .select()
+        .single()
+
+      if (clientError) {
+        console.error('❌ Failed to create demo client:', clientError)
+        throw new Error(`Failed to create demo client: ${clientError.message}`)
+      }
+
+      // Now create/update the client_users record with hero enrollment
+      const { data: clientUser, error: clientUserError } = await supabaseAdmin
+        .from('client_users')
+        .upsert({
+          user_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+          client_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          role: 'OWNER',
+          status: 'active',
+          champion_enrolled: true
+        })
+        .select()
+        .single()
+
+      if (clientUserError) {
+        console.error('❌ Failed to create demo hero user:', clientUserError)
+        throw new Error(`Failed to create demo hero user: ${clientUserError.message}`)
+      }
+
+      console.log('✅ Demo hero data created successfully')
+      return NextResponse.json({
+        success: true,
+        message: 'Demo hero data created successfully',
+        data: {
+          client,
+          clientUser
+        }
+      })
+    }
+
     return NextResponse.json({
       success: false,
-      error: 'Invalid action. Use ?action=stats or ?action=list'
+      error: 'Invalid action. Use ?action=stats or ?action=list or ?action=setup-hero'
     }, { status: 400 })
 
   } catch (error) {

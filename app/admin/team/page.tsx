@@ -370,7 +370,7 @@ export default function AdminTeamPage() {
         <div className={getCardStyle('primary')}>
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className={getTextStyle('body')}>Loading team...</p>
+            <p className={getTextStyle('body', 'light')}>Loading team...</p>
           </div>
         </div>
       </div>
@@ -382,10 +382,10 @@ export default function AdminTeamPage() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className={`${getCardStyle('primary')} max-w-md w-full`}>
           <div className="text-center">
-            <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
+            <h1 className={`${getTextStyle('pageTitle', 'light')} mb-2`}>
               Team Management
             </h1>
-            <p className={`${getTextStyle('bodySmall')} mb-6`}>
+            <p className={`${getTextStyle('bodySmall', 'light')} mb-6`}>
               Please sign in to manage your team
             </p>
             
@@ -408,7 +408,7 @@ export default function AdminTeamPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen overflow-y-auto">
       {/* Main Content - Sidebar handled by admin layout */}
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 pt-8 pb-8">
       
@@ -495,7 +495,7 @@ export default function AdminTeamPage() {
           {/* Team Members List */}
           <div className={getCardStyle('primary')}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className={`${getTextStyle('sectionTitle')}`}>Team Members</h2>
+              <h2 className={`${getTextStyle('sectionTitle', 'light')}`}>Team Members</h2>
               <button 
                 onClick={() => setShowInviteModal(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
@@ -515,27 +515,27 @@ export default function AdminTeamPage() {
                       </span>
                     </div>
                     <div>
-                      <h3 className={`${getTextStyle('cardTitle')} text-base`}>{member.fullName}</h3>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>{member.email}</p>
+                      <h3 className={`${getTextStyle('cardTitle', 'light')} text-base`}>{member.fullName}</h3>
+                      <p className={`${getTextStyle('bodySmall', 'light')}`}>{member.email}</p>
                       <div className="flex items-center space-x-2">
                         {member.department && (
-                          <span className={`${getTextStyle('bodySmall')} text-blue-300`}>{member.department}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')} text-blue-600`}>{member.department}</span>
                         )}
                         {member.department && member.jobTitle && (
                           <span className="text-white/40">•</span>
                         )}
                         {member.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall')} text-green-300`}>{member.jobTitle}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')} text-green-600`}>{member.jobTitle}</span>
                         )}
                         {!member.department && !member.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall')} text-white/60`}>{member.role}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')}`}>{member.role}</span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-right">
                     <div>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>Last: {member.lastLogin}</p>
+                      <p className={`${getTextStyle('bodySmall', 'light')}`}>Last: {member.lastLogin}</p>
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                       member.status === 'active' 
@@ -544,7 +544,7 @@ export default function AdminTeamPage() {
                     }`}>
                       {member.status}
                     </div>
-                    <button className="text-white/60 hover:text-white">
+                    <button className="text-gray-600 hover:text-gray-800">
                       <span className="text-lg">⚙️</span>
                     </button>
                   </div>
@@ -561,37 +561,37 @@ export default function AdminTeamPage() {
                       </span>
                     </div>
                     <div>
-                      <h3 className={`${getTextStyle('cardTitle')} text-base`}>{invitation.firstName} {invitation.lastName}</h3>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>{invitation.email}</p>
+                      <h3 className={`${getTextStyle('cardTitle', 'light')} text-base`}>{invitation.firstName} {invitation.lastName}</h3>
+                      <p className={`${getTextStyle('bodySmall', 'light')}`}>{invitation.email}</p>
                       <div className="flex items-center space-x-2">
                         {invitation.department && (
-                          <span className={`${getTextStyle('bodySmall')} text-blue-300`}>{invitation.department}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')} text-blue-600`}>{invitation.department}</span>
                         )}
                         {invitation.department && invitation.jobTitle && (
                           <span className="text-white/40">•</span>
                         )}
                         {invitation.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall')} text-green-300`}>{invitation.jobTitle}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')} text-green-600`}>{invitation.jobTitle}</span>
                         )}
                         {!invitation.department && !invitation.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall')} text-white/60`}>{invitation.role}</span>
+                          <span className={`${getTextStyle('bodySmall', 'light')}`}>{invitation.role}</span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-right">
                     <div>
-                      <p className={`${getTextStyle('bodySmall')} text-white/70`}>
+                      <p className={`${getTextStyle('bodySmall', 'light')}`}>
                         Invited: {new Date(invitation.createdAt).toLocaleDateString()}
                       </p>
-                      <p className={`${getTextStyle('bodySmall')} text-white/60`}>
+                      <p className={`${getTextStyle('bodySmall', 'light')}`}>
                         Expires: {new Date(invitation.expiresAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
                       pending
                     </div>
-                    <button className="text-white/60 hover:text-white" title="Cancel invitation">
+                    <button className="text-gray-600 hover:text-gray-800" title="Cancel invitation">
                       <span className="text-lg">❌</span>
                     </button>
                   </div>
@@ -604,8 +604,8 @@ export default function AdminTeamPage() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">👥</span>
                   </div>
-                  <p className={`${getTextStyle('body')} text-white/70 mb-2`}>No team members yet</p>
-                  <p className={`${getTextStyle('bodySmall')} text-white/50`}>Start by inviting your first team member</p>
+                  <p className={`${getTextStyle('body', 'light')} mb-2`}>No team members yet</p>
+                  <p className={`${getTextStyle('bodySmall', 'light')}`}>Start by inviting your first team member</p>
                 </div>
               )}
             </div>
@@ -618,7 +618,7 @@ export default function AdminTeamPage() {
           
           {/* Current User Profile */}
           <div className={getCardStyle('primary')}>
-            <h2 className={`${getTextStyle('sectionTitle')} mb-6`}>Your Profile</h2>
+            <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>Your Profile</h2>
             
             {/* Avatar Section */}
             <div className="text-center mb-6">
@@ -645,7 +645,7 @@ export default function AdminTeamPage() {
             {/* Profile Form */}
             <form className="space-y-4">
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Full Name</label>
+                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Full Name</label>
                 <input
                   type="text"
                   defaultValue={profile?.full_name || ''}
@@ -654,7 +654,7 @@ export default function AdminTeamPage() {
               </div>
               
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Email</label>
+                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Email</label>
                 <input
                   type="email"
                   defaultValue={profile?.email || ''}
@@ -663,7 +663,7 @@ export default function AdminTeamPage() {
               </div>
               
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Role</label>
+                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Role</label>
                 <select className={getFormFieldStyle()}>
                   <option value="OWNER">Owner</option>
                   <option value="MANAGER">Manager</option>
@@ -673,7 +673,7 @@ export default function AdminTeamPage() {
               </div>
               
               <div>
-                <label className={`block ${getTextStyle('label')} mb-2`}>Phone</label>
+                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Phone</label>
                 <input
                   type="tel"
                   defaultValue={profile?.phone || ''}
@@ -700,24 +700,24 @@ export default function AdminTeamPage() {
 
           {/* Quick Actions */}
           <div className={`${getCardStyle('secondary')} mt-6`}>
-            <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Quick Actions</h3>
+            <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Quick Actions</h3>
             <div className="space-y-3">
               <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
                 <div>
-                  <h4 className={getTextStyle('body')}>Security Settings</h4>
-                  <p className={`${getTextStyle('bodySmall')} text-white/70 mt-1`}>Change password & 2FA</p>
+                  <h4 className={getTextStyle('body', 'light')}>Security Settings</h4>
+                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>Change password & 2FA</p>
                 </div>
               </button>
               <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
                 <div>
-                  <h4 className={getTextStyle('body')}>Permissions</h4>
-                  <p className={`${getTextStyle('bodySmall')} text-white/70 mt-1`}>Manage access levels</p>
+                  <h4 className={getTextStyle('body', 'light')}>Permissions</h4>
+                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>Manage access levels</p>
                 </div>
               </button>
               <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
                 <div>
-                  <h4 className={getTextStyle('body')}>Audit Log</h4>
-                  <p className={`${getTextStyle('bodySmall')} text-white/70 mt-1`}>View activity history</p>
+                  <h4 className={getTextStyle('body', 'light')}>Audit Log</h4>
+                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>View activity history</p>
                 </div>
               </button>
             </div>

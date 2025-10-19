@@ -7,6 +7,7 @@ import { DesignTokens, getTextStyle } from '@/lib/design-system'
 import { getMappedIcon, getUIIcon } from '@/lib/image-storage'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
+import { logger } from '@/lib/console-utils'
 
 interface SidebarNavItem {
   name: string
@@ -15,6 +16,7 @@ interface SidebarNavItem {
   section: 'quickActions' | 'modules' | 'settings'
   context?: 'admin' | 'console' | 'both' | 'upload' | 'operations'
   roles?: string[] // Optional: restrict to specific user roles
+  champion_only?: boolean // Optional: only show for Hero enrolled users
   subItems?: SidebarSubItem[]
 }
 
@@ -62,7 +64,7 @@ const sidebarNavigation: SidebarNavItem[] = [
   // Settings
   { name: 'Settings', href: '/admin/company-settings', icon: '/icons/JiGRadmin.png', section: 'settings', context: 'both' },
   { name: 'Profile', href: '/admin/profile', icon: '/icons/JiGRadmin.png', section: 'settings', context: 'both' },
-  { name: 'Champion Program', href: '/champion/program', icon: '🏆', section: 'settings', context: 'both', roles: ['CHAMPION'] },
+  { name: 'Heroes Program', href: '/champion/program', icon: '🏆', section: 'settings', context: 'both', champion_only: true },
 ]
 
 export default function AppleSidebar({ 
@@ -96,7 +98,7 @@ export default function AppleSidebar({
             setUserAvatar(profileData.avatar_url)
           }
         } catch (error) {
-          console.log('Could not fetch user avatar:', error)
+          logger.debug('Could not fetch user avatar', error)
         }
       }
     }
@@ -146,13 +148,15 @@ export default function AppleSidebar({
     }
   }, [])
 
-  // Filter items by section, context, and user role
+  // Filter items by section, context, user role, and champion status
   const filterByRoleAndContext = (item: SidebarNavItem) => {
     // Check context
     const contextMatch = item.context === activeSection || item.context === 'both'
     // Check role (if roles are specified, user must have one of them)
     const roleMatch = !item.roles || (userClient?.role && item.roles.includes(userClient.role))
-    return contextMatch && roleMatch
+    // Check champion status (if champion_only is true, user must be champion enrolled)
+    const championMatch = !item.champion_only || userClient?.champion_enrolled === true
+    return contextMatch && roleMatch && championMatch
   }
 
   const quickActionItems = sidebarNavigation.filter(item => 
@@ -186,11 +190,11 @@ export default function AppleSidebar({
                 alt={logoUrl ? "Company Logo" : "JiGR Default Logo"} 
                 className="w-full h-full object-contain p-2"
                 onError={(e) => {
-                  console.error('Company logo failed to load:', logoUrl);
+                  logger.error('Company logo failed to load:', logoUrl);
                   e.currentTarget.src = "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png";
                 }}
                 onLoad={() => {
-                  console.log('✅ SIDEBAR: Company logo loaded successfully:', logoUrl || 'JiGR default');
+                  logger.debug('SIDEBAR: Company logo loaded successfully:', logoUrl || 'JiGR default');
                 }}
               />
             </div>
@@ -255,10 +259,10 @@ export default function AppleSidebar({
                       alt="Modules" 
                       className="w-12 h-12 object-contain brightness-0 invert"
                       onError={(e) => {
-                        console.error('Failed to load JiGRmodules.png:', e);
+                        logger.error('Failed to load JiGRmodules.png:', e);
                         e.currentTarget.style.display = 'none';
                       }}
-                      onLoad={() => console.log('JiGRmodules.png loaded successfully')}
+                      onLoad={() => logger.debug('JiGRmodules.png loaded successfully')}
                     />
                   </div>
                 </>
@@ -277,10 +281,10 @@ export default function AppleSidebar({
                         className="w-12 h-12 object-contain brightness-0 invert"
                         title="Modules - Access all application features"
                         onError={(e) => {
-                          console.error('Failed to load JiGRmodules.png (expanded):', e);
+                          logger.error('Failed to load JiGRmodules.png (expanded):', e);
                           e.currentTarget.style.display = 'none';
                         }}
-                        onLoad={() => console.log('JiGRmodules.png (expanded) loaded successfully')}
+                        onLoad={() => logger.debug('JiGRmodules.png (expanded) loaded successfully')}
                       />
                     </div>
                     
@@ -398,15 +402,15 @@ export default function AppleSidebar({
                     <div 
                       className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
                       onClick={() => window.location.href = '/admin/profile'}
-                      title={`User Profile - Edit your profile information${userClient?.role === 'CHAMPION' ? ' | Champion User' : ''}`}
+                      title={`User Profile - Edit your profile information${userClient?.champion_enrolled ? ' | Hero User' : ''}`}
                     >
                     {userAvatar ? (
                       <img 
                         src={userAvatar} 
                         alt="User Avatar" 
                         className="w-full h-full object-cover"
-                        onLoad={() => console.log('✅ SIDEBAR: User avatar loaded successfully')}
-                        onError={() => console.log('⚠️ SIDEBAR: User avatar failed to load, showing initials')}
+                        onLoad={() => logger.debug('SIDEBAR: User avatar loaded successfully')}
+                        onError={() => logger.debug('SIDEBAR: User avatar failed to load, showing initials')}
                       />
                     ) : (
                       <span className="text-white font-bold text-lg">
@@ -415,10 +419,14 @@ export default function AppleSidebar({
                     )}
                     </div>
                     
-                    {/* Champion Badge */}
-                    {userClient?.role === 'CHAMPION' && (
+                    {/* Hero Badge */}
+                    {userClient?.champion_enrolled && (
                       <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-2 border-white/30 shadow-lg">
-                        <span className="text-xs">🏆</span>
+                        <img 
+                          src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"
+                          alt="Hero"
+                          className="w-4 h-4 object-contain"
+                        />
                       </div>
                     )}
                   </div>

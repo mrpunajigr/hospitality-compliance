@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         client_id,
         role,
         status,
+        champion_enrolled,
         clients (
           id,
           name,
@@ -64,6 +65,7 @@ export async function GET(request: NextRequest) {
       name: clientInfo.name,
       role: data.role,
       status: data.status,
+      champion_enrolled: data.champion_enrolled || false,
       jobTitle: undefined, // Will add later if needed
       business_type: clientInfo.business_type,
       business_email: clientInfo.business_email,
@@ -80,6 +82,8 @@ export async function GET(request: NextRequest) {
 
     console.log('✅ USER-CLIENT API: Successfully retrieved data:', {
       name: userClient.name,
+      role: userClient.role,
+      champion_enrolled: userClient.champion_enrolled,
       owner_name: userClient.owner_name,
       address: userClient.address,
       hasAddress: !!userClient.address,

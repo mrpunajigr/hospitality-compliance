@@ -255,7 +255,7 @@ export default function JobTitleConfigCard() {
     <>
       <ConfigCard
         title="Jobs"
-        description={`Setup the job titles in your ${userClient?.business_type || 'business'}`}
+        description="Define jobs"
         icon=""
         securityLevel={securityLevel}
         userPermissions={userPermissions}

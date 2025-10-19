@@ -12,6 +12,7 @@ export interface UserClient {
   name: string
   role: string
   status: string
+  champion_enrolled?: boolean
   jobTitle?: string
   business_type?: string
   business_email?: string
@@ -41,6 +42,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
         client_id,
         role,
         status,
+        champion_enrolled,
         clients (
           id,
           name
@@ -114,6 +116,7 @@ export async function getUserClient(userId: string): Promise<UserClient | null> 
       name: clientInfo.name,
       role: data.role,
       status: data.status,
+      champion_enrolled: data.champion_enrolled || false,
       jobTitle: undefined, // job_title column may not exist yet - will add later
       business_type: clientData.business_type,
       business_email: clientData.business_email,

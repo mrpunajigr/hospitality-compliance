@@ -172,6 +172,7 @@ export interface UserClient {
   lastActiveAt?: string
   department?: string
   jobTitle?: string
+  champion_enrolled?: boolean
   createdAt?: string
   metadata?: Record<string, any>
   // Client/Company details

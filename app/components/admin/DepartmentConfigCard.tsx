@@ -29,18 +29,23 @@ interface DepartmentFormData {
   sort_order: number
 }
 
-const SECURITY_LEVELS = [
-  { value: 'low', label: 'Low', description: 'Visible to all users' },
-  { value: 'medium', label: 'Medium', description: 'Staff and above' },
-  { value: 'high', label: 'High', description: 'Supervisor and above' },
-  { value: 'critical', label: 'Critical', description: 'Manager and above' }
+// Built-in hospitality departments
+const BUILTIN_DEPARTMENTS = [
+  { name: 'Kitchen', color: '#EF4444', description: 'Food preparation and cooking' },
+  { name: 'Front of House', color: '#3B82F6', description: 'Customer service and dining' },
+  { name: 'Bar', color: '#8B5CF6', description: 'Beverage service and bartending' },
+  { name: 'Management', color: '#10B981', description: 'Administrative and oversight' },
+  { name: 'Housekeeping', color: '#F59E0B', description: 'Cleaning and maintenance' },
+  { name: 'Maintenance', color: '#6B7280', description: 'Repairs and facility upkeep' },
+  { name: 'Administration', color: '#EC4899', description: 'Office and paperwork' },
+  { name: 'Events', color: '#14B8A6', description: 'Special events and functions' },
+  { name: 'Delivery', color: '#F97316', description: 'Food delivery and logistics' },
+  { name: 'Reception', color: '#6366F1', description: 'Guest check-in and concierge' }
 ]
-
-const DEFAULT_ICONS = ['🏢', '🍳', '🍽️', '🍺', '💼', '🧹', '🔧', '📋', '🎯', '⚙️']
-const DEFAULT_COLORS = ['#3B82F6', '#EF4444', '#10B981', '#8B5CF6', '#F59E0B', '#6B7280', '#EC4899', '#14B8A6', '#F97316', '#6366F1']
 
 export default function DepartmentConfigCard() {
   const [departments, setDepartments] = useState<Department[]>([])
+  const [userClient, setUserClient] = useState<any>(null)
   const [userPermissions, setUserPermissions] = useState({
     canCreate: false,
     canEdit: false,
@@ -50,28 +55,47 @@ export default function DepartmentConfigCard() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [editingDept, setEditingDept] = useState<Department | null>(null)
-  const [formData, setFormData] = useState<DepartmentFormData>({
-    name: '',
-    description: '',
-    color: '#3B82F6',
-    icon: '🏢',
-    security_level: 'medium',
-    sort_order: 0
-  })
+  const [newDeptName, setNewDeptName] = useState('')
+  const [renamingDept, setRenamingDept] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
 
   const { confirm, ConfirmationDialog } = useConfigConfirmation()
 
   useEffect(() => {
+    loadUserClient()
     loadDepartments()
   }, [])
+
+  const loadUserClient = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const clientInfo = await getUserClient(user.id)
+        if (clientInfo) {
+          setUserClient(clientInfo)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user client:', error)
+    }
+  }
 
   const loadDepartments = async () => {
     try {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch('/api/config/departments')
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
+      const response = await fetch('/api/config/departments', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
       const data = await response.json()
 
       if (!response.ok) {
@@ -87,110 +111,149 @@ export default function DepartmentConfigCard() {
     }
   }
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      color: '#3B82F6',
-      icon: '🏢',
-      security_level: 'medium',
-      sort_order: departments.length
-    })
-    setEditingDept(null)
-    setShowAddForm(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const toggleBuiltinDepartment = async (builtinDept: any, enable: boolean) => {
     try {
-      const isEdit = editingDept !== null
-      const url = '/api/config/departments'
-      const method = isEdit ? 'PUT' : 'POST'
-      
-      const payload = isEdit 
-        ? { id: editingDept.id, ...formData }
-        : formData
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} department`)
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
       }
 
-      await loadDepartments()
-      resetForm()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Operation failed')
-    }
-  }
+      if (enable) {
+        // Create/enable the department
+        const response = await fetch('/api/config/departments', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            name: builtinDept.name,
+            description: builtinDept.description,
+            color: builtinDept.color,
+            icon: '●',
+            security_level: 'medium',
+            sort_order: departments.length
+          })
+        })
 
-  const handleEdit = (dept: Department) => {
-    setFormData({
-      name: dept.name,
-      description: dept.description || '',
-      color: dept.color,
-      icon: dept.icon,
-      security_level: dept.security_level,
-      sort_order: dept.sort_order
-    })
-    setEditingDept(dept)
-    setShowAddForm(true)
-  }
-
-  const handleDelete = async (dept: Department) => {
-    const confirmed = await confirm({
-      title: 'Delete Department',
-      message: `Are you sure you want to delete "${dept.name}"? This action cannot be undone.`,
-      confirmText: 'Delete',
-      isDangerous: true,
-      onConfirm: async () => {
-        try {
-          const response = await fetch(`/api/config/departments?id=${dept.id}`, {
-            method: 'DELETE'
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to enable department')
+        }
+      } else {
+        // Disable the department
+        const existingDept = departments.find(d => d.name === builtinDept.name)
+        if (existingDept) {
+          const response = await fetch('/api/config/departments', {
+            method: 'PUT',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+              id: existingDept.id,
+              name: existingDept.name,
+              is_active: false
+            })
           })
 
           const data = await response.json()
-
           if (!response.ok) {
-            throw new Error(data.error || 'Failed to delete department')
+            throw new Error(data.error || 'Failed to disable department')
           }
-
-          await loadDepartments()
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Delete failed')
         }
       }
-    })
+
+      await loadDepartments()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Toggle failed')
+    }
   }
 
-  const toggleStatus = async (dept: Department) => {
+  const handleRename = (builtinDept: any) => {
+    const currentName = departments.find(d => d.name === builtinDept.name)?.name || builtinDept.name
+    setRenamingDept(builtinDept.name)
+    setRenameValue(currentName)
+  }
+
+  const saveRename = async () => {
+    if (!renamingDept || !renameValue.trim()) return
+
     try {
+      const existingDept = departments.find(d => d.name === renamingDept)
+      if (!existingDept) return
+
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
       const response = await fetch('/api/config/departments', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
-          id: dept.id,
-          name: dept.name,
-          is_active: !dept.is_active
+          id: existingDept.id,
+          name: renameValue.trim(),
+          description: existingDept.description,
+          color: existingDept.color,
+          icon: existingDept.icon
         })
       })
 
       const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update department status')
+        throw new Error(data.error || 'Failed to rename department')
       }
 
       await loadDepartments()
+      setRenamingDept(null)
+      setRenameValue('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Status update failed')
+      setError(err instanceof Error ? err.message : 'Rename failed')
+    }
+  }
+
+  const addCustomDepartment = async () => {
+    if (!newDeptName.trim()) return
+
+    try {
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
+      const response = await fetch('/api/config/departments', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          name: newDeptName.trim(),
+          description: 'Custom department',
+          color: '#6B7280',
+          icon: '●',
+          security_level: 'medium',
+          sort_order: departments.length
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add department')
+      }
+
+      await loadDepartments()
+      setNewDeptName('')
+      setShowAddForm(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Add failed')
     }
   }
 
@@ -204,220 +267,130 @@ export default function DepartmentConfigCard() {
   return (
     <>
       <ConfigCard
-        title="Business Departments"
-        description="Configure departments and organizational structure for your business"
-        icon="🏢"
+        title="Departments"
+        description="Select areas"
+        icon=""
         securityLevel={securityLevel}
         userPermissions={userPermissions}
         isLoading={isLoading}
         error={error || undefined}
         onRefresh={loadDepartments}
       >
-        {/* Departments List */}
+        {/* Built-in Departments with Toggles */}
         <div className="space-y-3 mb-6">
-          {departments.map((dept) => (
-            <div
-              key={dept.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
-            >
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                  style={{ backgroundColor: dept.color + '20', color: dept.color }}
-                >
-                  {dept.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-medium text-white">{dept.name}</h4>
-                    {userPermissions.canViewSecurity && (
-                      <SecurityBadge level={dept.security_level} size="sm" />
-                    )}
-                    {!dept.is_active && (
-                      <span className="px-2 py-0.5 text-xs bg-gray-500/20 text-gray-300 rounded">
-                        Inactive
-                      </span>
-                    )}
-                    {dept.is_default && (
-                      <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-300 rounded">
-                        Default
-                      </span>
-                    )}
+          {BUILTIN_DEPARTMENTS.map((builtinDept) => {
+            const isEnabled = departments.some(d => d.name === builtinDept.name && d.is_active)
+            const customName = departments.find(d => d.name === builtinDept.name)?.name || builtinDept.name
+            
+            return (
+              <div
+                key={builtinDept.name}
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200"
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: builtinDept.color }}
+                  >
                   </div>
-                  {dept.description && (
-                    <p className="text-sm text-white/60 mt-1">{dept.description}</p>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{customName}</h4>
+                    <p className="text-sm text-gray-600">{builtinDept.description}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <PermissionGate hasPermission={userPermissions.canEdit}>
+                    <button
+                      onClick={() => toggleBuiltinDepartment(builtinDept, !isEnabled)}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                        isEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                          isEnabled ? 'translate-x-7' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </PermissionGate>
+                  {isEnabled && (
+                    <button
+                      onClick={() => handleRename(builtinDept)}
+                      className="px-3 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
+                    >
+                      Rename
+                    </button>
                   )}
                 </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <PermissionGate hasPermission={userPermissions.canEdit}>
-                  <button
-                    onClick={() => toggleStatus(dept)}
-                    className="px-3 py-1 text-xs rounded bg-white/10 hover:bg-white/20 transition-colors"
-                  >
-                    {dept.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                  <button
-                    onClick={() => handleEdit(dept)}
-                    className="px-3 py-1 text-xs rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
-                  >
-                    Edit
-                  </button>
-                </PermissionGate>
-                
-                <PermissionGate hasPermission={userPermissions.canDelete && !dept.is_default}>
-                  <button
-                    onClick={() => handleDelete(dept)}
-                    className="px-3 py-1 text-xs rounded bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </PermissionGate>
-              </div>
-            </div>
-          ))}
-
-          {departments.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-white/60">
-              <span className="text-2xl block mb-2">🏢</span>
-              <p>No departments configured yet</p>
-            </div>
-          )}
+            )
+          })}
         </div>
 
-        {/* Add/Edit Form */}
-        <PermissionGate hasPermission={userPermissions.canCreate || (userPermissions.canEdit && !!editingDept)}>
-          {!showAddForm ? (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className={`${getButtonStyle('primary')} w-full`}
-            >
-              + Add Department
-            </button>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4 p-4 rounded-lg bg-white/5 border border-white/20">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-white">
-                  {editingDept ? 'Edit Department' : 'Add New Department'}
-                </h4>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="text-white/60 hover:text-white/80"
-                >
-                  ✕
-                </button>
-              </div>
+        {/* Rename Dialog */}
+        {renamingDept && (
+          <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 mb-4">
+            <h4 className="font-medium text-gray-900 mb-3">Rename Department</h4>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter new name"
+              />
+              <button
+                onClick={saveRename}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {setRenamingDept(null); setRenameValue('')}}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Department Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40"
-                    placeholder="e.g., Kitchen, Front of House"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Icon
-                  </label>
-                  <div className="flex gap-1 flex-wrap">
-                    {DEFAULT_ICONS.map((icon) => (
-                      <button
-                        key={icon}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, icon })}
-                        className={`w-8 h-8 rounded border ${
-                          formData.icon === icon 
-                            ? 'bg-blue-500/30 border-blue-400' 
-                            : 'bg-white/10 border-white/20 hover:bg-white/20'
-                        }`}
-                      >
-                        {icon}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40"
-                  placeholder="Brief description of this department"
-                  rows={2}
+        {/* Add Custom Department */}
+        <PermissionGate hasPermission={userPermissions.canCreate}>
+          <div className="border-t border-gray-200 pt-6">
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Add Custom Department</h4>
+            {!showAddForm ? (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
+              >
+                + Add Custom Department
+              </button>
+            ) : (
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={newDeptName}
+                  onChange={(e) => setNewDeptName(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter department name"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Color
-                  </label>
-                  <div className="flex gap-1 flex-wrap">
-                    {DEFAULT_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, color })}
-                        className={`w-6 h-6 rounded border-2 ${
-                          formData.color === color 
-                            ? 'border-white' 
-                            : 'border-white/20'
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Security Level
-                  </label>
-                  <select
-                    value={formData.security_level}
-                    onChange={(e) => setFormData({ ...formData, security_level: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  >
-                    {SECURITY_LEVELS.map((level) => (
-                      <option key={level.value} value={level.value} className="bg-gray-800">
-                        {level.label} - {level.description}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
                 <button
-                  type="submit"
-                  className={`${getButtonStyle('primary')} flex-1`}
+                  onClick={addCustomDepartment}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {editingDept ? 'Update Department' : 'Create Department'}
+                  Add
                 </button>
                 <button
-                  type="button"
-                  onClick={resetForm}
-                  className={`${getButtonStyle('outline')} px-4`}
+                  onClick={() => {setShowAddForm(false); setNewDeptName('')}}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                 >
                   Cancel
                 </button>
               </div>
-            </form>
-          )}
+            )}
+          </div>
         </PermissionGate>
       </ConfigCard>
 

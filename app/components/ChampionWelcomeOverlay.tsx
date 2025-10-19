@@ -24,7 +24,13 @@ export default function ChampionWelcomeOverlay({
 
   useEffect(() => {
     if (isVisible) {
-      setIsAnimating(true)
+      // Small delay to ensure smooth animation
+      const timer = setTimeout(() => {
+        setIsAnimating(true)
+      }, 50)
+      return () => clearTimeout(timer)
+    } else {
+      setIsAnimating(false)
     }
   }, [isVisible])
 
@@ -45,7 +51,7 @@ export default function ChampionWelcomeOverlay({
   return (
     <div 
       className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300 ${
-        isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-transparent'
+        isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-black/0'
       }`}
       onClick={handleDismiss}
     >

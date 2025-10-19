@@ -97,9 +97,39 @@ export const enableQuietMode = () => {
     url.searchParams.set('quiet', 'true')
     window.history.replaceState({}, '', url.toString())
     
+    // Override console.log globally to suppress all logs except errors and warnings
+    const originalLog = console.log
+    const originalInfo = console.info
+    
+    console.log = (...args: any[]) => {
+      // Suppress all console.log calls in quiet mode
+      // Only allow through explicit error/warning messages
+      const message = args.join(' ')
+      if (message.includes('❌') || message.includes('⚠️')) {
+        originalLog(...args)
+      }
+      // Champion messages are suppressed too for cleaner testing
+    }
+    
+    console.info = (...args: any[]) => {
+      // Suppress info logs in quiet mode
+    }
+    
+    // Store originals for restoration
+    ;(window as any).originalConsole = { log: originalLog, info: originalInfo }
+    
     // Show notification that quiet mode is enabled
-    console.log(`🔇 Quiet mode enabled - only showing errors, warnings, and important messages`)
-    console.log(`🔊 To re-enable debug logs, remove ?quiet=true from URL`)
+    originalLog(`🔇 Quiet mode enabled - console.log calls suppressed`)
+    originalLog(`🔊 To re-enable debug logs, remove ?quiet=true from URL`)
+  }
+}
+
+/**
+ * Auto-enable quiet mode by default for production-like experience
+ */
+export const autoEnableQuietMode = () => {
+  if (typeof window !== 'undefined' && !window.location.search.includes('verbose=true')) {
+    enableQuietMode()
   }
 }
 
@@ -111,6 +141,13 @@ export const disableQuietMode = () => {
     const url = new URL(window.location.href)
     url.searchParams.delete('quiet')
     window.history.replaceState({}, '', url.toString())
+    
+    // Restore original console functions
+    const originalConsole = (window as any).originalConsole
+    if (originalConsole) {
+      console.log = originalConsole.log
+      console.info = originalConsole.info
+    }
     
     console.log(`🔊 Debug logging re-enabled`)
   }
