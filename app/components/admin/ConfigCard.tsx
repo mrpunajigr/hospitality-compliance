@@ -76,14 +76,31 @@ export default function ConfigCard({
   const securityInfo = SECURITY_LEVELS[securityLevel.level] || SECURITY_LEVELS.low
 
   return (
-    <div className={`${getCardStyle('secondary')} ${className}`}>
+    <div className={`${getCardStyle('primary', 'light')} ${className}`}>
       {/* Card Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">{icon}</div>
+          <div className="flex items-center gap-3">
+            {/* Security Warning Icon (for high/critical levels) */}
+            {['high', 'critical'].includes(securityLevel.level) && (
+              <div className="relative group">
+                <img 
+                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.svg"
+                  alt="Security Warning"
+                  className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
+                />
+                {/* Hover Tooltip */}
+                <div className="absolute left-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                  <div className="font-medium">Security Warning</div>
+                  <div className="text-orange-100">{securityLevel.description}</div>
+                </div>
+              </div>
+            )}
+            <div className="text-2xl">{icon}</div>
+          </div>
           <div className="flex-1">
-            <h3 className={`${getTextStyle('cardTitle')} mb-1`}>{title}</h3>
-            <p className={`${getTextStyle('body')} text-white/60 text-sm`}>
+            <h3 className={`${getTextStyle('cardTitle', 'light')} mb-1`}>{title}</h3>
+            <p className={`${getTextStyle('body', 'light')} text-gray-600 text-sm`}>
               {description}
             </p>
           </div>
@@ -114,18 +131,6 @@ export default function ConfigCard({
         </div>
       </div>
 
-      {/* Security Warning */}
-      {['high', 'critical'].includes(securityLevel.level) && (
-        <div className="mb-4 p-3 rounded-lg bg-orange-500/20 border border-orange-500/40">
-          <div className="flex items-center gap-2 text-orange-300">
-            <span>⚠️</span>
-            <span className="text-sm font-medium">Security Warning</span>
-          </div>
-          <p className="text-xs text-orange-200 mt-1">
-            {securityLevel.description}
-          </p>
-        </div>
-      )}
 
       {/* Permission Summary (when collapsed) */}
       {!isExpanded && (
@@ -141,7 +146,7 @@ export default function ConfigCard({
               {userPermissions.canDelete ? '✓' : '✗'} Delete
             </span>
           </div>
-          <span className="text-xs text-white/60">
+          <span className="text-xs text-gray-600">
             Click to configure
           </span>
         </div>
@@ -175,7 +180,7 @@ export default function ConfigCard({
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></div>
-              <span className="ml-3 text-white/60">Loading configuration...</span>
+              <span className="ml-3 text-gray-600">Loading configuration...</span>
             </div>
           )}
 
@@ -195,7 +200,7 @@ export default function ConfigCard({
 
           {/* Permissions Detail */}
           <div className="pt-4 border-t border-white/20">
-            <h4 className="text-sm font-medium text-white/80 mb-3">Your Permissions</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Your Permissions</h4>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className={`flex items-center gap-2 ${userPermissions.canCreate ? 'text-green-400' : 'text-gray-500'}`}>
                 <span>{userPermissions.canCreate ? '✓' : '✗'}</span>
@@ -259,7 +264,7 @@ export function PermissionGate({
     return fallback ? <>{fallback}</> : (
       <div className="text-center py-4 text-white/60">
         <span className="text-lg">🔒</span>
-        <p className="text-sm mt-2">Insufficient permissions</p>
+        <p className="text-sm mt-2 text-gray-600">Insufficient permissions</p>
       </div>
     )
   }
