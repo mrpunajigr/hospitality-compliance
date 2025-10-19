@@ -170,11 +170,39 @@ export default function StorageConfigCard() {
     loadStorageAreas()
   }, [])
 
-  const expandedContent = (
-    <div className="space-y-6">
+  if (loading) {
+    return (
+      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <h3 className="text-white text-lg font-semibold">Storage</h3>
+          </div>
+        </div>
+        <div className="text-center py-4">
+          <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-white/70 text-sm">Loading storage areas...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <h3 className="text-white text-lg font-semibold">Storage</h3>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/10 border border-white/20 cursor-help">
+            <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+            <span className="font-medium text-orange-400 text-xs">High</span>
+          </div>
+        </div>
+        <p className="text-white/70 text-sm">Set areas</p>
+      </div>
+
       {/* Built-in Storage Areas Quick Setup */}
       {storageAreas.length === 0 && (
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="text-white font-medium mb-1">Quick Setup</h4>
@@ -193,7 +221,7 @@ export default function StorageConfigCard() {
 
       {/* Existing Storage Areas */}
       {storageAreas.length > 0 && (
-        <div>
+        <div className="mb-4">
           <h4 className="text-white font-medium mb-3">Current Storage Areas</h4>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {storageAreas.map((area) => (
@@ -301,26 +329,5 @@ export default function StorageConfigCard() {
         </button>
       </div>
     </div>
-  )
-
-  return (
-    <ConfigCard
-      title="Storage"
-      description="Set areas"
-      isLoading={loading}
-      securityLevel={{
-        level: 'high',
-        label: 'High Security',
-        description: 'Temperature monitoring affects food safety compliance',
-        color: 'text-orange-400'
-      }}
-      userPermissions={{
-        canCreate: true,
-        canEdit: true,
-        canDelete: true
-      }}
-    >
-      {expandedContent}
-    </ConfigCard>
   )
 }
