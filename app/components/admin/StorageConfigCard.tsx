@@ -15,14 +15,14 @@ interface StorageArea {
 }
 
 const BUILT_IN_STORAGE_AREAS = [
-  { name: 'Pantry', area_type: 'pantry', temperature_min: 15, temperature_max: 25 },
-  { name: 'Storeroom', area_type: 'storeroom', temperature_min: 15, temperature_max: 25 },
-  { name: 'Fridge 1', area_type: 'fridge', temperature_min: 0, temperature_max: 4 },
-  { name: 'Fridge 2', area_type: 'fridge', temperature_min: 0, temperature_max: 4 },
-  { name: 'Walk-in Chiller', area_type: 'chiller', temperature_min: 0, temperature_max: 4 },
-  { name: 'Freezer', area_type: 'freezer', temperature_min: -20, temperature_max: -15 },
-  { name: 'Under Bench Fridge', area_type: 'underbench', temperature_min: 0, temperature_max: 4 },
-  { name: 'Under Bench Freezer', area_type: 'underbench', temperature_min: -20, temperature_max: -15 }
+  { name: 'Pantry', area_type: 'pantry' },
+  { name: 'Storeroom', area_type: 'storeroom' },
+  { name: 'Fridge 1', area_type: 'fridge' },
+  { name: 'Fridge 2', area_type: 'fridge' },
+  { name: 'Walk-in Chiller', area_type: 'chiller' },
+  { name: 'Freezer', area_type: 'freezer' },
+  { name: 'Under Bench Fridge', area_type: 'underbench' },
+  { name: 'Under Bench Freezer', area_type: 'underbench' }
 ]
 
 export default function StorageConfigCard() {
@@ -31,8 +31,6 @@ export default function StorageConfigCard() {
   const [saving, setSaving] = useState(false)
   const [newAreaName, setNewAreaName] = useState('')
   const [newAreaType, setNewAreaType] = useState<string>('fridge')
-  const [newTempMin, setNewTempMin] = useState<number>(0)
-  const [newTempMax, setNewTempMax] = useState<number>(4)
 
   const loadStorageAreas = async () => {
     setLoading(true)
@@ -91,9 +89,7 @@ export default function StorageConfigCard() {
           action: 'create',
           storage_area: {
             name: newAreaName,
-            area_type: newAreaType,
-            temperature_min: newTempMin,
-            temperature_max: newTempMax
+            area_type: newAreaType
           }
         })
       })
@@ -102,8 +98,6 @@ export default function StorageConfigCard() {
         await loadStorageAreas()
         setNewAreaName('')
         setNewAreaType('fridge')
-        setNewTempMin(0)
-        setNewTempMax(4)
       } else {
         console.error('Failed to add custom storage area')
       }
@@ -175,12 +169,12 @@ export default function StorageConfigCard() {
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <h3 className="text-white text-lg font-semibold">Storage</h3>
+            <h3 className="text-black text-lg font-semibold">Storage</h3>
           </div>
         </div>
         <div className="text-center py-4">
-          <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-          <p className="text-white/70 text-sm">Loading storage areas...</p>
+          <div className="animate-spin h-6 w-6 border-2 border-gray-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Loading storage areas...</p>
         </div>
       </div>
     )
@@ -191,13 +185,13 @@ export default function StorageConfigCard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <h3 className="text-white text-lg font-semibold">Storage</h3>
+          <h3 className="text-black text-lg font-semibold">Storage</h3>
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/10 border border-white/20 cursor-help">
             <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
             <span className="font-medium text-orange-400 text-xs">High</span>
           </div>
         </div>
-        <p className="text-white/70 text-sm">Set areas</p>
+        <p className="text-gray-600 text-sm">Set areas</p>
       </div>
 
       {/* Built-in Storage Areas Quick Setup */}
@@ -205,8 +199,8 @@ export default function StorageConfigCard() {
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-white font-medium mb-1">Quick Setup</h4>
-              <p className="text-white/70 text-sm">Add standard storage areas for your business</p>
+              <h4 className="text-black font-medium mb-1">Quick Setup</h4>
+              <p className="text-gray-600 text-sm">Add standard storage areas for your business</p>
             </div>
             <button
               onClick={handleAddBuiltInAreas}
@@ -222,7 +216,7 @@ export default function StorageConfigCard() {
       {/* Existing Storage Areas */}
       {storageAreas.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-white font-medium mb-3">Current Storage Areas</h4>
+          <h4 className="text-black font-medium mb-3">Current Storage Areas</h4>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {storageAreas.map((area) => (
               <div
@@ -231,15 +225,10 @@ export default function StorageConfigCard() {
               >
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <span className="text-white font-medium">{area.name}</span>
-                    <span className="text-xs bg-white/10 text-white/70 px-2 py-1 rounded">
+                    <span className="text-black font-medium">{area.name}</span>
+                    <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                       {area.area_type}
                     </span>
-                    {area.temperature_min !== undefined && area.temperature_max !== undefined && (
-                      <span className="text-xs text-blue-300">
-                        {area.temperature_min}°C to {area.temperature_max}°C
-                      </span>
-                    )}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -273,24 +262,24 @@ export default function StorageConfigCard() {
 
       {/* Add Custom Storage Area */}
       <div>
-        <h4 className="text-white font-medium mb-3">Add Custom Storage Area</h4>
+        <h4 className="text-black font-medium mb-3">Add Custom Storage Area</h4>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-white/70 text-sm mb-2">Area Name</label>
+            <label className="block text-gray-600 text-sm mb-2">Area Name</label>
             <input
               type="text"
               value={newAreaName}
               onChange={(e) => setNewAreaName(e.target.value)}
               placeholder="e.g., Cold Room 3"
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/50"
+              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black placeholder-gray-400"
             />
           </div>
           <div>
-            <label className="block text-white/70 text-sm mb-2">Area Type</label>
+            <label className="block text-gray-600 text-sm mb-2">Area Type</label>
             <select
               value={newAreaType}
               onChange={(e) => setNewAreaType(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black"
             >
               <option value="pantry">Pantry</option>
               <option value="storeroom">Storeroom</option>
@@ -300,24 +289,6 @@ export default function StorageConfigCard() {
               <option value="underbench">Under Bench</option>
               <option value="other">Other</option>
             </select>
-          </div>
-          <div>
-            <label className="block text-white/70 text-sm mb-2">Min Temp (°C)</label>
-            <input
-              type="number"
-              value={newTempMin}
-              onChange={(e) => setNewTempMin(Number(e.target.value))}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-white/70 text-sm mb-2">Max Temp (°C)</label>
-            <input
-              type="number"
-              value={newTempMax}
-              onChange={(e) => setNewTempMax(Number(e.target.value))}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
-            />
           </div>
         </div>
         <button
