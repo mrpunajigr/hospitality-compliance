@@ -118,7 +118,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleAdmin.png',
     pages: [
       { key: 'architecture-testing', label: 'Architecture', href: '/dev/architecture-testing' },
-      { key: 'field-configuration', label: 'Field Config', href: '/dev/field-configuration' },
+      { key: 'configcard-planner', label: 'ConfigCard Planner', href: '/dev/configcard-planner' },
       { key: 'configcard-designer', label: 'ConfigCard Designer', href: '/dev/configcard-designer' },
       { key: 'console', label: 'Console', href: '/dev/console' }
     ],
