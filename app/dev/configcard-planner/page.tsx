@@ -176,6 +176,80 @@ export default function ConfigCardPlannerPage() {
     setPlans(plans.filter(plan => plan.id !== planId));
   };
 
+  const handleImportExisting = async () => {
+    try {
+      // Import existing Department ConfigCard as an example
+      const departmentPlan: ConfigCardPlan = {
+        id: 'department-import',
+        name: 'Departments',
+        cardPurpose: 'Department Management',
+        description: 'Manage organizational departments including Kitchen, Front of House, Bar, Management, and support areas',
+        module: 'ADMIN',
+        moduleSection: 'Organization',
+        securityLevel: 'medium',
+        accessLevel: 'managers-and-owners',
+        layoutPreference: 'two-columns',
+        userPermissions: 'can-edit',
+        implemented: true, // Mark as already implemented
+        generatedAt: '2024-01-01T00:00:00.000Z',
+        sqlGenerated: true,
+        configCardGenerated: true,
+        fields: [
+          {
+            id: 'department-selection',
+            purpose: 'Select which department this record applies to',
+            label: 'Department',
+            fieldType: 'choose-from-list',
+            required: true,
+            useCase: 'For organizational structure and workflow management',
+            options: [
+              'Kitchen',
+              'Front of House', 
+              'Bar',
+              'Management',
+              'Housekeeping',
+              'Maintenance',
+              'Administration',
+              'Events',
+              'Delivery',
+              'Reception'
+            ],
+            defaultValue: 'Kitchen',
+            helpText: 'Choose the primary department for this record'
+          },
+          {
+            id: 'department-notes',
+            purpose: 'Additional department-specific information',
+            label: 'Department Notes',
+            fieldType: 'long-text',
+            required: false,
+            useCase: 'For specific details, responsibilities, or special requirements',
+            helpText: 'Add any additional information about this department record'
+          }
+        ]
+      };
+
+      // Add to existing plans
+      setPlans(prevPlans => [...prevPlans, departmentPlan]);
+      
+      alert(`✅ Successfully Imported!
+
+Department ConfigCard has been imported into the planner.
+
+You can now:
+• Edit the department options
+• Modify field labels and descriptions  
+• Adjust security and access settings
+• Generate updated implementation files
+
+The original Department ConfigCard is marked as "IMPLEMENTED" since it already exists in your system.`);
+
+    } catch (error) {
+      console.error('Import failed:', error);
+      alert('❌ Import failed. Please try again.');
+    }
+  };
+
   const handleAddField = () => {
     const newField: FieldPlan = {
       id: `field-${Date.now()}`,
@@ -356,6 +430,17 @@ Please check the console for details.`);
                     className="w-4 h-4"
                   />
                   Reload
+                </button>
+                <button
+                  onClick={handleImportExisting}
+                  className={`${getButtonStyle('outline')} px-4 py-2 flex items-center gap-2`}
+                >
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/upload.png" 
+                    alt="Import" 
+                    className="w-4 h-4"
+                  />
+                  Import Existing
                 </button>
                 <button
                   onClick={handleNewPlan}
