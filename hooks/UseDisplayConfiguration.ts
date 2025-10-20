@@ -105,7 +105,7 @@ export function useDisplayConfiguration(companyId: string): UseDisplayConfigurat
       setError(new Error(errorMessage));
       
       // Fallback to defaults on error
-      const defaultConfig = GetDefaultConfiguration();
+      const defaultConfig = await GetDefaultConfiguration();
       setConfig(defaultConfig);
     } finally {
       setLoading(false);

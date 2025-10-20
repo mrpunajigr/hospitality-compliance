@@ -294,7 +294,9 @@ export default function FieldConfigurationPage() {
     return (
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
-          <ModuleHeader module={moduleConfig} currentPage="field-configuration" />
+          {moduleConfig && (
+            <ModuleHeader module={moduleConfig} currentPage="field-configuration" />
+          )}
         </div>
         <div className="text-center py-12">
           <div className="text-4xl mb-4">⏳</div>
@@ -316,7 +318,9 @@ export default function FieldConfigurationPage() {
       
       {/* Header */}
       <div className="mb-6">
-        <ModuleHeader module={moduleConfig} currentPage="field-configuration" />
+        {moduleConfig && (
+          <ModuleHeader module={moduleConfig} currentPage="field-configuration" />
+        )}
       </div>
 
       {/* Page Header */}

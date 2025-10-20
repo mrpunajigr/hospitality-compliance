@@ -116,18 +116,18 @@ export function useConfigCardData<T extends ConfigItem>(
 
         // For job titles API, add additional required fields
         if (apiEndpoint.includes('job-titles')) {
-          itemData.hierarchy_level = 1
-          itemData.security_clearance = 'standard'
-          itemData.primary_department_id = ''
-          itemData.reports_to_title_id = ''
+          (itemData as any).hierarchy_level = 1
+          ;(itemData as any).security_clearance = 'standard'
+          ;(itemData as any).primary_department_id = ''
+          ;(itemData as any).reports_to_title_id = ''
         }
 
         // For security API, use different field structure
         if (apiEndpoint.includes('security')) {
-          itemData.setting_key = builtInItem.key
-          itemData.setting_name = builtInItem.name
-          itemData.setting_value = builtInItem.defaultValue
-          itemData.category = builtInItem.category
+          (itemData as any).setting_key = builtInItem.key
+          ;(itemData as any).setting_name = builtInItem.name
+          ;(itemData as any).setting_value = builtInItem.defaultValue
+          ;(itemData as any).category = builtInItem.category
         }
 
         // For storage areas API, use different field structure
@@ -163,12 +163,12 @@ export function useConfigCardData<T extends ConfigItem>(
           
           // Add the correct field based on API endpoint
           if (apiEndpoint.includes('job-titles')) {
-            updateData.title = (existingItem as any).title
+            (updateData as any).title = (existingItem as any).title
           } else if (apiEndpoint.includes('security')) {
-            updateData.is_enabled = false
-            delete updateData.is_active // Security uses is_enabled instead
+            (updateData as any).is_enabled = false
+            delete (updateData as any).is_active // Security uses is_enabled instead
           } else {
-            updateData.name = existingItem.name
+            (updateData as any).name = (existingItem as any).name
           }
 
           const response = await fetch(apiEndpoint, {

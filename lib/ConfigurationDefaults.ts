@@ -390,5 +390,6 @@ export function UpdateFieldConfig(
 
 // Helper function to check if string is valid field key
 function IsFieldKey(key: string): key is FieldKey {
-  return [...MANDATORY_FIELDS, ...OPTIONAL_FIELDS].includes(key as FieldKey);
+  const validKeys = [...MANDATORY_FIELDS, ...OPTIONAL_FIELDS] as string[];
+  return validKeys.includes(key);
 }

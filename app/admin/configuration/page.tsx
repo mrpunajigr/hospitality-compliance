@@ -92,10 +92,12 @@ export default function ConfigurationPage() {
     return (
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
-          <ModuleHeader 
-            module={moduleConfig}
-            currentPage="configuration"
-          />
+          {moduleConfig && (
+            <ModuleHeader 
+              module={moduleConfig}
+              currentPage="configuration"
+            />
+          )}
         </div>
 
         <div className="space-y-8">
@@ -121,10 +123,12 @@ export default function ConfigurationPage() {
     return (
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
-          <ModuleHeader 
-            module={moduleConfig}
-            currentPage="configuration"
-          />
+          {moduleConfig && (
+            <ModuleHeader 
+              module={moduleConfig}
+              currentPage="configuration"
+            />
+          )}
         </div>
 
         <div className="flex items-center justify-center py-12">
@@ -142,10 +146,12 @@ export default function ConfigurationPage() {
     return (
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
-          <ModuleHeader 
-            module={moduleConfig}
-            currentPage="configuration"
-          />
+          {moduleConfig && (
+            <ModuleHeader 
+              module={moduleConfig}
+              currentPage="configuration"
+            />
+          )}
         </div>
 
         <div className="text-center py-12">
@@ -173,10 +179,12 @@ export default function ConfigurationPage() {
       
       {/* Header */}
       <div className="mb-6">
-        <ModuleHeader 
-          module={moduleConfig}
-          currentPage="configuration"
-        />
+        {moduleConfig && (
+          <ModuleHeader 
+            module={moduleConfig}
+            currentPage="configuration"
+          />
+        )}
       </div>
 
       {/* Configuration Status Summary */}
