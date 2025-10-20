@@ -44,6 +44,8 @@ interface ConfigCardDefinition {
 
 export default function ConfigCardDesignerPage() {
   const [configCards, setConfigCards] = useState<ConfigCardDefinition[]>([]);
+  const [editingCard, setEditingCard] = useState<ConfigCardDefinition | null>(null);
+  const [isNewCard, setIsNewCard] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const moduleConfig = getModuleConfig('dev');
@@ -103,6 +105,68 @@ export default function ConfigCardDesignerPage() {
         ]
       }
     ];
+  };
+
+  const handleAddConfigCard = () => {
+    const newCard: ConfigCardDefinition = {
+      id: '',
+      name: '',
+      title: '',
+      description: '',
+      securityLevel: 'medium',
+      category: 'admin',
+      layout: 'two-column',
+      enabled: true,
+      fields: []
+    };
+    setEditingCard(newCard);
+    setIsNewCard(true);
+  };
+
+  const handleEditConfigCard = (card: ConfigCardDefinition) => {
+    setEditingCard({ ...card });
+    setIsNewCard(false);
+  };
+
+  const handleSaveConfigCard = async () => {
+    if (!editingCard) return;
+
+    let updatedCards;
+    if (isNewCard) {
+      editingCard.id = editingCard.name.toLowerCase().replace(/\s+/g, '-');
+      updatedCards = [...configCards, editingCard];
+    } else {
+      updatedCards = configCards.map(card => 
+        card.id === editingCard.id ? editingCard : card
+      );
+    }
+
+    setConfigCards(updatedCards);
+
+    // Auto-save to database
+    try {
+      const response = await fetch('/api/config/configcards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCards)
+      });
+
+      if (response.ok) {
+        console.log('✅ ConfigCard definitions auto-saved');
+      } else {
+        console.warn('⚠️ Failed to auto-save ConfigCard definitions');
+      }
+    } catch (error) {
+      console.warn('⚠️ Auto-save error:', error);
+    }
+
+    setEditingCard(null);
+    setIsNewCard(false);
+  };
+
+  const handleDeleteConfigCard = (cardId: string) => {
+    if (!confirm('Are you sure you want to delete this ConfigCard?')) return;
+    setConfigCards(configCards.filter(card => card.id !== cardId));
   };
 
   const getSecurityLevelColor = (level: string) => {
@@ -180,7 +244,7 @@ export default function ConfigCardDesignerPage() {
                   Reload
                 </button>
                 <button
-                  onClick={() => alert('Integration complete! Field Browser and deployment features linked.')}
+                  onClick={handleAddConfigCard}
                   className={`${getButtonStyle('primary')} px-6 py-2 font-semibold flex items-center gap-2`}
                 >
                   <img 
@@ -263,15 +327,16 @@ export default function ConfigCardDesignerPage() {
                     Browse Fields
                   </button>
                   <button
-                    onClick={() => alert('Deploy: Ready to deploy to live admin interface')}
-                    className="px-3 py-1 text-xs bg-green-50 text-green-600 rounded hover:bg-green-100 flex items-center gap-1"
+                    onClick={() => handleEditConfigCard(card)}
+                    className="px-3 py-1 text-xs bg-gray-50 text-gray-600 rounded hover:bg-gray-100"
                   >
-                    <img 
-                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/deploy.png" 
-                      alt="Deploy" 
-                      className="w-3 h-3"
-                    />
-                    Deploy
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteConfigCard(card.id)}
+                    className="px-3 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+                  >
+                    Delete
                   </button>
                 </div>
               </div>
@@ -315,6 +380,199 @@ export default function ConfigCardDesignerPage() {
             </div>
           </div>
 
+          {/* ConfigCard Editor Modal */}
+          {editingCard && (
+            <ConfigCardEditorModal
+              card={editingCard}
+              isNew={isNewCard}
+              onSave={handleSaveConfigCard}
+              onCancel={() => {
+                setEditingCard(null);
+                setIsNewCard(false);
+              }}
+              onChange={setEditingCard}
+            />
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ConfigCard Editor Modal Component
+interface ConfigCardEditorModalProps {
+  card: ConfigCardDefinition;
+  isNew: boolean;
+  onSave: () => void;
+  onCancel: () => void;
+  onChange: (card: ConfigCardDefinition) => void;
+}
+
+function ConfigCardEditorModal({ card, isNew, onSave, onCancel, onChange }: ConfigCardEditorModalProps) {
+  const updateCard = (updates: Partial<ConfigCardDefinition>) => {
+    onChange({ ...card, ...updates });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6 text-gray-900`}>
+            {isNew ? 'Create New ConfigCard' : 'Edit ConfigCard'}
+          </h2>
+
+          <div className="space-y-6">
+            {/* Basic Information */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ConfigCard Name *
+                </label>
+                <input
+                  type="text"
+                  value={card.name}
+                  onChange={(e) => updateCard({ name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g. User Profile"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Display Title *
+                </label>
+                <input
+                  type="text"
+                  value={card.title}
+                  onChange={(e) => updateCard({ title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g. User Profile Information"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description *
+              </label>
+              <textarea
+                value={card.description}
+                onChange={(e) => updateCard({ description: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+                placeholder="Describe what this ConfigCard is used for..."
+              />
+            </div>
+
+            {/* Configuration Options */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Security Level
+                </label>
+                <select
+                  value={card.securityLevel}
+                  onChange={(e) => updateCard({ securityLevel: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
+                <select
+                  value={card.category}
+                  onChange={(e) => updateCard({ category: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                  <option value="reporting">Reporting</option>
+                  <option value="compliance">Compliance</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Layout
+                </label>
+                <select
+                  value={card.layout}
+                  onChange={(e) => updateCard({ layout: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="single-column">Single Column</option>
+                  <option value="two-column">Two Column</option>
+                  <option value="grid">Grid</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Fields Preview */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Fields ({card.fields.length})</h3>
+                <button
+                  onClick={() => alert('Field management coming soon!')}
+                  className={`${getButtonStyle('outline')} px-4 py-2 text-sm`}
+                >
+                  + Add Field
+                </button>
+              </div>
+
+              {card.fields.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">📝</div>
+                  <p>No fields defined yet</p>
+                  <p className="text-sm">Click "Add Field" to start building your ConfigCard</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {card.fields
+                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                    .map((field) => (
+                      <div key={field.id} className="p-3 border border-gray-200 rounded bg-gray-50">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-900">{field.label}</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                {field.fieldType}
+                              </span>
+                              {field.required && (
+                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                                  Required
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">{field.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+            <button
+              onClick={onCancel}
+              className={`${getButtonStyle('outline')} px-4 py-2`}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onSave}
+              className={`${getButtonStyle('primary')} px-6 py-2 font-semibold`}
+              disabled={!card.name || !card.title || !card.description}
+            >
+              {isNew ? 'Create ConfigCard' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
