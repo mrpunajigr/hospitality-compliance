@@ -148,7 +148,7 @@ export const SECURITY_LEVELS: Record<string, SecurityLevel> = {
     level: 'high',
     label: 'Restricted',
     description: 'Changes affect security permissions',
-    color: 'text-orange-400'
+    color: 'text-purple-400'
   },
   critical: {
     level: 'critical',

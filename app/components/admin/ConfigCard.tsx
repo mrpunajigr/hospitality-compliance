@@ -48,7 +48,7 @@ const SECURITY_LEVELS: Record<string, SecurityLevel> = {
     level: 'high',
     label: 'Restricted',
     description: 'Changes affect security permissions',
-    color: 'text-orange-400'
+    color: 'text-purple-400'
   },
   critical: {
     level: 'critical',
@@ -75,8 +75,19 @@ export default function ConfigCard({
 
   const securityInfo = SECURITY_LEVELS[securityLevel.level] || SECURITY_LEVELS.low
 
+  // Generate security-based corner gradient background (inspired by screenshot)
+  const getSecurityGradient = (level: string) => {
+    const gradients = {
+      low: 'bg-gradient-to-br from-green-400/[0.092] via-green-400/[0.035] via-transparent via-transparent to-transparent',
+      medium: 'bg-gradient-to-br from-yellow-400/[0.092] via-yellow-400/[0.035] via-transparent via-transparent to-transparent', 
+      high: 'bg-gradient-to-br from-purple-400/[0.115] via-purple-400/[0.046] via-transparent via-transparent to-transparent',
+      critical: 'bg-gradient-to-br from-red-400/[0.138] via-red-400/[0.058] via-transparent via-transparent to-transparent'
+    }
+    return gradients[level as keyof typeof gradients] || gradients.low
+  }
+
   return (
-    <div className={`${getCardStyle('primary', 'light')} ${className}`}>
+    <div className={`${getCardStyle('secondary', 'light')} ${getSecurityGradient(securityLevel.level)} relative ${className}`}>
       {/* Card Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3">
@@ -106,19 +117,8 @@ export default function ConfigCard({
           </div>
         </div>
 
-        {/* Security Badge and Controls */}
+        {/* Controls */}
         <div className="flex items-center gap-2">
-          {/* Security Level Badge */}
-          <div 
-            className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 cursor-help"
-            title={`${securityInfo.label}: ${securityInfo.description}`}
-          >
-            <div className={`w-2 h-2 rounded-full ${securityInfo.color.replace('text-', 'bg-')}`} />
-            <span className={`text-xs font-medium ${securityInfo.color}`}>
-              {securityInfo.label}
-            </span>
-          </div>
-
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}

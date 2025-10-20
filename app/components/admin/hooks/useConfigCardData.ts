@@ -101,23 +101,47 @@ export function useConfigCardData<T extends ConfigItem>(
 
       if (enable) {
         // Create/enable the item
+        const itemData = {
+          ...builtInItem, // Include any additional properties first
+          name: builtInItem.name,
+          title: builtInItem.name, // For job titles API
+          description: builtInItem.description || 'Built-in item',
+          color: builtInItem.color || '#6B7280',
+          icon: builtInItem.icon || '●',
+          area_type: builtInItem.area_type,
+          default_role: builtInItem.default_role,
+          security_level: 'medium',
+          sort_order: items.length
+        }
+
+        // For job titles API, add additional required fields
+        if (apiEndpoint.includes('job-titles')) {
+          itemData.hierarchy_level = 1
+          itemData.security_clearance = 'standard'
+          itemData.primary_department_id = ''
+          itemData.reports_to_title_id = ''
+        }
+
+        // For security API, use different field structure
+        if (apiEndpoint.includes('security')) {
+          itemData.setting_key = builtInItem.key
+          itemData.setting_name = builtInItem.name
+          itemData.setting_value = builtInItem.defaultValue
+          itemData.category = builtInItem.category
+        }
+
+        // For storage areas API, use different field structure
+        if (apiEndpoint.includes('storage-areas')) {
+          itemData.area_type = builtInItem.area_type
+        }
+
         const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            ...builtInItem, // Include any additional properties first
-            name: builtInItem.name,
-            description: builtInItem.description || 'Built-in item',
-            color: builtInItem.color || '#6B7280',
-            icon: builtInItem.icon || '●',
-            area_type: builtInItem.area_type,
-            default_role: builtInItem.default_role,
-            security_level: 'medium',
-            sort_order: items.length
-          })
+          body: JSON.stringify(itemData)
         })
 
         const data = await response.json()
@@ -126,19 +150,34 @@ export function useConfigCardData<T extends ConfigItem>(
         }
       } else {
         // Disable the item
-        const existingItem = items.find(item => item.name === builtInItem.name)
+        const existingItem = items.find(item => 
+          (item.name === builtInItem.name) || 
+          ((item as any).title === builtInItem.name) ||
+          ((item as any).setting_key === builtInItem.key)
+        )
         if (existingItem) {
+          const updateData = {
+            id: existingItem.id,
+            is_active: false
+          }
+          
+          // Add the correct field based on API endpoint
+          if (apiEndpoint.includes('job-titles')) {
+            updateData.title = (existingItem as any).title
+          } else if (apiEndpoint.includes('security')) {
+            updateData.is_enabled = false
+            delete updateData.is_active // Security uses is_enabled instead
+          } else {
+            updateData.name = existingItem.name
+          }
+
           const response = await fetch(apiEndpoint, {
             method: 'PUT',
             headers: { 
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-              id: existingItem.id,
-              name: existingItem.name,
-              is_active: false
-            })
+            body: JSON.stringify(updateData)
           })
 
           const data = await response.json()

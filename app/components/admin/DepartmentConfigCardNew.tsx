@@ -20,16 +20,16 @@ interface Department extends ConfigItem {
 
 // Built-in hospitality departments
 const BUILTIN_DEPARTMENTS = [
-  { name: 'Kitchen', color: '#EF4444', description: 'Food preparation and cooking' },
-  { name: 'Front of House', color: '#3B82F6', description: 'Customer service and dining' },
-  { name: 'Bar', color: '#8B5CF6', description: 'Beverage service and bartending' },
-  { name: 'Management', color: '#10B981', description: 'Administrative and oversight' },
-  { name: 'Housekeeping', color: '#F59E0B', description: 'Cleaning and maintenance' },
-  { name: 'Maintenance', color: '#6B7280', description: 'Repairs and facility upkeep' },
-  { name: 'Administration', color: '#EC4899', description: 'Office and paperwork' },
-  { name: 'Events', color: '#14B8A6', description: 'Special events and functions' },
-  { name: 'Delivery', color: '#F97316', description: 'Food delivery and logistics' },
-  { name: 'Reception', color: '#6366F1', description: 'Guest check-in and concierge' }
+  { name: 'Kitchen', color: '#EF4444' },
+  { name: 'Front of House', color: '#3B82F6' },
+  { name: 'Bar', color: '#8B5CF6' },
+  { name: 'Management', color: '#10B981' },
+  { name: 'Housekeeping', color: '#F59E0B' },
+  { name: 'Maintenance', color: '#6B7280' },
+  { name: 'Administration', color: '#EC4899' },
+  { name: 'Events', color: '#14B8A6' },
+  { name: 'Delivery', color: '#F97316' },
+  { name: 'Reception', color: '#6366F1' }
 ]
 
 export default function DepartmentConfigCardNew() {
@@ -44,6 +44,7 @@ export default function DepartmentConfigCardNew() {
     <ConfigCardTemplate<Department>
       title="Departments"
       description="Select areas"
+      icon=""
       securityLevel={securityLevel}
       apiEndpoint="/api/config/departments"
       builtInItems={BUILTIN_DEPARTMENTS}

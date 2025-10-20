@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      departments: filteredDepartments || [],
+      items: filteredDepartments || [],
       userPermissions: {
         canCreate: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
         canEdit: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
+    console.log('🔍 DEPARTMENTS API: Received body:', JSON.stringify(body, null, 2))
     const { name, description, color, icon, security_level, sort_order } = body
 
     // Validate required fields
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate security level if provided
-    const validSecurityLevels = ['public', 'internal', 'restricted', 'confidential']
+    const validSecurityLevels = ['low', 'medium', 'high', 'critical']
     if (security_level && !validSecurityLevels.includes(security_level)) {
       return NextResponse.json({ error: 'Invalid security level' }, { status: 400 })
     }
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
         description: description?.trim() || null,
         color: color || '#3B82F6',
         icon: icon || '🏢',
-        security_level: security_level || 'internal',
+        security_level: security_level || 'medium',
         sort_order: sort_order || 0,
         is_active: true,
         is_default: false,
@@ -152,11 +153,30 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      console.error('Department creation error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        clientId: userClient.clientId,
+        userId: user.id,
+        department: { name: name.trim(), security_level: security_level || 'medium' }
+      })
+      
       if (error.code === '23505') { // Unique constraint violation
         return NextResponse.json({ error: 'Department name already exists' }, { status: 409 })
       }
-      console.error('Department creation error:', error)
-      return NextResponse.json({ error: 'Failed to create department' }, { status: 500 })
+      if (error.code === '23503') { // Foreign key constraint violation
+        return NextResponse.json({ error: 'Invalid client or user reference' }, { status: 400 })
+      }
+      if (error.code === '23514') { // Check constraint violation
+        return NextResponse.json({ error: 'Invalid data format or security level' }, { status: 400 })
+      }
+      
+      return NextResponse.json({ 
+        error: 'Failed to create department', 
+        details: error.message 
+      }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -232,7 +252,7 @@ export async function PUT(request: NextRequest) {
 
     // Only OWNER can change security levels of restricted/confidential departments
     if (security_level) {
-      const validSecurityLevels = ['public', 'internal', 'restricted', 'confidential']
+      const validSecurityLevels = ['low', 'medium', 'high', 'critical']
       if (!validSecurityLevels.includes(security_level)) {
         return NextResponse.json({ error: 'Invalid security level' }, { status: 400 })
       }

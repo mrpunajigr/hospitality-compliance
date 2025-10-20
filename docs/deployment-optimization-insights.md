@@ -5,7 +5,7 @@
 ## 🔄 Why Pages Don't Get New Versions When Unchanged
 
 ### Core Concept
-When deploying to platforms like Vercel/Netlify, unchanged pages retain their previous versions due to intelligent build optimization.
+When deploying to platforms like Netlify, unchanged pages retain their previous versions due to intelligent build optimization.
 
 ### Technical Implementation
 
@@ -62,16 +62,6 @@ if (pageHash === cachedHash) {
 
 ### Platform-Specific Behavior
 
-#### Vercel
-```yaml
-Build Strategy:
-  - Analyze file changes since last deploy
-  - Generate dependency graph
-  - Skip unchanged static pages
-  - Rebuild only affected pages
-  - Update deployment manifest
-```
-
 #### Netlify
 ```yaml
 Build Strategy:
@@ -80,6 +70,11 @@ Build Strategy:
   - Selective page regeneration
   - Asset optimization caching
   - Deploy diff generation
+  - Analyze file changes since last deploy
+  - Generate dependency graph
+  - Skip unchanged static pages
+  - Rebuild only affected pages
+  - Update deployment manifest
 ```
 
 ### Development Implications

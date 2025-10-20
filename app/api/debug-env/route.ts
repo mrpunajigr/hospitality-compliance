@@ -23,9 +23,8 @@ export async function GET() {
     // Domain Configuration
     domainConfig: {
       nextPublicAppUrl: process.env.NEXT_PUBLIC_APP_URL || 'Not set',
-      vercelUrl: process.env.VERCEL_URL || 'Not set',
       netlifyUrl: process.env.NETLIFY_URL || 'Not set',
-      currentDomain: process.env.VERCEL_URL || process.env.NETLIFY_URL || 'localhost'
+      currentDomain: process.env.NETLIFY_URL || 'localhost'
     },
     
     // Supabase Configuration

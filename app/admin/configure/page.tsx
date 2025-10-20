@@ -12,8 +12,9 @@ import { ModuleHeader } from '@/app/components/ModuleHeader'
 // import RoleConfigCard from '@/app/components/admin/RoleConfigCard'
 import DepartmentConfigCardNew from '@/app/components/admin/DepartmentConfigCardNew'
 import JobTitleConfigCard from '@/app/components/admin/JobTitleConfigCard'
-import SecurityConfigCard from '@/app/components/admin/SecurityConfigCard'
-import StorageConfigCard from '@/app/components/admin/StorageConfigCard'
+import SecurityConfigCardNew from '@/app/components/admin/SecurityConfigCardNew'
+import StorageConfigCardNew from '@/app/components/admin/StorageConfigCardNew'
+import SecurityLegend from '@/app/components/admin/SecurityLegend'
 
 interface BackgroundAsset {
   id: string
@@ -102,12 +103,14 @@ export default function AdminConfigurePage() {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
       
-      {/* Standardized Module Header */}
-      <ModuleHeader 
-        module={moduleConfig}
-        currentPage="configure"
-      />
-      
+      {/* Header Section */}
+      <div className="mb-6">
+        {/* Standardized Module Header */}
+        <ModuleHeader 
+          module={moduleConfig}
+          currentPage="configure"
+        />
+      </div>
 
       {/* Success/Error Message */}
       {message && (
@@ -128,7 +131,10 @@ export default function AdminConfigurePage() {
         
         {/* Business Structure Configuration */}
         <div className={getCardStyle('primary')}>
-          <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>{userClient?.name || 'Business'} Structure</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`${getTextStyle('sectionTitle', 'light')}`}>{userClient?.name || 'Business'} Structure</h2>
+            <SecurityLegend />
+          </div>
           
           {/* Three-Column Configuration Layout */}
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -144,7 +150,7 @@ export default function AdminConfigurePage() {
             
             {/* Security Configuration */}
             <div>
-              <SecurityConfigCard />
+              <SecurityConfigCardNew />
             </div>
           </div>
         </div>
@@ -157,70 +163,7 @@ export default function AdminConfigurePage() {
             
             {/* Storage Areas Configuration */}
             <div>
-              <StorageConfigCard />
-            </div>
-            
-            {/* Compliance Settings */}
-            <div className={getCardStyle('secondary')}>
-              <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Compliance Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Default Temperature Range</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      defaultValue="-18"
-                      className={getFormFieldStyle('default')}
-                      placeholder="Min °C"
-                    />
-                    <input
-                      type="number"
-                      defaultValue="4"
-                      className={getFormFieldStyle('default')}
-                      placeholder="Max °C"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Alert Threshold (hours)</label>
-                  <input
-                    type="number"
-                    defaultValue="2"
-                    className={getFormFieldStyle('default')}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Notification Settings */}
-            <div className={getCardStyle('secondary')}>
-              <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Notifications</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body', 'light')}>Email Alerts</span>
-                  <input 
-                    type="checkbox" 
-                    defaultChecked 
-                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body', 'light')}>SMS Notifications</span>
-                  <input 
-                    type="checkbox" 
-                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={getTextStyle('body', 'light')}>Daily Reports</span>
-                  <input 
-                    type="checkbox" 
-                    defaultChecked 
-                    className="w-4 h-4 bg-white/20 border-white/40 rounded focus:ring-blue-500 focus:ring-2 text-blue-500" 
-                  />
-                </div>
-              </div>
+              <StorageConfigCardNew />
             </div>
 
           </div>

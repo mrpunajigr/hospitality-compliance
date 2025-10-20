@@ -15,16 +15,16 @@ interface JobTitle {
 
 // Built-in hospitality job titles
 const BUILTIN_JOBS = [
-  { name: 'Server', color: '#3B82F6', description: 'Customer service and table management', default_role: 'STAFF' },
-  { name: 'Host/Hostess', color: '#10B981', description: 'Guest greeting and seating', default_role: 'STAFF' },
-  { name: 'Bartender', color: '#8B5CF6', description: 'Beverage preparation and service', default_role: 'STAFF' },
-  { name: 'Kitchen Hand', color: '#EF4444', description: 'Food preparation assistance', default_role: 'STAFF' },
-  { name: 'Chef', color: '#F59E0B', description: 'Food preparation and cooking', default_role: 'STAFF' },
-  { name: 'Shift Supervisor', color: '#6B7280', description: 'Team leadership and oversight', default_role: 'SUPERVISOR' },
-  { name: 'Assistant Manager', color: '#EC4899', description: 'Operations support and management', default_role: 'SUPERVISOR' },
-  { name: 'Head Chef', color: '#14B8A6', description: 'Kitchen management and menu oversight', default_role: 'MANAGER' },
-  { name: 'Restaurant Manager', color: '#F97316', description: 'Overall restaurant operations', default_role: 'MANAGER' },
-  { name: 'Owner', color: '#6366F1', description: 'Business ownership and strategic decisions', default_role: 'OWNER' }
+  { name: 'Server', color: '#3B82F6', default_role: 'STAFF' },
+  { name: 'Host/Hostess', color: '#10B981', default_role: 'STAFF' },
+  { name: 'Bartender', color: '#8B5CF6', default_role: 'STAFF' },
+  { name: 'Kitchen Hand', color: '#EF4444', default_role: 'STAFF' },
+  { name: 'Chef', color: '#F59E0B', default_role: 'STAFF' },
+  { name: 'Shift Supervisor', color: '#6B7280', default_role: 'SUPERVISOR' },
+  { name: 'Assistant Manager', color: '#EC4899', default_role: 'SUPERVISOR' },
+  { name: 'Head Chef', color: '#14B8A6', default_role: 'MANAGER' },
+  { name: 'Restaurant Manager', color: '#F97316', default_role: 'MANAGER' },
+  { name: 'Owner', color: '#6366F1', default_role: 'OWNER' }
 ]
 
 export default function JobTitleConfigCard() {
@@ -113,7 +113,7 @@ export default function JobTitleConfigCard() {
           },
           body: JSON.stringify({
             title: builtinJob.name,
-            description: builtinJob.description,
+            description: 'Built-in job title',
             default_role: builtinJob.default_role,
             hierarchy_level: 1,
             security_clearance: 'standard',
@@ -282,7 +282,6 @@ export default function JobTitleConfigCard() {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900">{customName}</h4>
-                    <p className="text-sm text-gray-600">{builtinJob.description}</p>
                     <p className="text-xs text-gray-500">Role: {builtinJob.default_role}</p>
                   </div>
                 </div>

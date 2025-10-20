@@ -130,43 +130,22 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
     }
   }
 
-  // Custom header renderer for the template
-  const renderHeader = () => (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-black text-lg font-semibold">{title}</h3>
-        {/* Security Warning Icon (for high/critical levels) */}
-        {['high', 'critical'].includes(securityLevel.level) && (
-          <div className="relative group">
-            <img 
-              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/warning.png"
-              alt="Security Warning"
-              className="w-5 h-5 opacity-60 hover:opacity-100 transition-opacity cursor-help"
-            />
-            <div className="absolute right-0 top-8 bg-orange-500/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
-              <div className="font-medium">Security Warning</div>
-              <div className="text-orange-100">{securityLevel.description}</div>
-            </div>
-          </div>
-        )}
-      </div>
-      <p className="text-gray-600 text-sm">{description}</p>
-    </div>
-  )
+  // Note: Header is now handled by ConfigCard wrapper
 
   // Default item renderer
   const defaultRenderItem = (item: T, isBuiltIn: boolean, builtInConfig?: BuiltInItem) => {
-    const isEnabled = item.is_active
+    const isEnabled = item.is_active || (item as any).is_enabled
     const displayName = String(item[itemDisplayKey])
     const itemType = itemTypeKey ? String(item[itemTypeKey]) : undefined
-    const itemColor = colorKey ? String(item[colorKey]) : builtInConfig?.color
+    // Always prioritize builtInConfig color for built-in items, then fall back to item color
+    const itemColor = builtInConfig?.color || (colorKey ? String(item[colorKey]) : undefined)
 
     return (
       <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200">
         <div className="flex items-center gap-3">
           {itemColor && (
             <div 
-              className="w-4 h-4 rounded-full"
+              className="w-4 h-4 rounded-full border border-gray-300"
               style={{ backgroundColor: itemColor }}
             />
           )}
@@ -203,9 +182,14 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
             <PermissionGate hasPermission={userPermissions.canEdit}>
               <button
                 onClick={() => handleRename(builtInConfig)}
-                className="px-3 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title="Edit name"
               >
-                Rename
+                <img 
+                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/edit.png"
+                  alt="Edit"
+                  className="w-4 h-4"
+                />
               </button>
             </PermissionGate>
           )}
@@ -279,45 +263,28 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
     </div>
   )
 
-  // Handle loading state with custom layout
-  if (isLoading) {
-    return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-        {renderHeader()}
-        <div className="text-center py-8">
-          <p className="text-gray-600 text-sm">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Handle error state
-  if (error) {
-    return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-        {renderHeader()}
-        <div className="text-center py-8">
-          <p className="text-red-600 text-sm mb-2">Error: {error}</p>
-          <button 
-            onClick={loadItems}
-            className="text-blue-600 hover:text-blue-700 text-sm underline"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <>
-      <div className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 ${className}`}>
-        {renderHeader()}
-        
+      <ConfigCard
+        title={title}
+        description={description}
+        icon={icon}
+        securityLevel={securityLevel}
+        userPermissions={userPermissions}
+        isLoading={isLoading}
+        error={error || undefined}
+        onRefresh={loadItems}
+        className={className}
+      >
         {/* Built-in Items with Toggles */}
         <div className="space-y-3 mb-6">
           {builtInItems.map((builtInItem) => {
-            const existingItem = items.find(item => item[itemDisplayKey] === builtInItem.name)
+            const existingItem = items.find(item => 
+              item[itemDisplayKey] === builtInItem.name ||
+              (item as any).title === builtInItem.name ||
+              (item as any).name === builtInItem.name ||
+              (item as any).setting_key === builtInItem.key
+            )
             const isBuiltIn = true
 
             if (renderItem && existingItem) {
@@ -390,13 +357,13 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
         {canAddCustom && (
           <PermissionGate hasPermission={userPermissions.canCreate}>
             <div className="border-t border-gray-200 pt-6">
-              <h4 className="text-sm font-medium text-gray-800 mb-3">Add Custom {title}</h4>
+              <h4 className="text-sm font-medium text-gray-800 mb-3">Add New {title.slice(0, -1)}</h4>
               {!showAddForm ? (
                 <button
                   onClick={() => setShowAddForm(true)}
                   className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
                 >
-                  + Add Custom {title}
+                  + ADD
                 </button>
               ) : (
                 renderAddForm ? renderAddForm(customFields, handleAddCustomItem) : defaultRenderAddForm(customFields, handleAddCustomItem)
@@ -404,7 +371,7 @@ export default function ConfigCardTemplate<T extends ConfigItem>({
             </div>
           </PermissionGate>
         )}
-      </div>
+      </ConfigCard>
 
       <ConfirmationDialog />
     </>

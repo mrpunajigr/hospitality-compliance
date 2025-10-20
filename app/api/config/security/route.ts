@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      securitySettings: securitySettings || [],
+      items: securitySettings || [],
       userPermissions: {
         canCreate: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
         canEdit: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),

@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      jobTitles: filteredJobTitles || [],
+      items: filteredJobTitles || [],
       userPermissions: {
         canCreate: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),
         canEdit: ['MANAGER', 'OWNER', 'CHAMPION'].includes(userClient.role),

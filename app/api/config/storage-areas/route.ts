@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
+import { getUserClient } from '@/lib/auth-utils'
 
 // Service role client for admin operations
 const supabaseAdmin = createClient(
@@ -13,8 +14,36 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 STORAGE API: Fetching storage areas...')
     
-    // For demo purposes, return sample data
-    // In production, this would fetch from the database based on client_id
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Authorization header required' }, { status: 401 })
+    }
+
+    const token = authHeader.split(' ')[1]
+    
+    // Verify the session token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      console.error('❌ STORAGE API: Authentication failed:', authError)
+      return NextResponse.json({ error: 'Invalid authentication' }, { status: 401 })
+    }
+
+    // Get user client info for permissions
+    const userClient = await getUserClient(user.id)
+    if (!userClient) {
+      return NextResponse.json({ error: 'User client not found' }, { status: 404 })
+    }
+
+    // Check permissions based on role
+    const userPermissions = {
+      canCreate: ['OWNER', 'MANAGER'].includes(userClient.role),
+      canEdit: ['OWNER', 'MANAGER', 'SUPERVISOR'].includes(userClient.role),
+      canDelete: ['OWNER', 'MANAGER'].includes(userClient.role),
+      canViewSecurity: ['OWNER', 'MANAGER'].includes(userClient.role)
+    }
+
+    // For demo purposes, return sample data with user permissions
     const sampleStorageAreas = [
       {
         id: '1',
@@ -38,10 +67,10 @@ export async function GET(request: NextRequest) {
       }
     ]
 
-    console.log('✅ STORAGE API: Sample storage areas returned')
+    console.log('✅ STORAGE API: Storage areas returned with permissions')
     return NextResponse.json({
-      success: true,
-      storage_areas: sampleStorageAreas
+      items: sampleStorageAreas,
+      userPermissions
     })
 
   } catch (error) {
@@ -53,59 +82,53 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new storage area(s)
+// POST - Create new storage area
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    console.log('🔍 STORAGE API: Creating storage area(s):', body)
-
-    const { action, storage_area, storage_areas } = body
-
-    if (action === 'bulk_create' && storage_areas) {
-      // Bulk create built-in storage areas
-      console.log('📝 STORAGE API: Bulk creating built-in storage areas:', storage_areas.length)
-      
-      // For demo purposes, simulate successful creation
-      const createdAreas = storage_areas.map((area: any, index: number) => ({
-        id: `demo-${index + 1}`,
-        ...area,
-        is_active: true,
-        created_at: new Date().toISOString()
-      }))
-
-      console.log('✅ STORAGE API: Bulk storage areas created successfully')
-      return NextResponse.json({
-        success: true,
-        storage_areas: createdAreas,
-        message: `${storage_areas.length} storage areas created successfully`
-      })
-
-    } else if (action === 'create' && storage_area) {
-      // Create single custom storage area
-      console.log('📝 STORAGE API: Creating custom storage area:', storage_area)
-      
-      // For demo purposes, simulate successful creation
-      const createdArea = {
-        id: `custom-${Date.now()}`,
-        ...storage_area,
-        is_active: true,
-        created_at: new Date().toISOString()
-      }
-
-      console.log('✅ STORAGE API: Custom storage area created successfully')
-      return NextResponse.json({
-        success: true,
-        storage_area: createdArea,
-        message: 'Storage area created successfully'
-      })
-
-    } else {
-      console.error('❌ STORAGE API: Invalid request format')
-      return NextResponse.json(
-        { error: 'Invalid request format' },
-        { status: 400 }
-      )
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Authorization header required' }, { status: 401 })
     }
+
+    const token = authHeader.split(' ')[1]
+    
+    // Verify the session token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      console.error('❌ STORAGE API: Authentication failed:', authError)
+      return NextResponse.json({ error: 'Invalid authentication' }, { status: 401 })
+    }
+
+    // Get user client info for permissions
+    const userClient = await getUserClient(user.id)
+    if (!userClient) {
+      return NextResponse.json({ error: 'User client not found' }, { status: 404 })
+    }
+
+    // Check create permissions
+    if (!['OWNER', 'MANAGER'].includes(userClient.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
+    const body = await request.json()
+    console.log('🔍 STORAGE API: Creating storage area:', body)
+
+    // For demo purposes, simulate successful creation
+    const createdArea = {
+      id: `storage-${Date.now()}`,
+      name: body.name,
+      area_type: body.area_type || 'fridge',
+      is_active: true,
+      created_at: new Date().toISOString()
+    }
+
+    console.log('✅ STORAGE API: Storage area created successfully')
+    return NextResponse.json({
+      success: true,
+      item: createdArea,
+      message: 'Storage area created successfully'
+    })
 
   } catch (error) {
     console.error('❌ STORAGE API: Error creating storage area:', error)
@@ -116,9 +139,35 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Update storage area
-export async function PATCH(request: NextRequest) {
+// PUT - Update storage area
+export async function PUT(request: NextRequest) {
   try {
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Authorization header required' }, { status: 401 })
+    }
+
+    const token = authHeader.split(' ')[1]
+    
+    // Verify the session token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      console.error('❌ STORAGE API: Authentication failed:', authError)
+      return NextResponse.json({ error: 'Invalid authentication' }, { status: 401 })
+    }
+
+    // Get user client info for permissions
+    const userClient = await getUserClient(user.id)
+    if (!userClient) {
+      return NextResponse.json({ error: 'User client not found' }, { status: 404 })
+    }
+
+    // Check edit permissions
+    if (!['OWNER', 'MANAGER', 'SUPERVISOR'].includes(userClient.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
     const body = await request.json()
     console.log('🔍 STORAGE API: Updating storage area:', body)
 
@@ -144,7 +193,7 @@ export async function PATCH(request: NextRequest) {
     console.log('✅ STORAGE API: Storage area updated successfully')
     return NextResponse.json({
       success: true,
-      storage_area: updatedArea,
+      item: updatedArea,
       message: 'Storage area updated successfully'
     })
 
@@ -160,6 +209,32 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Delete storage area
 export async function DELETE(request: NextRequest) {
   try {
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Authorization header required' }, { status: 401 })
+    }
+
+    const token = authHeader.split(' ')[1]
+    
+    // Verify the session token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      console.error('❌ STORAGE API: Authentication failed:', authError)
+      return NextResponse.json({ error: 'Invalid authentication' }, { status: 401 })
+    }
+
+    // Get user client info for permissions
+    const userClient = await getUserClient(user.id)
+    if (!userClient) {
+      return NextResponse.json({ error: 'User client not found' }, { status: 404 })
+    }
+
+    // Check delete permissions
+    if (!['OWNER', 'MANAGER'].includes(userClient.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
     const body = await request.json()
     console.log('🔍 STORAGE API: Deleting storage area:', body)
 
