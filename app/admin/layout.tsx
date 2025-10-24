@@ -119,7 +119,7 @@ export default function AdminLayout({
 
       {/* Main content with fixed sidebar offset (only accounts for collapsed width) */}
       <div className="ml-[150px] min-h-screen transition-all duration-300">
-        <main className="p-4 md:p-6">
+        <main className="w-full">
           {children}
         </main>
       </div>

@@ -24,7 +24,7 @@ export default function AdminModuleBackground({
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/${backgroundImage}')`,
+          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
           backgroundSize: 'cover',
           backgroundPosition: '50% 50%',
           backgroundRepeat: 'no-repeat',
