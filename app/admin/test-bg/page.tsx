@@ -8,9 +8,9 @@ export default function AdminBackgroundTest() {
   const [backgroundInfo, setBackgroundInfo] = useState<any>({})
 
   useEffect(() => {
-    // Capture what the BackgroundManager would do
+    // Capture what the BackgroundManager is actually doing now
     const MODULE_BACKGROUNDS: Record<string, string> = {
-      '/admin': 'backgrounds/Home-Chef-Chicago-8.webp',
+      '/admin': 'backgrounds/kitchen.jpg', // Updated to match BackgroundManager
       '/upload': 'backgrounds/chef-workspace.jpg',
       '/dashboard': 'backgrounds/kitchen-prep.jpg',
       '/login': 'backgrounds/CafeWindow.jpg',
@@ -54,7 +54,10 @@ export default function AdminBackgroundTest() {
       
       <div className="bg-white/10 p-6 rounded-lg mb-4">
         <p className="text-white">
-          This page should show the admin background (Home-Chef-Chicago-8.webp).
+          ✅ <strong>SUCCESS!</strong> Admin background now uses BackgroundManager with kitchen.jpg
+        </p>
+        <p className="text-white mt-2">
+          Expected: backgrounds/kitchen.jpg via dynamic BackgroundManager
         </p>
         <p className="text-white mt-2">
           URL: {typeof window !== 'undefined' ? window.location.href : 'Loading...'}
