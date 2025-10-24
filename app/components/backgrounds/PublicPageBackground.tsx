@@ -35,10 +35,10 @@ export default function PublicPageBackground({
   const settings = overlaySettings[overlayOpacity]
 
   return (
-    <div className={`min-h-screen relative overflow-hidden ${className}`}>
-      {/* Background Image */}
+    <div className={`min-h-screen relative ${className}`}>
+      {/* Background Image - Using fixed positioning like upload layout */}
       <div 
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 -z-10"
         style={{
           backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
           backgroundSize: 'cover',
@@ -55,10 +55,10 @@ export default function PublicPageBackground({
       />
       
       {/* Overlay for text readability */}
-      <div className={`absolute inset-0 ${settings.overlay}`} />
+      <div className={`fixed inset-0 -z-10 ${settings.overlay}`} />
 
       {/* Content */}
-      <div className="relative z-20">
+      <div className="relative z-10">
         {children}
       </div>
     </div>
@@ -82,10 +82,10 @@ export function PublicPageBackgroundWithGradient({
   backgroundImage?: string
 }) {
   return (
-    <div className={`min-h-screen relative overflow-hidden ${className}`}>
-      {/* Background with gradient overlay */}
+    <div className={`min-h-screen relative ${className}`}>
+      {/* Background with gradient overlay - Using fixed positioning like upload layout */}
       <div 
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 -z-10"
         style={{
           backgroundImage: `
             linear-gradient(${gradientStart}, ${gradientEnd}),
@@ -104,10 +104,10 @@ export function PublicPageBackgroundWithGradient({
       />
       
       {/* Additional text readability overlay */}
-      <div className="absolute inset-0" style={{ backgroundColor: additionalOverlay }} />
+      <div className="fixed inset-0 -z-10" style={{ backgroundColor: additionalOverlay }} />
 
       {/* Content */}
-      <div className="relative z-20">
+      <div className="relative z-10">
         {children}
       </div>
     </div>

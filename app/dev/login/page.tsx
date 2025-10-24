@@ -63,12 +63,17 @@ export default function DevLoginPage() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Background */}
       <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('/chef-workspace1jpg.jpg')`,
+          backgroundSize: 'cover',
           backgroundPosition: '50% 50%',
-          backgroundAttachment: 'fixed',
-          filter: 'brightness(0.4)'
+          backgroundRepeat: 'no-repeat',
+          // iOS 12 compatibility
+          WebkitBackgroundSize: 'cover',
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)',
+          opacity: 0.4
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-black/80" />

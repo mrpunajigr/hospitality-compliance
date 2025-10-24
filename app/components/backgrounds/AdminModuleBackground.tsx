@@ -19,10 +19,10 @@ export default function AdminModuleBackground({
 }: AdminModuleBackgroundProps) {
   
   return (
-    <div className={`min-h-screen relative overflow-hidden ContentArea ${className}`}>
-      {/* Background Image - Higher z-index to override root layout */}
+    <div className={`min-h-screen relative ContentArea ${className}`}>
+      {/* Background Image - Using fixed positioning like upload layout */}
       <div 
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 -z-10"
         style={{
           backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
           backgroundSize: 'cover',
@@ -40,10 +40,10 @@ export default function AdminModuleBackground({
       />
       
       {/* Gradient Overlay */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradientOverlay}`} />
+      <div className={`fixed inset-0 -z-10 bg-gradient-to-br ${gradientOverlay}`} />
 
       {/* Content */}
-      <div className="relative z-20">
+      <div className="relative z-10">
         {children}
       </div>
     </div>
