@@ -80,6 +80,14 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   return (
     // <PlatformProvider> // Temporarily disabled for quick deployment
       <div className="min-h-screen relative ContentArea">
+        {/* Glassmorphic overlay for upload module */}
+        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/40 backdrop-blur-sm" style={{ zIndex: 1 }} />
+        
+        {/* Pattern overlay for visual interest */}
+        <div className="fixed inset-0 opacity-10" style={{ 
+          zIndex: 1,
+          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)'
+        }} />
 {showBackgroundSelector && (
         <BackgroundSelector 
           selectedBackground=""
@@ -88,22 +96,24 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         />
       )}
       
-      <AppleSidebar
-        user={user}
-        userClient={userClient}
-        onSignOut={handleSignOut}
-        activeSection="upload"
-        currentUploadPage={
-          pathname.includes('/training') ? 'training' :
-          pathname.includes('/console') ? 'console' : 
-          pathname.includes('/capture') ? 'capture' : 
-          pathname.includes('/reports') ? 'reports' : 'console'
-        }
-        onBackgroundSelectorToggle={() => setShowBackgroundSelector(!showBackgroundSelector)}
-      />
+      <div className="relative" style={{ zIndex: 10 }}>
+        <AppleSidebar
+          user={user}
+          userClient={userClient}
+          onSignOut={handleSignOut}
+          activeSection="upload"
+          currentUploadPage={
+            pathname.includes('/training') ? 'training' :
+            pathname.includes('/console') ? 'console' : 
+            pathname.includes('/capture') ? 'capture' : 
+            pathname.includes('/reports') ? 'reports' : 'console'
+          }
+          onBackgroundSelectorToggle={() => setShowBackgroundSelector(!showBackgroundSelector)}
+        />
+      </div>
       
       {/* Main Content */}
-      <div className="ml-[150px] min-h-screen">
+      <div className="ml-[150px] min-h-screen relative" style={{ zIndex: 5 }}>
         {children}
       </div>
       </div>
