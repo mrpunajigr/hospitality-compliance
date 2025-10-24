@@ -85,7 +85,9 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
         className="fixed inset-0 -z-10"
         style={{
           background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
-          backgroundAttachment: 'fixed'
+          // iOS 12 compatibility - remove backgroundAttachment: 'fixed'
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)'
         }}
       />
       
@@ -97,6 +99,10 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          // iOS 12 compatibility
+          WebkitBackgroundSize: 'cover',
+          WebkitTransform: 'translateZ(0)',
+          transform: 'translateZ(0)',
           opacity: 0.4
         }}
       />

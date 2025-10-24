@@ -129,11 +129,11 @@ export default function AppleSidebar({
       setIsIPad(iPad)
       setIsPortrait(portrait)
       
-      // iPad adaptive behavior
+      // iPad adaptive behavior - Always start collapsed, user can expand manually
       if (iPad) {
-        // Portrait: Always start collapsed for more content space
-        // Landscape: Can expand sidebar if needed
-        setIsCollapsed(portrait)
+        // Always start collapsed - user can tap to expand when needed
+        // This prevents auto-expansion that was causing retraction issues
+        setIsCollapsed(true)
       } else {
         // Always start collapsed on mobile and desktop
         setIsCollapsed(true)
