@@ -112,12 +112,44 @@ export function getBackgroundImage(
 }
 
 /**
- * Get optimized chef workspace background for layouts
+ * Get optimized chef workspace background for upload layouts
  */
 export function getChefWorkspaceBackground(): string {
   return getStorageImageUrl(
     STORAGE_BUCKETS.MODULE_ASSETS,
     'backgrounds/chef-workspace.jpg',
+    {
+      format: 'webp',
+      quality: 75,
+      width: 1920,
+      height: 1080
+    }
+  )
+}
+
+/**
+ * Get optimized admin background for admin layouts
+ */
+export function getAdminBackground(): string {
+  return getStorageImageUrl(
+    STORAGE_BUCKETS.MODULE_ASSETS,
+    'backgrounds/Home-Chef-Chicago-8.webp',
+    {
+      format: 'webp',
+      quality: 75,
+      width: 1920,
+      height: 1080
+    }
+  )
+}
+
+/**
+ * Get optimized public background for public pages
+ */
+export function getPublicBackground(): string {
+  return getStorageImageUrl(
+    STORAGE_BUCKETS.MODULE_ASSETS,
+    'backgrounds/CafeWindow.jpg',
     {
       format: 'webp',
       quality: 75,

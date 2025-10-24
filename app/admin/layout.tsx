@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
+import { getAdminBackground } from '@/lib/image-storage'
 import AppleSidebar from '@/app/components/AppleSidebar'
 import { PlatformProvider } from '@/lib/platform-context'
 import ConsoleToggle from '@/app/components/ConsoleToggle'
@@ -122,7 +123,7 @@ export default function AdminLayout({
         <div 
           className="fixed inset-0 -z-10"
           style={{
-            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/Home-Chef-Chicago-8.webp'), linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%)`,
+            backgroundImage: `url(${getAdminBackground()}), linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
