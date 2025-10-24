@@ -63,20 +63,22 @@ export function useModuleBackground() {
       existingDiv.remove()
     }
     
-    // Create a single fixed background div with high z-index
+    // Create background div with POSITIVE z-index to work with all layouts
     const bgDiv = document.createElement('div')
     bgDiv.id = 'dynamic-background'
     bgDiv.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
       height: 100vh;
       background-image: url(${backgroundUrl});
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
@@ -85,7 +87,17 @@ export function useModuleBackground() {
     // Insert at beginning of body
     document.body.insertBefore(bgDiv, document.body.firstChild)
     
-    console.log('🎨 Created background div with URL:', backgroundUrl)
+    // Ensure ContentArea has higher z-index
+    const contentAreas = document.querySelectorAll('.ContentArea')
+    contentAreas.forEach((area) => {
+      const el = area as HTMLElement
+      if (!el.style.zIndex || parseInt(el.style.zIndex) <= 0) {
+        el.style.position = 'relative'
+        el.style.zIndex = '1'
+      }
+    })
+    
+    console.log('✅ Background div created and ContentArea z-index adjusted')
     
     // Cleanup on unmount
     return () => {
