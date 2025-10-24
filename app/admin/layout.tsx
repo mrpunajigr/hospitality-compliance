@@ -108,7 +108,7 @@ export default function AdminLayout({
   return (
     <PlatformProvider>
       <div className="min-h-screen relative ContentArea" style={{
-        backgroundImage: `url('/Home-Chef-Chicago-8.webp')`,
+        backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/kitchen.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
