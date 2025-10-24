@@ -33,11 +33,12 @@ export default function RootLayout({
         />
         
         
-        {/* Pattern overlay for visual interest */}
+        {/* Pattern overlay for visual interest - Root level */}
         <div 
-          className="fixed inset-0 -z-10"
+          className="fixed inset-0"
           style={{
             background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+            zIndex: -1000,
             opacity: 0.2
           }}
         />
