@@ -25,11 +25,25 @@ export default function AdminBackgroundTest() {
       ? MODULE_BACKGROUNDS[moduleKey] 
       : 'backgrounds/chef-workspace.jpg'
 
+    // Check for background div and ContentArea detection
+    const bgDiv = document.getElementById('dynamic-background')
+    const contentAreas = document.querySelectorAll('.ContentArea')
+    const contentAreaStyles = Array.from(contentAreas).map(area => ({
+      zIndex: (area as HTMLElement).style.zIndex,
+      position: (area as HTMLElement).style.position,
+      className: area.className
+    }))
+
     setBackgroundInfo({
       pathname,
       moduleKey,
       backgroundPath,
       bodyBackground: document.body.style.backgroundImage,
+      backgroundDivExists: !!bgDiv,
+      backgroundDivZIndex: bgDiv?.style.zIndex || 'none',
+      backgroundDivDisplay: bgDiv?.style.display || 'none',
+      contentAreasFound: contentAreas.length,
+      contentAreaStyles,
       timestamp: new Date().toLocaleTimeString()
     })
   }, [pathname])
