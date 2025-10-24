@@ -97,6 +97,23 @@ export function useModuleBackground() {
       }
     })
     
+    // Force layout recalculation for iOS 12 Safari compatibility
+    setTimeout(() => {
+      const bgDiv = document.getElementById('dynamic-background')
+      if (bgDiv) {
+        // Force reflow/repaint
+        bgDiv.style.display = 'none'
+        bgDiv.offsetHeight // Trigger reflow
+        bgDiv.style.display = 'block'
+        
+        // Also try forcing background refresh
+        const currentBg = bgDiv.style.backgroundImage
+        bgDiv.style.backgroundImage = ''
+        bgDiv.offsetHeight // Trigger reflow
+        bgDiv.style.backgroundImage = currentBg
+      }
+    }, 100)
+    
     console.log('✅ Background div created and ContentArea z-index adjusted')
     
     // Cleanup on unmount
