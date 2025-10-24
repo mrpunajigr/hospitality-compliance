@@ -38,7 +38,7 @@ export default function PublicPageBackground({
     <div className={`min-h-screen relative overflow-hidden ${className}`}>
       {/* Background Image */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         style={{
           backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
           backgroundSize: 'cover',
@@ -58,7 +58,7 @@ export default function PublicPageBackground({
       <div className={`absolute inset-0 ${settings.overlay}`} />
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-20">
         {children}
       </div>
     </div>
@@ -85,7 +85,7 @@ export function PublicPageBackgroundWithGradient({
     <div className={`min-h-screen relative overflow-hidden ${className}`}>
       {/* Background with gradient overlay */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         style={{
           backgroundImage: `
             linear-gradient(${gradientStart}, ${gradientEnd}),
@@ -107,7 +107,7 @@ export function PublicPageBackgroundWithGradient({
       <div className="absolute inset-0" style={{ backgroundColor: additionalOverlay }} />
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-20">
         {children}
       </div>
     </div>
