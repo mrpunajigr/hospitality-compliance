@@ -7,7 +7,6 @@ import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getVersionDisplay } from '@/lib/version'
 import AppleSidebar from '@/app/components/AppleSidebar'
 import { PlatformProvider } from '@/lib/platform-context'
-import AdminModuleBackground from '@/app/components/backgrounds/AdminModuleBackground'
 import ConsoleToggle from '@/app/components/ConsoleToggle'
 
 export default function AdminLayout({
@@ -107,26 +106,62 @@ export default function AdminLayout({
 
   return (
     <PlatformProvider>
-      <AdminModuleBackground>
+      <div className="min-h-screen relative ContentArea">
+        {/* Safari 12 Compatible Background - Replicating Upload Pattern */}
+        <div 
+          className="fixed inset-0 -z-10"
+          style={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
+            // iOS 12 compatibility - remove backgroundAttachment: 'fixed'
+            WebkitTransform: 'translateZ(0)',
+            transform: 'translateZ(0)'
+          }}
+        />
+        
+        {/* Admin workspace background overlay - Using admin specific image */}
+        <div 
+          className="fixed inset-0 -z-10"
+          style={{
+            backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/Home-Chef-Chicago-8.webp'), linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            // iOS 12 compatibility
+            WebkitBackgroundSize: 'cover',
+            WebkitTransform: 'translateZ(0)',
+            transform: 'translateZ(0)',
+            opacity: 0.4
+          }}
+        />
+        
+        {/* Pattern overlay for visual interest */}
+        <div 
+          className="fixed inset-0 -z-10"
+          style={{
+            background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+            opacity: 0.2
+          }}
+        />
+        
         {/* Apple-style Sidebar */}
-      <AppleSidebar 
-        user={user}
-        userClient={userClient}
-        onSignOut={handleSignOut}
-        logoUrl={companyLogoUrl || "/JiGR_Logo-full_figma_circle.png"}
-        activeSection="admin"
-      />
+        <AppleSidebar 
+          user={user}
+          userClient={userClient}
+          onSignOut={handleSignOut}
+          logoUrl={companyLogoUrl || "/JiGR_Logo-full_figma_circle.png"}
+          activeSection="admin"
+        />
 
-      {/* Main content with fixed sidebar offset (only accounts for collapsed width) */}
-      <div className="ml-[150px] min-h-screen transition-all duration-300">
-        <main className="w-full">
-          {children}
-        </main>
+        {/* Main content with fixed sidebar offset (only accounts for collapsed width) */}
+        <div className="ml-[150px] min-h-screen transition-all duration-300">
+          <main className="w-full">
+            {children}
+          </main>
+        </div>
+        
+        {/* Console Toggle for Testing */}
+        <ConsoleToggle />
       </div>
-      
-      {/* Console Toggle for Testing */}
-      <ConsoleToggle />
-      </AdminModuleBackground>
     </PlatformProvider>
   )
 }
