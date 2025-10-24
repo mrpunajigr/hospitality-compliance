@@ -101,7 +101,7 @@ export default function AdminConfigurePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+    <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
       
       {/* Header Section */}
       <div className="mb-6">

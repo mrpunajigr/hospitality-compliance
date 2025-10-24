@@ -90,7 +90,7 @@ export default function ConfigurationPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+      <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
           {moduleConfig && (
             <ModuleHeader 
@@ -121,7 +121,7 @@ export default function ConfigurationPage() {
   // Error state
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+      <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
           {moduleConfig && (
             <ModuleHeader 
@@ -144,7 +144,7 @@ export default function ConfigurationPage() {
   // No configuration state (shouldn't happen with our defaults system)
   if (!config) {
     return (
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+      <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
         <div className="mb-6">
           {moduleConfig && (
             <ModuleHeader 
@@ -175,7 +175,7 @@ export default function ConfigurationPage() {
 
   // Main render with configuration loaded
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+    <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
       
       {/* Header */}
       <div className="mb-6">

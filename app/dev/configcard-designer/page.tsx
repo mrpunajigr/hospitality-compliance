@@ -247,7 +247,7 @@ export default function ConfigCardDesignerPage() {
         }}
       >
         <div className="min-h-screen bg-black bg-opacity-40">
-          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+          <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
             {moduleConfig && (
               <div className="mb-6">
                 <ModuleHeader module={moduleConfig} currentPage="configcard-designer" />
@@ -271,7 +271,7 @@ export default function ConfigCardDesignerPage() {
       }}
     >
       <div className="min-h-screen bg-black bg-opacity-40">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+        <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
           
           {/* Header */}
           {moduleConfig && (

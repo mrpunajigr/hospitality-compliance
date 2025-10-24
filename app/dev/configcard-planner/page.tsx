@@ -399,7 +399,7 @@ Please check the console for details.`);
       }}
     >
       <div className="min-h-screen bg-black bg-opacity-40">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8 h-screen overflow-y-auto">
+        <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8 h-screen overflow-y-auto">
           
           {/* Header */}
           {moduleConfig && (
@@ -674,7 +674,7 @@ function ConfigCardPlannerModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6 text-gray-900`}>
             {isNew ? 'Plan New ConfigCard' : 'Edit ConfigCard Plan'}

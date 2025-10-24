@@ -82,6 +82,7 @@ export default function AppleSidebar({
   const [isPortrait, setIsPortrait] = useState(true)
   const [isIPad, setIsIPad] = useState(false)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   // Fetch user avatar
   useEffect(() => {
@@ -178,7 +179,29 @@ export default function AppleSidebar({
         className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-5000 ease-in-out z-40 TouchTarget ${
           isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
         } ${isIPad ? 'AppleSidebar' : ''}`}
-        onTouchStart={() => isIPad && !isPortrait && setIsCollapsed(false)}
+        onTouchStart={(e) => {
+          if (isIPad && !isPortrait) {
+            if (isCollapsed) {
+              setIsCollapsed(false)
+            } else {
+              setTouchStartX(e.touches[0].clientX)
+            }
+          }
+        }}
+        onTouchMove={(e) => {
+          if (isIPad && !isPortrait && !isCollapsed && touchStartX !== null) {
+            const currentX = e.touches[0].clientX
+            const deltaX = currentX - touchStartX
+            // If swiping left more than 50px, close sidebar
+            if (deltaX < -50) {
+              setIsCollapsed(true)
+              setTouchStartX(null)
+            }
+          }
+        }}
+        onTouchEnd={() => {
+          setTouchStartX(null)
+        }}
       >
         
         {/* Header - Company Logo */}
@@ -459,9 +482,10 @@ export default function AppleSidebar({
       {!isCollapsed && (
         <div 
           className={`fixed inset-0 bg-black/20 z-30 transition-opacity duration-300 ${
-            isMobile ? 'md:hidden' : 'hidden md:block'
+            isMobile ? 'md:hidden' : isIPad ? 'block' : 'hidden md:block'
           }`}
           onClick={() => setIsCollapsed(true)}
+          onTouchStart={() => isIPad && setIsCollapsed(true)}
         />
       )}
 
