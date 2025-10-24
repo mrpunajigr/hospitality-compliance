@@ -1,5 +1,4 @@
 import { Inter, Playfair_Display } from 'next/font/google'
-import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import { FeedbackWidget } from './components/testing/FeedbackWidget'
 import ConsoleManager from './components/ConsoleManager'
 import './globals.css'
@@ -32,27 +31,6 @@ export default function RootLayout({
           }}
         />
         
-        {/* Kitchen workspace overlay for context */}
-        <div 
-          style={{
-            position: 'fixed',
-            top: '0px',
-            left: '0px', 
-            width: '100vw',
-            height: '100vh',
-            zIndex: -999,
-            backgroundImage: `url(${getChefWorkspaceBackground()})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            // iOS 12 compatibility
-            WebkitBackgroundSize: 'cover',
-            WebkitTransform: 'translateZ(0)',
-            transform: 'translateZ(0)',
-            opacity: 0.3,
-            pointerEvents: 'none'
-          }}
-        />
         
         {/* Pattern overlay for visual interest */}
         <div 
