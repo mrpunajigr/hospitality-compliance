@@ -20,11 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen relative`}>
-        {/* Safari 12 Compatible Background - Global */}
+        {/* Safari 12 Compatible Background - Global fallback only */}
         <div 
-          className="fixed inset-0 -z-10"
+          className="fixed inset-0"
           style={{
             background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
+            zIndex: -1000,
             // iOS 12 compatibility - remove backgroundAttachment: 'fixed'
             WebkitTransform: 'translateZ(0)',
             transform: 'translateZ(0)'
