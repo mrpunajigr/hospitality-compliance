@@ -107,7 +107,14 @@ export default function AdminLayout({
 
   return (
     <PlatformProvider>
-      <div className="min-h-screen relative ContentArea">
+      <div className="min-h-screen relative ContentArea" style={{
+        backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/Home-Chef-Chicago-8.webp?width=1920&height=1080&quality=75&format=webp')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        // iOS 12 compatibility
+        WebkitBackgroundSize: 'cover'
+      }}>
         {/* Apple-style Sidebar */}
         <AppleSidebar 
           user={user}

@@ -6,7 +6,7 @@ import { getStorageImageUrl, STORAGE_BUCKETS } from './image-storage'
 
 // Module background mapping - Order matters! More specific paths first
 const MODULE_BACKGROUNDS: Record<string, string> = {
-  '/admin': 'backgrounds/Home-Chef-Chicago-8.webp',
+  // '/admin': 'backgrounds/Home-Chef-Chicago-8.webp', // Disabled - using static CSS approach
   '/upload': 'backgrounds/chef-workspace.jpg',
   '/dashboard': 'backgrounds/kitchen-prep.jpg',
   '/login': 'backgrounds/CafeWindow.jpg',
