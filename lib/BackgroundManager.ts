@@ -57,18 +57,42 @@ export function useModuleBackground() {
     
     console.log('🎨 Generated background URL:', backgroundUrl)
     
-    // Apply to body element - works reliably on iOS 12
-    document.body.style.backgroundImage = `url(${backgroundUrl})`
-    document.body.style.backgroundSize = 'cover'
-    document.body.style.backgroundPosition = 'center'
-    document.body.style.backgroundRepeat = 'no-repeat'
-    // DO NOT use backgroundAttachment: 'fixed' - not supported on iOS 12
+    // Remove existing background div if any
+    const existingDiv = document.getElementById('dynamic-background')
+    if (existingDiv) {
+      existingDiv.remove()
+    }
     
-    console.log('🎨 Applied background to body:', document.body.style.backgroundImage)
+    // Create a single fixed background div with high z-index
+    const bgDiv = document.createElement('div')
+    bgDiv.id = 'dynamic-background'
+    bgDiv.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url(${backgroundUrl});
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: -1;
+      pointer-events: none;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    `
+    
+    // Insert at beginning of body
+    document.body.insertBefore(bgDiv, document.body.firstChild)
+    
+    console.log('🎨 Created background div with URL:', backgroundUrl)
     
     // Cleanup on unmount
     return () => {
-      document.body.style.backgroundImage = ''
+      const bgDiv = document.getElementById('dynamic-background')
+      if (bgDiv) {
+        bgDiv.remove()
+      }
     }
   }, [pathname])
 }
