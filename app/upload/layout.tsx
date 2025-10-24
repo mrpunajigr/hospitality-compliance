@@ -80,44 +80,6 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   return (
     // <PlatformProvider> // Temporarily disabled for quick deployment
       <div className="min-h-screen relative ContentArea">
-      {/* Upload Module Background - Higher z-index than root */}
-      <div 
-        className="fixed inset-0"
-        style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
-          zIndex: -900,
-          // iOS 12 compatibility - remove backgroundAttachment: 'fixed'
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)'
-        }}
-      />
-      
-      {/* Kitchen workspace overlay for context - iPad Safari 12 fallback */}
-      <div 
-        className="fixed inset-0"
-        style={{
-          backgroundImage: `url(${getChefWorkspaceBackground()}), linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          zIndex: -900,
-          // iOS 12 compatibility
-          WebkitBackgroundSize: 'cover',
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
-          opacity: 0.4
-        }}
-      />
-      
-      {/* Pattern overlay for visual interest */}
-      <div 
-        className="fixed inset-0"
-        style={{
-          background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
-          zIndex: -900,
-          opacity: 0.2
-        }}
-      />
 {showBackgroundSelector && (
         <BackgroundSelector 
           selectedBackground=""

@@ -1,6 +1,7 @@
 import { Inter, Playfair_Display } from 'next/font/google'
 import { FeedbackWidget } from './components/testing/FeedbackWidget'
 import ConsoleManager from './components/ConsoleManager'
+import BackgroundManager from './components/BackgroundManager'
 import './globals.css'
 import '../styles/ipad-responsive.css'
 
@@ -20,28 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen relative`}>
-        {/* Safari 12 Compatible Background - Global fallback only */}
-        <div 
-          className="fixed inset-0"
-          style={{
-            background: 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #1e293b 100%)',
-            zIndex: -1000,
-            // iOS 12 compatibility - remove backgroundAttachment: 'fixed'
-            WebkitTransform: 'translateZ(0)',
-            transform: 'translateZ(0)'
-          }}
-        />
-        
-        
-        {/* Pattern overlay for visual interest - Root level */}
-        <div 
-          className="fixed inset-0"
-          style={{
-            background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
-            zIndex: -1000,
-            opacity: 0.2
-          }}
-        />
+        {/* Dynamic Background Manager - Body-based approach for iOS 12 compatibility */}
+        <BackgroundManager />
         
         <main className="min-h-screen">
           {children}
