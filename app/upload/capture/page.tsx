@@ -576,7 +576,7 @@ export default function UploadActionPage() {
                 </div>
               )}
             </div>
-          </div>
+          </ModuleCard>
         </div>
       )}
 
