@@ -394,7 +394,7 @@ export default function UploadActionPage() {
         
         {/* Quick Capture Card */}
         <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
+          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -427,7 +427,7 @@ export default function UploadActionPage() {
 
         {/* Bulk Upload Card */}
         <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
+          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -467,7 +467,7 @@ export default function UploadActionPage() {
 
         {/* Ready Queue Card */}
         <div 
-          className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
+          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
           <div className="relative">
@@ -527,7 +527,7 @@ export default function UploadActionPage() {
       {showQualityUpload && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div 
-            className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
+            className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
@@ -643,7 +643,7 @@ export default function UploadActionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
             <div 
-              className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden"
+              className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
               <div className="relative">
