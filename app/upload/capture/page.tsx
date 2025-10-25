@@ -394,7 +394,7 @@ export default function UploadActionPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
         
         {/* Quick Capture Card */}
-        <StatCard accentColor="blue">
+        <StatCard accentColor="blue" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Quick Capture</h2>
@@ -424,7 +424,7 @@ export default function UploadActionPage() {
         </StatCard>
 
         {/* Bulk Upload Card */}
-        <StatCard accentColor="purple">
+        <StatCard accentColor="purple" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
@@ -461,7 +461,7 @@ export default function UploadActionPage() {
         </StatCard>
 
         {/* Ready Queue Card */}
-        <StatCard accentColor="green">
+        <StatCard accentColor="green" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
@@ -632,7 +632,7 @@ export default function UploadActionPage() {
       <div className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
-            <StatCard accentColor="yellow">
+            <StatCard accentColor="yellow" theme="upload">
               <div>
                 <div className="flex items-center justify-center mb-4">
                   <h2 className="text-white text-lg font-semibold text-center w-full">Capture Tips</h2>

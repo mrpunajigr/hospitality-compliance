@@ -1,10 +1,10 @@
-// ModuleCard - Reusable card component with iOS 12 Safari compatible styling
+// ModuleCard - Reusable card component using working sidebar blur pattern
 interface ModuleCardProps {
   children: React.ReactNode
   className?: string
   hover?: boolean
   onClick?: () => void
-  style?: React.CSSProperties
+  theme?: 'upload' | 'admin' | 'default'
 }
 
 export function ModuleCard({ 
@@ -12,44 +12,23 @@ export function ModuleCard({
   className = '', 
   hover = false,
   onClick,
-  style = {}
+  theme = 'default'
 }: ModuleCardProps) {
-  const baseStyle: React.CSSProperties = {
-    backgroundColor: 'rgba(17, 24, 39, 0.4)', // gray-900 with 40% opacity
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'rgba(75, 85, 99, 0.3)', // gray-600 with 30% opacity
-    borderRadius: '24px',
-    position: 'relative',
-    overflow: 'hidden',
-    zIndex: 10, // Above background, below sidebar (which uses z-20+)
-    cursor: onClick ? 'pointer' : 'default'
+  // Use the EXACT working pattern from AppleSidebar but with theme variations
+  const themeClasses = {
+    upload: 'bg-black/15 backdrop-blur-xl', // Darker for amber upload background
+    admin: 'bg-black/10 backdrop-blur-xl',  // Lighter for slate admin background
+    default: 'bg-black/12 backdrop-blur-xl'  // Neutral default
   }
   
-  const hoverStyle: React.CSSProperties = hover ? {
-    transition: 'all 300ms ease',
-    cursor: 'pointer'
-  } : {}
-  
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (hover) {
-      e.currentTarget.style.backgroundColor = 'rgba(17, 24, 39, 0.5)'
-    }
-  }
-  
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (hover) {
-      e.currentTarget.style.backgroundColor = 'rgba(17, 24, 39, 0.4)'
-    }
-  }
+  const baseClasses = `${themeClasses[theme]} border border-white/20 rounded-3xl relative overflow-hidden z-10`
+  const hoverClasses = hover ? 'hover:bg-black/20 transition-all duration-300 cursor-pointer' : ''
+  const clickableClasses = onClick ? 'cursor-pointer' : ''
   
   return (
     <div 
-      style={{...baseStyle, ...hoverStyle, ...style}}
-      className={className}
+      className={`${baseClasses} ${hoverClasses} ${clickableClasses} ${className}`}
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {children}
     </div>
@@ -60,37 +39,27 @@ export function ModuleCard({
 export function StatCard({ 
   children, 
   className = '',
-  accentColor = 'blue'
+  accentColor = 'blue',
+  theme = 'default'
 }: {
   children: React.ReactNode
   className?: string
   accentColor?: 'blue' | 'purple' | 'green' | 'yellow' | 'orange'
+  theme?: 'upload' | 'admin' | 'default'
 }) {
   const accentColors = {
-    blue: 'rgba(59, 130, 246, 0.1)', // blue-500 with 10% opacity
-    purple: 'rgba(168, 85, 247, 0.1)', // purple-500 with 10% opacity
-    green: 'rgba(34, 197, 94, 0.1)', // green-500 with 10% opacity
-    yellow: 'rgba(234, 179, 8, 0.1)', // yellow-500 with 10% opacity
-    orange: 'rgba(249, 115, 22, 0.1)' // orange-500 with 10% opacity
-  }
-
-  const accentStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '80px', // w-20
-    height: '80px', // h-20
-    backgroundColor: accentColors[accentColor],
-    borderRadius: '50%',
-    marginRight: '-40px', // -mr-10
-    marginTop: '-40px' // -mt-10
+    blue: 'bg-blue-500/10',
+    purple: 'bg-purple-500/10', 
+    green: 'bg-green-500/10',
+    yellow: 'bg-yellow-500/10',
+    orange: 'bg-orange-500/10'
   }
 
   return (
-    <ModuleCard className={className} style={{padding: '24px'}}>
+    <ModuleCard className={`p-6 ${className}`} theme={theme}>
       {/* Decorative accent circle */}
-      <div style={accentStyle}></div>
-      <div style={{position: 'relative'}}>
+      <div className={`absolute top-0 right-0 w-20 h-20 ${accentColors[accentColor]} rounded-full -mr-10 -mt-10`}></div>
+      <div className="relative">
         {children}
       </div>
     </ModuleCard>
@@ -101,23 +70,19 @@ export function ActionCard({
   children,
   className = '',
   onClick,
-  disabled = false
+  disabled = false,
+  theme = 'default'
 }: {
   children: React.ReactNode
   className?: string
   onClick?: () => void
   disabled?: boolean
+  theme?: 'upload' | 'admin' | 'default'
 }) {
-  const actionStyle: React.CSSProperties = {
-    padding: '24px',
-    opacity: disabled ? 0.5 : 1,
-    cursor: disabled ? 'not-allowed' : 'default'
-  }
-
   return (
     <ModuleCard 
-      className={className}
-      style={actionStyle}
+      className={`p-6 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      theme={theme}
       hover={!disabled}
       onClick={disabled ? undefined : onClick}
     >

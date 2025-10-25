@@ -9,6 +9,7 @@ import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import { StatCard } from '@/app/components/ModuleCard'
 
 export default function UploadConsolePage() {
   const [loading, setLoading] = useState(true)
@@ -346,58 +347,49 @@ export default function UploadConsolePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
         
         {/* Total Uploads */}
-        <div className="bg-gray-900/50 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-blue-300 text-sm font-medium">Total Uploads</span>
-            </div>
-            <div className="text-3xl font-bold text-white mb-1">
-              {totalUploads}
-            </div>
-            <div className="text-green-300 text-sm">
-              <span className="inline-flex items-center space-x-1">
-                <span>{totalUploads > 0 ? 'Documents uploaded' : 'Ready to process'}</span>
-              </span>
-            </div>
+        <StatCard accentColor="blue" theme="upload">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-blue-300 text-sm font-medium">Total Uploads</span>
           </div>
-        </div>
+          <div className="text-3xl font-bold text-white mb-1">
+            {totalUploads}
+          </div>
+          <div className="text-green-300 text-sm">
+            <span className="inline-flex items-center space-x-1">
+              <span>{totalUploads > 0 ? 'Documents uploaded' : 'Ready to process'}</span>
+            </span>
+          </div>
+        </StatCard>
 
         {/* Processing Status */}
-        <div className="bg-gray-900/50 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-300 text-sm font-medium">Processing</span>
-            </div>
-            <div className="text-3xl font-bold text-white mb-1">
-              {processingCount}
-            </div>
-            <div className="text-blue-300 text-sm">
-              <span className="inline-flex items-center space-x-1">
-                <span>{processingCount > 0 ? 'Currently processing' : 'AI ready'}</span>
-              </span>
-            </div>
+        <StatCard accentColor="purple" theme="upload">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-purple-300 text-sm font-medium">Processing</span>
           </div>
-        </div>
+          <div className="text-3xl font-bold text-white mb-1">
+            {processingCount}
+          </div>
+          <div className="text-blue-300 text-sm">
+            <span className="inline-flex items-center space-x-1">
+              <span>{processingCount > 0 ? 'Currently processing' : 'AI ready'}</span>
+            </span>
+          </div>
+        </StatCard>
 
         {/* Success Rate */}
-        <div className="bg-gray-900/50 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-green-300 text-sm font-medium">Success Rate</span>
-            </div>
-            <div className="text-3xl font-bold text-white mb-1">
-              {totalUploads > 0 ? `${successRate}%` : '100%'}
-            </div>
-            <div className="text-green-300 text-sm">
-              <span className="inline-flex items-center space-x-1">
-                <span>{totalUploads > 0 ? 'OCR accuracy rate' : 'System ready'}</span>
-              </span>
-            </div>
+        <StatCard accentColor="green" theme="upload">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-green-300 text-sm font-medium">Success Rate</span>
           </div>
-        </div>
+          <div className="text-3xl font-bold text-white mb-1">
+            {totalUploads > 0 ? `${successRate}%` : '100%'}
+          </div>
+          <div className="text-green-300 text-sm">
+            <span className="inline-flex items-center space-x-1">
+              <span>{totalUploads > 0 ? 'OCR accuracy rate' : 'System ready'}</span>
+            </span>
+          </div>
+        </StatCard>
 
       </div>
 
