@@ -97,12 +97,12 @@ export default function UploadReportsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               
               {/* Report Filters - Spans Columns 1-2 */}
-              <div className="lg:col-span-2 bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+              <div className="lg:col-span-2 bg-white/25 border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm">
+                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
                         <option value="7">Last 7 days</option>
                         <option value="30">Last 30 days</option>
                         <option value="90">Last 3 months</option>
@@ -111,7 +111,7 @@ export default function UploadReportsPage() {
                     </div>
                     
                     <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm">
+                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
                         <option value="compliance">Full Compliance</option>
                         <option value="violations">Violations Only</option>
                         <option value="delivery">Delivery Summary</option>
@@ -120,7 +120,7 @@ export default function UploadReportsPage() {
                     </div>
                     
                     <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm">
+                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
                         <option value="pdf">PDF Report</option>
                         <option value="csv">CSV Export</option>
                         <option value="excel">Excel Workbook</option>
@@ -147,7 +147,7 @@ export default function UploadReportsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               
               {/* Weekly Summary */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="flex items-center justify-center mb-4">
@@ -172,7 +172,7 @@ export default function UploadReportsPage() {
               </div>
 
               {/* Violation Report */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-red-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="flex items-center justify-center mb-4">
@@ -197,7 +197,7 @@ export default function UploadReportsPage() {
               </div>
 
               {/* Report Statistics */}
-              <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-3xl p-6 relative overflow-hidden">
+              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="flex items-center justify-center mb-4">
@@ -241,11 +241,11 @@ export default function UploadReportsPage() {
 
             {/* Report Table - Recent Generated Reports - 3 Columns Wide */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+              <div className="lg:col-span-3 bg-white/20  border border-white/20 rounded-xl p-6">
                 <h3 className="text-gray-900 text-lg font-bold mb-4">Recent Reports</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl hover:bg-white/20 transition-all duration-200">
+                <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
                     <h4 className="font-medium text-black">Weekly Summary - Aug 13-19, 2025</h4>
                     <p className="text-sm text-black/80">Generated on Aug 19, 2025 • 47 deliveries processed</p>
@@ -260,7 +260,7 @@ export default function UploadReportsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl hover:bg-white/20 transition-all duration-200">
+                <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
                     <h4 className="font-medium text-black">Delivery Violations - August 2025</h4>
                     <p className="text-sm text-black/80">Generated on Aug 15, 2025 • 3 violations detected</p>
@@ -275,7 +275,7 @@ export default function UploadReportsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl hover:bg-white/20 transition-all duration-200">
+                <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
                     <h4 className="font-medium text-black">Monthly Compliance - July 2025</h4>
                     <p className="text-sm text-black/80">Generated on Aug 1, 2025 • 98.2% compliance rate</p>

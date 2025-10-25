@@ -586,7 +586,7 @@ export default function UploadActionPage() {
         <div className="mt-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {todaysUploads.slice(0, 8).map((upload, index) => (
-              <div key={upload.id || index} className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4">
+              <div key={upload.id || index} className="bg-white/20 border border-white/20 rounded-xl p-4">
                 <div className="flex items-center space-x-3">
                   {/* Thumbnail */}
                   <div className="w-10 h-10 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">

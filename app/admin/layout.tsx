@@ -109,7 +109,7 @@ export default function AdminLayout({
     <PlatformProvider>
       <div className="min-h-screen relative ContentArea">
         {/* Glassmorphic overlay for admin module */}
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/50 backdrop-blur-sm" style={{ zIndex: 1 }} />
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/50" style={{ zIndex: 1 }} />
         
         {/* Pattern overlay for visual interest */}
         <div className="fixed inset-0 opacity-10" style={{ 

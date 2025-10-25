@@ -14,15 +14,15 @@ export function ModuleCard({
   onClick,
   theme = 'default'
 }: ModuleCardProps) {
-  // Use the EXACT working pattern from AppleSidebar but with theme variations
+  // iPad Air iOS 12 compatible solid backgrounds - NO backdrop-blur
   const themeClasses = {
-    upload: 'bg-black/15 backdrop-blur-xl', // Darker for amber upload background
-    admin: 'bg-black/10 backdrop-blur-xl',  // Lighter for slate admin background
-    default: 'bg-black/12 backdrop-blur-xl'  // Neutral default
+    upload: 'bg-amber-900/70',     // Solid amber for upload theme
+    admin: 'bg-slate-900/60',      // Solid slate for admin theme  
+    default: 'bg-gray-900/65'      // Solid gray for default
   }
   
   const baseClasses = `${themeClasses[theme]} border border-white/20 rounded-3xl relative overflow-hidden z-10`
-  const hoverClasses = hover ? 'hover:bg-black/20 transition-all duration-300 cursor-pointer' : ''
+  const hoverClasses = hover ? 'hover:opacity-80 transition-all duration-300 cursor-pointer' : ''
   const clickableClasses = onClick ? 'cursor-pointer' : ''
   
   return (

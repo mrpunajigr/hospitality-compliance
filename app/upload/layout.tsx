@@ -81,7 +81,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
     // <PlatformProvider> // Temporarily disabled for quick deployment
       <div className="min-h-screen relative ContentArea">
         {/* Glassmorphic overlay for upload module */}
-        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/40 backdrop-blur-sm" style={{ zIndex: 1 }} />
+        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/40" style={{ zIndex: 1 }} />
         
         {/* Pattern overlay for visual interest */}
         <div className="fixed inset-0 opacity-10" style={{ 

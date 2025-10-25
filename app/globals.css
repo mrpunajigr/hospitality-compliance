@@ -164,7 +164,10 @@ body {
   }
 }
 
-/* Safari 12 compatible backdrop-blur alternatives */
+/* Safari 12 compatible backdrop-blur alternatives 
+   NOTE: iOS 12 Safari cannot handle multiple backdrop-blur layers 
+   AppleSidebar works at z-40, but cards inside layouts with backdrop-blur fail
+   Use solid opacity backgrounds (bg-color/70) for guaranteed compatibility */
 .backdrop-blur-2xl {
   /* Fallback for Safari 12 - use semi-transparent background */
   background: rgba(255, 255, 255, 0.15);
