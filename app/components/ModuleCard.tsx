@@ -14,11 +14,11 @@ export function ModuleCard({
   onClick,
   theme = 'default'
 }: ModuleCardProps) {
-  // iPad Air iOS 12 compatible solid backgrounds - NO backdrop-blur
+  // Working pattern from production-deploy: WHITE backgrounds with single blur layer
   const themeClasses = {
-    upload: 'bg-amber-900/70',     // Solid amber for upload theme
-    admin: 'bg-slate-900/60',      // Solid slate for admin theme  
-    default: 'bg-gray-900/65'      // Solid gray for default
+    upload: 'bg-white/15 backdrop-blur-lg',   // WHITE on amber background - proven working
+    admin: 'bg-white/10 backdrop-blur-lg',    // WHITE on slate background - subtle contrast
+    default: 'bg-white/12 backdrop-blur-lg'   // WHITE neutral default
   }
   
   const baseClasses = `${themeClasses[theme]} border border-white/20 rounded-3xl relative overflow-hidden z-10`
