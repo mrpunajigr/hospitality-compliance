@@ -9,6 +9,7 @@ import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getMappedIcon } from '@/lib/image-storage'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import { StatCard, ActionCard, ModuleCard } from '@/app/components/ModuleCard'
 import EnhancedFileUpload from '@/lib/ImageProcessing/Components/EnhancedFileUpload'
 import { QualityReport } from '@/lib/ImageProcessing/Utils/ImageQualityValidator'
 
@@ -393,11 +394,8 @@ export default function UploadActionPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
         
         {/* Quick Capture Card */}
-        <div 
-          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
+        <StatCard accentColor="blue">
+          <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Quick Capture</h2>
             </div>
@@ -423,14 +421,11 @@ export default function UploadActionPage() {
               Single document capture
             </p>
           </div>
-        </div>
+        </StatCard>
 
         {/* Bulk Upload Card */}
-        <div 
-          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
+        <StatCard accentColor="purple">
+          <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
             </div>
@@ -463,14 +458,11 @@ export default function UploadActionPage() {
               </p>
             </div>
           </div>
-        </div>
+        </StatCard>
 
         {/* Ready Queue Card */}
-        <div 
-          className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
+        <StatCard accentColor="green">
+          <div>
             <div className="flex items-center justify-center mb-4">
               <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
             </div>
@@ -519,16 +511,14 @@ export default function UploadActionPage() {
               <div className="text-green-200 text-xs">images ready</div>
             </div>
           </div>
-        </div>
+        </StatCard>
 
       </div>
 
       {/* Quality Upload Interface */}
       {showQualityUpload && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div 
-            className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-8 relative overflow-hidden lg:col-span-3"
-          >
+          <ModuleCard className="p-8 lg:col-span-3">
             <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-6">
@@ -642,11 +632,8 @@ export default function UploadActionPage() {
       <div className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div>
-            <div 
-              className="bg-gray-900/40 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full -mr-10 -mt-10"></div>
-              <div className="relative">
+            <StatCard accentColor="yellow">
+              <div>
                 <div className="flex items-center justify-center mb-4">
                   <h2 className="text-white text-lg font-semibold text-center w-full">Capture Tips</h2>
                 </div>
@@ -677,7 +664,7 @@ export default function UploadActionPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </StatCard>
           </div>
         </div>
       </div>
