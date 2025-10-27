@@ -80,8 +80,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   return (
     // <PlatformProvider> // Temporarily disabled for quick deployment
       <div className="min-h-screen relative ContentArea">
-        {/* Glassmorphic overlay for upload module */}
-        <div className="fixed inset-0 bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/40" style={{ zIndex: 1 }} />
+        {/* Background overlay for upload module */}
         
         {/* Pattern overlay for visual interest */}
         <div className="fixed inset-0 opacity-10" style={{ 
@@ -101,6 +100,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           user={user}
           userClient={userClient}
           onSignOut={handleSignOut}
+          logoUrl={userClient?.logo_url || "/JiGR_Logo-full_figma_circle.png"}
           activeSection="upload"
           currentUploadPage={
             pathname.includes('/training') ? 'training' :
@@ -113,7 +113,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
       </div>
       
       {/* Main Content */}
-      <div className="ml-[150px] min-h-screen relative" style={{ zIndex: 5 }}>
+      <div className="min-h-screen relative" style={{ zIndex: 5, marginLeft: '280px' }}>
         {children}
       </div>
       </div>
