@@ -14,21 +14,23 @@ export function ModuleCard({
   onClick,
   theme = 'default'
 }: ModuleCardProps) {
-  // Working pattern from production-deploy: WHITE backgrounds with single blur layer
-  const themeClasses = {
-    upload: 'bg-white/15 backdrop-blur-lg',   // WHITE on amber background - proven working
-    admin: 'bg-white/10 backdrop-blur-lg',    // WHITE on slate background - subtle contrast
-    default: 'bg-white/12 backdrop-blur-lg'   // WHITE neutral default
-  }
-  
-  const baseClasses = `${themeClasses[theme]} border border-white/20 rounded-3xl relative overflow-hidden z-10`
   const hoverClasses = hover ? 'hover:opacity-80 transition-all duration-300 cursor-pointer' : ''
   const clickableClasses = onClick ? 'cursor-pointer' : ''
   
   return (
     <div 
-      className={`${baseClasses} ${hoverClasses} ${clickableClasses} ${className}`}
+      className={`${hoverClasses} ${clickableClasses} ${className}`}
       onClick={onClick}
+      style={{
+        borderRadius: '38px',
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.2s ease',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
     >
       {children}
     </div>
@@ -57,8 +59,6 @@ export function StatCard({
 
   return (
     <ModuleCard className={`p-6 ${className}`} theme={theme}>
-      {/* Decorative accent circle */}
-      <div className={`absolute top-0 right-0 w-20 h-20 ${accentColors[accentColor]} rounded-full -mr-10 -mt-10`}></div>
       <div className="relative">
         {children}
       </div>

@@ -29,7 +29,8 @@ export default function AdminLayout({
       
       if (sessionError || !session?.user) {
         console.log('❌ ADMIN LAYOUT: No authenticated user found in session')
-        window.location.href = '/'
+        // TEMPORARILY DISABLED FOR DEBUGGING: window.location.href = '/'
+        console.log('⚠️ ADMIN LAYOUT: Redirect disabled for debugging')
         return
       }
 
@@ -106,18 +107,18 @@ export default function AdminLayout({
   }
 
   return (
-    <PlatformProvider>
-      <div className="min-h-screen relative ContentArea">
-        {/* Glassmorphic overlay for admin module */}
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/50" style={{ zIndex: 1 }} />
+    <div>
+      <div className="min-h-screen relative" style={{background: 'transparent'}}>
+        {/* Glassmorphic overlay for admin module - TEMPORARILY DISABLED */}
+        {/* <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/50" style={{ zIndex: 1 }} /> */}
         
-        {/* Pattern overlay for visual interest */}
-        <div className="fixed inset-0 opacity-10" style={{ 
+        {/* Pattern overlay for visual interest - TEMPORARILY DISABLED */}
+        {/* <div className="fixed inset-0 opacity-10" style={{ 
           zIndex: 1,
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)'
-        }} />
-        {/* Apple-style Sidebar */}
-        <div className="relative" style={{ zIndex: 10 }}>
+        }} /> */}
+        {/* Apple-style Sidebar - TEMPORARILY DISABLED */}
+        {/* <div className="relative" style={{ zIndex: 10 }}>
           <AppleSidebar 
             user={user}
             userClient={userClient}
@@ -125,10 +126,10 @@ export default function AdminLayout({
             logoUrl={companyLogoUrl || "/JiGR_Logo-full_figma_circle.png"}
             activeSection="admin"
           />
-        </div>
+        </div> */}
 
-        {/* Main content with fixed sidebar offset (only accounts for collapsed width) */}
-        <div className="ml-[150px] min-h-screen transition-all duration-300 relative" style={{ zIndex: 5 }}>
+        {/* Main content - NO SIDEBAR OFFSET */}
+        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent' }}>
           <main className="w-full">
             {children}
           </main>
@@ -137,6 +138,6 @@ export default function AdminLayout({
         {/* Console Toggle for Testing */}
         <ConsoleToggle />
       </div>
-    </PlatformProvider>
+    </div>
   )
 }

@@ -315,7 +315,7 @@ export default function UploadConsolePage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className={getCardStyle('primary')}>
             <div className="text-center">
@@ -335,7 +335,7 @@ export default function UploadConsolePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -463,9 +463,18 @@ export default function UploadConsolePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="md:col-span-2 lg:col-span-3">
               <div 
-                className="bg-gray-900/50 border border-gray-600/30 rounded-3xl p-6 relative overflow-hidden"
+                style={{
+                  borderRadius: '38px', 
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  padding: '24px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
               >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
                 <div className="relative">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-green-300 text-sm font-medium">UPLOADS TODAY</span>
@@ -486,10 +495,20 @@ export default function UploadConsolePage() {
                   {todaysUploads.length > 0 ? (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {todaysUploads.map((upload, index) => (
-                        <div key={upload.id || index} className="flex items-center space-x-4 bg-gray-800/50 rounded-lg p-3">
+                        <div key={upload.id || index} className="flex items-center space-x-4 p-3" style={{
+                          borderRadius: '38px', 
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(8px)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          transition: 'all 0.2s ease'
+                        }}>
                           {/* Thumbnail */}
                           {upload.image_path && (
-                            <div className="w-12 h-12 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="w-12 h-12 overflow-hidden flex-shrink-0" style={{
+                              borderRadius: '12px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }}>
                               <img 
                                 src={upload.image_path} 
                                 alt="Upload thumbnail"
@@ -549,7 +568,15 @@ export default function UploadConsolePage() {
               } catch (error) {
                 console.error('EnhancedComplianceDashboard error:', error)
                 return (
-                  <div className={getCardStyle('primary')}>
+                  <div style={{
+                    borderRadius: '38px', 
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    padding: '24px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease'
+                  }}>
                     <div className="text-center py-12">
                       <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
                         📊 Compliance Analytics
