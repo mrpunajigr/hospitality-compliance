@@ -11,6 +11,7 @@ import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { StatCard } from '@/app/components/ModuleCard'
 import { getThemedCardStyles, getModuleTheme } from '@/lib/theme-utils'
+import Link from 'next/link'
 
 export default function UploadConsolePage() {
   const [loading, setLoading] = useState(true)
