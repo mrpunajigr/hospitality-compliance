@@ -129,116 +129,137 @@ export default function AdminConsolePage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="h-screen overflow-y-auto">
+      <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:max-w-7xl pt-16 pb-8">
+      
+      {/* Standardized Module Header */}
       <ModuleHeader 
         module={moduleConfig}
         currentPage="console"
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {/* Business Information Card */}
-        <div 
-          style={{
-            borderRadius: '38px',
-            backgroundColor: 'rgba(255, 255, 255, 0.18)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          className="p-6"
-        >
-          <h3 className={getTextStyle('cardTitle')}>Business Information</h3>
-          <div className="space-y-4 mt-4">
-            <div>
-              <label className={getTextStyle('bodySmall')}>Business Name</label>
-              <p className={getTextStyle('body')}>{userClient?.name || 'Not specified'}</p>
+
+      {/* Main Content */}
+      <div className="flex gap-6">
+        
+        {/* Left Column - Main Content */}
+        <div className="flex-1">
+          
+          {/* Overview Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            
+            {/* Business Info */}
+            <div 
+              style={{
+                borderRadius: '38px',
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              className="p-6"
+            >
+              <div className="mb-4">
+                <h3 className={getTextStyle('cardTitle')}>{userClient?.name || 'Business Info'}</h3>
+                <div className="flex justify-center mb-4">
+                  <Link href="/admin/company">
+                    <img 
+                      src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRcafe.png"
+                      alt="Business Info"
+                      className="w-16 h-16 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                    />
+                  </Link>
+                </div>
+              </div>
+              <div className="text-white space-y-1 text-sm">
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
+                <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
+              </div>
             </div>
-            <div>
-              <label className={getTextStyle('bodySmall')}>Owner</label>
-              <p className={getTextStyle('body')}>{userClient?.owner_name || 'Not specified'}</p>
+
+            {/* Subscription */}
+            <div 
+              style={{
+                borderRadius: '38px',
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              className="p-6"
+            >
+              <div className="mb-4">
+                <h3 className={getTextStyle('cardTitle')}>Subscription</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRsubscription.png"
+                    alt="Subscription"
+                    className="w-16 h-16 object-contain"
+                  />
+                </div>
+                <p className="text-white/70 text-sm mb-4">
+                  {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) + ' Plan' : 'Plan not specified'}
+                </p>
+              </div>
+              <div className="text-white space-y-1 text-sm">
+                <p><strong>Status:</strong> {userClient?.subscription_status ? userClient.subscription_status.charAt(0).toUpperCase() + userClient.subscription_status.slice(1) : 'Not specified'}</p>
+                <p><strong>Tier:</strong> {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) : 'Not specified'}</p>
+                <p><strong>Onboarding:</strong> {userClient?.onboarding_status ? userClient.onboarding_status.charAt(0).toUpperCase() + userClient.onboarding_status.slice(1) : 'Not specified'}</p>
+              </div>
             </div>
-            <div>
-              <label className={getTextStyle('bodySmall')}>Business Type</label>
-              <p className={getTextStyle('body')}>{userClient?.business_type || 'Not specified'}</p>
+
+            {/* Team */}
+            <div 
+              style={{
+                borderRadius: '38px',
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              className="p-6"
+            >
+              <div className="mb-4">
+                <h3 className={getTextStyle('cardTitle')}>Team</h3>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRteam.png"
+                    alt="Team"
+                    className="w-16 h-16 object-contain"
+                  />
+                </div>
+                <p className="text-white/70 text-sm mb-4">
+                  {userClient ? '1 Active User' : 'Loading users...'}
+                </p>
+              </div>
+              <div className="text-white space-y-1 text-sm">
+                <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
+                <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
+                <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
+              </div>
             </div>
+
           </div>
+
         </div>
 
-        {/* Company Logo Upload Card */}
-        <div 
-          style={{
-            borderRadius: '38px',
-            backgroundColor: 'rgba(255, 255, 255, 0.18)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          className="p-6"
-        >
-          <h3 className={getTextStyle('cardTitle')}>Company Logo</h3>
-          <div className="mt-4">
-            <ImageUploader
-              onUploadSuccess={handleLogoUploadSuccess}
-              onUploadError={(error) => console.error('Logo upload error:', error)}
-              uploadEndpoint="/api/upload-client-logo"
-              uploadData={{ userId: user?.id || '', clientId: userClient?.id || '' }}
-              acceptedTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']}
-              maxSizeMB={5}
-              shape="square"
-              size="large"
-              title="Upload Company Logo"
-            />
-            {companyLogoUrl && (
-              <div className="mt-4 text-center">
-                <img 
-                  src={companyLogoUrl} 
-                  alt="Company Logo" 
-                  className="max-w-32 max-h-32 mx-auto rounded-lg border border-white/20"
-                />
-              </div>
-            )}
-          </div>
+        {/* Right Column - Empty Sidebar */}
+        <div className="w-64">
+          {/* Empty sidebar to maintain layout consistency */}
         </div>
 
-        {/* System Status Card */}
-        <div 
-          style={{
-            borderRadius: '38px',
-            backgroundColor: 'rgba(255, 255, 255, 0.18)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          className="p-6"
-        >
-          <h3 className={getTextStyle('cardTitle')}>System Status</h3>
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-between">
-              <span className={getTextStyle('body')}>Database</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
-                <span className={getTextStyle('bodySmall')}>Online</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className={getTextStyle('body')}>Authentication</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
-                <span className={getTextStyle('bodySmall')}>Active</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+    </div>
     </div>
   )
 }
