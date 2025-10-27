@@ -346,31 +346,39 @@ export default function EnhancedComplianceDashboard({ clientId, userId }: Enhanc
   return (
     <div className="space-y-6">
       
-      {/* Timeframe Selector */}
-      <div className="flex justify-between items-center">
-        <h2 className={`${getTextStyle('sectionTitle')} text-white`}>
-          Compliance Intelligence Dashboard
-        </h2>
+      {/* Dashboard Header with 3-Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center mb-6">
+        <div>
+          <h2 className={`${getTextStyle('sectionTitle')} text-white`}>
+            Compliance Dashboard
+          </h2>
+        </div>
         
-        <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 border border-white/40">
-          {(['today', 'week', 'month'] as const).map((period) => (
-            <button
-              key={period}
-              onClick={() => setTimeframe(period)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 capitalize ${
-                timeframe === period 
-                  ? 'bg-white text-black'
-                  : 'text-white/80 hover:text-white hover:bg-white/25'
-              }`}
-            >
-              {period}
-            </button>
-          ))}
+        <div className="hidden lg:block">
+          {/* Empty column for spacing */}
+        </div>
+        
+        <div className="flex justify-center lg:justify-end">
+          <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 border border-white/40">
+            {(['today', 'week', 'month'] as const).map((period) => (
+              <button
+                key={period}
+                onClick={() => setTimeframe(period)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 capitalize ${
+                  timeframe === period 
+                    ? 'bg-white text-black'
+                    : 'text-white/80 hover:text-white hover:bg-white/25'
+                }`}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Enhanced Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Compliance Rate with Trend */}
         <div className={getCardStyle('primary')}>
