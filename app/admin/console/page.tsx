@@ -10,6 +10,7 @@ import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/l
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import ImageUploader from '@/app/components/ImageUploader'
+import { getThemedCardStyles, getModuleTheme } from '@/lib/theme-utils'
 
 export default function AdminConsolePage() {
   const [user, setUser] = useState<any>(null)
@@ -93,6 +94,10 @@ export default function AdminConsolePage() {
 
   const moduleConfig = getModuleConfig('admin')
   
+  // Get theme-aware styling
+  const theme = getModuleTheme('admin')
+  const { cardStyle, textColors, getInlineStyles } = getThemedCardStyles(theme)
+  
   if (!moduleConfig) {
     return <div>Module configuration not found</div>
   }
@@ -150,16 +155,7 @@ export default function AdminConsolePage() {
             
             {/* Business Info */}
             <div 
-              style={{
-                borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+              style={getInlineStyles()}
               className="p-6"
             >
               <div className="mb-4">
@@ -174,7 +170,7 @@ export default function AdminConsolePage() {
                   </Link>
                 </div>
               </div>
-              <div className="text-gray-800 space-y-1 text-sm">
+              <div className={`${textColors.body} space-y-1 text-sm`}>
                 <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
                 <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
@@ -183,16 +179,7 @@ export default function AdminConsolePage() {
 
             {/* Subscription */}
             <div 
-              style={{
-                borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+              style={getInlineStyles()}
               className="p-6"
             >
               <div className="mb-4">
@@ -204,11 +191,11 @@ export default function AdminConsolePage() {
                     className="w-16 h-16 object-contain"
                   />
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className={`${textColors.secondary} text-sm mb-4`}>
                   {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) + ' Plan' : 'Plan not specified'}
                 </p>
               </div>
-              <div className="text-gray-800 space-y-1 text-sm">
+              <div className={`${textColors.body} space-y-1 text-sm`}>
                 <p><strong>Status:</strong> {userClient?.subscription_status ? userClient.subscription_status.charAt(0).toUpperCase() + userClient.subscription_status.slice(1) : 'Not specified'}</p>
                 <p><strong>Tier:</strong> {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) : 'Not specified'}</p>
                 <p><strong>Onboarding:</strong> {userClient?.onboarding_status ? userClient.onboarding_status.charAt(0).toUpperCase() + userClient.onboarding_status.slice(1) : 'Not specified'}</p>
@@ -217,16 +204,7 @@ export default function AdminConsolePage() {
 
             {/* Team */}
             <div 
-              style={{
-                borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+              style={getInlineStyles()}
               className="p-6"
             >
               <div className="mb-4">
@@ -238,11 +216,11 @@ export default function AdminConsolePage() {
                     className="w-16 h-16 object-contain"
                   />
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className={`${textColors.secondary} text-sm mb-4`}>
                   {userClient ? '1 Active User' : 'Loading users...'}
                 </p>
               </div>
-              <div className="text-gray-800 space-y-1 text-sm">
+              <div className={`${textColors.body} space-y-1 text-sm`}>
                 <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
                 <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>

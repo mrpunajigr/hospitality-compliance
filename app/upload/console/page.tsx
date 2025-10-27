@@ -10,6 +10,7 @@ import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { StatCard } from '@/app/components/ModuleCard'
+import { getThemedCardStyles, getModuleTheme } from '@/lib/theme-utils'
 
 export default function UploadConsolePage() {
   const [loading, setLoading] = useState(true)
@@ -330,6 +331,10 @@ export default function UploadConsolePage() {
 
   const moduleConfig = getModuleConfig('upload')
   
+  // Get theme-aware styling
+  const theme = getModuleTheme('upload')
+  const { cardStyle, textColors, getInlineStyles } = getThemedCardStyles(theme)
+  
   if (!moduleConfig) {
     return <div>Module configuration not found</div>
   }
@@ -464,13 +469,8 @@ export default function UploadConsolePage() {
             <div className="md:col-span-2 lg:col-span-3">
               <div 
                 style={{
-                  borderRadius: '38px', 
-                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                  backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  ...getInlineStyles(),
                   padding: '24px',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.2s ease',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
@@ -569,19 +569,14 @@ export default function UploadConsolePage() {
                 console.error('EnhancedComplianceDashboard error:', error)
                 return (
                   <div style={{
-                    borderRadius: '38px', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    padding: '24px',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease'
+                    ...getInlineStyles(),
+                    padding: '24px'
                   }}>
                     <div className="text-center py-12">
-                      <h2 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
+                      <h2 className={`${getTextStyle('sectionTitle')} ${textColors.title} mb-4`}>
                         📊 Compliance Analytics
                       </h2>
-                      <p className={`${getTextStyle('body')} text-white/80 mb-6`}>
+                      <p className={`${getTextStyle('body')} ${textColors.secondary} mb-6`}>
                         Dashboard is loading... If this persists, please contact support.
                       </p>
                       <div className="bg-orange-600/20 border border-orange-400/30 rounded-xl p-4">
