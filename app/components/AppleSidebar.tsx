@@ -83,6 +83,22 @@ export default function AppleSidebar({
   const [isIPad, setIsIPad] = useState(false)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  
+  // Internal demo client fallback for consistent sidebar behavior
+  const effectiveUserClient = userClient || {
+    id: 'demo-sidebar-client',
+    name: 'Demo Restaurant',
+    owner_name: 'Demo User',
+    business_type: 'restaurant',
+    phone: '+64 9 123 4567',
+    onboarding_status: 'completed',
+    role: 'OWNER',
+    champion_enrolled: true,
+    logo_url: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png'
+  }
+  
+  // Effective logo URL with proper fallback chain
+  const effectiveLogoUrl = logoUrl || effectiveUserClient.logo_url || "/JiGR_Logo-full_figma_circle.png"
 
   // Fetch user avatar
   useEffect(() => {
@@ -154,9 +170,9 @@ export default function AppleSidebar({
     // Check context
     const contextMatch = item.context === activeSection || item.context === 'both'
     // Check role (if roles are specified, user must have one of them)
-    const roleMatch = !item.roles || (userClient?.role && item.roles.includes(userClient.role))
+    const roleMatch = !item.roles || (effectiveUserClient?.role && item.roles.includes(effectiveUserClient.role))
     // Check champion status (if champion_only is true, user must be champion enrolled)
-    const championMatch = !item.champion_only || userClient?.champion_enrolled === true
+    const championMatch = !item.champion_only || effectiveUserClient?.champion_enrolled === true
     return contextMatch && roleMatch && championMatch
   }
 
@@ -209,15 +225,15 @@ export default function AppleSidebar({
           <div className="flex items-center justify-center">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
               <img 
-                src={logoUrl || "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png"}
+                src={effectiveLogoUrl}
                 alt={logoUrl ? "Company Logo" : "JiGR Default Logo"} 
                 className="w-full h-full object-contain p-2"
                 onError={(e) => {
-                  logger.error('Company logo failed to load:', logoUrl);
+                  logger.error('Company logo failed to load:', effectiveLogoUrl);
                   e.currentTarget.src = "https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png";
                 }}
                 onLoad={() => {
-                  logger.debug('SIDEBAR: Company logo loaded successfully:', logoUrl || 'JiGR default');
+                  logger.debug('SIDEBAR: Company logo loaded successfully:', effectiveLogoUrl);
                 }}
               />
             </div>
@@ -425,7 +441,7 @@ export default function AppleSidebar({
                     <div 
                       className={`bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200`}
                       onClick={() => window.location.href = '/admin/profile'}
-                      title={`User Profile - Edit your profile information${userClient?.champion_enrolled ? ' | Hero User' : ''}`}
+                      title={`User Profile - Edit your profile information${effectiveUserClient?.champion_enrolled ? ' | Hero User' : ''}`}
                     >
                     {userAvatar ? (
                       <img 
@@ -443,7 +459,7 @@ export default function AppleSidebar({
                     </div>
                     
                     {/* Hero Badge */}
-                    {userClient?.champion_enrolled && (
+                    {effectiveUserClient?.champion_enrolled && (
                       <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-2 border-white/30 shadow-lg">
                         <img 
                           src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"

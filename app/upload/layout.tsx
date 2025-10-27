@@ -54,21 +54,8 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
             updated_at: new Date().toISOString()
           }
           
-          const demoClient = {
-            id: 'demo-client-123',
-            name: 'Demo Restaurant',
-            owner_name: 'John Demo',
-            business_type: 'restaurant',
-            phone: '+64 9 123 4567',
-            onboarding_status: 'completed',
-            role: 'OWNER',
-            champion_enrolled: true,
-            logo_url: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png'
-          } as UserClient
-          
           setUser(demoUser)
-          setUserClient(demoClient)
-          setCompanyLogoUrl(demoClient.logo_url || null)
+          // Sidebar handles its own demo client data now
         } else {
           router.push('/')
           return
@@ -116,7 +103,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           user={user}
           userClient={userClient}
           onSignOut={handleSignOut}
-          logoUrl={companyLogoUrl || userClient?.logo_url || "/JiGR_Logo-full_figma_circle.png"}
+          logoUrl={companyLogoUrl || userClient?.logo_url}
           activeSection="upload"
           currentUploadPage={
             pathname.includes('/training') ? 'training' :
