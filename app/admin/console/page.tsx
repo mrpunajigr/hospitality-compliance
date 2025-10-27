@@ -146,13 +146,13 @@ export default function AdminConsolePage() {
         <div className="flex-1">
           
           {/* Overview Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             
             {/* Business Info */}
             <div 
               style={{
                 borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backgroundColor: 'rgba(255, 255, 255, 0.35)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
@@ -174,7 +174,7 @@ export default function AdminConsolePage() {
                   </Link>
                 </div>
               </div>
-              <div className="text-white space-y-1 text-sm">
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Type:</strong> {userClient?.business_type ? userClient.business_type.charAt(0).toUpperCase() + userClient.business_type.slice(1) : 'Not specified'}</p>
                 <p><strong>Phone:</strong> {userClient?.phone || 'Not provided'}</p>
@@ -185,7 +185,7 @@ export default function AdminConsolePage() {
             <div 
               style={{
                 borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backgroundColor: 'rgba(255, 255, 255, 0.35)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
@@ -204,11 +204,11 @@ export default function AdminConsolePage() {
                     className="w-16 h-16 object-contain"
                   />
                 </div>
-                <p className="text-white/70 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-4">
                   {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) + ' Plan' : 'Plan not specified'}
                 </p>
               </div>
-              <div className="text-white space-y-1 text-sm">
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Status:</strong> {userClient?.subscription_status ? userClient.subscription_status.charAt(0).toUpperCase() + userClient.subscription_status.slice(1) : 'Not specified'}</p>
                 <p><strong>Tier:</strong> {userClient?.subscription_tier ? userClient.subscription_tier.charAt(0).toUpperCase() + userClient.subscription_tier.slice(1) : 'Not specified'}</p>
                 <p><strong>Onboarding:</strong> {userClient?.onboarding_status ? userClient.onboarding_status.charAt(0).toUpperCase() + userClient.onboarding_status.slice(1) : 'Not specified'}</p>
@@ -219,7 +219,7 @@ export default function AdminConsolePage() {
             <div 
               style={{
                 borderRadius: '38px',
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backgroundColor: 'rgba(255, 255, 255, 0.35)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
@@ -238,11 +238,11 @@ export default function AdminConsolePage() {
                     className="w-16 h-16 object-contain"
                   />
                 </div>
-                <p className="text-white/70 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-4">
                   {userClient ? '1 Active User' : 'Loading users...'}
                 </p>
               </div>
-              <div className="text-white space-y-1 text-sm">
+              <div className="text-gray-800 space-y-1 text-sm">
                 <p><strong>Owner:</strong> {userClient?.owner_name || 'Not specified'}</p>
                 <p><strong>Role:</strong> {userClient?.jobTitle || userClient?.role || 'Not specified'}</p>
                 <p><strong>Status:</strong> {userClient?.status ? userClient.status.charAt(0).toUpperCase() + userClient.status.slice(1) : 'Active'}</p>
