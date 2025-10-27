@@ -129,7 +129,7 @@ export default function AdminLayout({
         </div>
 
         {/* Main content with sidebar offset */}
-        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent', marginLeft: '280px' }}>
+        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent', marginLeft: '150px' }}>
           <main className="w-full">
             {children}
           </main>

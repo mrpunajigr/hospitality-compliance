@@ -40,77 +40,47 @@ export default function AdminConsolePage() {
     } : 'null')
   }, [userClient])
 
-  const handleDemoSignIn = async () => {
-    try {
-      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      // Use getSession() instead of getUser() to avoid 403 errors
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (!anonError && anonData.user) {
-        console.log('Anonymous demo user signed in successfully')
-        setUser(anonData.user)
-        setLoading(false)
+      if (sessionError || !session?.user) {
+        // No authenticated user - redirect to home/login
+        window.location.href = '/'
         return
       }
 
-      // Fallback to demo user
-      const demoUser = {
-        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-        email: 'demo@example.com',
-        app_metadata: {},
-        user_metadata: { full_name: 'Demo User' },
-        aud: 'authenticated',
-        role: 'authenticated',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
+      const user = session.user
+      setUser(user)
       
-      setUser(demoUser)
-      setLoading(false)
-      
-    } catch (error) {
-      console.error('Demo sign-in failed:', error)
-      // Fallback demo user
-      const demoUser = {
-        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-        email: 'demo@example.com',
-        app_metadata: {},
-        user_metadata: { full_name: 'Demo User' },
-        aud: 'authenticated',
-        role: 'authenticated',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-      
-      setUser(demoUser)
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    const checkAuth = async () => {
+      // Load company info using reliable API
       try {
-        // Simple demo user setup for testing
-        const demoUser = {
-          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-          email: 'demo@example.com',
-          app_metadata: {},
-          user_metadata: { full_name: 'Demo User' },
-          aud: 'authenticated',
-          role: 'authenticated',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        const response = await fetch(`/api/user-client?userId=${user.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const clientInfo = data.userClient
+          
+          setUserClient(clientInfo)
+          
+          if (clientInfo.logo_url) {
+            setCompanyLogoUrl(clientInfo.logo_url)
+            // Update localStorage for consistency
+            localStorage.setItem('companyLogoUrl', clientInfo.logo_url)
+          }
+        } else {
+          console.error('Failed to load client info via API:', response.status)
         }
-        
-        setUser(demoUser)
-        // Sidebar handles its own demo client data now
-        
       } catch (error) {
-        console.error('Error in admin auth:', error)
+        console.error('Error loading client info via API:', error)
       } finally {
         setLoading(false)
       }
     }
     
-    checkAuth()
+    loadUserData()
     
     // TEMPORARILY DISABLED: Auth state change listener to prevent session refresh issues
     // const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
@@ -149,21 +119,9 @@ export default function AdminConsolePage() {
               Admin Console
             </h1>
             <p className={`${getTextStyle('bodySmall')} mb-6`}>
-              Please sign in to manage settings
+              Redirecting to login...
             </p>
-            
-            <button
-              onClick={handleDemoSignIn}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] mb-4"
-            >
-              LOGIN as Demo User
-            </button>
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-              <p className="text-xs text-white/70">
-                Demo mode with test company data
-              </p>
-            </div>
+            <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto"></div>
           </div>
         </div>
       </div>
@@ -229,7 +187,7 @@ export default function AdminConsolePage() {
               onUploadSuccess={handleLogoUploadSuccess}
               onUploadError={(error) => console.error('Logo upload error:', error)}
               uploadEndpoint="/api/upload-client-logo"
-              uploadData={{ userId: user?.id || 'demo', clientId: userClient?.id || 'demo-client' }}
+              uploadData={{ userId: user?.id || '', clientId: userClient?.id || '' }}
               acceptedTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']}
               maxSizeMB={5}
               shape="square"

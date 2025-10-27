@@ -84,21 +84,11 @@ export default function AppleSidebar({
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   
-  // Use real userClient data when available, fallback to demo only when needed
-  const effectiveUserClient = userClient || {
-    id: 'demo-sidebar-client',
-    name: 'Demo Restaurant',
-    owner_name: 'Demo User',
-    business_type: 'restaurant',
-    phone: '+64 9 123 4567',
-    onboarding_status: 'completed',
-    role: 'OWNER',
-    champion_enrolled: true,
-    logo_url: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png'
-  }
+  // Use only real userClient data - no demo fallbacks
+  const effectiveUserClient = userClient
   
-  // Effective logo URL prioritizes: passed logoUrl > userClient.logo_url > demo logo > JiGR default
-  const effectiveLogoUrl = logoUrl || userClient?.logo_url || effectiveUserClient.logo_url || "/JiGR_Logo-full_figma_circle.png"
+  // Effective logo URL prioritizes: passed logoUrl > userClient.logo_url > JiGR default
+  const effectiveLogoUrl = logoUrl || userClient?.logo_url || "/JiGR_Logo-full_figma_circle.png"
 
   // Fetch user avatar
   useEffect(() => {
@@ -458,8 +448,8 @@ export default function AppleSidebar({
                     )}
                     </div>
                     
-                    {/* Hero Badge - prioritize real userClient data */}
-                    {(userClient?.champion_enrolled || effectiveUserClient?.champion_enrolled) && (
+                    {/* Hero Badge - only show for real userClient data */}
+                    {userClient?.champion_enrolled && (
                       <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-2 border-white/30 shadow-lg">
                         <img 
                           src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"

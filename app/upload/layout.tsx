@@ -20,51 +20,45 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   const [showBackgroundSelector, setShowBackgroundSelector] = useState(false)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    const loadUserData = async () => {
+      // Use getSession() instead of getUser() to avoid 403 errors
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (user) {
-        setUser(user)
-        
-        try {
-          const clientInfo = await getUserClient(user.id)
-          if (clientInfo) {
-            setUserClient(clientInfo)
-          }
-        } catch (error) {
-          console.error('Error loading client info:', error)
-        }
-      } else {
-        // Check for demo mode
-        const isDemoMode = typeof window !== 'undefined' && (
-          window.location.pathname.startsWith('/upload') ||
-          new URLSearchParams(window.location.search).get('demo') === 'true' ||
-          document.cookie.includes('demo-session=active')
-        )
-        
-        if (isDemoMode) {
-          const demoUser = {
-            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
-            email: 'demo@example.com',
-            app_metadata: {},
-            user_metadata: { full_name: 'Demo User - Upload' },
-            aud: 'authenticated',
-            role: 'authenticated',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-          
-          setUser(demoUser)
-          // Sidebar handles its own demo client data now
-        } else {
-          router.push('/')
-          return
-        }
+      if (sessionError || !session?.user) {
+        // No authenticated user - redirect to home/login
+        router.push('/')
+        return
       }
+
+      const user = session.user
+      setUser(user)
+      
+      // Load company info using reliable API
+      try {
+        const response = await fetch(`/api/user-client?userId=${user.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const clientInfo = data.userClient
+          
+          setUserClient(clientInfo)
+          
+          if (clientInfo.logo_url) {
+            setCompanyLogoUrl(clientInfo.logo_url)
+            // Update localStorage for consistency
+            localStorage.setItem('companyLogoUrl', clientInfo.logo_url)
+          }
+        } else {
+          console.error('Failed to load client info via API:', response.status)
+        }
+      } catch (error) {
+        console.error('Error loading client info via API:', error)
+      }
+      
       setLoading(false)
     }
     
-    checkAuth()
+    loadUserData()
   }, [router])
 
   const handleSignOut = async () => {
