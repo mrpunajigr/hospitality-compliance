@@ -87,8 +87,6 @@ export default function AdminConsolePage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log('🔍 ADMIN CONSOLE: Starting simplified auth check...')
-      
       try {
         // Simple demo user setup for testing
         const demoUser = {
@@ -102,27 +100,13 @@ export default function AdminConsolePage() {
           updated_at: new Date().toISOString()
         }
         
-        const demoClient = {
-          id: 'demo-client-123',
-          name: 'Demo Restaurant',
-          owner_name: 'John Demo',
-          business_type: 'restaurant',
-          phone: '+64 9 123 4567',
-          onboarding_status: 'completed',
-          role: 'OWNER',
-          champion_enrolled: true
-        } as UserClient
-        
         setUser(demoUser)
-        setUserClient(demoClient)
-        console.log('✅ ADMIN CONSOLE: Demo user and client set up')
+        // Sidebar handles its own demo client data now
         
       } catch (error) {
-        console.error('❌ ADMIN CONSOLE: Error in simplified auth:', error)
+        console.error('Error in admin auth:', error)
       } finally {
-        // ALWAYS set loading to false regardless of what happens
         setLoading(false)
-        console.log('✅ ADMIN CONSOLE: Loading set to false')
       }
     }
     
@@ -187,57 +171,116 @@ export default function AdminConsolePage() {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      zIndex: 99999,
-      background: 'white',
-      overflow: 'auto',
-      padding: '50px'
-    }}>
-      <h1 style={{color: 'black', fontSize: '48px', fontWeight: 'bold'}}>
-        EMERGENCY BYPASS MODE
-      </h1>
+    <div className="min-h-screen p-6">
+      <ModuleHeader 
+        module={moduleConfig}
+        currentPage="console"
+      />
       
-      <div style={{
-        background: 'red',
-        color: 'white',
-        padding: '30px',
-        margin: '20px 0',
-        fontSize: '24px',
-        borderRadius: '10px'
-      }}>
-        RED EMERGENCY TEST
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {/* Business Information Card */}
+        <div 
+          style={{
+            borderRadius: '38px',
+            backgroundColor: 'rgba(255, 255, 255, 0.18)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          className="p-6"
+        >
+          <h3 className={getTextStyle('cardTitle')}>Business Information</h3>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className={getTextStyle('bodySmall')}>Business Name</label>
+              <p className={getTextStyle('body')}>{userClient?.name || 'Not specified'}</p>
+            </div>
+            <div>
+              <label className={getTextStyle('bodySmall')}>Owner</label>
+              <p className={getTextStyle('body')}>{userClient?.owner_name || 'Not specified'}</p>
+            </div>
+            <div>
+              <label className={getTextStyle('bodySmall')}>Business Type</label>
+              <p className={getTextStyle('body')}>{userClient?.business_type || 'Not specified'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Company Logo Upload Card */}
+        <div 
+          style={{
+            borderRadius: '38px',
+            backgroundColor: 'rgba(255, 255, 255, 0.18)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          className="p-6"
+        >
+          <h3 className={getTextStyle('cardTitle')}>Company Logo</h3>
+          <div className="mt-4">
+            <ImageUploader
+              onUploadSuccess={handleLogoUploadSuccess}
+              onUploadError={(error) => console.error('Logo upload error:', error)}
+              uploadEndpoint="/api/upload-client-logo"
+              uploadData={{ userId: user?.id || 'demo', clientId: userClient?.id || 'demo-client' }}
+              acceptedTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']}
+              maxSizeMB={5}
+              shape="square"
+              size="large"
+              title="Upload Company Logo"
+            />
+            {companyLogoUrl && (
+              <div className="mt-4 text-center">
+                <img 
+                  src={companyLogoUrl} 
+                  alt="Company Logo" 
+                  className="max-w-32 max-h-32 mx-auto rounded-lg border border-white/20"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* System Status Card */}
+        <div 
+          style={{
+            borderRadius: '38px',
+            backgroundColor: 'rgba(255, 255, 255, 0.18)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          className="p-6"
+        >
+          <h3 className={getTextStyle('cardTitle')}>System Status</h3>
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-between">
+              <span className={getTextStyle('body')}>Database</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
+                <span className={getTextStyle('bodySmall')}>Online</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className={getTextStyle('body')}>Authentication</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
+                <span className={getTextStyle('bodySmall')}>Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div style={{
-        background: 'blue', 
-        color: 'yellow',
-        padding: '30px',
-        margin: '20px 0',
-        fontSize: '24px',
-        borderRadius: '10px'
-      }}>
-        BLUE EMERGENCY TEST
-      </div>
-      
-      <div style={{
-        background: 'green',
-        color: 'white',
-        padding: '30px',
-        margin: '20px 0',
-        fontSize: '24px',
-        borderRadius: '10px'
-      }}>
-        GREEN EMERGENCY TEST
-      </div>
-      
-      <p style={{color: 'black', fontSize: '18px', margin: '20px 0'}}>
-        This bypasses ALL frameworks, layouts, and CSS. JSX syntax is now fixed!
-      </p>
     </div>
   )
 }
