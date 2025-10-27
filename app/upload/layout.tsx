@@ -15,6 +15,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   const [userClient, setUserClient] = useState<UserClient | null>(null)
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showBackgroundSelector, setShowBackgroundSelector] = useState(false)
 
@@ -52,7 +53,22 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
+          
+          const demoClient = {
+            id: 'demo-client-123',
+            name: 'Demo Restaurant',
+            owner_name: 'John Demo',
+            business_type: 'restaurant',
+            phone: '+64 9 123 4567',
+            onboarding_status: 'completed',
+            role: 'OWNER',
+            champion_enrolled: true,
+            logo_url: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png'
+          } as UserClient
+          
           setUser(demoUser)
+          setUserClient(demoClient)
+          setCompanyLogoUrl(demoClient.logo_url || null)
         } else {
           router.push('/')
           return
@@ -100,7 +116,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           user={user}
           userClient={userClient}
           onSignOut={handleSignOut}
-          logoUrl={userClient?.logo_url || "/JiGR_Logo-full_figma_circle.png"}
+          logoUrl={companyLogoUrl || userClient?.logo_url || "/JiGR_Logo-full_figma_circle.png"}
           activeSection="upload"
           currentUploadPage={
             pathname.includes('/training') ? 'training' :
