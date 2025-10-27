@@ -116,7 +116,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
       </div>
       
       {/* Main Content */}
-      <div className="min-h-screen relative" style={{ zIndex: 5, marginLeft: '280px' }}>
+      <div className="min-h-screen relative" style={{ zIndex: 5, marginLeft: '150px' }}>
         {children}
       </div>
       </div>
