@@ -465,7 +465,7 @@ export default function UploadConsolePage() {
               <div 
                 style={{
                   borderRadius: '38px', 
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
                   backdropFilter: 'blur(16px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   padding: '24px',
@@ -497,7 +497,7 @@ export default function UploadConsolePage() {
                       {todaysUploads.map((upload, index) => (
                         <div key={upload.id || index} className="flex items-center space-x-4 p-3" style={{
                           borderRadius: '38px', 
-                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.12)',
                           backdropFilter: 'blur(8px)',
                           border: '1px solid rgba(255, 255, 255, 0.15)',
                           transition: 'all 0.2s ease'

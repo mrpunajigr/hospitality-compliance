@@ -23,7 +23,7 @@ export function ModuleCard({
       onClick={onClick}
       style={{
         borderRadius: '38px',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.18)',
         backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',

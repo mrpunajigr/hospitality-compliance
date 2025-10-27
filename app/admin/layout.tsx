@@ -117,8 +117,8 @@ export default function AdminLayout({
           zIndex: 1,
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)'
         }} /> */}
-        {/* Apple-style Sidebar - TEMPORARILY DISABLED */}
-        {/* <div className="relative" style={{ zIndex: 10 }}>
+        {/* Apple-style Sidebar */}
+        <div className="relative" style={{ zIndex: 10 }}>
           <AppleSidebar 
             user={user}
             userClient={userClient}
@@ -126,10 +126,10 @@ export default function AdminLayout({
             logoUrl={companyLogoUrl || "/JiGR_Logo-full_figma_circle.png"}
             activeSection="admin"
           />
-        </div> */}
+        </div>
 
-        {/* Main content - NO SIDEBAR OFFSET */}
-        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent' }}>
+        {/* Main content with sidebar offset */}
+        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent', marginLeft: '280px' }}>
           <main className="w-full">
             {children}
           </main>
