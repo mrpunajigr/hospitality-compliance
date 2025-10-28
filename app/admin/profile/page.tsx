@@ -644,7 +644,7 @@ function ProfilePageContent() {
 
       {/* Personal Information - 2 Columns Wide */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
+        <div className="md:col-span-2">
           <StatCard accentColor="purple" theme="admin">
             <div>
               <div className="flex justify-between items-center mb-6">
@@ -752,7 +752,7 @@ function ProfilePageContent() {
 
       {/* Password & Security - 2 Columns Wide */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
+        <div className="md:col-span-2">
           <StatCard accentColor="orange" theme="admin">
             <div>
               <h2 className="text-gray-900 text-lg font-semibold mb-6">Password & Security</h2>

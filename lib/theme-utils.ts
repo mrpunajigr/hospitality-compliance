@@ -49,10 +49,10 @@ export function getCardStyle(theme: ThemeMode): CardStyleConfig {
       backgroundColor: 'rgba(255, 255, 255, 0.18)'
     }
   } else {
-    // Dark theme: Heavier cards for light backgrounds  
+    // Dark theme: Heavier cards for light backgrounds - 40% darker for better visibility 
     return {
       ...baseStyle,
-      backgroundColor: 'rgba(255, 255, 255, 0.35)'
+      backgroundColor: 'rgba(255, 255, 255, 0.6)'
     }
   }
 }
