@@ -157,6 +157,30 @@ function AcceptInvitationContent() {
         throw new Error('Authentication required')
       }
 
+      // Ensure user profile exists before creating client_users record
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      if (!existingProfile) {
+        console.log('Creating profile for new user...')
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: invitation!.email,
+            full_name: `${invitation!.firstName} ${invitation!.lastName}`,
+            created_at: new Date().toISOString()
+          })
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+          throw new Error(`Failed to create user profile: ${profileError.message}`)
+        }
+      }
+
       // Accept the invitation by creating client_users record
       const { error: acceptError } = await supabase
         .from('client_users')
