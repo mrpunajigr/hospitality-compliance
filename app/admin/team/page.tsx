@@ -411,56 +411,6 @@ export default function AdminTeamPage() {
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* MODAL DEBUG TEST */}
-      <div style={{backgroundColor: 'yellow', padding: '20px', margin: '20px'}}>
-        <button onClick={() => alert(`Modal: ${showInviteModal}, User: ${!!user}, Profile: ${!!profile}`)} style={{backgroundColor: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>
-          CHECK ALL STATUS
-        </button>
-        <button onClick={() => {
-          setShowInviteModal(true)
-          alert('Set modal to TRUE')
-        }} style={{backgroundColor: 'green', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
-          SET MODAL TRUE
-        </button>
-      </div>
-      
-      {/* SIMPLEST POSSIBLE MODAL TEST */}
-      {showInviteModal ? (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(255,0,0,0.8)',
-          zIndex: 999999
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '100px',
-            left: '50px',
-            right: '50px',
-            backgroundColor: 'yellow',
-            border: '5px solid black',
-            padding: '50px',
-            fontSize: '30px'
-          }}>
-            <h1>SIMPLE MODAL WORKS!</h1>
-            <button 
-              onClick={() => setShowInviteModal(false)}
-              style={{
-                backgroundColor: 'red',
-                color: 'white',
-                padding: '20px',
-                fontSize: '24px',
-                border: 'none'
-              }}
-            >
-              CLOSE MODAL
-            </button>
-          </div>
-        </div>
-      ) : null}
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -549,13 +499,13 @@ export default function AdminTeamPage() {
       </div>
 
 
-      {/* Simple Invite Button - Completely Outside Card System */}
+      {/* Invite Member Button - iPad Compatible */}
       <div className="mb-4 text-right">
         <button
           onClick={() => setShowInviteModal(true)}
-          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
         >
-          🟢 INVITE MEMBER
+          Invite Member
         </button>
       </div>
 
