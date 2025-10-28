@@ -513,7 +513,7 @@ export default function AdminTeamPage() {
                       setShowInviteModal(true)
                     }
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 cursor-pointer select-none text-center min-h-[44px] flex items-center justify-center"
+                  className="bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 cursor-pointer select-none text-center min-h-[44px] flex items-center justify-center"
                   style={{ 
                     WebkitTapHighlightColor: 'transparent',
                     WebkitUserSelect: 'none',
