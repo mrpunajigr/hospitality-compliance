@@ -497,32 +497,20 @@ export default function AdminTeamPage() {
 
       </div>
 
+      {/* STANDALONE TEST BUTTON - Outside any cards */}
+      <div className="mb-8">
+        <button onClick={() => setShowInviteModal(true)}>
+          STANDALONE INVITE BUTTON
+        </button>
+      </div>
+
       {/* Team Members List - 2 Columns Wide */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="md:col-span-2">
           <StatCard accentColor="blue" theme="admin">
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
-                <a
-                  href="#"
-                  onMouseDown={(e) => {
-                    e.preventDefault()
-                    setShowInviteModal(true)
-                  }}
-                  onTouchStart={(e) => {
-                    e.preventDefault()
-                    setShowInviteModal(true)
-                  }}
-                  className="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-medium py-4 px-8 rounded-lg transition-all duration-200 cursor-pointer select-none text-center min-h-[50px] flex items-center justify-center no-underline"
-                  style={{ 
-                    WebkitTapHighlightColor: 'transparent',
-                    touchAction: 'manipulation',
-                    textDecoration: 'none'
-                  }}
-                >
-                  Invite Member
-                </a>
+                <h2 className="text-gray-900 text-lg font-semibent">Team Members</h2>
               </div>
               
               <div className="space-y-4">
