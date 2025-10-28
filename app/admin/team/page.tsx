@@ -506,11 +506,15 @@ export default function AdminTeamPage() {
                 <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
                 <a
                   href="#"
-                  onClick={(e) => {
+                  onMouseDown={(e) => {
                     e.preventDefault()
                     setShowInviteModal(true)
                   }}
-                  className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 cursor-pointer select-none text-center min-h-[44px] flex items-center justify-center no-underline"
+                  onTouchStart={(e) => {
+                    e.preventDefault()
+                    setShowInviteModal(true)
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-medium py-4 px-8 rounded-lg transition-all duration-200 cursor-pointer select-none text-center min-h-[50px] flex items-center justify-center no-underline"
                   style={{ 
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
