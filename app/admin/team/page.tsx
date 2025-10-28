@@ -52,6 +52,7 @@ export default function AdminTeamPage() {
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [testCounter, setTestCounter] = useState(0)
   const router = useRouter()
 
   // =====================================================
@@ -410,6 +411,14 @@ export default function AdminTeamPage() {
 
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+      
+      {/* BC's Test Counter Button */}
+      <button 
+        onClick={() => setTestCounter(prev => prev + 1)}
+        className="fixed top-4 right-4 z-[9999] bg-green-500 text-white px-4 py-2 rounded min-h-[44px]"
+      >
+        TEST COUNTER: {testCounter}
+      </button>
       
       {/* Standardized Module Header */}
       <ModuleHeader 
