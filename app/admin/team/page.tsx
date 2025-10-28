@@ -424,16 +424,43 @@ export default function AdminTeamPage() {
         </button>
       </div>
       
-      {/* FORCE SHOW MODAL - Skip user check */}
-      {showInviteModal && (
-        <div style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', border: '3px solid red', padding: '20px', zIndex: 10000}}>
-          <h2>FORCED MODAL TEST</h2>
-          <p>Modal state is TRUE</p>
-          <button onClick={() => setShowInviteModal(false)} style={{backgroundColor: 'red', color: 'white', padding: '10px'}}>
-            CLOSE
-          </button>
+      {/* SIMPLEST POSSIBLE MODAL TEST */}
+      {showInviteModal ? (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(255,0,0,0.8)',
+          zIndex: 999999
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '100px',
+            left: '50px',
+            right: '50px',
+            backgroundColor: 'yellow',
+            border: '5px solid black',
+            padding: '50px',
+            fontSize: '30px'
+          }}>
+            <h1>SIMPLE MODAL WORKS!</h1>
+            <button 
+              onClick={() => setShowInviteModal(false)}
+              style={{
+                backgroundColor: 'red',
+                color: 'white',
+                padding: '20px',
+                fontSize: '24px',
+                border: 'none'
+              }}
+            >
+              CLOSE MODAL
+            </button>
+          </div>
         </div>
-      )}
+      ) : null}
       
       {/* Standardized Module Header */}
       <ModuleHeader 
