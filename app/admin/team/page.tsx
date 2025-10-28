@@ -675,16 +675,14 @@ export default function AdminTeamPage() {
         </div>
       </div>
 
-      {/* User Invitation Modal */}
-      {user && (
-        <UserInvitationModal
-          isOpen={showInviteModal}
-          onClose={() => setShowInviteModal(false)}
-          onInvite={handleInviteUser}
-          userRole={profile?.role || 'OWNER'}
-          organizationName={userClient?.name || 'Loading...'}
-        />
-      )}
+      {/* User Invitation Modal - FORCE RENDER FOR TESTING */}
+      <UserInvitationModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onInvite={handleInviteUser}
+        userRole={profile?.role || 'OWNER'}
+        organizationName={userClient?.name || 'Loading...'}
+      />
     </div>
   )
 }
