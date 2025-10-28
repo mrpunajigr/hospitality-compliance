@@ -501,6 +501,14 @@ export default function AdminTeamPage() {
 
       {/* Team Members Section with External Invite Button */}
       <div className="relative mb-8">
+        {/* TEST: Add another button to verify positioning */}
+        <button
+          onClick={() => setShowInviteModal(true)}
+          className="absolute top-0 right-0 z-20 bg-red-600 text-white font-medium py-2 px-4 rounded"
+        >
+          RED TEST
+        </button>
+        
         {/* Invite Button - Outside the card */}
         <button
           onClick={() => setShowInviteModal(true)}
