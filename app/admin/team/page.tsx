@@ -411,22 +411,6 @@ export default function AdminTeamPage() {
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* Modal State Test Button */}
-      <button 
-        onClick={() => {
-          console.log('🔴 BEFORE setState:', showInviteModal)
-          setShowInviteModal(true)
-          console.log('🟢 AFTER setState:', showInviteModal)
-          
-          // Force check after React updates
-          setTimeout(() => {
-            console.log('🟡 AFTER TIMEOUT:', showInviteModal)
-          }, 100)
-        }}
-        className="fixed top-4 right-4 z-[9999] bg-purple-500 text-white px-4 py-2 rounded min-h-[44px]"
-      >
-        TEST MODAL STATE: {showInviteModal ? 'OPEN' : 'CLOSED'}
-      </button>
       
       {/* Standardized Module Header */}
       <ModuleHeader 
