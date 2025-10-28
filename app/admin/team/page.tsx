@@ -52,6 +52,12 @@ export default function AdminTeamPage() {
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [inviteFormData, setInviteFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    role: 'STAFF' as const
+  })
   const router = useRouter()
 
   // =====================================================
@@ -656,6 +662,8 @@ export default function AdminTeamPage() {
               <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Email:</label>
               <input 
                 type="email" 
+                value={inviteFormData.email}
+                onChange={(e) => setInviteFormData(prev => ({...prev, email: e.target.value}))}
                 placeholder="email@example.com"
                 style={{
                   width: '100%',
@@ -670,6 +678,8 @@ export default function AdminTeamPage() {
               <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>First Name:</label>
               <input 
                 type="text" 
+                value={inviteFormData.firstName}
+                onChange={(e) => setInviteFormData(prev => ({...prev, firstName: e.target.value}))}
                 placeholder="John"
                 style={{
                   width: '100%',
@@ -680,10 +690,12 @@ export default function AdminTeamPage() {
               />
             </div>
             
-            <div style={{marginBottom: '20px'}}>
+            <div style={{marginBottom: '15px'}}>
               <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Last Name:</label>
               <input 
                 type="text" 
+                value={inviteFormData.lastName}
+                onChange={(e) => setInviteFormData(prev => ({...prev, lastName: e.target.value}))}
                 placeholder="Doe"
                 style={{
                   width: '100%',
@@ -694,9 +706,30 @@ export default function AdminTeamPage() {
               />
             </div>
             
+            <div style={{marginBottom: '20px'}}>
+              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Role:</label>
+              <select 
+                value={inviteFormData.role}
+                onChange={(e) => setInviteFormData(prev => ({...prev, role: e.target.value as 'STAFF' | 'SUPERVISOR' | 'MANAGER'}))}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px'
+                }}
+              >
+                <option value="STAFF">Staff</option>
+                <option value="SUPERVISOR">Supervisor</option>
+                <option value="MANAGER">Manager</option>
+              </select>
+            </div>
+            
             <div style={{display: 'flex', gap: '10px'}}>
               <button 
-                onClick={() => setShowInviteModal(false)}
+                onClick={() => {
+                  setInviteFormData({ email: '', firstName: '', lastName: '', role: 'STAFF' })
+                  setShowInviteModal(false)
+                }}
                 style={{
                   backgroundColor: '#6b7280',
                   color: 'white',
@@ -709,9 +742,21 @@ export default function AdminTeamPage() {
                 Cancel
               </button>
               <button 
-                onClick={() => {
-                  alert('Invitation would be sent!')
-                  setShowInviteModal(false)
+                onClick={async () => {
+                  if (!inviteFormData.email || !inviteFormData.firstName || !inviteFormData.lastName) {
+                    alert('Please fill in all fields')
+                    return
+                  }
+                  
+                  const result = await handleInviteUser(inviteFormData)
+                  
+                  if (result.success) {
+                    alert('Invitation sent successfully!')
+                    setInviteFormData({ email: '', firstName: '', lastName: '', role: 'STAFF' })
+                    setShowInviteModal(false)
+                  } else {
+                    alert('Error: ' + (result.error || 'Failed to send invitation'))
+                  }
                 }}
                 style={{
                   backgroundColor: '#3b82f6',
