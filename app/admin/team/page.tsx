@@ -499,34 +499,24 @@ export default function AdminTeamPage() {
       </div>
 
 
-      {/* Team Members Section with External Invite Button */}
-      <div className="relative mb-8">
-        {/* TEST: Add another button to verify positioning */}
+      {/* Simple Invite Button - Completely Outside Card System */}
+      <div className="mb-4 text-right">
         <button
           onClick={() => setShowInviteModal(true)}
-          className="absolute top-0 right-0 z-20 bg-red-600 text-white font-medium py-2 px-4 rounded"
+          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg"
         >
-          RED TEST
+          🟢 INVITE MEMBER
         </button>
-        
-        {/* Invite Button - Outside the card */}
-        <button
-          onClick={() => setShowInviteModal(true)}
-          className="absolute top-6 right-6 z-10 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-        >
-          Invite Member
-        </button>
-        
-        {/* Team Members List - 2 Columns Wide */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <StatCard accentColor="blue" theme="admin">
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
-                  {/* Empty space where button was */}
-                  <div className="w-24"></div>
-                </div>
+      </div>
+
+      {/* Team Members List - 2 Columns Wide */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="md:col-span-2">
+          <StatCard accentColor="blue" theme="admin">
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
+              </div>
               
               <div className="space-y-4">
                 {/* Active Team Members */}
@@ -633,7 +623,6 @@ export default function AdminTeamPage() {
             </div>
           </StatCard>
         </div>
-      </div>
       </div>
 
       {/* User Invitation Modal */}
