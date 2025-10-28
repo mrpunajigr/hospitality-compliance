@@ -52,7 +52,7 @@ export function getCardStyle(theme: ThemeMode): CardStyleConfig {
     // Dark theme: Much darker cards for light backgrounds - need strong contrast
     return {
       ...baseStyle,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backgroundColor: 'rgba(255, 255, 255, 0.47)',
       border: '1px solid rgba(0, 0, 0, 0.1)'
     }
   }
