@@ -1,4 +1,6 @@
 // ModuleCard - Reusable card component using working sidebar blur pattern
+import { getThemedCardStyles } from '@/lib/theme-utils'
+
 interface ModuleCardProps {
   children: React.ReactNode
   className?: string
@@ -17,20 +19,15 @@ export function ModuleCard({
   const hoverClasses = hover ? 'hover:opacity-80 transition-all duration-300 cursor-pointer' : ''
   const clickableClasses = onClick ? 'cursor-pointer' : ''
   
+  // Map theme to our theme system
+  const themeMode = theme === 'admin' ? 'dark' : 'light'
+  const { getInlineStyles } = getThemedCardStyles(themeMode)
+  
   return (
     <div 
       className={`${hoverClasses} ${clickableClasses} ${className}`}
       onClick={onClick}
-      style={{
-        borderRadius: '38px',
-        backgroundColor: 'rgba(255, 255, 255, 0.18)',
-        backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.2s ease',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
+      style={getInlineStyles()}
     >
       {children}
     </div>
