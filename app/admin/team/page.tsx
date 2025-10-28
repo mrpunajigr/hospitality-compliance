@@ -499,15 +499,6 @@ export default function AdminTeamPage() {
       </div>
 
 
-      {/* Invite Member Button - iPad Compatible */}
-      <div className="mb-4 text-right">
-        <button
-          onClick={() => setShowInviteModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-        >
-          Invite Member
-        </button>
-      </div>
 
       {/* Team Members List - 2 Columns Wide */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -518,8 +509,13 @@ export default function AdminTeamPage() {
                 <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
                 <button
                   onClick={() => setShowInviteModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/adduser.png"
+                    alt="Add User"
+                    className="w-5 h-5"
+                  />
                   Invite Member
                 </button>
               </div>
