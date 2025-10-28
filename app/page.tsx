@@ -42,7 +42,7 @@ export default function LandingPage() {
         </div>
 
         {/* Call to Action Links */}
-        <div className="flex items-center justify-center gap-12 md:gap-20 mt-8">
+        <div className="flex items-center justify-center gap-16 sm:gap-20 md:gap-24 lg:gap-20 mt-8">
           <Link 
             href="/login"
             className="text-white hover:text-white/80 font-semibold text-3xl md:text-4xl transition-colors duration-200"
