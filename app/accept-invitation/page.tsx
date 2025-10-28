@@ -53,16 +53,27 @@ function AcceptInvitationContent() {
 
       try {
         console.log('🔍 DEBUG: Looking up invitation with token:', token)
+        console.log('🔍 DEBUG: Token length:', token?.length)
+        console.log('🔍 DEBUG: Token type:', typeof token)
         
-        // First check if invitation exists at all (without status filter)
+        // First check if ANY invitations exist (no token filter)
+        const { data: allInvitations, error: allError } = await supabase
+          .from('invitations')
+          .select('id, email, status, expires_at, token')
+          .limit(5)
+
+        console.log('🔍 DEBUG: All recent invitations:', allInvitations)
+        console.log('🔍 DEBUG: All invitations error:', allError)
+        
+        // Now check if invitation exists with this specific token
         const { data: anyInvitation, error: checkError } = await supabase
           .from('invitations')
           .select('id, email, status, expires_at, token')
           .eq('token', token)
           .single()
 
-        console.log('🔍 DEBUG: Any invitation found:', anyInvitation)
-        console.log('🔍 DEBUG: Check error:', checkError)
+        console.log('🔍 DEBUG: Specific token search result:', anyInvitation)
+        console.log('🔍 DEBUG: Specific token search error:', checkError)
 
         if (checkError || !anyInvitation) {
           console.log('❌ No invitation found with this token')
