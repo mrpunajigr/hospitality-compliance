@@ -516,6 +516,12 @@ export default function AdminTeamPage() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
+                <button
+                  onClick={() => setShowInviteModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                >
+                  Invite Member
+                </button>
               </div>
               
               <div className="space-y-4">
