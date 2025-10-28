@@ -411,10 +411,10 @@ export default function AdminTeamPage() {
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* REACT STATE TEST */}
+      {/* MODAL DEBUG TEST */}
       <div style={{backgroundColor: 'yellow', padding: '20px', margin: '20px'}}>
-        <button onClick={() => alert('Modal state: ' + showInviteModal)} style={{backgroundColor: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>
-          CHECK MODAL STATE
+        <button onClick={() => alert(`Modal: ${showInviteModal}, User: ${!!user}, Profile: ${!!profile}`)} style={{backgroundColor: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>
+          CHECK ALL STATUS
         </button>
         <button onClick={() => {
           setShowInviteModal(true)
@@ -422,13 +422,18 @@ export default function AdminTeamPage() {
         }} style={{backgroundColor: 'green', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
           SET MODAL TRUE
         </button>
-        <button onClick={() => {
-          setShowInviteModal(false)
-          alert('Set modal to FALSE')
-        }} style={{backgroundColor: 'orange', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
-          SET MODAL FALSE
-        </button>
       </div>
+      
+      {/* FORCE SHOW MODAL - Skip user check */}
+      {showInviteModal && (
+        <div style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', border: '3px solid red', padding: '20px', zIndex: 10000}}>
+          <h2>FORCED MODAL TEST</h2>
+          <p>Modal state is TRUE</p>
+          <button onClick={() => setShowInviteModal(false)} style={{backgroundColor: 'red', color: 'white', padding: '10px'}}>
+            CLOSE
+          </button>
+        </div>
+      )}
       
       {/* Standardized Module Header */}
       <ModuleHeader 
