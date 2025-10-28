@@ -411,13 +411,22 @@ export default function AdminTeamPage() {
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* BASIC TEST - Does ANY JavaScript work on iPad? */}
+      {/* REACT STATE TEST */}
       <div style={{backgroundColor: 'yellow', padding: '20px', margin: '20px'}}>
-        <button onClick={() => alert('BASIC BUTTON WORKS!')} style={{backgroundColor: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>
-          BASIC ALERT TEST
+        <button onClick={() => alert('Modal state: ' + showInviteModal)} style={{backgroundColor: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>
+          CHECK MODAL STATE
         </button>
-        <button onClick={() => console.log('CONSOLE TEST WORKS')} style={{backgroundColor: 'blue', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
-          CONSOLE TEST
+        <button onClick={() => {
+          setShowInviteModal(true)
+          alert('Set modal to TRUE')
+        }} style={{backgroundColor: 'green', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
+          SET MODAL TRUE
+        </button>
+        <button onClick={() => {
+          setShowInviteModal(false)
+          alert('Set modal to FALSE')
+        }} style={{backgroundColor: 'orange', color: 'white', padding: '10px', fontSize: '20px', marginLeft: '10px'}}>
+          SET MODAL FALSE
         </button>
       </div>
       
