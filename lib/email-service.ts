@@ -103,18 +103,6 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
             text-align: center;
             color: white;
         }
-        .logo {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
         .content {
             padding: 30px;
         }
@@ -166,7 +154,11 @@ export function generateInvitationTemplate(data: InvitationEmailData): EmailTemp
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">JiGR</div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/JigrLogoFullWhite.png" 
+                     alt="JiGR Logo" 
+                     style="height: 60px; width: auto; display: inline-block;" />
+            </div>
             <h1>You've been invited!</h1>
             <p>Join ${data.organizationName} on JiGR | Modular Hospitality Solution</p>
         </div>
