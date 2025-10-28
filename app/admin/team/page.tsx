@@ -675,14 +675,107 @@ export default function AdminTeamPage() {
         </div>
       </div>
 
-      {/* User Invitation Modal - FORCE RENDER FOR TESTING */}
-      <UserInvitationModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        onInvite={handleInviteUser}
-        userRole={profile?.role || 'OWNER'}
-        organizationName={userClient?.name || 'Loading...'}
-      />
+      {/* SIMPLIFIED INVITATION MODAL FOR iPAD */}
+      {showInviteModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          zIndex: 999999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '10px',
+            maxWidth: '400px',
+            width: '90%',
+            maxHeight: '80%',
+            overflow: 'auto'
+          }}>
+            <h2 style={{color: 'black', marginBottom: '20px'}}>Invite Team Member</h2>
+            
+            <div style={{marginBottom: '15px'}}>
+              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Email:</label>
+              <input 
+                type="email" 
+                placeholder="email@example.com"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px'
+                }}
+              />
+            </div>
+            
+            <div style={{marginBottom: '15px'}}>
+              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>First Name:</label>
+              <input 
+                type="text" 
+                placeholder="John"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px'
+                }}
+              />
+            </div>
+            
+            <div style={{marginBottom: '20px'}}>
+              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Last Name:</label>
+              <input 
+                type="text" 
+                placeholder="Doe"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px'
+                }}
+              />
+            </div>
+            
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button 
+                onClick={() => setShowInviteModal(false)}
+                style={{
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  flex: 1
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  alert('Invitation would be sent!')
+                  setShowInviteModal(false)
+                }}
+                style={{
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  flex: 1
+                }}
+              >
+                Send Invite
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
