@@ -509,14 +509,14 @@ export default function AdminTeamPage() {
                 <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
                 <button
                   onClick={() => setShowInviteModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 flex items-center gap-2"
+                  className="hover:opacity-80 transition-all duration-200"
+                  title="Invite Member"
                 >
                   <img 
                     src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/adduser.png"
-                    alt="Add User"
-                    className="w-5 h-5"
+                    alt="Invite Member"
+                    className="w-11 h-11"
                   />
-                  Invite Member
                 </button>
               </div>
               
