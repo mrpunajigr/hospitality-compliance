@@ -505,13 +505,19 @@ export default function AdminTeamPage() {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
                 <button 
-                  onClick={() => setShowInviteModal(true)}
-                  onTouchEnd={(e) => {
+                  onClick={(e) => {
                     e.preventDefault()
+                    e.stopPropagation()
+                    console.log('Invite button clicked')
                     setShowInviteModal(true)
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 touch-manipulation"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 cursor-pointer select-none"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   Invite Member
                 </button>
