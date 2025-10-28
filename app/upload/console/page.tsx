@@ -552,27 +552,6 @@ export default function UploadConsolePage() {
                 </div>
               </div>
             </div>
-            
-            {/* Navigation Pills - 3rd Column */}
-            <div className="hidden lg:flex items-center justify-center">
-              <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 border border-white/40">
-                <Link href="/upload/console">
-                  <button className="px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 bg-white/20 text-white">
-                    Console
-                  </button>
-                </Link>
-                <Link href="/upload/capture">
-                  <button className="px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10">
-                    Capture
-                  </button>
-                </Link>
-                <Link href="/upload/reports">
-                  <button className="px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10">
-                    Reports
-                  </button>
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
 

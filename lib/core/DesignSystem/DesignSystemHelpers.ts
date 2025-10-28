@@ -122,6 +122,7 @@ export const DesignTokens = {
     rounded: 'rounded-2xl',
     roundedLarge: 'rounded-3xl',
     roundedPill: 'rounded-full',
+    roundedCustom: '38px', // Custom 38px radius for compliance cards
     
     maxWidth: 'max-w-7xl',
     container: 'mx-auto px-4 sm:px-6 lg:px-8',

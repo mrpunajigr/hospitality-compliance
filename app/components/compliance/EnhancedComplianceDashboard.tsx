@@ -346,19 +346,15 @@ export default function EnhancedComplianceDashboard({ clientId, userId }: Enhanc
   return (
     <div className="space-y-6">
       
-      {/* Dashboard Header with 3-Column Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center mb-6">
-        <div>
+      {/* Dashboard Header with Left-Aligned Stacked Layout */}
+      <div className="mb-6">
+        <div className="mb-4">
           <h2 className={`${getTextStyle('sectionTitle')} text-white`}>
             Compliance Dashboard
           </h2>
         </div>
         
-        <div className="hidden lg:block">
-          {/* Empty column for spacing */}
-        </div>
-        
-        <div className="flex justify-center lg:justify-end">
+        <div className="flex justify-start">
           <div className="flex bg-black/70 backdrop-blur-sm rounded-full p-1 border border-white/40">
             {(['today', 'week', 'month'] as const).map((period) => (
               <button
@@ -476,108 +472,6 @@ export default function EnhancedComplianceDashboard({ clientId, userId }: Enhanc
 
       </div>
 
-      {/* Intelligent Insights Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Supplier Performance */}
-        <div className={getCardStyle('secondary')}>
-          <div className="p-6">
-            <h3 className={`${getTextStyle('sectionTitle')} text-white mb-4`}>
-              Supplier Performance
-            </h3>
-            
-            {metrics.topSuppliers.length > 0 ? (
-              <div className="space-y-4">
-                {metrics.topSuppliers.map((supplier, index) => (
-                  <div key={supplier.name} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        index === 0 ? 'bg-yellow-600 text-white' :
-                        index === 1 ? 'bg-gray-400 text-white' :
-                        'bg-orange-600 text-white'
-                      }`}>
-                        #{index + 1}
-                      </div>
-                      <div>
-                        <div className={`${getTextStyle('body')} text-white font-medium`}>
-                          {supplier.name}
-                        </div>
-                        <div className="text-white/60 text-sm">
-                          {supplier.deliveryCount} deliveries
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className={`font-medium ${
-                        supplier.complianceRate >= 95 ? 'text-green-300' :
-                        supplier.complianceRate >= 85 ? 'text-yellow-300' :
-                        'text-red-300'
-                      }`}>
-                        {supplier.complianceRate}%
-                      </div>
-                      <div className="text-white/60 text-xs">
-                        {supplier.avgTemperature}°C avg
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-white/60 text-center py-4">
-                No supplier data available yet
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Intelligent Recommendations */}
-        <div className={getCardStyle('form')}>
-          <div className="p-6">
-            <h3 className={`${getTextStyle('sectionTitle')} text-gray-900 mb-4`}>
-              AI Recommendations
-            </h3>
-            
-            {metrics.recommendations.length > 0 ? (
-              <div className="space-y-3">
-                {metrics.recommendations.slice(0, 3).map((rec, index) => (
-                  <div key={index} className={`p-3 rounded-xl border-l-4 ${
-                    rec.type === 'critical' ? 'bg-red-50 border-red-500' :
-                    rec.type === 'important' ? 'bg-yellow-50 border-yellow-500' :
-                    'bg-blue-50 border-blue-500'
-                  }`}>
-                    <div className="flex items-start space-x-2">
-                      <div className="text-lg">
-                        {rec.type === 'critical' ? '🚨' :
-                         rec.type === 'important' ? '⚠️' : '💡'}
-                      </div>
-                      <div>
-                        <div className={`font-medium text-gray-900 text-sm`}>
-                          {rec.title}
-                        </div>
-                        <div className="text-gray-700 text-xs mt-1">
-                          {rec.description}
-                        </div>
-                        <div className="text-gray-600 text-xs mt-2 italic">
-                          💡 {rec.action}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <div className="text-4xl mb-2">✨</div>
-                <p className="text-gray-600">
-                  All systems running smoothly!
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-      </div>
 
       {/* Risk Suppliers Alert */}
       {metrics.riskSuppliers.length > 0 && (

@@ -10,6 +10,7 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
 import { getModuleConfig } from '@/lib/module-config'
+import { StatCard } from '@/app/components/ModuleCard'
 
 function ProfilePageContent() {
   const moduleConfig = getModuleConfig('admin')
@@ -521,375 +522,379 @@ function ProfilePageContent() {
   }
 
   return (
-    <div className="h-screen overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
-        {/* Module Header */}
-        {moduleConfig && (
-          <ModuleHeader 
-            module={moduleConfig}
-            currentPage="profile"
-          />
-        )}
+    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+      
+      {/* Module Header */}
+      {moduleConfig && (
+        <ModuleHeader 
+          module={moduleConfig}
+          currentPage="profile"
+        />
+      )}
 
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          
-          <div className="flex gap-8">
-            {/* Left Column - Main Content */}
-            <div className="flex-1">
+      {/* Profile Cards - 3 Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
+        
+        {/* Profile Image Card */}
+        <StatCard accentColor="blue" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">Profile Picture</h2>
+            </div>
+            <div className="text-center">
+              <ImageUploader
+                currentImageUrl={avatarUrl}
+                onUploadSuccess={handleAvatarUploadSuccess}
+                onUploadError={handleAvatarUploadError}
+                uploadEndpoint="/api/upload-avatar"
+                uploadData={{ userId: user?.id || '' }}
+                shape="circle"
+              />
+            </div>
+          </div>
+        </StatCard>
 
+        {/* User Info Card */}
+        <StatCard accentColor="green" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">User Info</h2>
+            </div>
+            <div className="space-y-3 text-sm text-gray-800">
+              <div>
+                <p className="font-semibold text-gray-900 text-base">
+                  {profile?.full_name || user?.user_metadata?.full_name || 'User Profile'}
+                </p>
+              </div>
+              <div>
+                <p><strong>Email:</strong> {user?.email}</p>
+              </div>
+              <div>
+                <p><strong>Job Title:</strong> {profile?.job_title || onboardingData?.jobTitle || 'Not set'}</p>
+              </div>
+              <div>
+                <p><strong>Company:</strong> {userClient?.name || 'Loading...'}</p>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-800/10">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-lg font-bold text-gray-900">-</div>
+                  <div className="text-xs text-gray-600">Documents</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-blue-600">-</div>
+                  <div className="text-xs text-gray-600">Days Active</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-green-600">-</div>
+                  <div className="text-xs text-gray-600">Compliance</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </StatCard>
 
-              {/* Profile Information Card */}
-              <div className={`${getCardStyle('primary')} mb-6`}>
-                <div className="flex items-start gap-6 mb-8">
-                  
-                  {/* Avatar Section */}
-                  <div className="flex-shrink-0">
-                    <ImageUploader
-                      currentImageUrl={avatarUrl}
-                      onUploadSuccess={handleAvatarUploadSuccess}
-                      onUploadError={handleAvatarUploadError}
-                      uploadEndpoint="/api/upload-avatar"
-                      uploadData={{ userId: user?.id || '' }}
-                      shape="circle"
+        {/* Hero Trophy Card */}
+        <StatCard accentColor="yellow" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">Achievement</h2>
+            </div>
+            <div className="text-center">
+              {userClient?.champion_enrolled ? (
+                <div>
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"
+                    alt="Hero Trophy"
+                    className="w-16 h-16 object-contain mx-auto mb-4"
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      JiGR Hero
+                    </p>
+                    <a 
+                      href="/champion/program"
+                      className="text-xs text-yellow-600 hover:text-yellow-800 underline hover:no-underline transition-colors block"
+                    >
+                      Find Out More
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🏆</span>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600">
+                      No Achievement Yet
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Complete goals to earn your hero status
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </StatCard>
+
+      </div>
+
+      {/* Personal Information - 2 Columns Wide */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <StatCard accentColor="purple" theme="admin">
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-gray-900 text-lg font-semibold">Personal Information</h2>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="preferredName" className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Name
+                    </label>
+                    <input
+                      type="text"
+                      id="preferredName"
+                      value={onboardingData.preferredName}
+                      onChange={(e) => setOnboardingData(prev => ({ ...prev, preferredName: e.target.value }))}
+                      className={getFormFieldStyle('default')}
+                      placeholder="How should we address you?"
                     />
                   </div>
 
-                  {/* User Info */}
-                  <div className="flex-1">
-                    <div className="mb-6">
-                      <div className="flex items-start gap-24">
-                        <div>
-                          <h1 className={`${getTextStyle('pageTitle')} text-gray-900 mb-2`}>
-                            {profile?.full_name || user?.user_metadata?.full_name || 'User Profile'}
-                          </h1>
-                          <p className={`${getTextStyle('body')} text-gray-900 mb-1`}>
-                            {user?.email}
-                          </p>
-                          <p className={`${getTextStyle('body')} text-gray-900`}>
-                            {profile?.job_title || onboardingData?.jobTitle || 'No job title set'} • {userClient?.name || 'Loading...'}
-                          </p>
-                        </div>
-                        
-                        {/* Hero Trophy and Text - Right of user info */}
-                        {userClient?.champion_enrolled && (
-                          <div className="flex flex-col items-center">
-                            <img 
-                              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"
-                              alt="Hero Trophy"
-                              className="w-16 h-16 object-contain mb-2"
-                            />
-                            <div className="text-center">
-                              <p className="text-sm font-semibold text-gray-900 mb-1">
-                                JiGR Hero
-                              </p>
-                              <a 
-                                href="/champion/program"
-                                className="text-xs text-yellow-600 hover:text-yellow-800 underline hover:no-underline transition-colors"
-                              >
-                                Find Out More
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-3 gap-6">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">-</div>
-                        <div className="text-sm text-gray-600">Documents</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">-</div>
-                        <div className="text-sm text-gray-600">Days Active</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">-</div>
-                        <div className="text-sm text-gray-600">Compliance</div>
-                      </div>
-                    </div>
+                  <div>
+                    <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                      Job Title
+                    </label>
+                    <input
+                      type="text"
+                      id="jobTitle"
+                      value={onboardingData.jobTitle}
+                      onChange={(e) => setOnboardingData(prev => ({ ...prev, jobTitle: e.target.value }))}
+                      className={getFormFieldStyle('default')}
+                      placeholder="e.g., Restaurant Manager, Chef, Owner"
+                    />
                   </div>
                 </div>
 
-                {/* Onboarding Form */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="preferredName" className="block text-sm font-medium text-gray-700 mb-2">
-                        Preferred Name
-                      </label>
+                {/* Notification Preferences */}
+                <div>
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Notification Preferences</h4>
+                  <div className="space-y-3">
+                    <label className="flex items-center">
                       <input
-                        type="text"
-                        id="preferredName"
-                        value={onboardingData.preferredName}
-                        onChange={(e) => setOnboardingData(prev => ({ ...prev, preferredName: e.target.value }))}
-                        className={getFormFieldStyle('default')}
-                        placeholder="How should we address you?"
+                        type="checkbox"
+                        checked={onboardingData.notificationPreferences.emailAlerts}
+                        onChange={(e) => setOnboardingData(prev => ({
+                          ...prev,
+                          notificationPreferences: {
+                            ...prev.notificationPreferences,
+                            emailAlerts: e.target.checked
+                          }
+                        }))}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                       />
-                    </div>
+                      <span className="ml-2 text-sm text-gray-700">Email alerts for compliance issues</span>
+                    </label>
 
-                    <div>
-                      <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-2">
-                        Job Title
-                      </label>
+                    <label className="flex items-center">
                       <input
-                        type="text"
-                        id="jobTitle"
-                        value={onboardingData.jobTitle}
-                        onChange={(e) => setOnboardingData(prev => ({ ...prev, jobTitle: e.target.value }))}
-                        className={getFormFieldStyle('default')}
-                        placeholder="e.g., Restaurant Manager, Chef, Owner"
+                        type="checkbox"
+                        checked={onboardingData.notificationPreferences.complianceReminders}
+                        onChange={(e) => setOnboardingData(prev => ({
+                          ...prev,
+                          notificationPreferences: {
+                            ...prev.notificationPreferences,
+                            complianceReminders: e.target.checked
+                          }
+                        }))}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                       />
-                    </div>
+                      <span className="ml-2 text-sm text-gray-700">Daily compliance reminders</span>
+                    </label>
+
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={onboardingData.notificationPreferences.weeklyReports}
+                        onChange={(e) => setOnboardingData(prev => ({
+                          ...prev,
+                          notificationPreferences: {
+                            ...prev.notificationPreferences,
+                            weeklyReports: e.target.checked
+                          }
+                        }))}
+                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Weekly compliance reports</span>
+                    </label>
                   </div>
+                </div>
 
-                  {/* Notification Preferences */}
-                  <div>
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Notification Preferences</h4>
-                    <div className="space-y-3">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={onboardingData.notificationPreferences.emailAlerts}
-                          onChange={(e) => setOnboardingData(prev => ({
-                            ...prev,
-                            notificationPreferences: {
-                              ...prev.notificationPreferences,
-                              emailAlerts: e.target.checked
-                            }
-                          }))}
-                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">Email alerts for compliance issues</span>
-                      </label>
-
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={onboardingData.notificationPreferences.complianceReminders}
-                          onChange={(e) => setOnboardingData(prev => ({
-                            ...prev,
-                            notificationPreferences: {
-                              ...prev.notificationPreferences,
-                              complianceReminders: e.target.checked
-                            }
-                          }))}
-                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">Daily compliance reminders</span>
-                      </label>
-
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={onboardingData.notificationPreferences.weeklyReports}
-                          onChange={(e) => setOnboardingData(prev => ({
-                            ...prev,
-                            notificationPreferences: {
-                              ...prev.notificationPreferences,
-                              weeklyReports: e.target.checked
-                            }
-                          }))}
-                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">Weekly compliance reports</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      onClick={saveOnboardingData}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                    >
-                      {isOnboarding ? 'Complete Setup' : 'Save Changes'}
-                    </button>
-                  </div>
+                <div className="flex justify-end">
+                  <button
+                    onClick={saveOnboardingData}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    {isOnboarding ? 'Complete Setup' : 'Save Changes'}
+                  </button>
                 </div>
               </div>
+            </div>
+          </StatCard>
+        </div>
+      </div>
 
-              {/* Password & Security - Simplified without 2FA */}
-              <div className={`${getCardStyle('primary')} mb-6`}>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Password & Security</h2>
-                
-                <div className="space-y-6">
+      {/* Password & Security - 2 Columns Wide */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <StatCard accentColor="red" theme="admin">
+            <div>
+              <h2 className="text-gray-900 text-lg font-semibold mb-6">Password & Security</h2>
+              
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    className={getFormFieldStyle('default')}
+                    placeholder="Enter current password"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                      Current Password
+                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password
                     </label>
                     <input
                       type="password"
-                      id="currentPassword"
+                      id="newPassword"
                       className={getFormFieldStyle('default')}
-                      placeholder="Enter current password"
+                      placeholder="Enter new password"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        New Password
-                      </label>
-                      <input
-                        type="password"
-                        id="newPassword"
-                        className={getFormFieldStyle('default')}
-                        placeholder="Enter new password"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Confirm Password
-                      </label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        className={getFormFieldStyle('default')}
-                        placeholder="Confirm new password"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                    >
-                      Update Password
-                    </button>
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      className={getFormFieldStyle('default')}
+                      placeholder="Confirm new password"
+                    />
                   </div>
                 </div>
-              </div>
 
-              {/* Activity Log */}
-              <div className={`${getCardStyle('primary')} mb-6`}>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-                    <div>
-                      <h4 className="font-medium text-gray-900">Uploaded delivery document</h4>
-                      <p className="text-sm text-gray-600">Today at 2:15 PM</p>
-                    </div>
-                    <div className="text-green-400">✓</div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-                    <div>
-                      <h4 className="font-medium text-gray-900">Generated weekly report</h4>
-                      <p className="text-sm text-gray-600">Yesterday at 11:30 AM</p>
-                    </div>
-                    <div className="text-blue-400">📄</div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-                    <div>
-                      <h4 className="font-medium text-gray-900">Signed in from new device</h4>
-                      <p className="text-sm text-gray-600">2 days ago at 9:45 AM</p>
-                    </div>
-                    <div className="text-yellow-400">🔑</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Account Actions - Horizontal Layout */}
-              <div className={getCardStyle('primary')}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button 
-                    onClick={handleDownloadData}
-                    disabled={isDownloading}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
-                    <div>
-                      <h3 className="font-semibold text-lg">
-                        {isDownloading ? 'Downloading...' : 'Download My Data'}
-                      </h3>
-                      <p className="text-sm text-blue-100 mt-1">Export all your data</p>
-                    </div>
-                  </button>
-                  
-                  <button 
-                    onClick={handleSignOutAllDevices}
-                    disabled={isSigningOut}
-                    className="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-lg">
-                        {isSigningOut ? 'Signing Out...' : 'Sign Out All Devices'}
-                      </h3>
-                      <p className="text-sm text-yellow-100 mt-1">Security action</p>
-                    </div>
-                  </button>
-                  
-                  <button 
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 text-center"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-lg">Delete Account</h3>
-                      <p className="text-sm text-red-100 mt-1">Permanent action</p>
-                    </div>
+                    Update Password
                   </button>
                 </div>
               </div>
-
             </div>
-
-            {/* Right Column - Empty Sidebar */}
-            <div className="w-64">
-              {/* Empty sidebar to maintain layout consistency */}
-            </div>
-
-          </div>
-          
-
+          </StatCard>
         </div>
+      </div>
 
-        {/* Delete Account Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-red-600 mb-4">Delete Account</h3>
-              <p className="text-gray-700 mb-4">
-                This action cannot be undone. All your data will be permanently deleted.
-              </p>
-              <p className="text-gray-700 mb-4">
-                Type <strong>DELETE</strong> to confirm:
-              </p>
-              <input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="Type DELETE here"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4"
-              />
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowDeleteConfirm(false)
-                    setDeleteConfirmText('')
-                  }}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={deleteConfirmText !== 'DELETE'}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-                >
-                  Delete Account
-                </button>
-              </div>
+      {/* Account Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard accentColor="blue" theme="admin">
+          <div className="text-center">
+            <button 
+              onClick={handleDownloadData}
+              disabled={isDownloading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200"
+            >
+              <h3 className="font-semibold text-lg mb-1">
+                {isDownloading ? 'Downloading...' : 'Download My Data'}
+              </h3>
+              <p className="text-sm text-blue-100">Export all your data</p>
+            </button>
+          </div>
+        </StatCard>
+        
+        <StatCard accentColor="yellow" theme="admin">
+          <div className="text-center">
+            <button 
+              onClick={handleSignOutAllDevices}
+              disabled={isSigningOut}
+              className="w-full bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 px-6 rounded-xl transition-all duration-200"
+            >
+              <h3 className="font-semibold text-lg mb-1">
+                {isSigningOut ? 'Signing Out...' : 'Sign Out All Devices'}
+              </h3>
+              <p className="text-sm text-yellow-100">Security action</p>
+            </button>
+          </div>
+        </StatCard>
+        
+        <StatCard accentColor="red" theme="admin">
+          <div className="text-center">
+            <button 
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200"
+            >
+              <h3 className="font-semibold text-lg mb-1">Delete Account</h3>
+              <p className="text-sm text-red-100">Permanent action</p>
+            </button>
+          </div>
+        </StatCard>
+      </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-red-600 mb-4">Delete Account</h3>
+            <p className="text-gray-700 mb-4">
+              This action cannot be undone. All your data will be permanently deleted.
+            </p>
+            <p className="text-gray-700 mb-4">
+              Type <strong>DELETE</strong> to confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Type DELETE here"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                  setDeleteConfirmText('')
+                }}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== 'DELETE'}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                Delete Account
+              </button>
             </div>
           </div>
-        )}
-        
-      </div>
+        </div>
+      )}
+      
     </div>
   )
 }

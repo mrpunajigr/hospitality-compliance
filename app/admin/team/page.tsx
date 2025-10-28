@@ -10,6 +10,7 @@ import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import { StatCard } from '@/app/components/ModuleCard'
 // Removed RoleBasedSidebar - using AppleSidebar from layout instead
 import UserInvitationModal from '@/app/components/team/UserInvitationModal'
 import type { InvitationFormData, UserRole } from '@/app/components/team/UserInvitationModal'
@@ -408,9 +409,7 @@ export default function AdminTeamPage() {
   }
 
   return (
-    <div className="h-screen overflow-y-auto">
-      {/* Main Content - Sidebar handled by admin layout */}
-      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 pt-8 pb-8">
+    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -418,313 +417,206 @@ export default function AdminTeamPage() {
         currentPage="team"
       />
       
-
-      <div className="flex gap-6">
+      {/* Team Overview Cards - 3 Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 AdaptiveLayout">
         
-        {/* Left Column - Team Management */}
-        <div className="flex-1">
-          
-          {/* Team Overview Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            
-            {/* Total Team Members */}
-            <div className={getCardStyle('primary')}>
-              <div className="mb-4">
-                <h3 className="text-black text-lg font-semibold mb-3">Total Members</h3>
-                <div className="flex justify-center mb-4">
-                  <img 
-                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRteam.png"
-                    alt="Team Members"
-                    className="w-16 h-16 object-contain"
-                  />
-                </div>
-                <p className="text-gray-700 text-sm mb-4">
-                  {teamMembers.length + pendingInvitations.length} Total
-                </p>
-              </div>
-              <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Active:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
-                <p><strong>Pending:</strong> {pendingInvitations.length}</p>
-              </div>
+        {/* Total Team Members */}
+        <StatCard accentColor="blue" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">Total Members</h2>
             </div>
-
-            {/* Active Users */}
-            <div className={getCardStyle('primary')}>
-              <div className="mb-4">
-                <h3 className="text-black text-lg font-semibold mb-3">Active Users</h3>
-                <div className="flex justify-center mb-4">
-                  <img 
-                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRStats.png"
-                    alt="Active Users"
-                    className="w-16 h-16 object-contain"
-                  />
-                </div>
-                <p className="text-gray-700 text-sm mb-4">
-                  {teamMembers.filter(member => member.status === 'active').length} Online
-                </p>
-              </div>
-              <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Last Hour:</strong> 2</p>
-                <p><strong>Today:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
-              </div>
-            </div>
-
-            {/* Roles */}
-            <div className={getCardStyle('primary')}>
-              <div className="mb-4">
-                <h3 className="text-black text-lg font-semibold mb-3">Roles</h3>
-                <div className="flex justify-center mb-4">
-                  <img 
-                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRadmin.png"
-                    alt="Administrator Roles"
-                    className="w-16 h-16 object-contain"
-                  />
-                </div>
-                <p className="text-gray-700 text-sm mb-4">
-                  {teamMembers.filter(member => member.role === 'OWNER').length} Owners
-                </p>
-              </div>
-              <div className="text-gray-800 space-y-1 text-sm">
-                <p><strong>Managers:</strong> {teamMembers.filter(member => member.role === 'MANAGER').length}</p>
-                <p><strong>Staff:</strong> {teamMembers.filter(member => member.role === 'STAFF').length}</p>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Team Members List */}
-          <div className={getCardStyle('primary')}>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className={`${getTextStyle('sectionTitle', 'light')}`}>Team Members</h2>
-              <button 
-                onClick={() => setShowInviteModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-              >
-                Invite Member
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {/* Active Team Members */}
-              {teamMembers.map((member) => (
-                <div key={`member-${member.id}`} className={`${getCardStyle('secondary')} flex items-center justify-between`}>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold">
-                        {member.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className={`${getTextStyle('cardTitle', 'light')} text-base`}>{member.fullName}</h3>
-                      <p className={`${getTextStyle('bodySmall', 'light')}`}>{member.email}</p>
-                      <div className="flex items-center space-x-2">
-                        {member.department && (
-                          <span className={`${getTextStyle('bodySmall', 'light')} text-blue-600`}>{member.department}</span>
-                        )}
-                        {member.department && member.jobTitle && (
-                          <span className="text-white/40">•</span>
-                        )}
-                        {member.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall', 'light')} text-green-600`}>{member.jobTitle}</span>
-                        )}
-                        {!member.department && !member.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall', 'light')}`}>{member.role}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4 text-right">
-                    <div>
-                      <p className={`${getTextStyle('bodySmall', 'light')}`}>Last: {member.lastLogin}</p>
-                    </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      member.status === 'active' 
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-                        : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                    }`}>
-                      {member.status}
-                    </div>
-                    <button className="text-gray-600 hover:text-gray-800">
-                      <span className="text-lg">⚙️</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Pending Invitations */}
-              {pendingInvitations.map((invitation) => (
-                <div key={`invitation-${invitation.id}`} className={`${getCardStyle('secondary')} flex items-center justify-between border-l-4 border-l-orange-500/50`}>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center border-2 border-orange-500/30">
-                      <span className="text-sm font-semibold text-orange-300">
-                        {invitation.firstName?.charAt(0)}{invitation.lastName?.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className={`${getTextStyle('cardTitle', 'light')} text-base`}>{invitation.firstName} {invitation.lastName}</h3>
-                      <p className={`${getTextStyle('bodySmall', 'light')}`}>{invitation.email}</p>
-                      <div className="flex items-center space-x-2">
-                        {invitation.department && (
-                          <span className={`${getTextStyle('bodySmall', 'light')} text-blue-600`}>{invitation.department}</span>
-                        )}
-                        {invitation.department && invitation.jobTitle && (
-                          <span className="text-white/40">•</span>
-                        )}
-                        {invitation.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall', 'light')} text-green-600`}>{invitation.jobTitle}</span>
-                        )}
-                        {!invitation.department && !invitation.jobTitle && (
-                          <span className={`${getTextStyle('bodySmall', 'light')}`}>{invitation.role}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4 text-right">
-                    <div>
-                      <p className={`${getTextStyle('bodySmall', 'light')}`}>
-                        Invited: {new Date(invitation.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className={`${getTextStyle('bodySmall', 'light')}`}>
-                        Expires: {new Date(invitation.expiresAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                      pending
-                    </div>
-                    <button className="text-gray-600 hover:text-gray-800" title="Cancel invitation">
-                      <span className="text-lg">❌</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Empty State */}
-              {teamMembers.length === 0 && pendingInvitations.length === 0 && (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">👥</span>
-                  </div>
-                  <p className={`${getTextStyle('body', 'light')} mb-2`}>No team members yet</p>
-                  <p className={`${getTextStyle('bodySmall', 'light')}`}>Start by inviting your first team member</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Right Column - User Profile */}
-        <div className="w-64">
-          
-          {/* Current User Profile */}
-          <div className={getCardStyle('primary')}>
-            <h2 className={`${getTextStyle('sectionTitle', 'light')} mb-6`}>Your Profile</h2>
-            
-            {/* Avatar Section */}
             <div className="text-center mb-6">
-              <div className="relative inline-block">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Profile"
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white/20"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center border-4 border-white/20">
-                    <span className="text-2xl font-bold">
-                      {profile?.full_name?.split(' ').map((n: string) => n[0]).join('') || 'DU'}
-                    </span>
+              <img 
+                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRteam.png"
+                alt="Team Members"
+                className="w-16 h-16 object-contain mx-auto mb-4"
+              />
+            </div>
+            <div className="space-y-1 text-sm text-gray-800">
+              <p><strong>Active:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
+              <p><strong>Pending:</strong> {pendingInvitations.length}</p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-800/10">
+              <p className="text-blue-600 text-xs text-center">
+                {teamMembers.length + pendingInvitations.length} Total
+              </p>
+            </div>
+          </div>
+        </StatCard>
+
+        {/* Active Users */}
+        <StatCard accentColor="green" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">Active Users</h2>
+            </div>
+            <div className="text-center mb-6">
+              <img 
+                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRStats.png"
+                alt="Active Users"
+                className="w-16 h-16 object-contain mx-auto mb-4"
+              />
+            </div>
+            <div className="space-y-1 text-sm text-gray-800">
+              <p><strong>Last Hour:</strong> 2</p>
+              <p><strong>Today:</strong> {teamMembers.filter(member => member.status === 'active').length}</p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-800/10">
+              <p className="text-green-600 text-xs text-center">
+                {teamMembers.filter(member => member.status === 'active').length} Online
+              </p>
+            </div>
+          </div>
+        </StatCard>
+
+        {/* Roles */}
+        <StatCard accentColor="purple" theme="admin">
+          <div>
+            <div className="flex items-center justify-center mb-4">
+              <h2 className="text-gray-900 text-lg font-semibold text-center w-full">Roles</h2>
+            </div>
+            <div className="text-center mb-6">
+              <img 
+                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRadmin.png"
+                alt="Administrator Roles"
+                className="w-16 h-16 object-contain mx-auto mb-4"
+              />
+            </div>
+            <div className="space-y-1 text-sm text-gray-800">
+              <p><strong>Managers:</strong> {teamMembers.filter(member => member.role === 'MANAGER').length}</p>
+              <p><strong>Staff:</strong> {teamMembers.filter(member => member.role === 'STAFF').length}</p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-800/10">
+              <p className="text-purple-600 text-xs text-center">
+                {teamMembers.filter(member => member.role === 'OWNER').length} Owners
+              </p>
+            </div>
+          </div>
+        </StatCard>
+
+      </div>
+
+      {/* Team Members List - 2 Columns Wide */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <StatCard accentColor="blue" theme="admin">
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-gray-900 text-lg font-semibold">Team Members</h2>
+                <button 
+                  onClick={() => setShowInviteModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+                >
+                  Invite Member
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {/* Active Team Members */}
+                {teamMembers.map((member) => (
+                  <div key={`member-${member.id}`} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-semibold text-blue-600">
+                          {member.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-900 font-medium text-base">{member.fullName}</h3>
+                        <p className="text-gray-600 text-sm">{member.email}</p>
+                        <div className="flex items-center space-x-2">
+                          {member.department && (
+                            <span className="text-blue-600 text-xs">{member.department}</span>
+                          )}
+                          {member.department && member.jobTitle && (
+                            <span className="text-gray-400">•</span>
+                          )}
+                          {member.jobTitle && (
+                            <span className="text-green-600 text-xs">{member.jobTitle}</span>
+                          )}
+                          {!member.department && !member.jobTitle && (
+                            <span className="text-gray-600 text-xs">{member.role}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4 text-right">
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        member.status === 'active' 
+                          ? 'bg-green-100 text-green-700 border border-green-200' 
+                          : 'bg-red-100 text-red-700 border border-red-200'
+                      }`}>
+                        {member.status}
+                      </div>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <span className="text-lg">⚙️</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Pending Invitations */}
+                {pendingInvitations.map((invitation) => (
+                  <div key={`invitation-${invitation.id}`} className="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-200 border-l-4 border-l-orange-500">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center border-2 border-orange-200">
+                        <span className="text-sm font-semibold text-orange-600">
+                          {invitation.firstName?.charAt(0)}{invitation.lastName?.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-900 font-medium text-base">{invitation.firstName} {invitation.lastName}</h3>
+                        <p className="text-gray-600 text-sm">{invitation.email}</p>
+                        <div className="flex items-center space-x-2">
+                          {invitation.department && (
+                            <span className="text-blue-600 text-xs">{invitation.department}</span>
+                          )}
+                          {invitation.department && invitation.jobTitle && (
+                            <span className="text-gray-400">•</span>
+                          )}
+                          {invitation.jobTitle && (
+                            <span className="text-green-600 text-xs">{invitation.jobTitle}</span>
+                          )}
+                          {!invitation.department && !invitation.jobTitle && (
+                            <span className="text-gray-600 text-xs">{invitation.role}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4 text-right">
+                      <div>
+                        <p className="text-gray-600 text-xs">
+                          Invited: {new Date(invitation.createdAt).toLocaleDateString()}
+                        </p>
+                        <p className="text-gray-600 text-xs">
+                          Expires: {new Date(invitation.expiresAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200">
+                        pending
+                      </div>
+                      <button className="text-gray-400 hover:text-gray-600" title="Cancel invitation">
+                        <span className="text-lg">❌</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Empty State */}
+                {teamMembers.length === 0 && pendingInvitations.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">👥</span>
+                    </div>
+                    <p className="text-gray-900 font-medium mb-2">No team members yet</p>
+                    <p className="text-gray-600 text-sm">Start by inviting your first team member</p>
                   </div>
                 )}
-                <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">
-                  📷
-                </button>
               </div>
             </div>
-
-            {/* Profile Form */}
-            <form className="space-y-4">
-              <div>
-                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Full Name</label>
-                <input
-                  type="text"
-                  defaultValue={profile?.full_name || ''}
-                  className={getFormFieldStyle()}
-                />
-              </div>
-              
-              <div>
-                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Email</label>
-                <input
-                  type="email"
-                  defaultValue={profile?.email || ''}
-                  className={getFormFieldStyle()}
-                />
-              </div>
-              
-              <div>
-                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Role</label>
-                <select className={getFormFieldStyle()}>
-                  <option value="OWNER">Owner</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="SUPERVISOR">Supervisor</option>
-                  <option value="STAFF">Staff</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className={`block ${getTextStyle('label', 'light')} mb-2`}>Phone</label>
-                <input
-                  type="tel"
-                  defaultValue={profile?.phone || ''}
-                  className={getFormFieldStyle()}
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  className="flex-1 bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-white/30"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
-                >
-                  Update
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Quick Actions */}
-          <div className={`${getCardStyle('secondary')} mt-6`}>
-            <h3 className={`${getTextStyle('cardTitle', 'light')} mb-4`}>Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
-                <div>
-                  <h4 className={getTextStyle('body', 'light')}>Security Settings</h4>
-                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>Change password & 2FA</p>
-                </div>
-              </button>
-              <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
-                <div>
-                  <h4 className={getTextStyle('body', 'light')}>Permissions</h4>
-                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>Manage access levels</p>
-                </div>
-              </button>
-              <button className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200">
-                <div>
-                  <h4 className={getTextStyle('body', 'light')}>Audit Log</h4>
-                  <p className={`${getTextStyle('bodySmall', 'light')} mt-1`}>View activity history</p>
-                </div>
-              </button>
-            </div>
-          </div>
-
+          </StatCard>
         </div>
-
       </div>
 
       {/* User Invitation Modal */}
@@ -737,7 +629,6 @@ export default function AdminTeamPage() {
           organizationName={userClient?.name || 'Loading...'}
         />
       )}
-      </div>
     </div>
   )
 }

@@ -106,7 +106,7 @@ export default function TrainingAnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="space-y-6">
         
         {/* Navigation */}
         <TrainingNavigation />

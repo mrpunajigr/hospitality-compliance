@@ -30,7 +30,7 @@ export function ModuleHeaderLight({
 }: ModuleHeaderLightProps) {
   return (
     <div className={`mb-16 ${className}`}>
-      <div className="grid grid-cols-4 gap-6 items-center">
+      <div className="grid grid-cols-3 gap-6 items-center">
         {/* Module Icon and Title - Left Side (2 columns) */}
         <div className="flex items-center space-x-4 col-span-2">
           <div className="relative">
@@ -53,7 +53,7 @@ export function ModuleHeaderLight({
           </div>
         </div>
         
-        {/* Navigation Pills - Center (1 column) */}
+        {/* Navigation Pills - Right Side (1 column) - Centers above body 3rd column */}
         <div className="flex justify-center">
           <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-xs">
             {module.pages.map((page) => {
@@ -77,9 +77,6 @@ export function ModuleHeaderLight({
             })}
           </div>
         </div>
-        
-        {/* Empty space - Right Side (1 column) */}
-        <div></div>
       </div>
     </div>
   )

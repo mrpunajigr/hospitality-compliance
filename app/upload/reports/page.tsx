@@ -8,6 +8,7 @@ import { getUserClient, UserClient } from '@/lib/auth-utils'
 import { DesignTokens, getCardStyle, getTextStyle } from '@/lib/design-system'
 import { getModuleConfig } from '@/lib/module-config'
 import { ModuleHeader } from '@/app/components/ModuleHeader'
+import { StatCard } from '@/app/components/ModuleCard'
 
 export default function UploadReportsPage() {
   const [user, setUser] = useState<any>(null)
@@ -62,7 +63,7 @@ export default function UploadReportsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className={getCardStyle('primary')}>
             <div className="text-center">
@@ -82,7 +83,7 @@ export default function UploadReportsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -93,63 +94,12 @@ export default function UploadReportsPage() {
 
       <div>
             
-            {/* Report Controls Section - At Top */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              
-              {/* Report Filters - Spans Columns 1-2 */}
-              <div className="lg:col-span-2 bg-white/25 border border-white/20 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
-                <div className="relative">
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
-                        <option value="7">Last 7 days</option>
-                        <option value="30">Last 30 days</option>
-                        <option value="90">Last 3 months</option>
-                        <option value="custom">Custom range</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
-                        <option value="compliance">Full Compliance</option>
-                        <option value="violations">Violations Only</option>
-                        <option value="delivery">Delivery Summary</option>
-                        <option value="supplier">Supplier Analysis</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <select className="w-full px-3 py-3 bg-white/20 border border-white/30 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500 ">
-                        <option value="pdf">PDF Report</option>
-                        <option value="csv">CSV Export</option>
-                        <option value="excel">Excel Workbook</option>
-                        <option value="json">JSON Data</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Generate Action Card - Column 3 */}
-              <div className="flex items-center justify-center h-full">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-3 rounded-xl font-medium transition-all duration-200">
-                  Generate Report
-                </button>
-              </div>
-
-              {/* Empty 4th Column */}
-              <div></div>
-
-            </div>
-
             {/* Quick Report Templates */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               
               {/* Weekly Summary */}
-              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
-                <div className="relative">
+              <StatCard accentColor="blue" theme="upload">
+                <div>
                   <div className="flex items-center justify-center mb-4">
                     <h2 className="text-white text-lg font-semibold text-center w-full">Weekly Summary</h2>
                   </div>
@@ -161,7 +111,7 @@ export default function UploadReportsPage() {
                     />
                   </div>
                   <div className="w-full rounded-xl relative overflow-hidden">
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 TouchTarget">
+                    <button className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] TouchTarget">
                       Preview
                     </button>
                   </div>
@@ -169,12 +119,11 @@ export default function UploadReportsPage() {
                     Comprehensive weekly compliance overview
                   </p>
                 </div>
-              </div>
+              </StatCard>
 
               {/* Violation Report */}
-              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-red-500/10 rounded-full -mr-10 -mt-10"></div>
-                <div className="relative">
+              <StatCard accentColor="red" theme="upload">
+                <div>
                   <div className="flex items-center justify-center mb-4">
                     <h2 className="text-white text-lg font-semibold text-center w-full">Violation Report</h2>
                   </div>
@@ -186,7 +135,7 @@ export default function UploadReportsPage() {
                     />
                   </div>
                   <div className="w-full rounded-xl relative overflow-hidden">
-                    <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 TouchTarget">
+                    <button className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-red-500/10 hover:scale-[1.02] active:scale-[0.98] TouchTarget">
                       Preview
                     </button>
                   </div>
@@ -194,12 +143,11 @@ export default function UploadReportsPage() {
                     Delivery violations and corrective actions
                   </p>
                 </div>
-              </div>
+              </StatCard>
 
               {/* Report Statistics */}
-              <div className="bg-white/25  border border-white/20 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
-                <div className="relative">
+              <StatCard accentColor="green" theme="upload">
+                <div>
                   <div className="flex items-center justify-center mb-4">
                     <h2 className="text-white text-lg font-semibold text-center w-full">Report Statistics</h2>
                   </div>
@@ -232,10 +180,58 @@ export default function UploadReportsPage() {
                     Generation metrics and analytics overview
                   </p>
                 </div>
-              </div>
+              </StatCard>
 
               {/* Empty 4th Column */}
               <div></div>
+
+            </div>
+
+            {/* Report Controls Section - Below Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              
+              {/* Report Filters - Spans Columns 1-2 */}
+              <StatCard accentColor="blue" theme="upload" className="lg:col-span-2">
+                <div>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                        <option value="custom">Custom range</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="compliance">Full Compliance</option>
+                        <option value="violations">Violations Only</option>
+                        <option value="delivery">Delivery Summary</option>
+                        <option value="supplier">Supplier Analysis</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="pdf">PDF Report</option>
+                        <option value="csv">CSV Export</option>
+                        <option value="excel">Excel Workbook</option>
+                        <option value="json">JSON Data</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </StatCard>
+
+              {/* Generate Action Card - Column 3 */}
+              <StatCard accentColor="green" theme="upload">
+                <div className="flex items-center justify-center h-full">
+                  <button className="w-full text-white py-3 px-4 transition-all duration-300 text-sm font-semibold bg-white/5 hover:bg-white/15 border border-white/20 rounded-xl hover:shadow-lg hover:shadow-green-500/10 hover:scale-[1.02] active:scale-[0.98] TouchTarget">
+                    Generate Report
+                  </button>
+                </div>
+              </StatCard>
 
             </div>
 

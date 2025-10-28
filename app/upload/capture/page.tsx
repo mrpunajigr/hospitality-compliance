@@ -182,9 +182,9 @@ export default function UploadActionPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className={getCardStyle('primary')}>
+          <div className="bg-gray-900/80 border border-white/20 rounded-3xl p-6">
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
               <p className="text-white font-medium">Loading Upload Action...</p>
@@ -381,7 +381,7 @@ export default function UploadActionPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
@@ -628,46 +628,6 @@ export default function UploadActionPage() {
         </div>
       )}
 
-      {/* Tips Card */}
-      <div className="mt-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div>
-            <StatCard accentColor="yellow" theme="upload">
-              <div>
-                <div className="flex items-center justify-center mb-4">
-                  <h2 className="text-white text-lg font-semibold text-center w-full">Capture Tips</h2>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Ensure good lighting for clear text
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Keep document flat and straight
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Include full document in frame
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-white/60 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-white/80 text-sm">
-                      Avoid shadows and glare
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </StatCard>
-          </div>
-        </div>
-      </div>
 
 
       

@@ -8,18 +8,10 @@ export default function ConsoleToggle() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Disabled - console toggle no longer needed
+    // COMPLETELY DISABLED FOR DEBUGGING
     setIsVisible(false)
-    
-    // Default to quiet mode for better testing experience
-    const currentMode = testUtils.getCurrentMode()
-    if (currentMode === 'verbose') {
-      // Auto-enable quiet mode on first load
-      testUtils.showOnlyErrors()
-      setIsQuietMode(true)
-    } else {
-      setIsQuietMode(currentMode === 'quiet')
-    }
+    setIsQuietMode(false)
+    // DO NOT auto-enable quiet mode
   }, [])
 
   const toggleQuietMode = () => {
