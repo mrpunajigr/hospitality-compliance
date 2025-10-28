@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
           invitationToken,
           expiresAt,
           personalMessage: message,
-          acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept-invitation?token=${invitationToken}`
+          acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept?token=${invitationToken}`
         }
         
         const emailResult = await emailService.sendInvitation(emailData)
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
         invitationToken: invitation.token,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         personalMessage: message,
-        acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept-invitation?token=${invitation.token}`
+        acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/accept?token=${invitation.token}`
       }
       
       console.log('📧 Email data prepared:', {
