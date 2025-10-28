@@ -41,7 +41,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* Call to Action Links */}
+        {/* Call to Action Links - iPad Cache Bust v2 */}
         <div className="flex items-center justify-center gap-16 md:gap-8 lg:gap-6 mt-8">
           <Link 
             href="/login"
