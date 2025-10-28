@@ -52,7 +52,43 @@ function AcceptInvitationContent() {
       }
 
       try {
-        // Fetch invitation details
+        console.log('🔍 DEBUG: Looking up invitation with token:', token)
+        
+        // First check if invitation exists at all (without status filter)
+        const { data: anyInvitation, error: checkError } = await supabase
+          .from('invitations')
+          .select('id, email, status, expires_at, token')
+          .eq('token', token)
+          .single()
+
+        console.log('🔍 DEBUG: Any invitation found:', anyInvitation)
+        console.log('🔍 DEBUG: Check error:', checkError)
+
+        if (checkError || !anyInvitation) {
+          console.log('❌ No invitation found with this token')
+          setError('Invitation not found - the link may be invalid or expired')
+          setStep('invalid')
+          setLoading(false)
+          return
+        }
+
+        if (anyInvitation.status !== 'pending') {
+          console.log(`❌ Invitation status is ${anyInvitation.status}, not pending`)
+          setError(`This invitation has already been ${anyInvitation.status}`)
+          setStep('invalid')
+          setLoading(false)
+          return
+        }
+
+        if (new Date(anyInvitation.expires_at) < new Date()) {
+          console.log('❌ Invitation has expired')
+          setError('This invitation has expired')
+          setStep('expired')
+          setLoading(false)
+          return
+        }
+
+        // Fetch full invitation details
         const { data: invitationData, error: inviteError } = await supabase
           .from('invitations')
           .select(`
@@ -77,6 +113,7 @@ function AcceptInvitationContent() {
           .single()
 
         if (inviteError || !invitationData) {
+          console.log('❌ Error fetching full invitation details:', inviteError)
           setError('Invitation not found or has already been used')
           setStep('invalid')
           setLoading(false)
