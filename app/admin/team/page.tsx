@@ -52,7 +52,6 @@ export default function AdminTeamPage() {
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [testCounter, setTestCounter] = useState(0)
   const router = useRouter()
 
   // =====================================================
@@ -412,12 +411,21 @@ export default function AdminTeamPage() {
   return (
     <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
       
-      {/* BC's Test Counter Button */}
+      {/* Modal State Test Button */}
       <button 
-        onClick={() => setTestCounter(prev => prev + 1)}
-        className="fixed top-4 right-4 z-[9999] bg-green-500 text-white px-4 py-2 rounded min-h-[44px]"
+        onClick={() => {
+          console.log('🔴 BEFORE setState:', showInviteModal)
+          setShowInviteModal(true)
+          console.log('🟢 AFTER setState:', showInviteModal)
+          
+          // Force check after React updates
+          setTimeout(() => {
+            console.log('🟡 AFTER TIMEOUT:', showInviteModal)
+          }, 100)
+        }}
+        className="fixed top-4 right-4 z-[9999] bg-purple-500 text-white px-4 py-2 rounded min-h-[44px]"
       >
-        TEST COUNTER: {testCounter}
+        TEST MODAL STATE: {showInviteModal ? 'OPEN' : 'CLOSED'}
       </button>
       
       {/* Standardized Module Header */}
@@ -506,12 +514,6 @@ export default function AdminTeamPage() {
 
       </div>
 
-      {/* STANDALONE TEST BUTTON - Outside any cards */}
-      <div className="mb-8">
-        <button onClick={() => setShowInviteModal(true)}>
-          STANDALONE INVITE BUTTON
-        </button>
-      </div>
 
       {/* Team Members List - 2 Columns Wide */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
