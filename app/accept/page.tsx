@@ -410,15 +410,15 @@ function AcceptInvitationContent() {
       <header className="relative z-20 w-full">
         <div className="container mx-auto px-4 py-6">
           <div className="flex justify-center">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12">
-                <img 
-                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/JigrLogoFullWhite.png" 
-                  alt="JiGR Logo" 
-                  className="w-12 h-12 object-contain"
-                />
+            <div className="text-center">
+              <img 
+                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/JigrLogoStackWhite.png" 
+                alt="JiGR Logo" 
+                className="h-24 w-auto object-contain mx-auto mb-2"
+              />
+              <div className="text-white/90 text-xs font-medium tracking-wider uppercase">
+                MODULAR HOSPITALITY SOLUTION
               </div>
-              <span className="text-white font-bold text-2xl">Hospitality Compliance</span>
             </div>
           </div>
         </div>
@@ -426,14 +426,14 @@ function AcceptInvitationContent() {
       
       {/* Main Content */}
       <div className="min-h-screen flex items-center justify-center px-4 pt-40">
-        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`}>
+        <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`} style={{ borderRadius: '36px' }}>
 
           {/* Loading State */}
           {step === 'loading' && (
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-              <h1 className={`${getTextStyle('pageTitle')} mb-2`}>Processing Invitation</h1>
-              <p className={`${getTextStyle('body')} text-white/70`}>
+              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>Processing Invitation</h1>
+              <p className={`${getTextStyle('body')} text-white/90`}>
                 Please wait while we validate your invitation...
               </p>
             </div>
@@ -443,10 +443,10 @@ function AcceptInvitationContent() {
           {['invalid', 'expired'].includes(step) && (
             <div className="text-center">
               <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-              <h1 className={`${getTextStyle('pageTitle')} mb-2`}>
+              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>
                 {step === 'expired' ? 'Invitation Expired' : 'Invalid Invitation'}
               </h1>
-              <p className={`${getTextStyle('body')} text-white/70 mb-6`}>
+              <p className={`${getTextStyle('body')} text-white/90 mb-6`}>
                 {error}
               </p>
               <button
@@ -464,21 +464,21 @@ function AcceptInvitationContent() {
               <div className="text-center mb-6">
                 {renderClientLogo()}
                 <Building2 className="w-16 h-16 text-blue-400 mx-auto mb-4 hidden" />
-                <h1 className={`${getTextStyle('pageTitle')} mb-2`}>Welcome to {invitation.organizationName}</h1>
-                <p className={`${getTextStyle('body')} text-white/70`}>
+                <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>Welcome to {invitation.organizationName}</h1>
+                <p className={`${getTextStyle('body')} text-white/90`}>
                   You&apos;ve been invited by {invitation.inviterName}
                 </p>
               </div>
 
               {/* Invitation Details */}
-              <div className={`${getCardStyle('secondary')} mb-6`}>
+              <div className={`${getCardStyle('secondary')} mb-6`} style={{ borderRadius: '24px' }}>
                 <div className="flex items-center space-x-3 mb-4">
                   <Users className="w-8 h-8 text-blue-400" />
                   <div>
-                    <h3 className={`${getTextStyle('cardTitle')} text-base`}>
+                    <h3 className={`${getTextStyle('cardTitle')} text-base text-white`}>
                       {getRoleDisplayName(invitation.role)}
                     </h3>
-                    <p className={`${getTextStyle('bodySmall')} text-white/70`}>
+                    <p className={`${getTextStyle('bodySmall')} text-white/85`}>
                       {getRoleDescription(invitation.role)}
                     </p>
                   </div>
@@ -486,7 +486,7 @@ function AcceptInvitationContent() {
                 
                 {invitation.message && (
                   <div className="pt-4 border-t border-white/10">
-                    <p className={`${getTextStyle('bodySmall')} text-white/80 italic`}>
+                    <p className={`${getTextStyle('bodySmall')} text-white/90 italic`}>
                       &ldquo;{invitation.message}&rdquo;
                     </p>
                   </div>
@@ -495,10 +495,10 @@ function AcceptInvitationContent() {
 
               {/* Account Creation Form */}
               <div className="space-y-4">
-                <h3 className={`${getTextStyle('cardTitle')} mb-4`}>Create Your Account</h3>
+                <h3 className={`${getTextStyle('cardTitle')} mb-4 text-white`}>Create Your Account</h3>
                 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>
+                  <label className={`block ${getTextStyle('label')} mb-2 text-white`}>
                     Email Address
                   </label>
                   <input
@@ -510,7 +510,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>
+                  <label className={`block ${getTextStyle('label')} mb-2 text-white`}>
                     Full Name
                   </label>
                   <input
@@ -522,7 +522,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>
+                  <label className={`block ${getTextStyle('label')} mb-2 text-white`}>
                     Password (8+ characters)
                   </label>
                   <input
@@ -536,7 +536,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2`}>
+                  <label className={`block ${getTextStyle('label')} mb-2 text-white`}>
                     Confirm Password
                   </label>
                   <input
@@ -577,8 +577,8 @@ function AcceptInvitationContent() {
           {step === 'success' && invitation && (
             <div className="text-center">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <h1 className={`${getTextStyle('pageTitle')} mb-2`}>Welcome to the Team!</h1>
-              <p className={`${getTextStyle('body')} text-white/70 mb-6`}>
+              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-white`}>Welcome to the Team!</h1>
+              <p className={`${getTextStyle('body')} text-white/90 mb-6`}>
                 You&apos;ve successfully joined {invitation.organizationName} as a {getRoleDisplayName(invitation.role)}.
               </p>
               <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-4 mb-6">
