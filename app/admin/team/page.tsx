@@ -52,11 +52,16 @@ export default function AdminTeamPage() {
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [inviteFormData, setInviteFormData] = useState({
+  const [inviteFormData, setInviteFormData] = useState<{
+    email: string
+    firstName: string 
+    lastName: string
+    role: 'STAFF' | 'SUPERVISOR' | 'MANAGER'
+  }>({
     email: '',
     firstName: '',
     lastName: '',
-    role: 'STAFF' as const
+    role: 'STAFF'
   })
   const router = useRouter()
 
