@@ -122,7 +122,7 @@ export default function UploadReportsPage() {
               </StatCard>
 
               {/* Violation Report */}
-              <StatCard accentColor="red" theme="upload">
+              <StatCard accentColor="orange" theme="upload">
                 <div>
                   <div className="flex items-center justify-center mb-4">
                     <h2 className="text-white text-lg font-semibold text-center w-full">Violation Report</h2>
