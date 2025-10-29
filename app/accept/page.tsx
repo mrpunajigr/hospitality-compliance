@@ -405,7 +405,7 @@ function AcceptInvitationContent() {
   // =====================================================
 
   return (
-    <PublicPageBackground>
+    <PublicPageBackground backgroundImage="restaurant.jpg?v=2">
       {/* Header with JiGR Logo */}
       <header className="relative z-20 w-full">
         <div className="container mx-auto px-4 py-6">
@@ -485,7 +485,7 @@ function AcceptInvitationContent() {
                 </div>
                 
                 {invitation.message && (
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-black/20">
                     <p className={`${getTextStyle('bodySmall')} text-black/90 italic`}>
                       &ldquo;{invitation.message}&rdquo;
                     </p>
@@ -498,7 +498,7 @@ function AcceptInvitationContent() {
                 <h3 className={`${getTextStyle('cardTitle')} mb-4 text-black`}>Create Your Account</h3>
                 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2 text-black`}>
+                  <label className="block text-black font-medium mb-2">
                     Email Address
                   </label>
                   <input
@@ -510,7 +510,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2 text-black`}>
+                  <label className="block text-black font-medium mb-2">
                     Full Name
                   </label>
                   <input
@@ -522,7 +522,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2 text-black`}>
+                  <label className="block text-black font-medium mb-2">
                     Password (8+ characters)
                   </label>
                   <input
@@ -536,7 +536,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className={`block ${getTextStyle('label')} mb-2 text-black`}>
+                  <label className="block text-black font-medium mb-2">
                     Confirm Password
                   </label>
                   <input
@@ -590,8 +590,8 @@ function AcceptInvitationContent() {
           )}
 
           {/* Version Info */}
-          <div className="text-center mt-6 pt-4 border-t border-white/10">
-            <p className={`${getTextStyle('version')} ${DesignTokens.colors.text.onGlassSecondary}`}>
+          <div className="text-center mt-6 pt-4 border-t border-black/20">
+            <p className={`${getTextStyle('version')} text-black/60`}>
               {getVersionDisplay('prod')}
             </p>
           </div>
