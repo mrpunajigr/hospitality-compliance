@@ -401,16 +401,33 @@ function AcceptInvitationContent() {
   }
 
   // =====================================================
-  // MAIN RENDER - USING LANDING PAGE LAYOUT
+  // MAIN RENDER - DIRECT BACKGROUND OVERRIDE  
   // =====================================================
 
   return (
-    <PublicPageBackgroundWithGradient
-      backgroundImage="restaurant.jpg"
-      gradientStart="rgba(0,0,0,0.4)"
-      gradientEnd="rgba(0,0,0,0.6)"
-      additionalOverlay="rgba(0,0,0,0.2)"
-    >
+    <div className="min-h-screen relative">
+      {/* FORCE RESTAURANT BACKGROUND - HARDCODED */}
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?force=${Date.now()}")
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          WebkitBackgroundSize: 'cover',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+        }}
+      />
+      
+      {/* Additional text readability overlay */}
+      <div className="fixed inset-0 -z-10" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+
+      {/* Content */}
+      <div className="relative z-10">
       <div className="min-h-screen flex flex-col items-center justify-center px-4">
         
         {/* Logo - Same as landing page */}
@@ -608,27 +625,43 @@ function AcceptInvitationContent() {
           </p>
         </div>
       </div>
-    </PublicPageBackgroundWithGradient>
+      </div>
+    </div>
   )
 }
 
 // Loading fallback component
 function AcceptInvitationLoading() {
   return (
-    <PublicPageBackgroundWithGradient
-      backgroundImage="restaurant.jpg"
-      gradientStart="rgba(0,0,0,0.4)"
-      gradientEnd="rgba(0,0,0,0.6)"
-      additionalOverlay="rgba(0,0,0,0.2)"
-    >
-      <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen relative">
+      {/* FORCE RESTAURANT BACKGROUND - HARDCODED */}
+      <div 
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?loading=${Date.now()}")
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          WebkitBackgroundSize: 'cover',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+        }}
+      />
+      
+      {/* Additional text readability overlay */}
+      <div className="fixed inset-0 -z-10" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }} />
+
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
           <h1 className="text-2xl font-bold text-white mb-2">Loading Invitation</h1>
           <p className="text-white/70">Please wait...</p>
         </div>
       </div>
-    </PublicPageBackgroundWithGradient>
+    </div>
   )
 }
 
