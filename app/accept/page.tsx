@@ -405,26 +405,7 @@ function AcceptInvitationContent() {
   // =====================================================
 
   return (
-    <div className="min-h-screen relative">
-      {/* Restaurant Background - Direct Implementation */}
-      <div 
-        className="fixed inset-0 -z-10"
-        style={{
-          backgroundImage: 'url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 0.48,
-          transform: 'translateZ(0)',
-          WebkitTransform: 'translateZ(0)'
-        }}
-      />
-      
-      {/* Overlay for text readability */}
-      <div className="fixed inset-0 -z-10 bg-black/12" />
-
-      {/* Content */}
-      <div className="relative z-10">
+    <PublicPageBackground backgroundImage="restaurant.jpg">
       {/* Header with JiGR Logo */}
       <header className="relative z-20 w-full">
         <div className="container mx-auto px-4 py-6">
@@ -517,7 +498,7 @@ function AcceptInvitationContent() {
                 <h3 className={`${getTextStyle('cardTitle')} mb-4 text-black`}>Create Your Account</h3>
                 
                 <div>
-                  <label className="block text-black font-bold mb-2" style={{color: '#000000'}}>
+                  <label className="block font-bold mb-2" style={{color: '#000000 !important', fontWeight: 'bold'}}>
                     Email Address
                   </label>
                   <input
@@ -529,7 +510,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className="block text-black font-bold mb-2" style={{color: '#000000'}}>
+                  <label className="block font-bold mb-2" style={{color: '#000000 !important', fontWeight: 'bold'}}>
                     Full Name
                   </label>
                   <input
@@ -541,7 +522,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className="block text-black font-bold mb-2" style={{color: '#000000'}}>
+                  <label className="block font-bold mb-2" style={{color: '#000000 !important', fontWeight: 'bold'}}>
                     Password (8+ characters)
                   </label>
                   <input
@@ -555,7 +536,7 @@ function AcceptInvitationContent() {
                 </div>
 
                 <div>
-                  <label className="block text-black font-bold mb-2" style={{color: '#000000'}}>
+                  <label className="block font-bold mb-2" style={{color: '#000000 !important', fontWeight: 'bold'}}>
                     Confirm Password
                   </label>
                   <input
@@ -616,8 +597,7 @@ function AcceptInvitationContent() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </PublicPageBackground>
   )
 }
 

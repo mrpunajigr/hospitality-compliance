@@ -13,7 +13,7 @@ export default function PublicPageBackground({
   children, 
   className = '',
   overlayOpacity = 'light',
-  backgroundImage = 'CafeWindow.jpg'
+  backgroundImage = 'restaurant.jpg'
 }: PublicPageBackgroundProps) {
   
   // Centralized overlay opacity settings
@@ -72,7 +72,7 @@ export function PublicPageBackgroundWithGradient({
   gradientStart = 'rgba(0,0,0,0.32)',
   gradientEnd = 'rgba(0,0,0,0.48)',
   additionalOverlay = 'rgba(0,0,0,0.24)',
-  backgroundImage = 'CafeWindow.jpg'
+  backgroundImage = 'restaurant.jpg'
 }: {
   children: ReactNode
   className?: string
