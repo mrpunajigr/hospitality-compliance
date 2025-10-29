@@ -432,7 +432,7 @@ function AcceptInvitationContent() {
           {step === 'loading' && (
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
-              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-black`}>Processing Invitation</h1>
+              <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>Processing Invitation</h1>
               <p className={`${getTextStyle('body')} text-black/90`}>
                 Please wait while we validate your invitation...
               </p>
@@ -443,7 +443,7 @@ function AcceptInvitationContent() {
           {['invalid', 'expired'].includes(step) && (
             <div className="text-center">
               <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-black`}>
+              <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>
                 {step === 'expired' ? 'Invitation Expired' : 'Invalid Invitation'}
               </h1>
               <p className={`${getTextStyle('body')} text-black/90 mb-6`}>
@@ -464,8 +464,8 @@ function AcceptInvitationContent() {
               <div className="text-center mb-6">
                 {renderClientLogo()}
                 <Building2 className="w-16 h-16 text-blue-400 mx-auto mb-4 hidden" />
-                <h1 className={`${getTextStyle('pageTitle')} mb-2 text-red-500`} style={{color: 'red !important', backgroundColor: 'yellow'}}>🔥 TESTING DEPLOY 🔥 Welcome to {invitation.organizationName}</h1>
-                <p className={`${getTextStyle('body')} text-black/90`}>
+                <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>Welcome to {invitation.organizationName}</h1>
+                <p className="text-base" style={{color: '#000000'}}>
                   You&apos;ve been invited by {invitation.inviterName}
                 </p>
               </div>
@@ -475,10 +475,10 @@ function AcceptInvitationContent() {
                 <div className="flex items-center space-x-3 mb-4">
                   <Users className="w-8 h-8 text-blue-400" />
                   <div>
-                    <h3 className={`${getTextStyle('cardTitle')} text-base text-black`}>
+                    <h3 className="text-base font-semibold" style={{color: '#000000'}}>
                       {getRoleDisplayName(invitation.role)}
                     </h3>
-                    <p className={`${getTextStyle('bodySmall')} text-black/85`}>
+                    <p className="text-sm" style={{color: '#000000'}}>
                       {getRoleDescription(invitation.role)}
                     </p>
                   </div>
@@ -486,7 +486,7 @@ function AcceptInvitationContent() {
                 
                 {invitation.message && (
                   <div className="pt-4 border-t border-black/20">
-                    <p className={`${getTextStyle('bodySmall')} text-black/90 italic`}>
+                    <p className="text-sm italic" style={{color: '#000000'}}>
                       &ldquo;{invitation.message}&rdquo;
                     </p>
                   </div>
@@ -495,7 +495,7 @@ function AcceptInvitationContent() {
 
               {/* Account Creation Form */}
               <div className="space-y-4">
-                <h3 className={`${getTextStyle('cardTitle')} mb-4 text-black`}>Create Your Account</h3>
+                <h3 className="text-lg font-semibold mb-4" style={{color: '#000000'}}>Create Your Account</h3>
                 
                 <div>
                   <label className="block font-bold mb-2" style={{color: '#000000 !important', fontWeight: 'bold'}}>
@@ -577,7 +577,7 @@ function AcceptInvitationContent() {
           {step === 'success' && invitation && (
             <div className="text-center">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <h1 className={`${getTextStyle('pageTitle')} mb-2 text-black`}>Welcome to the Team!</h1>
+              <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>Welcome to the Team!</h1>
               <p className={`${getTextStyle('body')} text-black/90 mb-6`}>
                 You&apos;ve successfully joined {invitation.organizationName} as a {getRoleDisplayName(invitation.role)}.
               </p>
