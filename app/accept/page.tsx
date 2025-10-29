@@ -464,7 +464,7 @@ function AcceptInvitationContent() {
               <div className="text-center mb-6">
                 {renderClientLogo()}
                 <Building2 className="w-16 h-16 text-blue-400 mx-auto mb-4 hidden" />
-                <h1 className={`${getTextStyle('pageTitle')} mb-2 text-black`}>Welcome to {invitation.organizationName}</h1>
+                <h1 className={`${getTextStyle('pageTitle')} mb-2 text-red-500`} style={{color: 'red !important', backgroundColor: 'yellow'}}>🔥 TESTING DEPLOY 🔥 Welcome to {invitation.organizationName}</h1>
                 <p className={`${getTextStyle('body')} text-black/90`}>
                   You&apos;ve been invited by {invitation.inviterName}
                 </p>
