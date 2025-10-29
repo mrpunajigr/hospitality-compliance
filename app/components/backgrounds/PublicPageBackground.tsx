@@ -40,7 +40,7 @@ export default function PublicPageBackground({
       <div 
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg')`,
+          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?v=' + Date.now())`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -89,7 +89,7 @@ export function PublicPageBackgroundWithGradient({
         style={{
           backgroundImage: `
             linear-gradient(${gradientStart}, ${gradientEnd}),
-            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg")
+            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?v=" + Date.now())
           `,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
