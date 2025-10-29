@@ -17,6 +17,7 @@ const MODULE_BACKGROUNDS: Record<string, string> = {
 // Exact path matches for public pages
 const EXACT_PATH_BACKGROUNDS: Record<string, string> = {
   '/': 'backgrounds/restaurant.jpg', // Landing page only
+  '/accept': 'backgrounds/restaurant.jpg', // Accept invitation page
 }
 
 // Default fallback
