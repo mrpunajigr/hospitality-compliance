@@ -13,7 +13,7 @@ export default function PublicPageBackground({
   children, 
   className = '',
   overlayOpacity = 'light',
-  backgroundImage = 'restaurant.jpg'
+  backgroundImage = 'CafeWindow.jpg'
 }: PublicPageBackgroundProps) {
   
   // Centralized overlay opacity settings
@@ -40,7 +40,7 @@ export default function PublicPageBackground({
       <div 
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?v=' + Date.now())`,
+          backgroundImage: `url('https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -72,7 +72,7 @@ export function PublicPageBackgroundWithGradient({
   gradientStart = 'rgba(0,0,0,0.32)',
   gradientEnd = 'rgba(0,0,0,0.48)',
   additionalOverlay = 'rgba(0,0,0,0.24)',
-  backgroundImage = 'restaurant.jpg'
+  backgroundImage = 'CafeWindow.jpg'
 }: {
   children: ReactNode
   className?: string
@@ -89,7 +89,7 @@ export function PublicPageBackgroundWithGradient({
         style={{
           backgroundImage: `
             linear-gradient(${gradientStart}, ${gradientEnd}),
-            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/restaurant.jpg?v=" + Date.now())
+            url("https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/backgrounds/${backgroundImage}")
           `,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
