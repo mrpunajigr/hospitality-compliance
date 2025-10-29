@@ -280,7 +280,7 @@ export default function UserInvitationModal({
             {/* Role Selection */}
             <div>
               <label className={`block ${getTextStyle('label')} mb-3`}>
-                Role & Permissions *
+                Job & Permissions *
               </label>
               <div className="space-y-3">
                 {availableRoles.map((role) => (
@@ -407,7 +407,7 @@ export default function UserInvitationModal({
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-400">Role:</span>
+                  <span className="text-slate-400">Job:</span>
                   <p className="text-white font-medium">{selectedRole?.label}</p>
                 </div>
                 {formData.phone && (
