@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { DesignTokens, getCardStyle, getTextStyle, getFormFieldStyle } from '@/lib/design-system'
 import { CheckCircle, AlertTriangle, Users, Building2 } from 'lucide-react'
-import PublicPageBackground from '@/app/components/backgrounds/PublicPageBackground'
+import { PublicPageBackgroundWithGradient } from '@/app/components/backgrounds/PublicPageBackground'
 
 // =====================================================
 // TYPES
@@ -405,7 +405,12 @@ function AcceptInvitationContent() {
   // =====================================================
 
   return (
-    <PublicPageBackground backgroundImage="restaurant.jpg">
+    <PublicPageBackgroundWithGradient 
+      backgroundImage="restaurant.jpg"
+      gradientStart="rgba(0,0,0,0.4)"
+      gradientEnd="rgba(0,0,0,0.6)"
+      additionalOverlay="rgba(0,0,0,0.2)"
+    >
       {/* Header with JiGR Logo */}
       <header className="relative z-20 w-full">
         <div className="container mx-auto px-4 py-6">
@@ -597,7 +602,7 @@ function AcceptInvitationContent() {
           </div>
         </div>
       </div>
-    </PublicPageBackground>
+    </PublicPageBackgroundWithGradient>
   )
 }
 
