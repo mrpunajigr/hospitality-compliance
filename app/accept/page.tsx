@@ -401,36 +401,35 @@ function AcceptInvitationContent() {
   }
 
   // =====================================================
-  // MAIN RENDER
+  // MAIN RENDER - USING LANDING PAGE LAYOUT
   // =====================================================
 
   return (
-    <PublicPageBackgroundWithGradient 
+    <PublicPageBackgroundWithGradient
       backgroundImage="restaurant.jpg"
       gradientStart="rgba(0,0,0,0.4)"
       gradientEnd="rgba(0,0,0,0.6)"
       additionalOverlay="rgba(0,0,0,0.2)"
     >
-      {/* Header with JiGR Logo */}
-      <header className="relative z-20 w-full">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-center">
-            <div className="text-center">
-              <img 
-                src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/JigrLogoStackWhite.png" 
-                alt="JiGR Logo" 
-                className="h-32 w-auto object-contain mx-auto mb-2"
-              />
-              <div className="text-white/90 text-xs font-medium tracking-wider uppercase">
-                MODULAR HOSPITALITY SOLUTION
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
+        
+        {/* Logo - Same as landing page */}
+        <div className="mb-8">
+          <img 
+            src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/JigrLogoStackWhite.png" 
+            alt="JiGR Logo" 
+            className="h-32 w-auto md:h-40 object-contain"
+          />
         </div>
-      </header>
-      
-      {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center px-4 pt-20">
+
+        {/* Tagline - Same as landing page */}
+        <div className="text-center mb-6">
+          <h2 className="text-white/90 text-sm md:text-base font-medium tracking-wider uppercase mb-6">
+            MODULAR HOSPITALITY SOLUTION
+          </h2>
+        </div>
+
+        {/* Main Content Card */}
         <div className={`${getCardStyle('primary')} max-w-md w-full mx-auto`} style={{ borderRadius: '36px' }}>
 
           {/* Loading State */}
@@ -438,7 +437,7 @@ function AcceptInvitationContent() {
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
               <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>Processing Invitation</h1>
-              <p className={`${getTextStyle('body')} text-black/90`}>
+              <p className="text-base" style={{color: '#000000'}}>
                 Please wait while we validate your invitation...
               </p>
             </div>
@@ -451,7 +450,7 @@ function AcceptInvitationContent() {
               <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>
                 {step === 'expired' ? 'Invitation Expired' : 'Invalid Invitation'}
               </h1>
-              <p className={`${getTextStyle('body')} text-black/90 mb-6`}>
+              <p className="text-base mb-6" style={{color: '#000000'}}>
                 {error}
               </p>
               <button
@@ -583,11 +582,11 @@ function AcceptInvitationContent() {
             <div className="text-center">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-2" style={{color: '#000000'}}>Welcome to the Team!</h1>
-              <p className={`${getTextStyle('body')} text-black/90 mb-6`}>
+              <p className="text-base mb-6" style={{color: '#000000'}}>
                 You&apos;ve successfully joined {invitation.organizationName} as a {getRoleDisplayName(invitation.role)}.
               </p>
               <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-4 mb-6">
-                <p className={`${getTextStyle('bodySmall')} text-green-200`}>
+                <p className="text-sm" style={{color: '#000000'}}>
                   Redirecting you to your dashboard...
                 </p>
               </div>
@@ -596,10 +595,17 @@ function AcceptInvitationContent() {
 
           {/* Version Info */}
           <div className="text-center mt-6 pt-4 border-t border-black/20">
-            <p className={`${getTextStyle('version')} text-black/60`}>
+            <p className="text-xs" style={{color: '#000000'}}>
               {getVersionDisplay('prod')}
             </p>
           </div>
+        </div>
+
+        {/* Footer - Same as landing page */}
+        <div className="absolute bottom-4 left-0 right-0 text-center">
+          <p className="text-white/50 text-xs">
+            © 2025 JiGR | Modular Hospitality Solution
+          </p>
         </div>
       </div>
     </PublicPageBackgroundWithGradient>
@@ -609,16 +615,20 @@ function AcceptInvitationContent() {
 // Loading fallback component
 function AcceptInvitationLoading() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
-      <div className="absolute inset-0 bg-black/24" />
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+    <PublicPageBackgroundWithGradient
+      backgroundImage="restaurant.jpg"
+      gradientStart="rgba(0,0,0,0.4)"
+      gradientEnd="rgba(0,0,0,0.6)"
+      additionalOverlay="rgba(0,0,0,0.2)"
+    >
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
           <h1 className="text-2xl font-bold text-white mb-2">Loading Invitation</h1>
           <p className="text-white/70">Please wait...</p>
         </div>
       </div>
-    </div>
+    </PublicPageBackgroundWithGradient>
   )
 }
 
