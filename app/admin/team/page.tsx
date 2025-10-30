@@ -52,15 +52,18 @@ export default function AdminTeamPage() {
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [jobTitles, setJobTitles] = useState<{id: string, title: string, default_role: string}[]>([])
   const [inviteFormData, setInviteFormData] = useState<{
     email: string
     firstName: string 
     lastName: string
-    role: 'STAFF' | 'SUPERVISOR' | 'MANAGER'
+    jobTitleId: string
+    role: string
   }>({
     email: '',
     firstName: '',
     lastName: '',
+    jobTitleId: '',
     role: 'STAFF'
   })
   const router = useRouter()
@@ -150,6 +153,57 @@ export default function AdminTeamPage() {
       console.error('Error loading team data:', error)
     } finally {
       setRefreshing(false)
+    }
+  }
+
+  const loadJobTitles = async () => {
+    try {
+      console.log('🔍 Loading job titles...')
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('🔍 Session:', session ? 'Found' : 'None')
+      
+      if (!session?.access_token) {
+        console.log('❌ No session token, skipping job titles load')
+        return
+      }
+
+      console.log('🔍 Fetching job titles from API...')
+      const response = await fetch('/api/config/job-titles', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log('🔍 API Response status:', response.status)
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log('✅ Job titles loaded:', result.items?.length || 0, 'items')
+        setJobTitles(result.items || [])
+        
+        // If no job titles found, add default ones as fallback
+        if (!result.items || result.items.length === 0) {
+          console.log('📝 No job titles found, using defaults')
+          setJobTitles([
+            { id: 'default-staff', title: 'Staff Member', default_role: 'STAFF' },
+            { id: 'default-supervisor', title: 'Supervisor', default_role: 'SUPERVISOR' },
+            { id: 'default-manager', title: 'Manager', default_role: 'MANAGER' }
+          ])
+        }
+      } else {
+        const error = await response.text()
+        console.log('❌ API Error:', error)
+        // Fallback to default job titles on API error
+        console.log('📝 API failed, using default job titles')
+        setJobTitles([
+          { id: 'default-staff', title: 'Staff Member', default_role: 'STAFF' },
+          { id: 'default-supervisor', title: 'Supervisor', default_role: 'SUPERVISOR' },
+          { id: 'default-manager', title: 'Manager', default_role: 'MANAGER' }
+        ])
+      }
+    } catch (error) {
+      console.error('❌ Error loading job titles:', error)
     }
   }
 
@@ -339,6 +393,10 @@ export default function AdminTeamPage() {
             console.log('🔍 Admin Team: Loading team data for client ID:', clientInfo.clientId)
             await loadTeamData(clientInfo.clientId)
             console.log('✅ Admin Team: Team data loading completed')
+            
+            // Load job titles for invite modal
+            await loadJobTitles()
+            console.log('✅ Admin Team: Job titles loaded')
           } else {
             console.log('❌ Admin Team: No client info found for user')
           }
@@ -712,10 +770,17 @@ export default function AdminTeamPage() {
             </div>
             
             <div style={{marginBottom: '20px'}}>
-              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Role:</label>
+              <label style={{color: 'black', display: 'block', marginBottom: '5px'}}>Job:</label>
               <select 
-                value={inviteFormData.role}
-                onChange={(e) => setInviteFormData(prev => ({...prev, role: e.target.value as 'STAFF' | 'SUPERVISOR' | 'MANAGER'}))}
+                value={inviteFormData.jobTitleId}
+                onChange={(e) => {
+                  const selectedJobTitle = jobTitles.find(jt => jt.id === e.target.value)
+                  setInviteFormData(prev => ({
+                    ...prev, 
+                    jobTitleId: e.target.value,
+                    role: selectedJobTitle?.default_role || 'STAFF'
+                  }))
+                }}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -723,16 +788,19 @@ export default function AdminTeamPage() {
                   borderRadius: '5px'
                 }}
               >
-                <option value="STAFF">Staff</option>
-                <option value="SUPERVISOR">Supervisor</option>
-                <option value="MANAGER">Manager</option>
+                <option value="">Select a job position...</option>
+                {jobTitles.map(jobTitle => (
+                  <option key={jobTitle.id} value={jobTitle.id}>
+                    {jobTitle.title}
+                  </option>
+                ))}
               </select>
             </div>
             
             <div style={{display: 'flex', gap: '10px'}}>
               <button 
                 onClick={() => {
-                  setInviteFormData({ email: '', firstName: '', lastName: '', role: 'STAFF' })
+                  setInviteFormData({ email: '', firstName: '', lastName: '', jobTitleId: '', role: 'STAFF' })
                   setShowInviteModal(false)
                 }}
                 style={{
@@ -748,16 +816,24 @@ export default function AdminTeamPage() {
               </button>
               <button 
                 onClick={async () => {
-                  if (!inviteFormData.email || !inviteFormData.firstName || !inviteFormData.lastName) {
+                  if (!inviteFormData.email || !inviteFormData.firstName || !inviteFormData.lastName || !inviteFormData.jobTitleId) {
                     alert('Please fill in all fields')
                     return
                   }
                   
-                  const result = await handleInviteUser(inviteFormData)
+                  const selectedJobTitle = jobTitles.find(jt => jt.id === inviteFormData.jobTitleId)
+                  const invitationData: InvitationFormData = {
+                    email: inviteFormData.email,
+                    firstName: inviteFormData.firstName,
+                    lastName: inviteFormData.lastName,
+                    role: inviteFormData.role as UserRole,
+                    jobTitle: selectedJobTitle?.title || 'Staff'
+                  }
+                  const result = await handleInviteUser(invitationData)
                   
                   if (result.success) {
                     alert('Invitation sent successfully!')
-                    setInviteFormData({ email: '', firstName: '', lastName: '', role: 'STAFF' })
+                    setInviteFormData({ email: '', firstName: '', lastName: '', jobTitleId: '', role: 'STAFF' })
                     setShowInviteModal(false)
                   } else {
                     alert('Error: ' + (result.error || 'Failed to send invitation'))

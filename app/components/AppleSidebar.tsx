@@ -8,6 +8,7 @@ import { getMappedIcon, getUIIcon } from '@/lib/image-storage'
 import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { logger } from '@/lib/console-utils'
+import { useDevice } from '@/contexts/DeviceContext'
 
 interface SidebarNavItem {
   name: string
@@ -77,12 +78,22 @@ export default function AppleSidebar({
   onBackgroundSelectorToggle 
 }: AppleSidebarProps) {
   const pathname = usePathname()
-  const [isCollapsed, setIsCollapsed] = useState(true)
-  const [isMobile, setIsMobile] = useState(false)
-  const [isPortrait, setIsPortrait] = useState(true)
-  const [isIPad, setIsIPad] = useState(false)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  
+  // Use device context instead of manual detection
+  const {
+    isMobile,
+    isTablet,
+    isIPad,
+    isIPadPro,
+    isIPadAir,
+    isPortrait,
+    isIOSCompatible,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    contentOffset
+  } = useDevice()
   
   // Use only real userClient data - no demo fallbacks
   const effectiveUserClient = userClient
@@ -125,35 +136,7 @@ export default function AppleSidebar({
     }
   }, [user?.id])
 
-  useEffect(() => {
-    const checkDeviceAndOrientation = () => {
-      const mobile = window.innerWidth < 768
-      const iPad = window.innerWidth >= 768 && window.innerWidth <= 1024
-      const portrait = window.innerHeight > window.innerWidth
-      
-      setIsMobile(mobile)
-      setIsIPad(iPad)
-      setIsPortrait(portrait)
-      
-      // iPad adaptive behavior - Always start collapsed, user can expand manually
-      if (iPad) {
-        // Always start collapsed - user can tap to expand when needed
-        // This prevents auto-expansion that was causing retraction issues
-        setIsCollapsed(true)
-      } else {
-        // Always start collapsed on mobile and desktop
-        setIsCollapsed(true)
-      }
-    }
-    
-    checkDeviceAndOrientation()
-    window.addEventListener('resize', checkDeviceAndOrientation)
-    window.addEventListener('orientationchange', checkDeviceAndOrientation)
-    return () => {
-      window.removeEventListener('resize', checkDeviceAndOrientation)
-      window.removeEventListener('orientationchange', checkDeviceAndOrientation)
-    }
-  }, [])
+  // No longer needed - device detection handled by DeviceContext
 
   // Filter items by section, context, user role, and champion status
   const filterByRoleAndContext = (item: SidebarNavItem) => {
@@ -183,24 +166,24 @@ export default function AppleSidebar({
       {/* Sidebar */}
       <div 
         className={`fixed left-0 top-0 h-full bg-black/10 backdrop-blur-xl transition-all duration-5000 ease-in-out z-40 TouchTarget ${
-          isCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
+          sidebarCollapsed ? 'w-[150px] shadow-lg' : 'w-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)]'
         } ${isIPad ? 'AppleSidebar' : ''}`}
         onTouchStart={(e) => {
           if (isIPad && !isPortrait) {
-            if (isCollapsed) {
-              setIsCollapsed(false)
+            if (sidebarCollapsed) {
+              setSidebarCollapsed(false)
             } else {
               setTouchStartX(e.touches[0].clientX)
             }
           }
         }}
         onTouchMove={(e) => {
-          if (isIPad && !isPortrait && !isCollapsed && touchStartX !== null) {
+          if (isIPad && !isPortrait && !sidebarCollapsed && touchStartX !== null) {
             const currentX = e.touches[0].clientX
             const deltaX = currentX - touchStartX
             // If swiping left more than 50px, close sidebar
             if (deltaX < -50) {
-              setIsCollapsed(true)
+              setSidebarCollapsed(true)
               setTouchStartX(null)
             }
           }
@@ -237,7 +220,7 @@ export default function AppleSidebar({
           
           {/* TOP THIRD: QUICK ACTIONS */}
           <div className="flex-1 flex flex-col justify-center py-2">
-            <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+            <nav className={sidebarCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
               {/* Camera Icon - Centered */}
               <div className="flex justify-center">
                 <button 
@@ -255,11 +238,11 @@ export default function AppleSidebar({
                   title="Quick Camera - Capture documents instantly"
                 >
                   <img 
-                    src={getMappedIcon('JiGRcamera', isCollapsed ? 48 : 64)} 
+                    src={getMappedIcon('JiGRcamera', sidebarCollapsed ? 48 : 64)} 
                     alt="Camera" 
-                    className={isCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
+                    className={sidebarCollapsed ? 'w-12 h-12 object-contain' : 'w-16 h-16 object-contain'}
                   />
-                  {!isCollapsed && (
+                  {!sidebarCollapsed && (
                     <span className="hidden sm:block md:block ml-2 text-white text-sm font-medium">Camera</span>
                   )}
                 </button>
@@ -274,13 +257,13 @@ export default function AppleSidebar({
 
           {/* MIDDLE THIRD: MODULES */}
           <div className="flex-1 flex flex-col justify-center py-2">
-            <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
-              {isCollapsed ? (
+            <nav className={sidebarCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+              {sidebarCollapsed ? (
                 <>
                   {/* Collapsed: Modules icon with click to expand */}
                   <div 
                     className="flex justify-center items-center py-3 cursor-pointer hover:bg-white/10 rounded-lg transition-all duration-200"
-                    onClick={() => setIsCollapsed(false)}
+                    onClick={() => setSidebarCollapsed(false)}
                     title="Click to view modules"
                   >
                     <img 
@@ -300,7 +283,7 @@ export default function AppleSidebar({
                   {/* Expanded: Modules icon on left + 2x2 grid */}
                   <div 
                     className="flex items-center justify-between py-2 px-2"
-                    onMouseLeave={() => setIsCollapsed(true)}
+                    onMouseLeave={() => setSidebarCollapsed(true)}
                   >
                     {/* Modules icon - stays on left */}
                     <div className="flex-shrink-0">
@@ -409,10 +392,23 @@ export default function AppleSidebar({
             <div className="w-[60%] h-px bg-white/20"></div>
           </div>
 
-          {/* BOTTOM THIRD: SETTINGS, USER AVATAR, VERSION */}
+          {/* BOTTOM THIRD: HIDE BUTTON, SETTINGS, USER AVATAR, VERSION */}
           <div className="absolute bottom-0 left-0 right-0">
             <div className="pb-4">
-              <nav className={isCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+              <nav className={sidebarCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
+                {/* Hide/Show Sidebar Button */}
+                <button 
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full TouchTarget"
+                  title={sidebarCollapsed ? "Expand sidebar" : "Hide sidebar"}
+                >
+                  <img 
+                    src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/hide.png"
+                    alt={sidebarCollapsed ? "Expand" : "Hide"} 
+                    className={`w-12 h-12 object-contain transition-transform duration-200 ${sidebarCollapsed ? '' : 'rotate-180'}`}
+                  />
+                </button>
+                
                 <button 
                   onClick={() => window.location.href = '/admin/console'}
                   className="flex justify-center items-center py-2 hover:bg-white/10 rounded-lg transition-all duration-200 w-full"
@@ -463,10 +459,10 @@ export default function AppleSidebar({
               </nav>
               
               {/* System Status Icon */}
-              <div className={`flex items-center ${isCollapsed ? 'justify-center mb-2 mt-4' : 'justify-center mb-1 mt-8'}`}>
+              <div className={`flex items-center ${sidebarCollapsed ? 'justify-center mb-2 mt-4' : 'justify-center mb-1 mt-8'}`}>
                 <div className="flex items-center space-x-2" title="System Status - All services operational">
                   <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                  {!isCollapsed && (
+                  {!sidebarCollapsed && (
                     <span className="text-emerald-300 text-xs font-medium">
                       System Online
                     </span>
@@ -485,20 +481,20 @@ export default function AppleSidebar({
       </div>
 
       {/* Overlay when sidebar is expanded */}
-      {!isCollapsed && (
+      {!sidebarCollapsed && (
         <div 
           className={`fixed inset-0 bg-black/20 z-30 transition-opacity duration-300 ${
             isMobile ? 'md:hidden' : isIPad ? 'block' : 'hidden md:block'
           }`}
-          onClick={() => setIsCollapsed(true)}
-          onTouchStart={() => isIPad && setIsCollapsed(true)}
+          onClick={() => setSidebarCollapsed(true)}
+          onTouchStart={() => isIPad && setSidebarCollapsed(true)}
         />
       )}
 
       {/* Mobile Expand Button */}
-      {isMobile && isCollapsed && (
+      {isMobile && sidebarCollapsed && (
         <button
-          onClick={() => setIsCollapsed(false)}
+          onClick={() => setSidebarCollapsed(false)}
           className="fixed top-4 left-[160px] z-40 p-2 bg-black/20 backdrop-blur-sm border border-white/30 rounded-lg text-white/60 hover:text-white hover:bg-black/30 transition-all duration-200 md:hidden"
           title="Open Menu"
         >

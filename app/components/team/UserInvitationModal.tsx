@@ -277,10 +277,10 @@ export default function UserInvitationModal({
               </div>
             </div>
 
-            {/* Role Selection */}
+            {/* Job Selection */}
             <div>
               <label className={`block ${getTextStyle('label')} mb-3`}>
-                Job & Permissions *
+                Job & Permissions * {/* Updated from Role to Job */}
               </label>
               <div className="space-y-3">
                 {availableRoles.map((role) => (

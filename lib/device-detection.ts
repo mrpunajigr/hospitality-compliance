@@ -48,8 +48,11 @@ export interface DeviceInfo {
 export function detectDevice(userAgent?: string): DeviceInfo {
   const ua = userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : '')
   
-  // Basic device type detection
-  const isIPad = /iPad/.test(ua) || (navigator?.platform === 'MacIntel' && navigator?.maxTouchPoints > 1)
+  // Enhanced iOS device type detection
+  const isIPad = /iPad/.test(ua) || 
+    (navigator?.platform === 'MacIntel' && navigator?.maxTouchPoints > 1) ||
+    (navigator?.userAgent?.includes('Macintosh') && 'ontouchend' in document)
+  
   const isIPhone = /iPhone/.test(ua)
   const isAndroid = /Android/.test(ua)
   const isMobile = /Mobile|Android|iPhone/.test(ua) && !isIPad

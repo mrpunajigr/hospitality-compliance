@@ -9,6 +9,8 @@ import { getAdminBackground } from '@/lib/image-storage'
 import AppleSidebar from '@/app/components/AppleSidebar'
 import { PlatformProvider } from '@/lib/platform-context'
 import ConsoleToggle from '@/app/components/ConsoleToggle'
+import { DeviceProvider } from '@/contexts/DeviceContext'
+import { ResponsiveLayout } from '@/app/components/ResponsiveLayout'
 
 export default function AdminLayout({
   children,
@@ -107,16 +109,8 @@ export default function AdminLayout({
   }
 
   return (
-    <div>
+    <DeviceProvider userId={user?.id}>
       <div className="min-h-screen relative" style={{background: 'transparent'}}>
-        {/* Glassmorphic overlay for admin module - TEMPORARILY DISABLED */}
-        {/* <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/50" style={{ zIndex: 1 }} /> */}
-        
-        {/* Pattern overlay for visual interest - TEMPORARILY DISABLED */}
-        {/* <div className="fixed inset-0 opacity-10" style={{ 
-          zIndex: 1,
-          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)'
-        }} /> */}
         {/* Apple-style Sidebar */}
         <div className="relative" style={{ zIndex: 10 }}>
           <AppleSidebar 
@@ -128,16 +122,16 @@ export default function AdminLayout({
           />
         </div>
 
-        {/* Main content with sidebar offset */}
-        <div className="min-h-screen" style={{ zIndex: 1000, background: 'transparent', marginLeft: '150px' }}>
-          <main className="w-full">
+        {/* Main content with responsive sidebar offset */}
+        <ResponsiveLayout style={{ zIndex: 1000, background: 'transparent' }}>
+          <main className="w-full min-h-screen">
             {children}
           </main>
-        </div>
+        </ResponsiveLayout>
         
         {/* Console Toggle for Testing */}
         <ConsoleToggle />
       </div>
-    </div>
+    </DeviceProvider>
   )
 }
