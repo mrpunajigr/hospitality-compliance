@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { getVersionDisplay } from '@/lib/version'
 import { logger } from '@/lib/console-utils'
 import { useDevice } from '@/contexts/DeviceContext'
+import { ModulesPopOut } from './ModulesPopOut'
 
 interface SidebarNavItem {
   name: string
@@ -80,6 +81,8 @@ export default function AppleSidebar({
   const pathname = usePathname()
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [showModulesPopOut, setShowModulesPopOut] = useState(false)
+  const [modulesButtonRef, setModulesButtonRef] = useState<HTMLElement | null>(null)
   
   // Use device context instead of manual detection
   const {
@@ -196,7 +199,7 @@ export default function AppleSidebar({
         {/* Header - Company Logo */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-center">
-            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden">
               <img 
                 src={effectiveLogoUrl}
                 alt={logoUrl ? "Company Logo" : "JiGR Default Logo"} 
@@ -257,133 +260,25 @@ export default function AppleSidebar({
 
           {/* MIDDLE THIRD: MODULES */}
           <div className="flex-1 flex flex-col justify-center py-2">
-            <nav className={sidebarCollapsed ? 'space-y-2' : 'space-y-1 px-3'}>
-              {sidebarCollapsed ? (
-                <>
-                  {/* Collapsed: Modules icon with click to expand */}
-                  <div 
-                    className="flex justify-center items-center py-3 cursor-pointer hover:bg-white/10 rounded-lg transition-all duration-200"
-                    onClick={() => setSidebarCollapsed(false)}
-                    title="Click to view modules"
-                  >
-                    <img 
-                      src={getMappedIcon('JiGRmodules', 48)} 
-                      alt="Modules" 
-                      className="w-12 h-12 object-contain brightness-0 invert"
-                      onError={(e) => {
-                        logger.error('Failed to load JiGRmodules.png:', e);
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      onLoad={() => logger.debug('JiGRmodules.png loaded successfully')}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Expanded: Modules icon on left + 2x2 grid */}
-                  <div 
-                    className="flex items-center justify-between py-2 px-2"
-                    onMouseLeave={() => setSidebarCollapsed(true)}
-                  >
-                    {/* Modules icon - stays on left */}
-                    <div className="flex-shrink-0">
-                      <img 
-                        src={getMappedIcon('JiGRmodules', 48)} 
-                        alt="Modules" 
-                        className="w-12 h-12 object-contain brightness-0 invert"
-                        title="Modules - Access all application features"
-                        onError={(e) => {
-                          logger.error('Failed to load JiGRmodules.png (expanded):', e);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                        onLoad={() => logger.debug('JiGRmodules.png (expanded) loaded successfully')}
-                      />
-                    </div>
-                    
-                    {/* 3x3 Grid of module icons - centered */}
-                    <div className="grid grid-cols-3 grid-rows-3 gap-1">
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRuploadWhite', 40)} 
-                          alt="Upload Module" 
-                          className="w-10 h-10 object-contain"
-                          title="Upload Module - Document scanning and processing"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRstockWhite', 40)} 
-                          alt="Stock Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Stock Module - Inventory management and tracking"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRtemp', 40)} 
-                          alt="Temperature Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Temperature Module - Fridge and freezer monitoring"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRrepairs', 40)} 
-                          alt="Repairs Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Repairs Module - Equipment maintenance and repair tracking"
-                        />
-                      </div>
-                      <button 
-                        onClick={() => window.location.href = '/admin/console'}
-                        className="flex justify-center items-center p-1 hover:bg-white/10 rounded-lg transition-all duration-200"
-                        title="Admin Module - User management and system settings"
-                      >
-                        <img 
-                          src={getMappedIcon('JiGRadmin2', 40)} 
-                          alt="Admin Module" 
-                          className="w-10 h-10 object-contain"
-                        />
-                      </button>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRmenus', 40)} 
-                          alt="Menus Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Menus Module - Menu management and recipe planning"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRdiaryWhite', 40)} 
-                          alt="Diary Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Diary Module - Daily logs and incident reporting"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRrecipes', 40)} 
-                          alt="Recipes Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Recipes Module - Recipe management and costing"
-                        />
-                      </div>
-                      <div className="flex justify-center items-center p-1">
-                        <img 
-                          src={getMappedIcon('JiGRstocktake', 40)} 
-                          alt="Stocktake Module" 
-                          className="w-10 h-10 object-contain opacity-30"
-                          title="Stocktake Module - Periodic inventory audits"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Right spacer for balance */}
-                    <div className="flex-shrink-0 w-12"></div>
-                  </div>
-                </>
-              )}
+            <nav className="space-y-2">
+              {/* Modules icon with click to show pop-out */}
+              <div 
+                ref={(el) => setModulesButtonRef(el)}
+                className="flex justify-center items-center py-3 cursor-pointer hover:bg-white/10 rounded-lg transition-all duration-200"
+                onClick={() => setShowModulesPopOut(true)}
+                title="Click to view modules"
+              >
+                <img 
+                  src={getMappedIcon('JiGRmodules', 48)} 
+                  alt="Modules" 
+                  className="w-12 h-12 object-contain brightness-0 invert"
+                  onError={(e) => {
+                    logger.error('Failed to load JiGRmodules.png:', e);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  onLoad={() => logger.debug('JiGRmodules.png loaded successfully')}
+                />
+              </div>
             </nav>
           </div>
 
@@ -503,6 +398,13 @@ export default function AppleSidebar({
           </svg>
         </button>
       )}
+
+      {/* Modules Pop-out */}
+      <ModulesPopOut 
+        isVisible={showModulesPopOut}
+        onClose={() => setShowModulesPopOut(false)}
+        triggerElement={modulesButtonRef}
+      />
     </>
   )
 }

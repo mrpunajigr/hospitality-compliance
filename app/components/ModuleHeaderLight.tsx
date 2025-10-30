@@ -52,8 +52,8 @@ export function ModuleHeaderLight({
         </div>
       </div>
       
-      {/* Navigation Pills - Below Title, Centered */}
-      <div className="flex justify-center mb-8">
+      {/* Navigation Pills - Below Title, Left Aligned */}
+      <div className="flex justify-start mb-8">
         <div className="flex space-x-0.5 bg-black/20 p-0.5 rounded-full backdrop-blur-md border border-white/20 w-full max-w-md">
           {module.pages.map((page) => {
             const isActive = page.key === currentPage
