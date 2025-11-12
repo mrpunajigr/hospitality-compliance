@@ -6,7 +6,7 @@ interface ModuleCardProps {
   className?: string
   hover?: boolean
   onClick?: () => void
-  theme?: 'upload' | 'admin' | 'default'
+  theme?: 'upload' | 'admin' | 'default' | 'light'
 }
 
 export function ModuleCard({ 
@@ -44,7 +44,7 @@ export function StatCard({
   children: React.ReactNode
   className?: string
   accentColor?: 'blue' | 'purple' | 'green' | 'yellow' | 'orange'
-  theme?: 'upload' | 'admin' | 'default'
+  theme?: 'upload' | 'admin' | 'default' | 'light'
 }) {
   const accentColors = {
     blue: 'bg-blue-500/10',
@@ -74,7 +74,7 @@ export function ActionCard({
   className?: string
   onClick?: () => void
   disabled?: boolean
-  theme?: 'upload' | 'admin' | 'default'
+  theme?: 'upload' | 'admin' | 'default' | 'light'
 }) {
   return (
     <ModuleCard 

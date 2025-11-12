@@ -57,8 +57,25 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     title: 'STOCK',
     description: 'Inventory management and tracking',
     iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRstockWhite.png',
-    pages: createModulePages('stock'),
-    isActive: false
+    pages: [
+      {
+        key: 'items',
+        label: 'Items',
+        href: '/stock/items'
+      },
+      {
+        key: 'console',
+        label: 'Console', 
+        href: '/stock/console'
+      },
+      {
+        key: 'reports',
+        label: 'Reports',
+        href: '/stock/reports'
+      }
+    ],
+    isActive: true,
+    theme: 'light' // Light text for dark backgrounds
   },
   
   temperature: {
@@ -111,6 +128,32 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     isActive: false
   },
   
+  count: {
+    key: 'count',
+    title: 'COUNT',
+    description: 'Stocktake and inventory counting',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRstocktake.png',
+    pages: [
+      {
+        key: 'new',
+        label: 'New Count',
+        href: '/count/new'
+      },
+      {
+        key: 'console',
+        label: 'Console',
+        href: '/count/console'
+      },
+      {
+        key: 'history',
+        label: 'History',
+        href: '/count/history'
+      }
+    ],
+    isActive: true,
+    theme: 'light' // Light text for dark backgrounds
+  },
+
   dev: {
     key: 'dev',
     title: 'DEV',
