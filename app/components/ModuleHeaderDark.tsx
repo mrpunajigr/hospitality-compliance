@@ -8,8 +8,13 @@
 'use client'
 
 import Image from 'next/image'
+import { useState, useContext, useEffect } from 'react'
 import { getTextStyle } from '@/lib/design-system'
 import { ModuleConfig } from '@/lib/module-config'
+import { HamburgerDropdown } from './HamburgerDropdown'
+import { UserAvatarDropdown } from './UserAvatarDropdown'
+import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/console-utils'
 
 interface OnboardingData {
   userFirstName: string
@@ -20,14 +25,62 @@ interface ModuleHeaderDarkProps {
   currentPage: string
   className?: string
   onboardingData?: OnboardingData
+  user?: any
+  userClient?: any
+  onSignOut?: () => void
 }
 
 export function ModuleHeaderDark({ 
   module, 
   currentPage, 
   className = '',
-  onboardingData 
+  onboardingData,
+  user,
+  userClient,
+  onSignOut
 }: ModuleHeaderDarkProps) {
+  const [showHamburgerDropdown, setShowHamburgerDropdown] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+
+  // Copy exact avatar loading logic from AppleSidebar
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (user?.id) {
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', user.id)
+            .single()
+          
+          if (profileData?.avatar_url) {
+            setUserAvatar(profileData.avatar_url)
+            logger.debug('MODULE HEADER: User avatar loaded from profiles table:', profileData.avatar_url)
+          } else {
+            logger.debug('MODULE HEADER: No avatar found in profiles table')
+          }
+        } catch (error) {
+          logger.debug('MODULE HEADER: Could not fetch user avatar', error)
+        }
+      }
+    }
+    
+    fetchUserAvatar()
+
+    // Listen for avatar updates (same as sidebar)
+    const handleAvatarUpdate = (event: any) => {
+      const { avatarUrl } = event.detail
+      setUserAvatar(avatarUrl)
+      logger.debug('MODULE HEADER: Avatar updated via event:', avatarUrl)
+    }
+
+    window.addEventListener('userAvatarUpdated', handleAvatarUpdate)
+    
+    return () => {
+      window.removeEventListener('userAvatarUpdated', handleAvatarUpdate)
+    }
+  }, [user?.id])
   console.log('🔍 ModuleHeaderDark rendering:', {
     moduleKey: module.key,
     moduleTitle: module.title,
@@ -37,26 +90,80 @@ export function ModuleHeaderDark({
   })
   
   return (
-    <div className={`mb-16 ${className}`}>
-      {/* Module Icon and Title - Full Width */}
-      <div className="flex items-center space-x-4 mb-6">
-        <div className="relative">
-          <Image 
-            src={module.iconUrl} 
-            alt={`${module.title} Module`} 
-            width={96} 
-            height={96}
-            className="object-contain"
-            unoptimized={module.key === 'admin'}
-          />
+    <>
+      <div className={`mb-16 ${className}`}>
+      {/* Module Icon, Title, and Navigation Controls */}
+      <div className="flex items-center justify-between mb-6">
+        {/* Left Side: Icon + Title */}
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Image 
+              src={module.iconUrl} 
+              alt={`${module.title} Module`} 
+              width={96} 
+              height={96}
+              className="object-contain"
+              unoptimized={module.key === 'admin'}
+            />
+          </div>
+          <div>
+            <h1 className="text-black drop-shadow-md text-4xl font-bold">
+              {module.title}
+            </h1>
+            <p className="text-gray-700/90 drop-shadow-sm italic text-xs">
+              {module.description}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-black drop-shadow-md text-4xl font-bold">
-            {module.title}
-          </h1>
-          <p className="text-gray-700/90 drop-shadow-sm italic text-xs">
-            {module.description}
-          </p>
+
+        {/* Right Side: Hamburger + User Avatar */}
+        <div className="flex items-center space-x-4">
+          {/* Hamburger Menu Button */}
+          <button
+            onClick={() => setShowHamburgerDropdown(!showHamburgerDropdown)}
+            className="p-3 hover:bg-black/10 rounded-lg transition-all duration-200 TouchTarget border border-gray-300/40"
+            title="Navigation Menu"
+          >
+            <img 
+              src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/hamburger.png"
+              alt="Menu" 
+              className="w-6 h-6 object-contain"
+            />
+          </button>
+
+          {/* User Avatar - Clickable with dropdown */}
+          <button
+            onClick={() => setShowUserDropdown(!showUserDropdown)}
+            className="relative"
+            title={`User Profile - Edit your profile information${userClient?.champion_enrolled ? ' | Hero User' : ''}`}
+          >
+            <div className="bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 overflow-hidden flex-shrink-0 w-12 h-12 cursor-pointer hover:bg-white/30 transition-all duration-200">
+              {userAvatar ? (
+                <img 
+                  src={userAvatar} 
+                  alt="User Avatar" 
+                  className="w-full h-full object-cover"
+                  onLoad={() => logger.debug('MODULE HEADER: User avatar loaded successfully')}
+                  onError={() => logger.debug('MODULE HEADER: User avatar failed to load, showing initials')}
+                />
+              ) : (
+                <span className="text-white font-bold text-lg">
+                  {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </span>
+              )}
+            </div>
+            
+            {/* Hero Badge - same as sidebar */}
+            {userClient?.champion_enrolled && (
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-2 border-white/30 shadow-lg">
+                <img 
+                  src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/trophy.svg"
+                  alt="Hero"
+                  className="w-4 h-4 object-contain"
+                />
+              </div>
+            )}
+          </button>
         </div>
       </div>
       
@@ -123,6 +230,22 @@ export function ModuleHeaderDark({
           </div>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Dropdowns - Both hamburger and user avatar */}
+      <HamburgerDropdown 
+        isOpen={showHamburgerDropdown}
+        onClose={() => setShowHamburgerDropdown(false)}
+        currentModule={module.key}
+      />
+      
+      <UserAvatarDropdown 
+        isOpen={showUserDropdown}
+        onClose={() => setShowUserDropdown(false)}
+        user={user}
+        userClient={userClient}
+        onSignOut={onSignOut}
+      />
+    </>
   )
 }

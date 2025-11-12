@@ -11,6 +11,7 @@ import { PlatformProvider } from '@/lib/platform-context'
 import ConsoleToggle from '@/app/components/ConsoleToggle'
 import { DeviceProvider } from '@/contexts/DeviceContext'
 import { ResponsiveLayout } from '@/app/components/ResponsiveLayout'
+import { UniversalTopNav } from '@/app/components/UniversalTopNav'
 
 export default function AdminLayout({
   children,
@@ -111,7 +112,8 @@ export default function AdminLayout({
   return (
     <DeviceProvider userId={user?.id}>
       <div className="min-h-screen relative" style={{background: 'transparent'}}>
-        {/* Apple-style Sidebar */}
+        {/* SIDEBAR DISABLED - Using ModuleHeader navigation instead */}
+        {/* 
         <div className="relative" style={{ zIndex: 10 }}>
           <AppleSidebar 
             user={user}
@@ -121,13 +123,12 @@ export default function AdminLayout({
             activeSection="admin"
           />
         </div>
+        */}
 
-        {/* Main content with responsive sidebar offset */}
-        <ResponsiveLayout style={{ zIndex: 1000, background: 'transparent' }}>
-          <main className="w-full min-h-screen">
-            {children}
-          </main>
-        </ResponsiveLayout>
+        {/* Main content - Full width without sidebar offset */}
+        <main className="w-full min-h-screen" style={{ zIndex: 1000, background: 'transparent' }}>
+          {children}
+        </main>
         
         {/* Console Toggle for Testing */}
         <ConsoleToggle />

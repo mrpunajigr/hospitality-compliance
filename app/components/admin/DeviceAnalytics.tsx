@@ -64,7 +64,7 @@ export default function DeviceAnalytics() {
 
   if (loading) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+      <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Device Analytics</h3>
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => (
@@ -77,7 +77,7 @@ export default function DeviceAnalytics() {
 
   if (error) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+      <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Device Analytics</h3>
         <div className="text-red-300 text-sm">
           Error loading analytics: {error}
@@ -88,7 +88,7 @@ export default function DeviceAnalytics() {
 
   if (!stats) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+      <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Device Analytics</h3>
         <div className="text-white/60 text-sm">
           No device data available yet. Data will appear after users log in.
@@ -110,12 +110,12 @@ export default function DeviceAnalytics() {
     : 0
 
   return (
-    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+    <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-6">
       <h3 className="text-lg font-semibold text-white mb-6">Device Analytics</h3>
       
       {/* Summary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white/5 rounded-lg p-4 text-center">
+        <div className="bg-white/15 rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
           <div className="text-sm text-white/70">Total Users</div>
         </div>

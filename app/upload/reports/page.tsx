@@ -101,7 +101,7 @@ export default function UploadReportsPage() {
               <StatCard accentColor="blue" theme="upload">
                 <div>
                   <div className="flex items-center justify-center mb-4">
-                    <h2 className="text-white text-lg font-semibold text-center w-full">Weekly Summary</h2>
+                    <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Weekly Summary</h2>
                   </div>
                   <div className="text-center mb-6">
                     <img 
@@ -125,7 +125,7 @@ export default function UploadReportsPage() {
               <StatCard accentColor="orange" theme="upload">
                 <div>
                   <div className="flex items-center justify-center mb-4">
-                    <h2 className="text-white text-lg font-semibold text-center w-full">Violation Report</h2>
+                    <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Violation Report</h2>
                   </div>
                   <div className="text-center mb-6">
                     <img 
@@ -149,7 +149,7 @@ export default function UploadReportsPage() {
               <StatCard accentColor="green" theme="upload">
                 <div>
                   <div className="flex items-center justify-center mb-4">
-                    <h2 className="text-white text-lg font-semibold text-center w-full">Report Statistics</h2>
+                    <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Report Statistics</h2>
                   </div>
                   <div className="text-center mb-6">
                     <img 
@@ -195,7 +195,7 @@ export default function UploadReportsPage() {
                 <div>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <select className="w-full px-3 py-3 bg-[#2d2e4a]/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="7">Last 7 days</option>
                         <option value="30">Last 30 days</option>
                         <option value="90">Last 3 months</option>
@@ -204,7 +204,7 @@ export default function UploadReportsPage() {
                     </div>
                     
                     <div>
-                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <select className="w-full px-3 py-3 bg-[#2d2e4a]/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="compliance">Full Compliance</option>
                         <option value="violations">Violations Only</option>
                         <option value="delivery">Delivery Summary</option>
@@ -213,7 +213,7 @@ export default function UploadReportsPage() {
                     </div>
                     
                     <div>
-                      <select className="w-full px-3 py-3 bg-black/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <select className="w-full px-3 py-3 bg-[#2d2e4a]/40 border border-white/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="pdf">PDF Report</option>
                         <option value="csv">CSV Export</option>
                         <option value="excel">Excel Workbook</option>
@@ -243,8 +243,8 @@ export default function UploadReportsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
-                    <h4 className="font-medium text-black">Weekly Summary - Aug 13-19, 2025</h4>
-                    <p className="text-sm text-black/80">Generated on Aug 19, 2025 • 47 deliveries processed</p>
+                    <h4 className="font-medium text-[#2d2e4a]">Weekly Summary - Aug 13-19, 2025</h4>
+                    <p className="text-sm text-[#2d2e4a]/80">Generated on Aug 19, 2025 • 47 deliveries processed</p>
                   </div>
                   <div className="flex space-x-2">
                     <button className="text-blue-300 hover:text-white text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-600/20 transition-all">
@@ -258,8 +258,8 @@ export default function UploadReportsPage() {
 
                 <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
-                    <h4 className="font-medium text-black">Delivery Violations - August 2025</h4>
-                    <p className="text-sm text-black/80">Generated on Aug 15, 2025 • 3 violations detected</p>
+                    <h4 className="font-medium text-[#2d2e4a]">Delivery Violations - August 2025</h4>
+                    <p className="text-sm text-[#2d2e4a]/80">Generated on Aug 15, 2025 • 3 violations detected</p>
                   </div>
                   <div className="flex space-x-2">
                     <button className="text-blue-300 hover:text-white text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-600/20 transition-all">
@@ -273,8 +273,8 @@ export default function UploadReportsPage() {
 
                 <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl hover:bg-white/20 transition-all duration-200">
                   <div>
-                    <h4 className="font-medium text-black">Monthly Compliance - July 2025</h4>
-                    <p className="text-sm text-black/80">Generated on Aug 1, 2025 • 98.2% compliance rate</p>
+                    <h4 className="font-medium text-[#2d2e4a]">Monthly Compliance - July 2025</h4>
+                    <p className="text-sm text-[#2d2e4a]/80">Generated on Aug 1, 2025 • 98.2% compliance rate</p>
                   </div>
                   <div className="flex space-x-2">
                     <button className="text-blue-300 hover:text-white text-sm font-medium px-3 py-1 rounded-lg hover:bg-blue-600/20 transition-all">

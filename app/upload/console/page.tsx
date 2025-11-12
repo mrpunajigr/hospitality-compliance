@@ -544,7 +544,7 @@ export default function UploadConsolePage() {
                     <div className="flex items-center justify-center py-8">
                       <div className="text-center">
                         <div className="text-white/60 text-2xl mb-2">📄</div>
-                        <h3 className="text-white text-sm font-medium">No uploads today</h3>
+                        <h3 className="text-[#2d2e4a] text-sm font-medium">No uploads today</h3>
                         <p className="text-white/60 text-xs">Visit capture page to upload documents</p>
                       </div>
                     </div>

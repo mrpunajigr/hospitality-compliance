@@ -22,46 +22,53 @@ import type {
 export const DesignTokens = {
   // Color System
   colors: {
+    // Primary brand colors
+    primary: {
+      dark: '#2d2e4a',                      // New primary dark color
+      darkRgb: '45, 46, 74',               // RGB values for opacity usage
+    },
+    
     // Glass Morphism Effects
     glass: {
-      // Card backgrounds
-      cardPrimary: 'bg-white/15',           // Main content cards
-      cardSecondary: 'bg-white/10',         // Secondary cards  
+      // Card backgrounds - Enhanced opacity for watermark readability
+      cardPrimary: 'bg-white/25',           // Main content cards (increased from 15%)
+      cardSecondary: 'bg-white/20',         // Secondary cards (increased from 10%)
       cardSolid: 'bg-white/90',            // Form inputs
-      cardSidebar: 'bg-white/20',          // Quick actions, sidebar items
+      cardSidebar: 'bg-white/30',          // Quick actions, sidebar items (increased from 20%)
       
-      // Borders
+      // Borders - Using new primary dark color
       borderLight: 'border-white/20',       // Standard borders
       borderMedium: 'border-white/30',      // Input borders
       borderStrong: 'border-white/40',      // Emphasized borders
+      borderDark: 'border-[#2d2e4a]/10',   // Subtle dark borders for cards
       
-      // Overlays
-      overlayLight: 'bg-black/20',          // Light overlay
-      overlayMedium: 'bg-black/40',         // Header overlays
-      overlayStrong: 'bg-black/70',         // Navigation containers
+      // Overlays - Using new primary dark color
+      overlayLight: 'bg-[#2d2e4a]/20',     // Light overlay (was bg-black/20)
+      overlayMedium: 'bg-[#2d2e4a]/40',    // Header overlays (was bg-black/40)
+      overlayStrong: 'bg-[#2d2e4a]/70',    // Navigation containers (was bg-black/70)
     },
     
-    // Text Colors
+    // Text Colors - Enhanced for watermark readability
     text: {
-      // On glass/dark backgrounds
+      // On glass/dark backgrounds - Enhanced opacity for better readability
       onGlass: 'text-white',
-      onGlassSecondary: 'text-white/90',
-      onGlassMuted: 'text-white/70',
+      onGlassSecondary: 'text-white/90',      // Increased from 90%
+      onGlassMuted: 'text-white/80',          // Increased from 70% to 80%
       
-      // On solid/light backgrounds  
-      onSolid: 'text-black',
-      onSolidSecondary: 'text-gray-800',
-      onSolidMuted: 'text-gray-600',
+      // On solid/light backgrounds - Using new primary dark color
+      onSolid: 'text-[#2d2e4a]',             // Was text-black
+      onSolidSecondary: 'text-[#2d2e4a]/80', // Was text-gray-800
+      onSolidMuted: 'text-[#2d2e4a]/60',     // Was text-gray-600
       
-      // Navigation specific
-      navActive: 'text-black',
-      navInactive: 'text-black/80',
-      navHover: 'text-black',
+      // Navigation specific - Using new primary dark color
+      navActive: 'text-[#2d2e4a]',           // Was text-black
+      navInactive: 'text-[#2d2e4a]/80',      // Was text-black/80
+      navHover: 'text-[#2d2e4a]',            // Was text-black
       
-      // Form elements
-      formLabel: 'text-white',
-      formInput: 'text-black',
-      formPlaceholder: 'placeholder-gray-600',
+      // Form elements - Enhanced for better contrast
+      formLabel: 'text-white/90',             // Increased from text-white
+      formInput: 'text-[#2d2e4a]',           // Was text-black
+      formPlaceholder: 'placeholder-[#2d2e4a]/60', // Was placeholder-gray-600
     },
     
     // Status Colors

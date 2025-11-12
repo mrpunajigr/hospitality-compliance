@@ -166,7 +166,7 @@ export default function StorageConfigCard() {
 
   if (loading) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+      <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <h3 className="text-black text-lg font-semibold">Storage</h3>
@@ -181,12 +181,12 @@ export default function StorageConfigCard() {
   }
 
   return (
-    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+    <div className="bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <h3 className="text-black text-lg font-semibold">Storage</h3>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/10 border border-white/20 cursor-help">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/25 border border-white/20 cursor-help">
             <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
             <span className="font-medium text-orange-400 text-xs">High</span>
           </div>

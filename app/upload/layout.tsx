@@ -7,7 +7,7 @@ import { getChefWorkspaceBackground } from '@/lib/image-storage'
 import AppleSidebar from '../components/AppleSidebar'
 import { getUserClient, UserClient } from '@/lib/auth-utils'
 import BackgroundSelector from '../components/BackgroundSelector'
-// import { PlatformProvider } from '@/lib/platform-context' // Temporarily disabled for quick deployment
+import { DeviceProvider } from '@/contexts/DeviceContext'
 interface UploadLayoutProps {children: React.ReactNode}
 
 export default function UploadLayout({ children }: UploadLayoutProps) {
@@ -75,7 +75,7 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
   }
 
   return (
-    // <PlatformProvider> // Temporarily disabled for quick deployment
+    <DeviceProvider userId={user?.id}>
       <div className="min-h-screen relative ContentArea">
         {/* Background overlay for upload module */}
         
@@ -84,36 +84,41 @@ export default function UploadLayout({ children }: UploadLayoutProps) {
           zIndex: 1,
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)'
         }} />
-{showBackgroundSelector && (
-        <BackgroundSelector 
-          selectedBackground=""
-          onBackgroundChange={() => {}}
-          onClose={() => setShowBackgroundSelector(false)}
-        />
-      )}
+
+        {/* Background Selector - Keep for future use */}
+        {showBackgroundSelector && (
+          <BackgroundSelector 
+            selectedBackground=""
+            onBackgroundChange={() => {}}
+            onClose={() => setShowBackgroundSelector(false)}
+          />
+        )}
       
-      <div className="relative" style={{ zIndex: 10 }}>
-        <AppleSidebar
-          user={user}
-          userClient={userClient}
-          onSignOut={handleSignOut}
-          logoUrl={companyLogoUrl || userClient?.logo_url}
-          activeSection="upload"
-          currentUploadPage={
-            pathname.includes('/training') ? 'training' :
-            pathname.includes('/console') ? 'console' : 
-            pathname.includes('/capture') ? 'capture' : 
-            pathname.includes('/reports') ? 'reports' : 'console'
-          }
-          onBackgroundSelectorToggle={() => setShowBackgroundSelector(!showBackgroundSelector)}
-        />
-      </div>
+        {/* SIDEBAR DISABLED - Using ModuleHeader navigation instead */}
+        {/*
+        <div className="relative" style={{ zIndex: 10 }}>
+          <AppleSidebar
+            user={user}
+            userClient={userClient}
+            onSignOut={handleSignOut}
+            logoUrl={companyLogoUrl || userClient?.logo_url}
+            activeSection="upload"
+            currentUploadPage={
+              pathname.includes('/training') ? 'training' :
+              pathname.includes('/console') ? 'console' : 
+              pathname.includes('/capture') ? 'capture' : 
+              pathname.includes('/reports') ? 'reports' : 'console'
+            }
+            onBackgroundSelectorToggle={() => setShowBackgroundSelector(!showBackgroundSelector)}
+          />
+        </div>
+        */}
       
-      {/* Main Content */}
-      <div className="min-h-screen relative" style={{ zIndex: 5, marginLeft: '150px' }}>
-        {children}
+        {/* Main Content - Full width without sidebar offset */}
+        <div className="min-h-screen relative w-full" style={{ zIndex: 5 }}>
+          {children}
+        </div>
       </div>
-      </div>
-    // </PlatformProvider> // Temporarily disabled for quick deployment  
+    </DeviceProvider>
   )
 }

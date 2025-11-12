@@ -397,7 +397,7 @@ export default function UploadActionPage() {
         <StatCard accentColor="blue" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Quick Capture</h2>
+              <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Quick Capture</h2>
             </div>
             <div className="text-center mb-6">
               <img 
@@ -427,7 +427,7 @@ export default function UploadActionPage() {
         <StatCard accentColor="purple" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Bulk Upload</h2>
+              <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Bulk Upload</h2>
             </div>
             <div className="text-center mb-6">
               <img 
@@ -464,7 +464,7 @@ export default function UploadActionPage() {
         <StatCard accentColor="green" theme="upload">
           <div>
             <div className="flex items-center justify-center mb-4">
-              <h2 className="text-white text-lg font-semibold text-center w-full">Ready Queue</h2>
+              <h2 className="text-[#2d2e4a] text-lg font-semibold text-center w-full">Ready Queue</h2>
             </div>
             <div className="text-center mb-6">
               <img 

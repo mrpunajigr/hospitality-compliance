@@ -122,7 +122,7 @@ export default function ConfigCard({
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-2 rounded-lg bg-white/25 hover:bg-white/20 transition-colors"
           >
             <img 
               src="https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/expand.png"
@@ -198,7 +198,7 @@ export function SecurityBadge({ level, size = 'sm' }: { level: SecurityLevel['le
 
   return (
     <div 
-      className={`inline-flex items-center gap-1.5 ${sizeClasses[size]} rounded-full bg-white/10 border border-white/20 cursor-help`}
+      className={`inline-flex items-center gap-1.5 ${sizeClasses[size]} rounded-full bg-white/25 border border-white/20 cursor-help`}
       title={`${securityInfo.label}: ${securityInfo.description}`}
     >
       <div className={`w-1.5 h-1.5 rounded-full ${securityInfo.color.replace('text-', 'bg-')}`} />

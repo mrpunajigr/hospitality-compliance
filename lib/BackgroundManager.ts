@@ -42,7 +42,8 @@ export function useModuleBackground() {
     console.log('🎨 BackgroundManager:', {
       pathname,
       backgroundPath,
-      exact: !!EXACT_PATH_BACKGROUNDS[pathname]
+      exact: !!EXACT_PATH_BACKGROUNDS[pathname],
+      watermark: pathname.startsWith('/admin') || pathname.startsWith('/upload')
     })
     
     const backgroundUrl = getStorageImageUrl(
@@ -64,9 +65,19 @@ export function useModuleBackground() {
       existingDiv.remove()
     }
     
+    // Determine if this is an Admin or Upload module for watermark effect
+    const isWatermarkModule = pathname.startsWith('/admin') || pathname.startsWith('/upload')
+    
     // Create background div with POSITIVE z-index to work with all layouts
     const bgDiv = document.createElement('div')
     bgDiv.id = 'dynamic-background'
+    
+    // Apply watermark effect for Admin & Upload modules
+    const watermarkStyles = isWatermarkModule ? `
+      opacity: 0.4;
+      filter: brightness(1.1) contrast(0.8);
+    ` : ''
+    
     bgDiv.style.cssText = `
       position: fixed;
       top: 0;
@@ -83,6 +94,7 @@ export function useModuleBackground() {
       pointer-events: none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      ${watermarkStyles}
     `
     
     // Insert at beginning of body

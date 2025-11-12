@@ -49,8 +49,27 @@ export default function AdminConsolePage() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
       if (sessionError || !session?.user) {
-        // No authenticated user - redirect to home/login
-        window.location.href = '/'
+        console.log('❌ ADMIN CONSOLE: No authenticated user found in session')
+        // TEMPORARILY DISABLED FOR DEBUGGING: window.location.href = '/'
+        console.log('⚠️ ADMIN CONSOLE: Redirect disabled for debugging')
+        
+        // Set default user data for testing
+        setUser({ 
+          id: 'test-user', 
+          email: 'test@jigr.app',
+          user_metadata: { 
+            full_name: 'Test User',
+            avatar_url: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRlogo.png'
+          }
+        })
+        setUserClient({
+          id: 'test-client',
+          name: 'Test Company',
+          owner_name: 'Test Owner', 
+          address: '123 Test Street, Test City',
+          role: 'OWNER'
+        })
+        setLoading(false)
         return
       }
 
@@ -135,7 +154,7 @@ export default function AdminConsolePage() {
   }
 
   return (
-    <div className="px-2 sm:px-4 lg:px-6 pt-16 pb-8">
+    <div className="px-4 sm:px-8 lg:px-12 pt-16 pb-8">
       
       {/* Standardized Module Header */}
       <ModuleHeader 
