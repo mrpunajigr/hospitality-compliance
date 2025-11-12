@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ModuleHeaderDark } from '../../components/ModuleHeaderDark'
 import { LoadingSpinner } from '../../components/LoadingSpinner'
@@ -18,7 +18,7 @@ import {
   ProductionResponse 
 } from '../../../types/RecipeTypes'
 
-export default function ProductionPage() {
+function ProductionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { session, loading: authLoading } = useAuth()
@@ -496,5 +496,13 @@ export default function ProductionPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function ProductionPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ProductionPageContent />
+    </Suspense>
   )
 }
