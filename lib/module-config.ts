@@ -46,7 +46,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'upload',
     title: 'UPLOAD',
     description: 'Document upload, processing, and compliance management',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleUpload.png',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleUpload.webp',
     pages: createModulePages('upload'),
     isActive: true,
     theme: 'light' // Light text for dark background
@@ -56,7 +56,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'stock', 
     title: 'STOCK',
     description: 'Inventory management and tracking',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRstockWhite.png',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleStock.webp',
     pages: [
       {
         key: 'items',
@@ -91,7 +91,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'admin',
     title: 'ADMIN',
     description: 'Configuring your operation',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRModuleAdmin.png?t=2025090922', 
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleAdmin.webp', 
     pages: [
       { key: 'console', label: 'Console', href: '/admin/console' },
       { key: 'configure', label: 'Configure', href: '/admin/configure' },
@@ -114,9 +114,26 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'recipes',
     title: 'RECIPES',
     description: 'Recipe management and costing',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRrecipes.png',
-    pages: createModulePages('recipes'), 
-    isActive: false
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleRecipe.webp',
+    pages: [
+      {
+        key: 'list',
+        label: 'Recipes',
+        href: '/recipes'
+      },
+      {
+        key: 'sub-recipes',
+        label: 'Sub-Recipes',
+        href: '/recipes/sub-recipes'
+      },
+      {
+        key: 'production',
+        label: 'Production',
+        href: '/recipes/production'
+      }
+    ], 
+    isActive: true,
+    theme: 'light' // Light text for dark backgrounds
   },
   
   stocktake: {
@@ -132,7 +149,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     key: 'count',
     title: 'COUNT',
     description: 'Stocktake and inventory counting',
-    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/module-assets/icons/JiGRstocktake.png',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleCount.webp',
     pages: [
       {
         key: 'new',
@@ -148,6 +165,32 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
         key: 'history',
         label: 'History',
         href: '/count/history'
+      }
+    ],
+    isActive: true,
+    theme: 'light' // Light text for dark backgrounds
+  },
+
+  menu: {
+    key: 'menu',
+    title: 'MENU',
+    description: 'Menu pricing and engineering analytics',
+    iconUrl: 'https://rggdywqnvpuwssluzfud.supabase.co/storage/v1/object/public/branding/icons/JiGRModuleMenu.webp',
+    pages: [
+      {
+        key: 'pricing',
+        label: 'Pricing',
+        href: '/menu/pricing'
+      },
+      {
+        key: 'engineering',
+        label: 'Engineering',
+        href: '/menu/engineering'
+      },
+      {
+        key: 'analysis',
+        label: 'Analysis',
+        href: '/menu/analysis'
       }
     ],
     isActive: true,
