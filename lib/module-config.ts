@@ -157,14 +157,14 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
         href: '/count/new'
       },
       {
-        key: 'console',
-        label: 'Console',
-        href: '/count/console'
-      },
-      {
         key: 'history',
         label: 'History',
         href: '/count/history'
+      },
+      {
+        key: 'variance',
+        label: 'Variance',
+        href: '/count/variance'
       }
     ],
     isActive: true,
